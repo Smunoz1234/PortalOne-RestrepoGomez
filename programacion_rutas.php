@@ -1,144 +1,150 @@
-<?php require_once("includes/conexion.php");
+<?php require_once "includes/conexion.php";
 PermitirAcceso(312);
-$sw=0;
+$sw = 0;
 
-$ParamSucursal=array(
-	"'".$_SESSION['CodUser']."'"
+$ParamSucursal = array(
+    "'" . $_SESSION['CodUser'] . "'",
 );
-$SQL_Suc=EjecutarSP('sp_ConsultarSucursalesUsuario',$ParamSucursal);
+$SQL_Suc = EjecutarSP('sp_ConsultarSucursalesUsuario', $ParamSucursal);
 
-$SQL_TiposEstadoServ=Seleccionar("uvw_tbl_TipoEstadoServicio","*");
-$Num_TiposEstadoServ=sqlsrv_num_rows($SQL_TiposEstadoServ);
+$SQL_TiposEstadoServ = Seleccionar("uvw_tbl_TipoEstadoServicio", "*");
+$Num_TiposEstadoServ = sqlsrv_num_rows($SQL_TiposEstadoServ);
 
 //$i=0;
-$FilRec="";
+$FilRec = "";
 //$Filtro="";
 
 //Fechas
-if(isset($_GET['FechaInicial'])&&$_GET['FechaInicial']!=""){
-	$FechaInicial=$_GET['FechaInicial'];
-	$sw=1;
-}else{
-	//Restar 7 dias a la fecha actual
-	$fecha = date('Y-m-d');
-	$nuevafecha = strtotime ('-'.ObtenerVariable("DiasRangoFechasDocSAP").' day');
-	$nuevafecha = date ( 'Y-m-d' , $nuevafecha);
-	$FechaInicial=$nuevafecha;
+if (isset($_GET['FechaInicial']) && $_GET['FechaInicial'] != "") {
+    $FechaInicial = $_GET['FechaInicial'];
+    $sw = 1;
+} else {
+    //Restar 7 dias a la fecha actual
+    $fecha = date('Y-m-d');
+    $nuevafecha = strtotime('-' . ObtenerVariable("DiasRangoFechasDocSAP") . ' day');
+    $nuevafecha = date('Y-m-d', $nuevafecha);
+    $FechaInicial = $nuevafecha;
 }
-if(isset($_GET['FechaFinal'])&&$_GET['FechaFinal']!=""){
-	$FechaFinal=$_GET['FechaFinal'];
-	$sw=1;
-}else{
-	//sumar 7 dias a la fecha actual
-	$fecha = date('Y-m-d');
-	$nuevafecha = strtotime ('+'.ObtenerVariable("DiasRangoFechasDocSAP").' day');
-	$nuevafecha = date ( 'Y-m-d' , $nuevafecha);
-	$FechaFinal=$nuevafecha;
+if (isset($_GET['FechaFinal']) && $_GET['FechaFinal'] != "") {
+    $FechaFinal = $_GET['FechaFinal'];
+    $sw = 1;
+} else {
+    //sumar 7 dias a la fecha actual
+    $fecha = date('Y-m-d');
+    $nuevafecha = strtotime('+' . ObtenerVariable("DiasRangoFechasDocSAP") . ' day');
+    $nuevafecha = date('Y-m-d', $nuevafecha);
+    $FechaFinal = $nuevafecha;
 }
 
 $Sede = isset($_GET['Sede']) ? $_GET['Sede'] : "";
 $Grupo = isset($_GET['Grupo']) ? $_GET['Grupo'] : "";
-$Recurso = isset($_GET['Recursos']) ? implode(',',$_GET['Recursos']) : "";
+$Recurso = isset($_GET['Recursos']) ? implode(',', $_GET['Recursos']) : "";
 $Cliente = isset($_GET['Cliente']) ? $_GET['Cliente'] : "";
 $NomSucursal = isset($_GET['Sucursal']) ? $_GET['Sucursal'] : "";
 
 //Lista de cargos de recursos (Tecnicos)
-$SQL_CargosRecursos=Seleccionar('uvw_Sap_tbl_Recursos','DISTINCT IdCargo, DeCargo',"CentroCosto3='".$Sede."'");
+$SQL_CargosRecursos = Seleccionar('uvw_Sap_tbl_Recursos', 'DISTINCT IdCargo, DeCargo', "CentroCosto3='" . $Sede . "'");
 
 //Lista de recursos (Tecnicos)
-$ParamRec=array(
-	"'".$_SESSION['CodUser']."'",
-	"'".$Sede."'",
-	"'".$Grupo."'"
+$ParamRec = array(
+    "'" . $_SESSION['CodUser'] . "'",
+    "'" . $Sede . "'",
+    "'" . $Grupo . "'",
 );
 
-$SQL_Recursos=EjecutarSP("sp_ConsultarTecnicos",$ParamRec);
+$SQL_Recursos = EjecutarSP("sp_ConsultarTecnicos", $ParamRec);
 
-if(isset($_GET['Recursos'])&&$_GET['Recursos']!=""){
-	$FilRec=implode(',',$_GET['Recursos']);
-	$sw=1;
+if (isset($_GET['Recursos']) && $_GET['Recursos'] != "") {
+    $FilRec = implode(',', $_GET['Recursos']);
+    $sw = 1;
 }
 
 //Consultar actividades
-if($sw==1){
-	$ParamEvento=array(
-		"'".$Sede."'",
-		//"'".$Recurso."'",
-		"'".$Cliente."'",
-		"'".$NomSucursal."'",
-		"'".FormatoFecha($FechaInicial)."'",
-		"'".FormatoFecha($FechaFinal)."'",
-		"'".$_SESSION['CodUser']."'"
-	);
+if ($sw == 1) {
+    $ParamEvento = array(
+        "'" . $Sede . "'",
+        //"'".$Recurso."'",
+        "'" . $Cliente . "'",
+        "'" . $NomSucursal . "'",
+        "'" . FormatoFecha($FechaInicial) . "'",
+        "'" . FormatoFecha($FechaFinal) . "'",
+        "'" . $_SESSION['CodUser'] . "'",
+    );
 
-	$SQL_Evento=EjecutarSP("sp_ConsultarDatosCalendarioRutas",$ParamEvento);
-	
-	//Obtengo el IdEvento
-	$row_Evento=sqlsrv_fetch_array($SQL_Evento);
+    $SQL_Evento = EjecutarSP("sp_ConsultarDatosCalendarioRutas", $ParamEvento);
 
-	$ParamCons=array(
-		"'".$Recurso."'",
-		"'".$Grupo."'",
-		"'".$row_Evento['IdEvento']."'",
-		"'".$_SESSION['CodUser']."'"
-	);
+    //Obtengo el IdEvento
+    $row_Evento = sqlsrv_fetch_array($SQL_Evento);
 
-	$SQL_Actividad=EjecutarSP("sp_ConsultarDatosCalendarioRutasRecargar",$ParamCons);
-	
-	//Consultamos la lista de OT pendientes
-	$ParamOT=array(
-		"1",
-		"'".$_SESSION['CodUser']."'",
-		"'".$row_Evento['IdEvento']."'",
-		"'".$Sede."'",
-		"'".$Cliente."'",
-		"'".$NomSucursal."'",
-		"'".FormatoFecha($FechaInicial)."'",
-		"'".FormatoFecha($FechaFinal)."'"
-	);
+    $ParamCons = array(
+        "'" . $Recurso . "'",
+        "'" . $Grupo . "'",
+        "'" . $row_Evento['IdEvento'] . "'",
+        "'" . $_SESSION['CodUser'] . "'",
+    );
 
-	$SQL_OT=EjecutarSP("sp_ConsultarDatosCalendarioRutasOT",$ParamOT);
-	$Num_OT=sqlsrv_num_rows($SQL_OT);
-	
-	//TRAER LOS DATOS UNICOS PARA FILTRAR
-	
-	//Llamada de servicio
-	$SQL_LlamadaServicio=Seleccionar("tbl_LlamadasServicios_Rutas","DISTINCT DocNum","Usuario='".$_SESSION['CodUser']."' and IdEvento='".$row_Evento['IdEvento']."'","DocNum");
-	
-	//Series
-	$SQL_Series=Seleccionar("tbl_LlamadasServicios_Rutas","DISTINCT IdSeries, DeSeries","Usuario='".$_SESSION['CodUser']."' and IdEvento='".$row_Evento['IdEvento']."'","DeSeries");
-	
-	//Cliente
-	$SQL_Cliente=Seleccionar("tbl_LlamadasServicios_Rutas","DISTINCT ID_CodigoCliente, NombreClienteLlamada","Usuario='".$_SESSION['CodUser']."' and IdEvento='".$row_Evento['IdEvento']."'","NombreClienteLlamada");
-	
-	//SucursalCliente
-	$SQL_SucursalCliente=Seleccionar("tbl_LlamadasServicios_Rutas","DISTINCT NombreSucursal","Usuario='".$_SESSION['CodUser']."' and IdEvento='".$row_Evento['IdEvento']."'","NombreSucursal");
-	
-	//Servicios
-	$SQL_Servicios=Seleccionar("tbl_LlamadasServicios_Rutas","DISTINCT Servicios","Usuario='".$_SESSION['CodUser']."' and IdEvento='".$row_Evento['IdEvento']."'","Servicios");
-	
-	//Areas
-	$SQL_Areas=Seleccionar("tbl_LlamadasServicios_Rutas","DISTINCT Areas","Usuario='".$_SESSION['CodUser']."' and IdEvento='".$row_Evento['IdEvento']."'","Areas");
-	
-	//ArticuloLlamada
-	$SQL_ArticuloLlamada=Seleccionar("tbl_LlamadasServicios_Rutas","DISTINCT IdArticuloLlamada, DeArticuloLlamada","Usuario='".$_SESSION['CodUser']."' and IdEvento='".$row_Evento['IdEvento']."'","DeArticuloLlamada");
-	
-	//Tipo de llamada	
-	$SQL_TipoLlamada=Seleccionar("tbl_LlamadasServicios_Rutas","DISTINCT IdTipoLlamada, DeTipoLlamada","Usuario='".$_SESSION['CodUser']."' and IdEvento='".$row_Evento['IdEvento']."'","DeTipoLlamada");
-	
-	//Ciudad
-	$SQL_Ciudad=Seleccionar("tbl_LlamadasServicios_Rutas","DISTINCT CiudadLlamada","Usuario='".$_SESSION['CodUser']."' and IdEvento='".$row_Evento['IdEvento']."'","CiudadLlamada");	
-	
+    $SQL_Actividad = EjecutarSP("sp_ConsultarDatosCalendarioRutasRecargar", $ParamCons);
+
+    // SMM, 02/09/2022
+    $FiltrarActividades = "NULL";
+    if (getCookiePHP("FiltrarActividades") == "true") {
+        $FiltrarActividades = "1";
+    }
+
+    //Consultamos la lista de OT pendientes
+    $ParamOT = array(
+        "1",
+        "'" . $_SESSION['CodUser'] . "'",
+        "'" . $row_Evento['IdEvento'] . "'",
+        "'" . $Sede . "'",
+        "'" . $Cliente . "'",
+        "'" . $NomSucursal . "'",
+        "'" . FormatoFecha($FechaInicial) . "'",
+        "'" . FormatoFecha($FechaFinal) . "'",
+        $FiltrarActividades, // SMM, 02/09/2022
+    );
+
+    $SQL_OT = EjecutarSP("sp_ConsultarDatosCalendarioRutasOT", $ParamOT);
+    $Num_OT = sqlsrv_num_rows($SQL_OT);
+
+    //TRAER LOS DATOS UNICOS PARA FILTRAR
+
+    //Llamada de servicio
+    $SQL_LlamadaServicio = Seleccionar("tbl_LlamadasServicios_Rutas", "DISTINCT DocNum", "Usuario='" . $_SESSION['CodUser'] . "' and IdEvento='" . $row_Evento['IdEvento'] . "'", "DocNum");
+
+    //Series
+    $SQL_Series = Seleccionar("tbl_LlamadasServicios_Rutas", "DISTINCT IdSeries, DeSeries", "Usuario='" . $_SESSION['CodUser'] . "' and IdEvento='" . $row_Evento['IdEvento'] . "'", "DeSeries");
+
+    //Cliente
+    $SQL_Cliente = Seleccionar("tbl_LlamadasServicios_Rutas", "DISTINCT ID_CodigoCliente, NombreClienteLlamada", "Usuario='" . $_SESSION['CodUser'] . "' and IdEvento='" . $row_Evento['IdEvento'] . "'", "NombreClienteLlamada");
+
+    //SucursalCliente
+    $SQL_SucursalCliente = Seleccionar("tbl_LlamadasServicios_Rutas", "DISTINCT NombreSucursal", "Usuario='" . $_SESSION['CodUser'] . "' and IdEvento='" . $row_Evento['IdEvento'] . "'", "NombreSucursal");
+
+    //Servicios
+    $SQL_Servicios = Seleccionar("tbl_LlamadasServicios_Rutas", "DISTINCT Servicios", "Usuario='" . $_SESSION['CodUser'] . "' and IdEvento='" . $row_Evento['IdEvento'] . "'", "Servicios");
+
+    //Areas
+    $SQL_Areas = Seleccionar("tbl_LlamadasServicios_Rutas", "DISTINCT Areas", "Usuario='" . $_SESSION['CodUser'] . "' and IdEvento='" . $row_Evento['IdEvento'] . "'", "Areas");
+
+    //ArticuloLlamada
+    $SQL_ArticuloLlamada = Seleccionar("tbl_LlamadasServicios_Rutas", "DISTINCT IdArticuloLlamada, DeArticuloLlamada", "Usuario='" . $_SESSION['CodUser'] . "' and IdEvento='" . $row_Evento['IdEvento'] . "'", "DeArticuloLlamada");
+
+    //Tipo de llamada
+    $SQL_TipoLlamada = Seleccionar("tbl_LlamadasServicios_Rutas", "DISTINCT IdTipoLlamada, DeTipoLlamada", "Usuario='" . $_SESSION['CodUser'] . "' and IdEvento='" . $row_Evento['IdEvento'] . "'", "DeTipoLlamada");
+
+    //Ciudad
+    $SQL_Ciudad = Seleccionar("tbl_LlamadasServicios_Rutas", "DISTINCT CiudadLlamada", "Usuario='" . $_SESSION['CodUser'] . "' and IdEvento='" . $row_Evento['IdEvento'] . "'", "CiudadLlamada");
+
 }
-
 
 ?>
 <!DOCTYPE html>
 <html class="light-style">
 
 <head>
-<?php include("includes/cabecera_new.php"); ?>
-<title>Programación de servicios | <?php echo NOMBRE_PORTAL;?></title>
+<?php include "includes/cabecera_new.php";?>
+<title>Programación de servicios | <?php echo NOMBRE_PORTAL; ?></title>
 <style>
 	body, html{
 		font-size: 13px;
@@ -183,7 +189,7 @@ if($sw==1){
 				}
 			});
 		});
-		
+
 		$("#Sede").change(function(){
 			$.ajax({
 				type: "POST",
@@ -192,7 +198,7 @@ if($sw==1){
 					$('#Grupo').html(response);
 				}
 			});
-			
+
 			$.ajax({
 				type: "POST",
 				url: "ajx_cbo_select.php?type=27&id="+document.getElementById('Sede').value,
@@ -201,8 +207,8 @@ if($sw==1){
 					$("#Recursos").trigger("change");
 				}
 			});
-		});	
-		
+		});
+
 		$("#Grupo").change(function(){
 			var grupo=document.getElementById('Grupo').value;
 			if(grupo!=""){
@@ -223,8 +229,8 @@ if($sw==1){
 						$("#Recursos").trigger("change");
 					}
 				});
-			}			
-		});	
+			}
+		});
 	});
 </script>
 
@@ -235,11 +241,11 @@ if($sw==1){
 	 <!-- Event modal -->
 		<div class="modal modal-top fade" id="ModalAct" data-backdrop="static" data-keyboard="false">
 		  <div id="ContenidoModal" class="modal-dialog modal-xl">
-			
+
 		  </div>
 		</div>
 		<!-- / Event modal -->
-		
+
 		<div id="dvHead" class="row mb-md-3 mt-md-4">
 			<div id="accordionTitle" class="card col-lg-12 p-md-4">
 				<div class="pt-3 pr-3 pl-3 pb-0 mb-2 bg-primary text-white">
@@ -254,9 +260,9 @@ if($sw==1){
 							<div class="form-group col-lg-3">
 								<label class="form-label">Fechas</label>
 								<div class="input-group">
-									<input name="FechaInicial" type="text" class="form-control" id="FechaInicial" value="<?php echo $FechaInicial;?>" placeholder="YYYY-MM-DD" autocomplete="off">
+									<input name="FechaInicial" type="text" class="form-control" id="FechaInicial" value="<?php echo $FechaInicial; ?>" placeholder="YYYY-MM-DD" autocomplete="off">
 									<span class="input-group-prepend px-2 bg-light text-center pt-2">hasta</span>
-									<input name="FechaFinal" type="text" class="form-control" id="FechaFinal" value="<?php echo $FechaFinal;?>" placeholder="YYYY-MM-DD" autocomplete="off">
+									<input name="FechaFinal" type="text" class="form-control" id="FechaFinal" value="<?php echo $FechaFinal; ?>" placeholder="YYYY-MM-DD" autocomplete="off">
 								</div>
 							</div>
 							<div class="form-group col-lg-3">
@@ -265,35 +271,35 @@ if($sw==1){
 								  <select name="Sede" id="Sede" class="select2 form-control">
 									  <option value="">(TODOS)</option>
 									  <?php
-									  while($row_Suc=sqlsrv_fetch_array($SQL_Suc)){?>
-											<option value="<?php echo $row_Suc['IdSucursal'];?>" <?php if((isset($_GET['Sede'])&&($_GET['Sede']!=""))&&(strcmp($row_Suc['IdSucursal'],$_GET['Sede'])==0)){ echo "selected=\"selected\"";}?>><?php echo $row_Suc['DeSucursal'];?></option>
+while ($row_Suc = sqlsrv_fetch_array($SQL_Suc)) {?>
+											<option value="<?php echo $row_Suc['IdSucursal']; ?>" <?php if ((isset($_GET['Sede']) && ($_GET['Sede'] != "")) && (strcmp($row_Suc['IdSucursal'], $_GET['Sede']) == 0)) {echo "selected=\"selected\"";}?>><?php echo $row_Suc['DeSucursal']; ?></option>
 									  <?php }?>
 								  </select>
 								</div>
 							</div>
 							<div class="form-group col-lg-3">
 								<label class="form-label">Cliente</label>
-								<input name="Cliente" type="hidden" id="Cliente" value="<?php if(isset($_GET['Cliente'])&&($_GET['Cliente']!="")){ echo $_GET['Cliente'];}?>">
-								<input name="NombreCliente" type="text" class="form-control" id="NombreCliente" placeholder="Ingrese para buscar..." value="<?php if(isset($_GET['NombreCliente'])&&($_GET['NombreCliente']!="")){ echo $_GET['NombreCliente'];}?>">
+								<input name="Cliente" type="hidden" id="Cliente" value="<?php if (isset($_GET['Cliente']) && ($_GET['Cliente'] != "")) {echo $_GET['Cliente'];}?>">
+								<input name="NombreCliente" type="text" class="form-control" id="NombreCliente" placeholder="Ingrese para buscar..." value="<?php if (isset($_GET['NombreCliente']) && ($_GET['NombreCliente'] != "")) {echo $_GET['NombreCliente'];}?>">
 							</div>
 							<div class="form-group col-lg-3">
 								<label class="form-label">Sucursal</label>
 								<div class="select2-success">
 								  <select name="Sucursal" id="Sucursal" class="select2 form-control">
 									 <option value="">(TODOS)</option>
-									 <?php 
-									 if(isset($_GET['Sucursal'])){//Cuando se ha seleccionado una opción
-										 if(PermitirFuncion(205)){
-											$Where="CodigoCliente='".$_GET['Cliente']."' and TipoDireccion='S'";
-											$SQL_Sucursal=Seleccionar("uvw_Sap_tbl_Clientes_Sucursales","NombreSucursal",$Where);
-										 }else{
-											$Where="CodigoCliente='".$_GET['Cliente']."' and TipoDireccion='S' and ID_Usuario = ".$_SESSION['CodUser'];
-											$SQL_Sucursal=Seleccionar("uvw_tbl_SucursalesClienteUsuario","NombreSucursal",$Where);	
-										 }
-										 while($row_Sucursal=sqlsrv_fetch_array($SQL_Sucursal)){?>
-											<option value="<?php echo $row_Sucursal['NombreSucursal'];?>" <?php if(strcmp($row_Sucursal['NombreSucursal'],$_GET['Sucursal'])==0){ echo "selected=\"selected\"";}?>><?php echo $row_Sucursal['NombreSucursal'];?></option>
+									 <?php
+if (isset($_GET['Sucursal'])) { //Cuando se ha seleccionado una opción
+    if (PermitirFuncion(205)) {
+        $Where = "CodigoCliente='" . $_GET['Cliente'] . "' and TipoDireccion='S'";
+        $SQL_Sucursal = Seleccionar("uvw_Sap_tbl_Clientes_Sucursales", "NombreSucursal", $Where);
+    } else {
+        $Where = "CodigoCliente='" . $_GET['Cliente'] . "' and TipoDireccion='S' and ID_Usuario = " . $_SESSION['CodUser'];
+        $SQL_Sucursal = Seleccionar("uvw_tbl_SucursalesClienteUsuario", "NombreSucursal", $Where);
+    }
+    while ($row_Sucursal = sqlsrv_fetch_array($SQL_Sucursal)) {?>
+											<option value="<?php echo $row_Sucursal['NombreSucursal']; ?>" <?php if (strcmp($row_Sucursal['NombreSucursal'], $_GET['Sucursal']) == 0) {echo "selected=\"selected\"";}?>><?php echo $row_Sucursal['NombreSucursal']; ?></option>
 									 <?php }
-									 }?>
+}?>
 								  </select>
 								</div>
 							</div>
@@ -305,9 +311,9 @@ if($sw==1){
 								  <select name="Grupo" id="Grupo" class="select2 form-control">
 									  <option value="">(TODOS)</option>
 									  <?php
-									  if($Sede!=""){
-									  while($row_CargosRecursos=sqlsrv_fetch_array($SQL_CargosRecursos)){?>
-											<option value="<?php echo $row_CargosRecursos['IdCargo'];?>" <?php if((isset($_GET['Grupo'])&&($_GET['Grupo']!=""))&&(strcmp($row_CargosRecursos['IdCargo'],$_GET['Grupo'])==0)){ echo "selected=\"selected\"";}?>><?php echo $row_CargosRecursos['DeCargo'];?></option>
+if ($Sede != "") {
+    while ($row_CargosRecursos = sqlsrv_fetch_array($SQL_CargosRecursos)) {?>
+											<option value="<?php echo $row_CargosRecursos['IdCargo']; ?>" <?php if ((isset($_GET['Grupo']) && ($_GET['Grupo'] != "")) && (strcmp($row_CargosRecursos['IdCargo'], $_GET['Grupo']) == 0)) {echo "selected=\"selected\"";}?>><?php echo $row_CargosRecursos['DeCargo']; ?></option>
 									  <?php }}?>
 								  </select>
 								</div>
@@ -317,16 +323,17 @@ if($sw==1){
 								 <div class="select2-success">
 								  <select name="Recursos[]" id="Recursos" class="select2 form-control" multiple style="width: 100%" data-placeholder="(TODOS)">
 									  <?php
-									  if($Sede!=""){$j=0; 
-									  while($row_Recursos=sqlsrv_fetch_array($SQL_Recursos)){?>
-											<option value="<?php echo $row_Recursos['ID_Empleado'];?>" <?php if((isset($_GET['Recursos'][$j])&&($_GET['Recursos'][$j]!=""))&&(strcmp($row_Recursos['ID_Empleado'],$_GET['Recursos'][$j])==0)){ echo "selected=\"selected\"";$j++;}?>><?php echo $row_Recursos['NombreEmpleado'];?></option>
+if ($Sede != "") {$j = 0;
+    while ($row_Recursos = sqlsrv_fetch_array($SQL_Recursos)) {?>
+											<option value="<?php echo $row_Recursos['ID_Empleado']; ?>" <?php if ((isset($_GET['Recursos'][$j]) && ($_GET['Recursos'][$j] != "")) && (strcmp($row_Recursos['ID_Empleado'], $_GET['Recursos'][$j]) == 0)) {echo "selected=\"selected\"";
+        $j++;}?>><?php echo $row_Recursos['NombreEmpleado']; ?></option>
 									  <?php }}?>
 								  </select>
 								</div>
 							</div>
 							<div class="form-group col-lg-3">
 								<label class="form-label">&nbsp;</label>
-								<button id="btnRefrescar" type="button" onClick="RefresarCalendario();" class="btn btn-info mt-4" <?php if($sw==0){echo "disabled";}?>><i class="fas fa-sync"></i> Refrescar</button>
+								<button id="btnRefrescar" type="button" onClick="RefresarCalendario();" class="btn btn-info mt-4" <?php if ($sw == 0) {echo "disabled";}?>><i class="fas fa-sync"></i> Refrescar</button>
 							</div>
 							<div class="form-group col-lg-3">
 								<label class="form-label">&nbsp;</label>
@@ -334,17 +341,36 @@ if($sw==1){
 							</div>
 						</div>
 						<div class="form-row">
-							<div class="form-group col-lg-3">
+							<div class="form-group col-lg-8">
 								<label class="form-label">Visualización</label>
-								<div class="input-group">
-									<label class="switcher">
-										<input type="checkbox" class="switcher-input" id="chkDatesAboveResources" checked="checked">
-										<span class="switcher-indicator">
-										<span class="switcher-yes"></span>
-										<span class="switcher-no"></span>
-										</span>
-										<span class="switcher-label">Mostrar fechas arriba de los técnicos</span>
-									</label>
+								<div class="row">
+									<div class="col-lg-4">
+										<div class="input-group">
+											<label class="switcher">
+												<input type="checkbox" class="switcher-input" id="chkDatesAboveResources" checked="checked">
+												<span class="switcher-indicator">
+													<span class="switcher-yes"></span>
+													<span class="switcher-no"></span>
+												</span>
+												<span class="switcher-label">Mostrar fechas arriba de los técnicos</span>
+											</label>
+										</div>
+									</div>
+
+									<!-- SMM, 02/09/2022 -->
+									<div class="col-lg-4">
+										<div class="input-group">
+											<label class="switcher">
+												<input type="checkbox" class="switcher-input" id="chkFiltrarActividades">
+												<span class="switcher-indicator">
+													<span class="switcher-yes"></span>
+													<span class="switcher-no"></span>
+												</span>
+												<span class="switcher-label">Mostrar OTs programadas</span>
+											</label>
+										</div>
+									</div>
+									<!-- Hasta aquí, 02/09/2022 -->
 								</div>
 							</div>
 						</div>
@@ -353,32 +379,32 @@ if($sw==1){
 								<label class="form-label">Referencia de colores</label>
 								<div class="input-group">
 									 <?php
-									  while($row_TiposEstadoServ=sqlsrv_fetch_array($SQL_TiposEstadoServ)){?>
-											<div class="d-inline"><i class="fas fa-square-full mr-2 ml-2" style="color: <?php echo $row_TiposEstadoServ['ColorEstadoServicio'];?>;"></i> <?php echo $row_TiposEstadoServ['DE_TipoEstadoServicio'];?></div>									
+while ($row_TiposEstadoServ = sqlsrv_fetch_array($SQL_TiposEstadoServ)) {?>
+											<div class="d-inline"><i class="fas fa-square-full mr-2 ml-2" style="color: <?php echo $row_TiposEstadoServ['ColorEstadoServicio']; ?>;"></i> <?php echo $row_TiposEstadoServ['DE_TipoEstadoServicio']; ?></div>
 									  <?php }?>
-								</div>															
+								</div>
 							</div>
 							<div class="form-group col-lg-6">
 								<button id="btnGuardar" type="button" class="btn btn-danger load pull-right mt-4" disabled onClick="Validar();"><i class="fas fa-save"></i> Guardar todo</button>
-								<button id="btnPendientes" type="button" class="btn btn-warning pull-right mr-2 mt-4" disabled onClick="VerificarPendientes();"><i class="fas fa-tags"></i> Pendientes por enviar</button>							
+								<button id="btnPendientes" type="button" class="btn btn-warning pull-right mr-2 mt-4" disabled onClick="VerificarPendientes();"><i class="fas fa-tags"></i> Pendientes por enviar</button>
 							</div>
 						</div>
-						<input type="hidden" id="IdEvento" name="IdEvento" value="<?php if($sw==1){echo $row_Evento['IdEvento'];}?>" />
+						<input type="hidden" id="IdEvento" name="IdEvento" value="<?php if ($sw == 1) {echo $row_Evento['IdEvento'];}?>" />
 					</form>
 				</div>
 			</div>
-		</div>	
+		</div>
 		<div class="row">
 			<div id="dvOT" class="card col-lg-2" style="max-height: 1110px; min-height: auto;">
 				<div class="alert alert-primary mt-lg-3 text-center" role="alert">
-				  <strong>Lista de OT pendientes (<span id="CantOT"><?php echo isset($Num_OT) ? number_format($Num_OT) : 0;?></span> resultados)</strong>
+				  <strong>Lista de OT pendientes (<span id="CantOT"><?php echo isset($Num_OT) ? number_format($Num_OT) : 0; ?></span> resultados)</strong>
 				</div>
-				<?php if($sw==1){?>
+				<?php if ($sw == 1) {?>
 				<button id="btnAsigarAct" type="button" class="btn btn-success load" onClick="AbrirActLote();"><i class="fas fa-list-ol"></i> Asignar actividades en lote</button>
 				<button id="btnMoverAct" type="button" class="btn btn-warning mt-2 load" onClick="MoverActLote();"><i class="fas fa-exchange-alt"></i> Mover actividades en lote</button>
 				<div id="accordion1" class="sticky-top mt-2">
 					<div class="card mb-2">
-						<div class="card-header bg-primary text-white">							
+						<div class="card-header bg-primary text-white">
 							<a class="d-flex justify-content-between text-white" data-toggle="collapse" aria-expanded="false" href="#accordion1-1">
 								<span class='pr-2'><i class="fas fa-filter"></i> Mostrar filtros</span>
 								<div class="collapse-icon"></div>
@@ -398,10 +424,11 @@ if($sw==1){
 											 <div class="select2-success">
 											  <select name="LlamadaServicio[]" id="LlamadaServicio" class="select2OT form-control" multiple style="width: 100%" data-placeholder="(TODOS)">
 												   <?php
-													  $j=0; 
-												  while($row_LlamadaServicio=sqlsrv_fetch_array($SQL_LlamadaServicio)){?>
-														<option value="<?php echo $row_LlamadaServicio['DocNum'];?>" <?php if((isset($_GET['LlamadaServicio'][$j])&&($_GET['LlamadaServicio'][$j]!=""))&&(strcmp($row_LlamadaServicio['DocNum'],$_GET['LlamadaServicio'][$j])==0)){ echo "selected=\"selected\"";$j++;}?>><?php echo $row_LlamadaServicio['DocNum'];?></option>
-												  <?php }?>												  
+$j = 0;
+    while ($row_LlamadaServicio = sqlsrv_fetch_array($SQL_LlamadaServicio)) {?>
+														<option value="<?php echo $row_LlamadaServicio['DocNum']; ?>" <?php if ((isset($_GET['LlamadaServicio'][$j]) && ($_GET['LlamadaServicio'][$j] != "")) && (strcmp($row_LlamadaServicio['DocNum'], $_GET['LlamadaServicio'][$j]) == 0)) {echo "selected=\"selected\"";
+        $j++;}?>><?php echo $row_LlamadaServicio['DocNum']; ?></option>
+												  <?php }?>
 											  </select>
 											</div>
 										</div>
@@ -412,10 +439,11 @@ if($sw==1){
 											 <div class="select2-success">
 											  <select name="Series[]" id="Series" class="select2OT form-control" multiple style="width: 100%" data-placeholder="(TODOS)">
 												 <?php
-													  $j=0; 
-												  while($row_Series=sqlsrv_fetch_array($SQL_Series)){?>
-														<option value="<?php echo $row_Series['IdSeries'];?>" <?php if((isset($_GET['Series'][$j])&&($_GET['Series'][$j]!=""))&&(strcmp($row_Series['IdSeries'],$_GET['Series'][$j])==0)){ echo "selected=\"selected\"";$j++;}?>><?php echo $row_Series['DeSeries'];?></option>
-												  <?php }?>	
+$j = 0;
+    while ($row_Series = sqlsrv_fetch_array($SQL_Series)) {?>
+														<option value="<?php echo $row_Series['IdSeries']; ?>" <?php if ((isset($_GET['Series'][$j]) && ($_GET['Series'][$j] != "")) && (strcmp($row_Series['IdSeries'], $_GET['Series'][$j]) == 0)) {echo "selected=\"selected\"";
+        $j++;}?>><?php echo $row_Series['DeSeries']; ?></option>
+												  <?php }?>
 											  </select>
 											</div>
 										</div>
@@ -426,10 +454,11 @@ if($sw==1){
 											 <div class="select2-success">
 											  <select name="ClienteLlamada[]" id="ClienteLlamada" class="select2OT form-control" multiple style="width: 100%" data-placeholder="(TODOS)">
 												 <?php
-													  $j=0; 
-												  while($row_Cliente=sqlsrv_fetch_array($SQL_Cliente)){?>
-														<option value="<?php echo $row_Cliente['ID_CodigoCliente'];?>" <?php if((isset($_GET['ClienteLlamada'][$j])&&($_GET['ClienteLlamada'][$j]!=""))&&(strcmp($row_Cliente['ID_CodigoCliente'],$_GET['ClienteLlamada'][$j])==0)){ echo "selected=\"selected\"";$j++;}?>><?php echo $row_Cliente['NombreClienteLlamada'];?></option>
-												  <?php }?>			
+$j = 0;
+    while ($row_Cliente = sqlsrv_fetch_array($SQL_Cliente)) {?>
+														<option value="<?php echo $row_Cliente['ID_CodigoCliente']; ?>" <?php if ((isset($_GET['ClienteLlamada'][$j]) && ($_GET['ClienteLlamada'][$j] != "")) && (strcmp($row_Cliente['ID_CodigoCliente'], $_GET['ClienteLlamada'][$j]) == 0)) {echo "selected=\"selected\"";
+        $j++;}?>><?php echo $row_Cliente['NombreClienteLlamada']; ?></option>
+												  <?php }?>
 											  </select>
 											</div>
 										</div>
@@ -440,10 +469,11 @@ if($sw==1){
 											 <div class="select2-success">
 											  <select name="SucursalCliente[]" id="SucursalCliente" class="select2OT form-control" multiple style="width: 100%" data-placeholder="(TODOS)">
 												 <?php
-													  $j=0; 
-												  while($row_SucursalCliente=sqlsrv_fetch_array($SQL_SucursalCliente)){?>
-														<option value="<?php echo $row_SucursalCliente['NombreSucursal'];?>" <?php if((isset($_GET['SucursalCliente'][$j])&&($_GET['SucursalCliente'][$j]!=""))&&(strcmp($row_SucursalCliente['NombreSucursal'],$_GET['SucursalCliente'][$j])==0)){ echo "selected=\"selected\"";$j++;}?>><?php echo $row_SucursalCliente['NombreSucursal'];?></option>
-												  <?php }?>			
+$j = 0;
+    while ($row_SucursalCliente = sqlsrv_fetch_array($SQL_SucursalCliente)) {?>
+														<option value="<?php echo $row_SucursalCliente['NombreSucursal']; ?>" <?php if ((isset($_GET['SucursalCliente'][$j]) && ($_GET['SucursalCliente'][$j] != "")) && (strcmp($row_SucursalCliente['NombreSucursal'], $_GET['SucursalCliente'][$j]) == 0)) {echo "selected=\"selected\"";
+        $j++;}?>><?php echo $row_SucursalCliente['NombreSucursal']; ?></option>
+												  <?php }?>
 											  </select>
 											</div>
 										</div>
@@ -454,10 +484,11 @@ if($sw==1){
 											 <div class="select2-success">
 											  <select name="Servicios[]" id="Servicios" class="select2OT form-control" multiple style="width: 100%" data-placeholder="(TODOS)">
 												 <?php
-													  $j=0; 
-												  while($row_Servicios=sqlsrv_fetch_array($SQL_Servicios)){?>
-														<option value="<?php echo $row_Servicios['Servicios'];?>" <?php if((isset($_GET['Servicios'][$j])&&($_GET['Servicios'][$j]!=""))&&(strcmp($row_Servicios['Servicios'],$_GET['Servicios'][$j])==0)){ echo "selected=\"selected\"";$j++;}?>><?php echo $row_Servicios['Servicios'];?></option>
-												  <?php }?>	
+$j = 0;
+    while ($row_Servicios = sqlsrv_fetch_array($SQL_Servicios)) {?>
+														<option value="<?php echo $row_Servicios['Servicios']; ?>" <?php if ((isset($_GET['Servicios'][$j]) && ($_GET['Servicios'][$j] != "")) && (strcmp($row_Servicios['Servicios'], $_GET['Servicios'][$j]) == 0)) {echo "selected=\"selected\"";
+        $j++;}?>><?php echo $row_Servicios['Servicios']; ?></option>
+												  <?php }?>
 											  </select>
 											</div>
 										</div>
@@ -468,10 +499,11 @@ if($sw==1){
 											 <div class="select2-success">
 											  <select name="Areas[]" id="Areas" class="select2OT form-control" multiple style="width: 100%" data-placeholder="(TODOS)">
 												 <?php
-													  $j=0; 
-												  while($row_Areas=sqlsrv_fetch_array($SQL_Areas)){?>
-														<option value="<?php echo $row_Areas['Areas'];?>" <?php if((isset($_GET['Areas'][$j])&&($_GET['Areas'][$j]!=""))&&(strcmp($row_Areas['Areas'],$_GET['Areas'][$j])==0)){ echo "selected=\"selected\"";$j++;}?>><?php echo $row_Areas['Areas'];?></option>
-												  <?php }?>	
+$j = 0;
+    while ($row_Areas = sqlsrv_fetch_array($SQL_Areas)) {?>
+														<option value="<?php echo $row_Areas['Areas']; ?>" <?php if ((isset($_GET['Areas'][$j]) && ($_GET['Areas'][$j] != "")) && (strcmp($row_Areas['Areas'], $_GET['Areas'][$j]) == 0)) {echo "selected=\"selected\"";
+        $j++;}?>><?php echo $row_Areas['Areas']; ?></option>
+												  <?php }?>
 											  </select>
 											</div>
 										</div>
@@ -482,10 +514,11 @@ if($sw==1){
 											 <div class="select2-success">
 											  <select name="ArticuloLlamada[]" id="ArticuloLlamada" class="select2OT form-control" multiple style="width: 100%" data-placeholder="(TODOS)">
 												 <?php
-													  $j=0; 
-												  while($row_ArticuloLlamada=sqlsrv_fetch_array($SQL_ArticuloLlamada)){?>
-														<option value="<?php echo $row_ArticuloLlamada['IdArticuloLlamada'];?>" <?php if((isset($_GET['ArticuloLlamada'][$j])&&($_GET['ArticuloLlamada'][$j]!=""))&&(strcmp($row_ArticuloLlamada['IdArticuloLlamada'],$_GET['ArticuloLlamada'][$j])==0)){ echo "selected=\"selected\"";$j++;}?>><?php echo $row_ArticuloLlamada['DeArticuloLlamada'];?></option>
-												  <?php }?>	
+$j = 0;
+    while ($row_ArticuloLlamada = sqlsrv_fetch_array($SQL_ArticuloLlamada)) {?>
+														<option value="<?php echo $row_ArticuloLlamada['IdArticuloLlamada']; ?>" <?php if ((isset($_GET['ArticuloLlamada'][$j]) && ($_GET['ArticuloLlamada'][$j] != "")) && (strcmp($row_ArticuloLlamada['IdArticuloLlamada'], $_GET['ArticuloLlamada'][$j]) == 0)) {echo "selected=\"selected\"";
+        $j++;}?>><?php echo $row_ArticuloLlamada['DeArticuloLlamada']; ?></option>
+												  <?php }?>
 											  </select>
 											</div>
 										</div>
@@ -496,9 +529,10 @@ if($sw==1){
 											 <div class="select2-success">
 											  <select name="TipoLlamada[]" id="TipoLlamada" class="select2OT form-control" multiple style="width: 100%" data-placeholder="(TODOS)">
 												  <?php
-													  $j=0; 
-												  while($row_TipoLlamada=sqlsrv_fetch_array($SQL_TipoLlamada)){?>
-														<option value="<?php echo $row_TipoLlamada['IdTipoLlamada'];?>" <?php if((isset($_GET['TipoLlamada'][$j])&&($_GET['TipoLlamada'][$j]!=""))&&(strcmp($row_TipoLlamada['IdTipoLlamada'],$_GET['TipoLlamada'][$j])==0)){ echo "selected=\"selected\"";$j++;}?>><?php echo $row_TipoLlamada['DeTipoLlamada'];?></option>
+$j = 0;
+    while ($row_TipoLlamada = sqlsrv_fetch_array($SQL_TipoLlamada)) {?>
+														<option value="<?php echo $row_TipoLlamada['IdTipoLlamada']; ?>" <?php if ((isset($_GET['TipoLlamada'][$j]) && ($_GET['TipoLlamada'][$j] != "")) && (strcmp($row_TipoLlamada['IdTipoLlamada'], $_GET['TipoLlamada'][$j]) == 0)) {echo "selected=\"selected\"";
+        $j++;}?>><?php echo $row_TipoLlamada['DeTipoLlamada']; ?></option>
 												  <?php }?>
 											  </select>
 											</div>
@@ -510,10 +544,11 @@ if($sw==1){
 											 <div class="select2-success">
 											  <select name="Ciudad[]" id="Ciudad" class="select2OT form-control" multiple style="width: 100%" data-placeholder="(TODOS)">
 												 <?php
-													  $j=0; 
-												  while($row_Ciudad=sqlsrv_fetch_array($SQL_Ciudad)){?>
-														<option value="<?php echo $row_Ciudad['CiudadLlamada'];?>" <?php if((isset($_GET['Ciudad'][$j])&&($_GET['Ciudad'][$j]!=""))&&(strcmp($row_Ciudad['CiudadLlamada'],$_GET['Ciudad'][$j])==0)){ echo "selected=\"selected\"";$j++;}?>><?php echo $row_Ciudad['CiudadLlamada'];?></option>
-												  <?php }?>	
+$j = 0;
+    while ($row_Ciudad = sqlsrv_fetch_array($SQL_Ciudad)) {?>
+														<option value="<?php echo $row_Ciudad['CiudadLlamada']; ?>" <?php if ((isset($_GET['Ciudad'][$j]) && ($_GET['Ciudad'][$j] != "")) && (strcmp($row_Ciudad['CiudadLlamada'], $_GET['Ciudad'][$j]) == 0)) {echo "selected=\"selected\"";
+        $j++;}?>><?php echo $row_Ciudad['CiudadLlamada']; ?></option>
+												  <?php }?>
 											  </select>
 											</div>
 										</div>
@@ -526,31 +561,31 @@ if($sw==1){
 											<input name="FechaFinalOT" type="text" class="form-control" id="FechaFinalOT" value="" placeholder="YYYY-MM-DD">
 										</div>
 									</div>
-								</form>	
+								</form>
 							</div>
 						</div>
 					</div>
 				</div>
 				<?php }?>
 				<div id="dvResult">
-				<?php if($sw==1){
-				while($row_OT=sqlsrv_fetch_array($SQL_OT)){ ?>
-					<div class="card card-body mt-lg-3 bg-light border-primary <?php if($row_OT['Validacion']=="OK"){echo "item-drag";}?>" style="min-height: 14rem;" data-title="<?php echo $row_OT['Etiqueta'];?>" data-docnum="<?php echo $row_OT['DocNum'];?>" data-estado="<?php echo $row_OT['IdEstadoLlamada'];?>" data-info="<?php echo $row_OT['DeTipoLlamada'];?>" data-validacion="<?php echo $row_OT['Validacion'];?>">
-						<h5 class="card-title"><a href="llamada_servicio.php?id=<?php echo base64_encode($row_OT['ID_LlamadaServicio']);?>&tl=1" target="_blank" title="Consultar Llamada de servicio" class="btn-xs btn-success fas fa-search"></a> <?php echo $row_OT['DocNum'];?></h5>
-						<h6 class="card-subtitle mb-2 text-muted"><?php echo $row_OT['DeTipoLlamada'];?></h6>
-						<p class="card-text mb-0 small text-primary"><?php echo $row_OT['DeArticuloLlamada'];?></p>
-						<p class="card-text mb-0 small"><strong><?php echo $row_OT['NombreClienteLlamada'];?></strong></p>
-						<p class="card-text mb-0 small"><span class="font-weight-bold">Sucursal:</span> <?php echo $row_OT['NombreSucursal'];?></p>
-						<p class="card-text mb-0 small"><span class="font-weight-bold">Ciudad:</span> <?php echo $row_OT['CiudadLlamada'];?></p>
-						<p class="card-text mb-0 small"><span class="font-weight-bold">Fecha:</span> <?php echo $row_OT['FechaLlamada']->format('Y-m-d');?></p>
-						<p class="card-text mb-0 small"><span class="font-weight-bold">Servicios:</span> <?php echo $row_OT['Servicios'];?></p>
-						<p class="card-text mb-0 small"><span class="font-weight-bold">Áreas:</span> <?php echo substr($row_OT['Areas'],0,150);?></p>
-						<p class="card-text mb-0 small"><span class="font-weight-bold">Validación:</span> <span class="<?php if($row_OT['Validacion']!="OK"){echo "text-danger";}else{echo "text-success";}?>"><?php echo $row_OT['Validacion'];?></span></p>
+				<?php if ($sw == 1) {
+    while ($row_OT = sqlsrv_fetch_array($SQL_OT)) {?>
+					<div class="card card-body mt-lg-3 bg-light border-primary <?php if ($row_OT['Validacion'] == "OK") {echo "item-drag";}?>" style="min-height: 14rem;" data-title="<?php echo $row_OT['Etiqueta']; ?>" data-docnum="<?php echo $row_OT['DocNum']; ?>" data-estado="<?php echo $row_OT['IdEstadoLlamada']; ?>" data-info="<?php echo $row_OT['DeTipoLlamada']; ?>" data-validacion="<?php echo $row_OT['Validacion']; ?>">
+						<h5 class="card-title"><a href="llamada_servicio.php?id=<?php echo base64_encode($row_OT['ID_LlamadaServicio']); ?>&tl=1" target="_blank" title="Consultar Llamada de servicio" class="btn-xs btn-success fas fa-search"></a> <?php echo $row_OT['DocNum']; ?></h5>
+						<h6 class="card-subtitle mb-2 text-muted"><?php echo $row_OT['DeTipoLlamada']; ?></h6>
+						<p class="card-text mb-0 small text-primary"><?php echo $row_OT['DeArticuloLlamada']; ?></p>
+						<p class="card-text mb-0 small"><strong><?php echo $row_OT['NombreClienteLlamada']; ?></strong></p>
+						<p class="card-text mb-0 small"><span class="font-weight-bold">Sucursal:</span> <?php echo $row_OT['NombreSucursal']; ?></p>
+						<p class="card-text mb-0 small"><span class="font-weight-bold">Ciudad:</span> <?php echo $row_OT['CiudadLlamada']; ?></p>
+						<p class="card-text mb-0 small"><span class="font-weight-bold">Fecha:</span> <?php echo $row_OT['FechaLlamada']->format('Y-m-d'); ?></p>
+						<p class="card-text mb-0 small"><span class="font-weight-bold">Servicios:</span> <?php echo $row_OT['Servicios']; ?></p>
+						<p class="card-text mb-0 small"><span class="font-weight-bold">Áreas:</span> <?php echo substr($row_OT['Areas'], 0, 150); ?></p>
+						<p class="card-text mb-0 small"><span class="font-weight-bold">Validación:</span> <span class="<?php if ($row_OT['Validacion'] != "OK") {echo "text-danger";} else {echo "text-success";}?>"><?php echo $row_OT['Validacion']; ?></span></p>
 					</div>
 				<?php }
-				}?>
+}?>
 				</div>
-			</div>		
+			</div>
 			<div id="dvCal" class="card card-body col-lg-10">
 				<div class="row">
 					<div class="form-group col-lg-12">
@@ -558,14 +593,14 @@ if($sw==1){
                       	</button>
 					</div>
 				</div>
-				<div id="dv_calendar"><?php require_once('programacion_rutas_calendario.php');?></div>
+				<div id="dv_calendar"><?php require_once 'programacion_rutas_calendario.php';?></div>
 			</div>
 		</div>
     </div>
-	<?php require('includes/pie.php');?>
+	<?php require 'includes/pie.php';?>
 <script>
 var calendar;
-	
+
 $(document).ready(function() {
 	$("#frmProgramacion").validate({
 		submitHandler: function(form){
@@ -608,7 +643,7 @@ $(document).ready(function() {
 
 	$(".select2OT").select2({
 		dropdownParent: $('#accordion1-1')
-	});	
+	});
 
 	$('#FechaInicial').flatpickr({
 		 dateFormat: "Y-m-d",
@@ -654,13 +689,13 @@ $(document).ready(function() {
 	};
 
 	$("#NombreCliente").easyAutocomplete(options);
-	
+
 	if(window.sessionStorage.getItem('DateAboveResources')==="false"){
 		$("#chkDatesAboveResources").prop("checked", false);
 	}else{
 		$("#chkDatesAboveResources").prop("checked", true);
 	}
-	
+
 	$("#chkDatesAboveResources").change(function(){
 		if($('#chkDatesAboveResources').prop('checked')){
 			window.sessionStorage.setItem('DateAboveResources',true)
@@ -668,11 +703,29 @@ $(document).ready(function() {
 		}else{
 			window.sessionStorage.setItem('DateAboveResources',false)
 			RefresarCalendario()
-		}	
+		}
 	});
 
+	// SMM, 02/09/2022
+	if(getCookie("FiltrarActividades") === "false") {
+		$("#chkFiltrarActividades").prop("checked", false);
+	} else if(getCookie("FiltrarActividades") === "true") {
+		$("#chkFiltrarActividades").prop("checked", true);
+	}
+
+	$("#chkFiltrarActividades").change(function() {
+		if($('#chkFiltrarActividades').prop('checked')) {
+			setCookie("FiltrarActividades", "true", 30);
+			alert("Recuerde que debe recargar la vista con el botón \"Filtrar datos\".");
+		} else {
+			setCookie("FiltrarActividades", "false", 30);
+			alert("Recuerde que debe recargar la vista con el botón \"Filtrar datos\".");
+		}
+	});
+	// Hasta aquí, 02/09/2022
 });
 </script>
+
 <script>
 function RefresarCalendario(){
 	blockUI();
@@ -686,10 +739,10 @@ function RefresarCalendario(){
 		window.sessionStorage.setItem('ResourceList',Tecnicos)
 //		console.log('Agrego')
 	}
-	
+
 	$.ajax({
 		type: "POST",
-		url: "programacion_rutas_calendario.php?type=1&pSede=<?php echo $Sede;?>&pGrupo="+Grupo+"&pTecnicos="+Tecnicos+"&pIdEvento=<?php if($sw==1){echo $row_Evento['IdEvento'];}?>&sw=<?php echo $sw;?>&fchinicial=<?php echo $FechaInicial;?>",
+		url: "programacion_rutas_calendario.php?type=1&pSede=<?php echo $Sede; ?>&pGrupo="+Grupo+"&pTecnicos="+Tecnicos+"&pIdEvento=<?php if ($sw == 1) {echo $row_Evento['IdEvento'];}?>&sw=<?php echo $sw; ?>&fchinicial=<?php echo $FechaInicial; ?>",
 		success: function(response){
 			$('#dv_calendar').html(response);
 			blockUI(false);
@@ -711,8 +764,8 @@ function Validar(){
 		}
 	});
 }
-	
-function EjecutarProceso(){			
+
+function EjecutarProceso(){
 	blockUI();
 	var Evento=document.getElementById("IdEvento").value;
 	$.ajax({
@@ -721,13 +774,13 @@ function EjecutarProceso(){
 		dataType:'json',
 		success: function(data){
 //			if(data.Estado==1){
-//				
+//
 //			}
 			blockUI(false);
 			if(data.Estado==1){
 				$("#btnGuardar").prop('disabled', true);
 				$("#btnPendientes").prop('disabled', true);
-			}			
+			}
 			$.ajax({
 				type: "POST",
 //				async: false,
@@ -753,9 +806,9 @@ function EjecutarProceso(){
 //					$('#ContenidoModal').html(response);
 //					$('#ModalAct').modal("show");
 //				}
-//			});		
+//			});
 		}
-	});	
+	});
 }
 
 function VerificarPendientes(){
@@ -774,7 +827,7 @@ function VerificarPendientes(){
 		}
 	});
 }
-	
+
 function FiltrarOT(){
 	blockUI();
 	$("#accordion1-1").collapse('hide');
@@ -791,7 +844,7 @@ function FiltrarOT(){
 	var FechaInicioOT=$("#FechaInicioOT").val();
 	var FechaFinalOT=$("#FechaFinalOT").val();
 //	var Cliente=document.getElementById("Cliente").value;
-	
+
 	$.ajax({
 		type: "POST",
 		url: "programacion_rutas_OT.php?idEvento="+Evento+"&DocNum="+LlamadaServicio+"&Series="+Series+"&SucursalCliente="+btoa(SucursalCliente)+"&Servicios="+Servicios+"&Areas="+Areas+"&Articulo="+ArticuloLlamada+"&TipoLlamada="+TipoLlamada+"&Ciudad="+Ciudad+"&FechaInicio="+FechaInicioOT+"&FechaFinal="+FechaFinalOT+"&Cliente="+Cliente,
@@ -803,7 +856,7 @@ function FiltrarOT(){
 		}
 	});
 }
-	
+
 function AbrirActLote(){
 	blockUI();
 	var Evento=document.getElementById("IdEvento").value;
@@ -820,7 +873,7 @@ function AbrirActLote(){
 		}
 	});
 }
-	
+
 function MoverActLote(){
 	blockUI();
 	var Evento=document.getElementById("IdEvento").value;
@@ -837,7 +890,7 @@ function MoverActLote(){
 		}
 	});
 }
-	
+
 function Expandir(show=false){
 	if(show){
 		$('#dvCal').removeClass("col-lg-12").addClass("col-lg-10");
@@ -853,9 +906,9 @@ function Expandir(show=false){
 		$("#btnExpandir").attr("title","Contraer calendario");
 		$("#iconBtnExpandir").removeClass("fas fa-expand-arrows-alt").addClass("fas fa-compress-arrows-alt");
 		$("#btnExpandir").attr("onClick","Expandir(true);");
-		
+
 	}
-	
+
 }
 </script>
 </html>
