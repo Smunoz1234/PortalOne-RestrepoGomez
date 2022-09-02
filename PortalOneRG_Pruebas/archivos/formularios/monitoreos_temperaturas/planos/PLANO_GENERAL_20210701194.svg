@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="467" height="768" viewBox="0 0 467 768">
+  <defs>
+    <clipPath id="clip-Web_1366_2">
+      <rect width="467" height="768"/>
+    </clipPath>
+  </defs>
+  <g id="Web_1366_2" data-name="Web 1366 – 2" clip-path="url(#clip-Web_1366_2)">
+    <rect width="467" height="768" fill="#fff"/>
+    <rect id="Rectángulo_4" data-name="Rectángulo 4" width="467" height="768" fill="#fff"/>
+    <path id="Trazado_28" data-name="Trazado 28" d="M1981.482,40.549V744.691h419V40.549Z" transform="translate(-1958 -2)" fill="none" stroke="#000" stroke-width="1"/>
+    <text id="PLANO_GENERAL" data-name="PLANO GENERAL" transform="translate(23 28)" font-size="18" font-family="QanelasSoft-SemiBold, Qanelas Soft" font-weight="600"><tspan x="0" y="0">PLANO GENERAL</tspan></text>
+  </g>
+</svg>

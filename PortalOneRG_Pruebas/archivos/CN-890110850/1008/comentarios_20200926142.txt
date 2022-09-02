@@ -1,0 +1,57 @@
+
+- 3015780103
+- convencer 
+- personalizaciones y desarrollos.
+
+- CONVENCER AL SR MIGUEL
+
+Temas a favor.
+
+FORTALEZAS
+- IGEO un programa especializado.
+- maneja todos los modelos de servicios.
+ - portal del cliente.
+ - inteligencia de negocios.
+ - la movilidad ( dudas si trabaja offline y si es android). solo es Tablet.
+- maneja el tema de CRM.
+- inventario maneja lo basico.
+
+PREGUNTAS
+- negociación de las modificaciones.
+- soporte de la aplicación a que nivel (local o remoto).
+- tiempo de respuesta de soporte.
+
+DEBILIDADES
+- No hay independencia de personalizaciones en informes y campos adicionales cuando operaciones 
+u otro departamento necesiten otro informe.
+
+- altas horas en curva de aprendizaje de integración.
+
+- Complejo en muchas validaciones para el proceso de integracion. 
+
+- alta horas de integración con SAP B1 por los modulos a integrar por ejemplo el inventario.
+
+- por la integración se va a perder la trazabilidad en detalle de cada movimiento de inventario.
+
+- no tiene modulo de contabilidad con todas las normas fiscales y tributarias. ( esto implica que no vamos a tener activos fijos estados financieros en detalle )
+
+- no tiene de modulo de facturación para colombia por la facturacion electronica.
+
+- altas de horas de monitoreo e intervenciones para revisar el estado de integración en el departamento de sistemas.
+
+- la tecnologia de integración que manejan es obsoleto, es basado en colas y en nuestra experiencia. este tipo de integración es indirecta. 
+validaciones hay que resolverlas manualmente cuando se presente la novedad.
+
+- transferencias de archivos de la nube de IGEO a nuestros servidores (facturación liliana).
+
+CONSECUENCIAS
+
+- no vamos a tener sincronizado los modulos de sap b1 y modulos desarrollados a la medida.
+( facturación en Lote de OT (no vamos a tener las OT en detalle y escaneadas), y entregas de EPP (información real del inventario) )
+esto tiene sus desventajas para tener la información sincronizada y en tiempo real.
+
+- Depender de la casa de software para realizar las personalizaciones e ideas nuevas que tenga copla para su modelo de negocio.
+
+- solo vamos a tener a SAP B1 para la contabilidad y tal vez la facturación con sus novedades en la integración.
+
+- las soluciones no van hacer inmediatas por que el departamento de TI debe aprender el nuevo software para dar una solución al usuario final.

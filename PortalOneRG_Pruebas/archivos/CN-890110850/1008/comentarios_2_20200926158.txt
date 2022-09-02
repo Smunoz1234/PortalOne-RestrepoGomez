@@ -1,0 +1,34 @@
+312-2991263
+por mejorar:
+no se puede duplicar.
+
+
+FACTURACION ELECTRONICA:
+- Nombre Archivo XML (oInvoices04000D459.xml)
+- Estado Enviado
+- Detalle Enviado
+- Fecha de Envio
+- Codigo de mensaje
+- Mensaje del proveedor
+
+
+PREGUNTAS:
+- folio en la documentación.
+- codigo postal
+- medio de pago
+- referencia doc no tributario
+- tipo de operacion
+
+
+
+AMETH GABRIEL ORDOÑEZ ERAZO 1140847389
+EDILBERTO LAYNEKER ESCORCIA FERREIRA 1143145571
+STIVEN ANDRES PALACIO HERRERA 1143237966
+TEMILDA ROSA FLOREZ VERTEL 1067922406
+ISAAC DAVID BOHORQUEZ NISPERUZA 1143444963
+
+rut 
+camara 
+estado financiero
+cedula
+brochure

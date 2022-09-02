@@ -1,0 +1,160 @@
+CL0000031768 OT
+
+- leyendas de formatos de base de datos.
+
+soporte@facturecolomba.com
+
+orden directa 
+
+564
+1240
+
+orden basada
+
+561
+1239
+
+{
+  "SecretKey": "N3dug4t3ch#2020*-SECRET-KEY",
+  "ConnectionStrings": {
+    "SQLConnection": "Server=192.168.5.200;Database=PortalOne_Pruebas;Trusted_Connection=False;MultipleActiveResultSets=true;User Id=sa;Password=Asdf1234$",
+    "HANAConnection": "DSN=HANA;Uid=SYSTEM;Pwd=Asdf1234$"
+  },
+
+  "AppSettings": {
+    "ServerBD": "192.168.5.200",
+    "NombreBD": "PortalOne_Pruebas",
+    "NombreBDHANA": "COREONE_PRUEBAS",
+    "NombreBDPruebas": "PortalOne_Pruebas",
+    "NombreBDHANAPruebas": "COREONE_PRUEBAS",
+    "UsuarioBD": "SYSTEM",
+    "PassBD": "Asdf1234$",
+    "ServerSAP": "192.168.5.195",
+    "NombreBDSAPB1": "DIALNETDEV",
+    "NombreBDSAPB1Pruebas": "DIALNETDEV",
+    "UsuarioSAP": "manager",
+    "PassSAP": "HYC909",
+    "UsuarioSAPProgramador": "programador",
+    "PassSAPProgramador": "Asdf1234$",
+    "UsuarioSAPPortal": "portalone",
+    "PassSAPPortal": "Asdf1234$",
+    "UsuarioSAPMovil": "agendamovil",
+    "PassSAPMovil": "Asdf1234$",
+    "TipoBDSAPB1": "dst_HANADB",
+    "RutaAnexosSAP": "\\\\192.168.5.196\\sapbo\\DIALNETDEV\\ANEXOS\\",
+    "RutaAnexosServidor": "F:\\AnexosServiceOneX\\",
+    "RutaReportesCR": "\"C:\\inetpub\\SitioPortalOne\\WcfPortalOneHana\\Reportes\\\",",
+    "UrlWsSAPB1": "https://192.168.5.195:50000/b1s/v1/"
+  },
+
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft": "Warning",
+      "Microsoft.Hosting.Lifetime": "Information"
+    }
+  },
+  "AllowedHosts": "*"
+}
+
+
+RESTREPO
+
+{
+  "SecretKey": "N3dug4t3ch#2020*-SECRET-KEY",
+  "ConnectionStrings": {
+    "SQLConnection": "Server=192.168.1.210;Database=PortalOneRG_Pruebas;Trusted_Connection=False;MultipleActiveResultSets=true;User Id=sa;Password=Asdf1234$",
+    "HANAConnection": "DSN=HANA;Uid=SYSTEM;Pwd=Asdf1234$"
+  },
+
+  "AppSettings": {
+    "ServerBD": "192.168.1.210",
+    "NombreBD": "PortalOneRG_Pruebas",
+    "NombreBDHANA": "COREONE",
+    "NombreBDPruebas": "PortalOneRG_Pruebas",
+    "NombreBDHANAPruebas": "COREONE_PRUEBAS",
+    "UsuarioBD": "sa",
+    "PassBD": "Asdf1234$",
+    "ServerSAP": "192.168.1.210",
+    "NombreBDSAPB1": "RGDEV",
+    "NombreBDSAPB1Pruebas": "RGDEV",
+    "UsuarioSAP": "Integrador",
+    "PassSAP": "HYC909",
+    "UsuarioSAPProgramador": "Integrador",
+    "PassSAPProgramador": "HYC909",
+    "UsuarioSAPPortal": "Integrador",
+    "PassSAPPortal": "HYC909",
+    "UsuarioSAPMovil": "Integrador",
+    "PassSAPMovil": "HYC909",
+    "TipoBDSAPB1": "dst_MSSQL2016",
+    "RutaAnexosSAP": "\\\\192.168.1.210\\Archivos_SAPB1\\RGDEV\\ANEXOS\\",
+    "RutaAnexosServidor": "F:\\AnexosServiceOneX\\",
+    "RutaReportesCR": "\"C:\\inetpub\\SitioPortalOne\\WcfPortalOneHana\\Reportes\\\",",
+    "UrlWsSAPB1": "https://192.168.1.210:30030/b1s/v1/"
+  },
+
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft": "Warning",
+      "Microsoft.Hosting.Lifetime": "Information"
+    }
+  },
+  "AllowedHosts": "*"
+}
+
+
+COPLA
+
+{
+  "SecretKey": "N3dug4t3ch#2020*-SECRET-KEY",
+  "ConnectionStrings": {
+    "SQLConnection": "Server=192.168.1.253;Database=PortalOneCopla;Trusted_Connection=False;MultipleActiveResultSets=true;User Id=sa;Password=Asdf1234$",
+    "HANAConnection": "DSN=HANA;Uid=SYSTEM;Pwd=Asdf1234$"
+  },
+
+  "AppSettings": {
+    "ServerBD": "192.168.1.253",
+    "NombreBD": "PortalOneCopla",
+    "NombreBDHANA": "COREONE",
+    "NombreBDPruebas": "PortalOneCopla_Pruebas",
+    "NombreBDHANAPruebas": "COREONE_PRUEBAS",
+    "UsuarioBD": "sa",
+    "PassBD": "Asdf1234$",
+    "ServerSAP": "192.168.1.210",
+    "NombreBDSAPB1": "COPLAPRO",
+    "NombreBDSAPB1Pruebas": "COPLADEV",
+    "UsuarioSAP": "Integrador",
+    "PassSAP": "NDG909",
+    "UsuarioSAPProgramador": "Integrador",
+    "PassSAPProgramador": "NDG909",
+    "UsuarioSAPPortal": "portalcopla",
+    "PassSAPPortal": "NDG909",
+    "UsuarioSAPMovil": "portalcopla",
+    "PassSAPMovil": "NDG909",
+    "TipoBDSAPB1": "dst_MSSQL2016",
+    "RutaAnexosSAP": "\\\\192.168.1.253\\sap_anexos\\COPLAPRO\\ANEXOS\\",
+    "RutaAnexosServidor": "F:\\AnexosServiceOneX\\",
+    "RutaReportesCR": "\"C:\\inetpub\\SitioPortalOne\\WcfPortalOneHana\\Reportes\\\",",
+    "UrlWsSAPB1": "https://192.168.1.253:30030/b1s/v1/"
+  },
+
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft": "Warning",
+      "Microsoft.Hosting.Lifetime": "Information"
+    }
+  },
+  "AllowedHosts": "*"
+}
+
+
+192.168.1.251
+
+SitioApiCoreOne/ApiCoreOnePruebas
+
+FUMICOPLA\Administrador
+
+http://192.168.1.251:65080/ApiCoreOnePruebas/
+

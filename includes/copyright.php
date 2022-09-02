@@ -1,0 +1,1 @@
+Todos los derechos reservados &copy; <?php echo date('Y');?><br>Desarrollado por NEDUGA TECH S.A.S.<br><a href="https://www.nedugatech.com" target="_blank">www.nedugatech.com</a><br><span id="siteseal"><script async type="text/javascript" src="https://seal.godaddy.com/getSeal?sealID=TSOQsgtpLkh4eUWFHDaYjzePs6rILT8p8xGnWg7Sn4z0WYNgBZZSmlEOk1PO"></script></span>
