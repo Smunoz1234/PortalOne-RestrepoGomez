@@ -40,20 +40,23 @@ if (isset($_GET['FechaFinal']) && $_GET['FechaFinal'] != "") {
 }
 
 $Recargar = isset($_GET['reload']) ? $_GET['reload'] : 0;
-
+// BasadoEscaneados
+/*
 if ($sw == 1) {
-    $Param = array(
-        "'" . FormatoFecha($FechaInicial) . "'",
-        "'" . FormatoFecha($FechaFinal) . "'",
-        "'" . $_GET['Series'] . "'",
-        "'" . strtolower($_SESSION['User']) . "'",
-        "'" . $_GET['EstadoLlamada'] . "'",
-        $Recargar,
-    );
-    $SQL = EjecutarSP('usp_tbl_CierreOrdenesServicio_Sel', $Param);
-    $row = sqlsrv_fetch_array($SQL);
+$Param = array(
+"'" . FormatoFecha($FechaInicial) . "'",
+"'" . FormatoFecha($FechaFinal) . "'",
+"'" . $_GET['Series'] . "'",
+"'" . strtolower($_SESSION['User']) . "'",
+"'" . $_GET['EstadosLlamada'] . "'",
+$Recargar,
+);
+$SQL = EjecutarSP('usp_tbl_CierreOrdenesServicio_Sel', $Param);
+$row = sqlsrv_fetch_array($SQL);
 }
+ */
 ?>
+
 <!DOCTYPE html>
 <html><!-- InstanceBegin template="/Templates/PlantillaPrincipal.dwt.php" codeOutsideHTMLIsLocked="false" -->
 
@@ -68,6 +71,25 @@ if ($sw == 1) {
 	.panel-resizable {
 		resize: vertical;
 		overflow: auto
+	}
+
+	/**
+	* Estilos para el uso del componente select2-multiple en un modal.
+	*
+	* @author Stiven Muñoz Murillo
+	* @version 09/08/2022
+	*/
+
+	.select2-container {
+		z-index: 10000;
+	}
+
+	.select2-search--inline {
+    display: contents;
+	}
+
+	.select2-search__field:placeholder-shown {
+		width: 100% !important;
 	}
 </style>
 <script type="text/javascript">
@@ -218,7 +240,7 @@ function ConsultarCant(){
 								</div>
 							</div>
 							<label class="col-lg-1 control-label">Sucursal <span class="text-danger">*</span></label>
-							<div class="col-lg-2">
+							<div class="col-lg-3">
 								<select name="Sucursal" class="form-control" id="Sucursal" required>
 									<option value="">Seleccione...</option>
 								  <?php	while ($row_Sucursal = sqlsrv_fetch_array($SQL_Sucursal)) {?>
@@ -227,7 +249,7 @@ function ConsultarCant(){
 								</select>
 							</div>
 							<label class="col-lg-1 control-label">Serie <span class="text-danger">*</span></label>
-							<div class="col-lg-2">
+							<div class="col-lg-3">
 								<select name="Series" class="form-control" id="Series" required>
 										<option value="">Seleccione...</option>
 								  <?php if ($sw == 1) {
@@ -238,21 +260,33 @@ function ConsultarCant(){
 								</select>
 							</div>
 						</div>
+
+						<!-- SMM, 09/08/2022 -->
 					 	<div class="form-group">
 							<label class="col-lg-1 control-label">Estado OT <span class="text-danger">*</span></label>
-							<div class="col-lg-2">
-								<select name="EstadoLlamada" class="form-control" id="EstadoLlamada" required>
-										<option value="">Seleccione...</option>
-								  <?php while ($row_EstadoLlamada = sqlsrv_fetch_array($SQL_EstadoLlamada)) {?>
-										<option value="<?php echo $row_EstadoLlamada['Cod_Estado']; ?>" <?php if ((isset($_GET['EstadoLlamada'])) && (strcmp($row_EstadoLlamada['Cod_Estado'], $_GET['EstadoLlamada']) == 0)) {echo "selected=\"selected\"";}?>><?php echo $row_EstadoLlamada['NombreEstado']; ?></option>
-								  <?php }?>
+							<div class="col-lg-3">
+								<select data-placeholder="Digite para buscar..." name="EstadosLlamada[]" class="form-control select2" id="EstadosLlamada" multiple>
+									<?php while ($row_EstadoLlamada = sqlsrv_fetch_array($SQL_EstadoLlamada)) {?>
+										<option value="<?php echo $row_EstadoLlamada['Cod_Estado']; ?>"
+										<?php if (isset($_GET['EstadosLlamada']) && in_array($row_EstadoLlamada['Cod_Estado'], $_GET['EstadosLlamada'])) {echo "selected";}?>>
+											<?php echo $row_EstadoLlamada['NombreEstado']; ?>
+										</option>
+									<?php }?>
 								</select>
 							</div>
-							<div class="col-lg-7"></div>
-							<div class="col-lg-2">
+							<label class="col-lg-1 control-label">Basado en archivos escaneados <span class="text-danger">*</span></label>
+							<div class="col-lg-3">
+								<select name="BasadoEscaneados" class="form-control" id="BasadoEscaneados" required>
+									<option value="1" <?php if (isset($_GET['BasadoEscaneados']) && ($_GET['BasadoEscaneados'] == "1")) {echo "selected";}?>>SI</option>
+									<option value="0" <?php if (isset($_GET['BasadoEscaneados']) && ($_GET['BasadoEscaneados'] == "0")) {echo "selected";}?>>NO</option>
+								</select>
+							</div>
+							<div class="col-lg-4">
 								<button type="submit" class="btn btn-outline btn-success pull-right"><i class="fa fa-search"></i> Buscar</button>
 							</div>
 						</div>
+						<!-- Hasta aquí, 09/08/2022 -->
+
 					  <input type="hidden" id="reload" name="reload" value="0" />
 				 </form>
 			</div>
@@ -425,6 +459,9 @@ function ConsultarCant(){
 			});
 
 			$('.chosen-select').chosen({width: "100%"});
+
+			// SMM, 09/08/2022
+			$(".select2").select2();
 
 			var options = {
 				url: function(phrase) {
