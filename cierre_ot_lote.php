@@ -39,22 +39,22 @@ if (isset($_GET['FechaFinal']) && $_GET['FechaFinal'] != "") {
     $FechaFinal = date('Y-m-d');
 }
 
-$Recargar = isset($_GET['reload']) ? $_GET['reload'] : 0;
-// BasadoEscaneados
-/*
 if ($sw == 1) {
-$Param = array(
-"'" . FormatoFecha($FechaInicial) . "'",
-"'" . FormatoFecha($FechaFinal) . "'",
-"'" . $_GET['Series'] . "'",
-"'" . strtolower($_SESSION['User']) . "'",
-"'" . $_GET['EstadosLlamada'] . "'",
-$Recargar,
-);
-$SQL = EjecutarSP('usp_tbl_CierreOrdenesServicio_Sel', $Param);
-$row = sqlsrv_fetch_array($SQL);
+    // SMM, 09/08/2022
+    $estados = isset($_GET['EstadosLlamada']) ? implode(";", $_GET['EstadosLlamada']) : "";
+
+    $Param = array(
+        "'" . FormatoFecha($FechaInicial) . "'",
+        "'" . FormatoFecha($FechaFinal) . "'",
+        "'" . $_GET['Series'] . "'",
+        "'" . strtolower($_SESSION['User']) . "'",
+        "'" . $estados . "'", // SMM, 09/08/2022
+        "'" . $_GET['BasadoEscaneados'] . "'", // SMM, 09/08/2022
+        $_GET['reload'] ?? 0,
+    );
+    $SQL = EjecutarSP('usp_tbl_CierreOrdenesServicio_Sel', $Param);
+    $row = sqlsrv_fetch_array($SQL);
 }
- */
 ?>
 
 <!DOCTYPE html>
@@ -72,26 +72,8 @@ $row = sqlsrv_fetch_array($SQL);
 		resize: vertical;
 		overflow: auto
 	}
-
-	/**
-	* Estilos para el uso del componente select2-multiple en un modal.
-	*
-	* @author Stiven Muñoz Murillo
-	* @version 09/08/2022
-	*/
-
-	.select2-container {
-		z-index: 10000;
-	}
-
-	.select2-search--inline {
-    display: contents;
-	}
-
-	.select2-search__field:placeholder-shown {
-		width: 100% !important;
-	}
 </style>
+
 <script type="text/javascript">
 	$(document).ready(function() {
 		$("#NombreClienteActividad").change(function(){
