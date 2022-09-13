@@ -3422,7 +3422,7 @@ elseif($P==36){//Actualizar los datos del detalle de los documentos de SAP
 		elseif($_GET['doctype']==10){//Actualiza el detalle del cierre de OT
 			$Parametros=array(
 				"'".$_GET['name']."'",
-				"'".FormatoFecha(base64_decode($_GET['value']))."'",
+				"'".base64_decode($_GET['value'])."'", // ¿FormatoFecha?, 12/09/2022
 				"'".$_GET['line']."'",
 				"'".strtolower($_SESSION['User'])."'",
 				"'".$_GET['type']."'"

@@ -200,8 +200,22 @@ function ValidarFechas(id,t){
 			<td><input size="30" type="text" id="NombreEmpleado<?php echo $i;?>" name="NombreEmpleado[]" class="form-control" readonly value="<?php echo $row['NombreEmpleadoActividad'];?>"></td>
 			<td><input size="25" type="text" id="FechaHoraInicioActividad<?php echo $i;?>" name="FechaHoraInicioActividad[]" class="form-control" readonly value="<?php echo $row['FechaHoraInicioActividad']->format('Y-m-d H:i');?>"></td>
 			
-			<td><input size="25" type="text" id="FechaHoraInicioEjecucion<?php echo $i;?>" name="FechaHoraInicioEjecucion[]" class="form-control" onChange="ActualizarDatos('FechaHoraInicioEjecucion',<?php echo $i;?>,<?php echo $row['ID'];?>);" value="<?php if($row['FechaHoraInicioEjecucion']!=""){echo $row['FechaHoraInicioEjecucion']->format('Y-m-d H:i');}?>" data-mask="9999-99-99 99:99"></td>
-			<td><input size="25" type="text" id="FechaHoraFinEjecucion<?php echo $i;?>" name="FechaHoraFinEjecucion[]" class="form-control" onChange="ActualizarDatos('FechaHoraFinEjecucion',<?php echo $i;?>,<?php echo $row['ID'];?>);" value="<?php if($row['FechaHoraFinEjecucion']!=""){echo $row['FechaHoraFinEjecucion']->format('Y-m-d H:i');}?>" data-mask="9999-99-99 99:99"></td>
+			<td><input size="25" type="text" id="FechaHoraInicioEjecucion<?php echo $i;?>" name="FechaHoraInicioEjecucion[]" class="form-control FechaHoraInicioEjecucion" onChange="ActualizarDatos('FechaHoraInicioEjecucion',<?php echo $i;?>,<?php echo $row['ID'];?>);" data-mask="9999-99-99 99:99" value="<?php 
+			// SMM, 13/09/2022
+			if(isset($_GET["FechaInicioEjecucion"]) && ($_GET["FechaInicioEjecucion"]!="") && isset($_GET["HoraInicioEjecucion"]) && ($_GET["HoraInicioEjecucion"]!="")) {
+				echo FormatoFecha($_GET["FechaInicioEjecucion"], $_GET["HoraInicioEjecucion"]); 
+			} else {
+				if($row['FechaHoraInicioEjecucion']!=""){echo $row['FechaHoraInicioEjecucion']->format('Y-m-d H:i');}
+			} ?>"></td>
+			
+			<td><input size="25" type="text" id="FechaHoraFinEjecucion<?php echo $i;?>" name="FechaHoraFinEjecucion[]" class="form-control FechaHoraFinEjecucion" onChange="ActualizarDatos('FechaHoraFinEjecucion',<?php echo $i;?>,<?php echo $row['ID'];?>);" data-mask="9999-99-99 99:99" value="<?php 
+			// SMM, 13/09/2022
+			if(isset($_GET["FechaFinEjecucion"]) && ($_GET["FechaFinEjecucion"]!="") && isset($_GET["HoraFinEjecucion"]) && ($_GET["HoraFinEjecucion"]!="")) {
+				echo FormatoFecha($_GET["FechaFinEjecucion"], $_GET["HoraFinEjecucion"]); 
+			} else {
+				if($row['FechaHoraFinEjecucion']!=""){echo $row['FechaHoraFinEjecucion']->format('Y-m-d H:i');}
+			} ?>"></td>
+			
 			<td><input size="15" type="text" id="EstadoActividad<?php echo $i;?>" name="EstadoActividad[]" class="form-control <?php if($row['EstadoActividad']=="Abierto"){echo "bg-danger";}else{echo "bg-primary";}?>" readonly value="<?php echo $row['EstadoActividad'];?>"></td>
 			<td><span class="<?php if($row['Integracion']==0){echo "badge badge-warning";}elseif($row['Integracion']==2){"badge badge-danger";}else{echo "badge badge-primary";}?>"><?php echo $row['Ejecucion'];?></span></td>
 		</tr>
@@ -219,6 +233,15 @@ function ValidarFechas(id,t){
 				 $('.ibox-content').toggleClass('sk-loading');
 			}); 
 		  $(".select2").select2();
+
+		// SMM, 12/09/2022
+		<?php if(isset($_GET["FechaInicioEjecucion"]) && ($_GET["FechaInicioEjecucion"]!="") && isset($_GET["HoraInicioEjecucion"]) && ($_GET["HoraInicioEjecucion"]!="")) { ?> 
+			$(".FechaHoraInicioEjecucion").change();
+		<?php } ?>
+
+		<?php if(isset($_GET["FechaFinEjecucion"]) && ($_GET["FechaFinEjecucion"]!="") && isset($_GET["HoraFinEjecucion"]) && ($_GET["HoraFinEjecucion"]!="")) { ?> 
+			$(".FechaHoraFinEjecucion").change();
+		<?php } ?>
 	});
 </script>
 </body>

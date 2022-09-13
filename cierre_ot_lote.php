@@ -55,6 +55,12 @@ if ($sw == 1) {
     $SQL = EjecutarSP('usp_tbl_CierreOrdenesServicio_Sel', $Param);
     $row = sqlsrv_fetch_array($SQL);
 }
+
+// Estado servicio llamada. SMM, 09/12/2022
+$SQL_EstadoServicioLlamada = Seleccionar('uvw_Sap_tbl_LlamadasServiciosEstadoServicios', '*', '', 'DeEstadoServicio');
+
+// Cancelado por llamada. SMM, 09/12/2022
+$SQL_CanceladoPorLlamada = Seleccionar('uvw_Sap_tbl_LlamadasServiciosCanceladoPor', '*', '', 'DeCanceladoPor', 'DESC');
 ?>
 
 <!DOCTYPE html>
@@ -71,6 +77,11 @@ if ($sw == 1) {
 	.panel-resizable {
 		resize: vertical;
 		overflow: auto
+	}
+
+	/** SMM, 13/09/2022 */
+	.swal2-container, .clockpicker-popover {
+		z-index: 9999999 !important;
 	}
 </style>
 
@@ -204,6 +215,135 @@ function ConsultarCant(){
                 </div>
             </div>
          <div class="wrapper wrapper-content">
+			<!-- Inicio, modalCambiarLlamadas. SMM, 12/09/2022 -->
+			<div class="modal inmodal fade" id="modalCambiarLlamadas" tabindex="-1" role="dialog" aria-hidden="true">
+				<div class="modal-dialog modal-lg">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h4 class="modal-title">Cambiar campos en lote - Llamadas</h4>
+						</div>
+
+						<!-- form id="formCambiarLlamadas" -->
+							<div class="modal-body">
+								<div class="ibox-content">
+									<div class="form-group">
+										<label class="col-lg-2">Estado servicio</label>
+										<div class="col-lg-10">
+											<select name="IdEstadoServicio" class="form-control" id="IdEstadoServicio" required>
+												<option value="" disabled selected>Seleccione...</option>
+											<?php while ($row_EstadoServicio = sqlsrv_fetch_array($SQL_EstadoServicioLlamada)) {?>
+												<option value="<?php echo $row_EstadoServicio['IdEstadoServicio']; ?>">
+													<?php echo $row_EstadoServicio['DeEstadoServicio']; ?>
+												</option>
+											<?php }?>
+											</select>
+										</div>
+									</div>
+									<br><br><br>
+									<div class="form-group">
+										<label class="col-lg-2">Cancelado por</label>
+										<div class="col-lg-10">
+											<select name="IdCanceladoPor" class="form-control" id="IdCanceladoPor" required>
+												<option value="" disabled selected>Seleccione...</option>
+											<?php while ($row_CanceladoPor = sqlsrv_fetch_array($SQL_CanceladoPorLlamada)) {?>
+												<option value="<?php echo $row_CanceladoPor['IdCanceladoPor']; ?>">
+													<?php echo $row_CanceladoPor['DeCanceladoPor']; ?>
+												</option>
+											<?php }?>
+											</select>
+										</div>
+									</div>
+									<br><br><br>
+									<div class="form-group">
+										<label class="col-lg-2">Comentarios de cierre</label>
+										<div class="col-lg-10">
+											<textarea type="text" maxlength="2000" rows="4" class="form-control" name="ComentariosCierre" id="ComentariosCierre"></textarea>
+										</div>
+									</div>
+									<br><br><br>
+								</div>
+							</div>
+
+							<div class="modal-footer">
+								<button type="button" class="btn btn-success m-t-md" id="formCambiarLlamadas"><i class="fa fa-check"></i> Aceptar</button>
+								<button type="button" class="btn btn-warning m-t-md" data-dismiss="modal"><i class="fa fa-times"></i> Cerrar</button>
+							</div>
+						<!-- /formCambiarLlamadas -->
+					</div>
+				</div>
+			</div>
+			<!-- Fin, modalCambiarLlamadas. SMM, 12/09/2022 -->
+
+			<!-- Inicio, modalCambiarActividades. SMM, 13/09/2022 -->
+			<div class="modal inmodal fade" id="modalCambiarActividades" tabindex="-1" role="dialog" aria-hidden="true">
+				<div class="modal-dialog modal-lg">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h4 class="modal-title">Cambiar campos en lote - Actividades</h4>
+						</div>
+
+						<!-- form id="formCambiarActividades" -->
+							<div class="modal-body">
+								<div class="ibox-content">
+									<br>
+									<!-- Inicio, Componente de Fecha y Hora -->
+									<div class="form-group">
+										<div class="row">
+											<label class="col-lg-6 control-label" style="text-align: left !important;">Fecha y hora inicio Ejecución</label>
+										</div>
+										<div class="row">
+											<div class="col-lg-6 input-group date">
+												<span class="input-group-addon">
+													<i class="fa fa-calendar"></i>
+												</span>
+												<input name="FechaInicioEjecucion" id="FechaInicioEjecucion" type="text" autocomplete="off" class="form-control" placeholder="YYYY-MM-DD">
+											</div>
+											<div class="col-lg-6 input-group clockpicker" data-autoclose="true">
+												<input name="HoraInicioEjecucion" id="HoraInicioEjecucion" type="text" autocomplete="off" class="form-control" placeholder="hh:mm">
+												<span class="input-group-addon">
+													<i class="fa fa-clock-o"></i>
+												</span>
+											</div>
+										</div>
+									</div>
+									<!-- Fin, Componente de Fecha y Hora -->
+
+									<br><br>
+									<!-- Inicio, Componente de Fecha y Hora -->
+									<div class="form-group">
+										<div class="row">
+											<label class="col-lg-6 control-label" style="text-align: left !important;">Fecha y hora fin Ejecución</label>
+										</div>
+										<div class="row">
+											<div class="col-lg-6 input-group date">
+												<span class="input-group-addon">
+													<i class="fa fa-calendar"></i>
+												</span>
+												<input name="FechaFinEjecucion" id="FechaFinEjecucion" type="text" autocomplete="off" class="form-control" placeholder="YYYY-MM-DD">
+											</div>
+											<div class="col-lg-6 input-group clockpicker" data-autoclose="true">
+												<input name="HoraFinEjecucion" id="HoraFinEjecucion" type="text" autocomplete="off" class="form-control" placeholder="hh:mm">
+												<span class="input-group-addon">
+													<i class="fa fa-clock-o"></i>
+												</span>
+											</div>
+										</div>
+									</div>
+									<!-- Fin, Componente de Fecha y Hora -->
+									<br><br><br>
+								</div>
+							</div>
+
+							<div class="modal-footer">
+								<button type="button" class="btn btn-success m-t-md" id="formCambiarActividades"><i class="fa fa-check"></i> Aceptar</button>
+								<button type="button" class="btn btn-warning m-t-md" data-dismiss="modal"><i class="fa fa-times"></i> Cerrar</button>
+							</div>
+						<!-- /formCambiarActividades -->
+					</div>
+				</div>
+			</div>
+			<!-- Fin, modalCambiarActividades. SMM, 13/09/2022 -->
+
              <div class="row">
 				<div class="col-lg-12">
 			    <div class="ibox-content">
@@ -337,6 +477,9 @@ function ConsultarCant(){
 						<div class="col-lg-8">
 							<button class="btn btn-primary btn-lg btn-outline m-b-md" type="button" id="CierreLlamadas" onClick="Validar('2');"><i class="fa fa-play-circle"></i> Cerrar llamadas de servicio</button>
 							<input type="hidden" id="IdEvento" value="<?php if (isset($row['IdEvento'])) {echo $row['IdEvento'];}?>" />
+
+							<!-- SMM, 13/09/2022 -->
+							<button class="btn btn-success btn-lg btn-outline m-b-md" type="button" onClick="cambiarCampos(1)"><i class="fa fa-refresh"></i> Cambiar campos en lote</button>
 						</div>
 						<div class="col-lg-2">
 							<div class="form-group border">
@@ -366,7 +509,11 @@ function ConsultarCant(){
 							</div>
 						</div>
 					</div>
-					<button class="btn btn-success btn-lg btn-outline m-b-md" type="button" id="CierreAct" onClick="Validar('1');"><i class="fa fa-play-circle"></i> Cerrar actividades</button>
+					<button class="btn btn-primary btn-lg btn-outline m-b-md" type="button" id="CierreAct" onClick="Validar('1');"><i class="fa fa-play-circle"></i> Cerrar actividades</button>
+
+					<!-- SMM, 13/09/2022 -->
+					<button class="btn btn-success btn-lg btn-outline m-b-md" type="button" onClick="cambiarCampos(2)"><i class="fa fa-refresh"></i> Cambiar campos en lote</button>
+
 					<div class="tabs-container">
 						<ul class="nav nav-tabs">
 							<li class="active"><a data-toggle="tab" href="#tab-2"><i class="fa fa-tasks"></i> Actividades</a></li>
@@ -390,8 +537,80 @@ function ConsultarCant(){
 </div>
 <?php include "includes/pie.php";?>
 <!-- InstanceBeginEditable name="EditRegion4" -->
- <script>
-        $(document).ready(function(){
+
+<script>
+// SMM, 12/09/2022
+function cambiarCampos(tipo) {
+	if(tipo === 1) {
+		$('#modalCambiarLlamadas').modal('show');
+	} else {
+		$('#modalCambiarActividades').modal('show');
+	}
+}
+// Hasta aquí, 12/09/2022
+
+	$(document).ready(function(){
+
+		// SMM, 12/09/2022
+		$("#formCambiarLlamadas").on("click", function(event) {
+			// event.preventDefault(); // Evitar redirección del formulario
+
+			Swal.fire({
+				title: "¿Desea cambiar los campos en la lista de llamadas de servicio?",
+				icon: "question",
+				showCancelButton: true,
+				confirmButtonText: "Si, confirmo",
+				cancelButtonText: "No"
+			}).then((result) => {
+				if (result.isConfirmed) {
+					let DG_Llamadas = document.getElementById("DG_Llamadas");
+
+					// Filtros, 09/12/2022
+					let f1= `IdEstadoServicio=${document.getElementById("IdEstadoServicio").value}`;
+					let f2= `IdCanceladoPor=${document.getElementById("IdCanceladoPor").value}`;
+					let f3= `ComentariosCierre=${document.getElementById("ComentariosCierre").value}`;
+
+					DG_Llamadas.src = `detalle_cierre_ot_lote_llamadas.php?${f1}&${f2}&${f3}`;
+					$('#modalCambiarLlamadas').modal('hide');
+				} else {
+					console.log("Acción cancelada por el usuario");
+				}
+			});
+		});
+		// Hasta aquí, 12/09/2022
+
+		// SMM, 13/09/2022
+		$('.date').datepicker();
+		$('.clockpicker').clockpicker();
+
+		$("#formCambiarActividades").on("click", function(event) {
+			// event.preventDefault(); // Evitar redirección del formulario
+
+			Swal.fire({
+				title: "¿Desea cambiar los campos en la lista de actividades?",
+				icon: "question",
+				showCancelButton: true,
+				confirmButtonText: "Si, confirmo",
+				cancelButtonText: "No"
+			}).then((result) => {
+				if (result.isConfirmed) {
+					let DG_Actividades = document.getElementById("DG_Actividades");
+
+					// Filtros, 13/09/2022
+					let f1= `FechaInicioEjecucion=${document.getElementById("FechaInicioEjecucion").value}`;
+					let f2= `HoraInicioEjecucion=${document.getElementById("HoraInicioEjecucion").value}`;
+					let f3= `FechaFinEjecucion=${document.getElementById("FechaFinEjecucion").value}`;
+					let f4= `HoraFinEjecucion=${document.getElementById("HoraFinEjecucion").value}`;
+
+					DG_Actividades.src = `detalle_cierre_ot_lote_actividades.php?${f1}&${f2}&${f3}&${f4}`;
+					$('#modalCambiarActividades').modal('hide');
+				} else {
+					console.log("Acción cancelada por el usuario");
+				}
+			});
+		});
+		// Hasta aquí, 13/09/2022
+
 			$("#formBuscar").validate({
 			 submitHandler: function(form){
 				var reload = document.getElementById("reload");

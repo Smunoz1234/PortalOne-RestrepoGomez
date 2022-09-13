@@ -190,22 +190,41 @@ function SeleccionarTodos(){
 			<td><input size="50" type="text" id="NombreCliente<?php echo $i;?>" name="NombreCliente[]" class="form-control" readonly value="<?php echo $row['NombreCliente'];?>"></td>
 			<td><input size="50" type="text" id="SucursalCliente<?php echo $i;?>" name="SucursalCliente[]" class="form-control" readonly value="<?php echo $row['IdSucursalCliente'];?>"></td>
 			<td>
-				<select id="EstadoServicio<?php echo $i;?>" name="EstadoServicio[]" class="form-control" onChange="ActualizarDatos('EstadoServicio',<?php echo $i;?>,<?php echo $row['ID'];?>);">
+				<select id="EstadoServicio<?php echo $i;?>" name="EstadoServicio[]" class="form-control IdEstadoServicio" onChange="ActualizarDatos('EstadoServicio',<?php echo $i;?>,<?php echo $row['ID'];?>);">
 				  <?php while($row_EstServLlamada=sqlsrv_fetch_array($SQL_EstServLlamada)){?>
-						<option value="<?php echo $row_EstServLlamada['IdEstadoServicio'];?>" <?php if((isset($row['EstadoServicio']))&&(strcmp($row_EstServLlamada['IdEstadoServicio'],$row['EstadoServicio'])==0)){ echo "selected=\"selected\"";}?>><?php echo $row_EstServLlamada['DeEstadoServicio'];?></option>
+						<option value="<?php echo $row_EstServLlamada['IdEstadoServicio'];?>" <?php 
+							if(isset($_GET["IdEstadoServicio"]) && ($_GET["IdEstadoServicio"]!="")) { // SMM, 12/09/2022
+								if($_GET['IdEstadoServicio'] == $row_EstServLlamada['IdEstadoServicio']) { echo "selected"; }
+							} else {
+								if((isset($row['EstadoServicio']))&&(strcmp($row_EstServLlamada['IdEstadoServicio'],$row['EstadoServicio'])==0)){ echo "selected=\"selected\"";}
+							}?>><?php echo $row_EstServLlamada['DeEstadoServicio'];?></option>
 				  <?php }?>
 				</select>
 			</td>
 			<td>
-				<select id="CanceladoPor<?php echo $i;?>" name="CanceladoPor[]" class="form-control" onChange="ActualizarDatos('CanceladoPor',<?php echo $i;?>,<?php echo $row['ID'];?>);">
+				<select id="CanceladoPor<?php echo $i;?>" name="CanceladoPor[]" class="form-control IdCanceladoPor" onChange="ActualizarDatos('CanceladoPor',<?php echo $i;?>,<?php echo $row['ID'];?>);">
 				  <?php while($row_CanceladoPorLlamada=sqlsrv_fetch_array($SQL_CanceladoPorLlamada)){?>
-						<option value="<?php echo $row_CanceladoPorLlamada['IdCanceladoPor'];?>" <?php if((isset($row['CanceladoPor']))&&(strcmp($row_CanceladoPorLlamada['IdCanceladoPor'],$row['CanceladoPor'])==0)){ echo "selected=\"selected\"";}?>><?php echo $row_CanceladoPorLlamada['DeCanceladoPor'];?></option>
+						<option value="<?php echo $row_CanceladoPorLlamada['IdCanceladoPor'];?>" <?php 
+							if(isset($_GET["IdCanceladoPor"]) && ($_GET["IdCanceladoPor"]!="")) { // SMM, 12/09/2022
+								if($_GET['IdCanceladoPor'] == $row_CanceladoPorLlamada['IdCanceladoPor']) { echo "selected"; }
+							} else {
+								if((isset($row['CanceladoPor']))&&(strcmp($row_CanceladoPorLlamada['IdCanceladoPor'],$row['CanceladoPor'])==0)){ echo "selected=\"selected\"";}
+							}?>><?php echo $row_CanceladoPorLlamada['DeCanceladoPor'];?></option>
 				  <?php }?>
 				</select>
 			</td>
 			<td><input size="15" type="text" id="Anexo<?php echo $i;?>" name="Anexo[]" class="form-control" readonly value="<?php echo $row['AnexoOrdenServicio'];?>"></td>
 			<td>
-				<textarea cols="70" maxlength="2000" id="ComentariosCierre<?php echo $i;?>" name="ComentariosCierre[]" class="form-control" onChange="ActualizarDatos('ComentariosCierre',<?php echo $i;?>,<?php echo $row['ID'];?>);"><?php echo $row['ComentariosCierre'];?></textarea>
+				<?php // SMM, 12/09/2022
+				$ComentariosCierre = "";
+				if(isset($_GET["ComentariosCierre"]) && ($_GET["ComentariosCierre"]!="")) { 
+					$ComentariosCierre = $_GET['ComentariosCierre'];
+				} else {
+					$ComentariosCierre = $row['ComentariosCierre'];
+				} ?>
+
+				<textarea cols="70" maxlength="2000" id="ComentariosCierre<?php echo $i;?>" name="ComentariosCierre[]" class="form-control ComentariosCierre" onChange="ActualizarDatos('ComentariosCierre',<?php echo $i;?>,<?php echo $row['ID'];?>);"><?php echo $ComentariosCierre;?></textarea>
+
 			</td>
 			<td><input size="15" type="text" id="EstadoOrdenServicio<?php echo $i;?>" name="EstadoOrdenServicio[]" class="form-control <?php if($row['EstadoOrdenServicio']=="Abierto"){echo "bg-danger";}else{echo "bg-primary";}?>" readonly value="<?php echo $row['EstadoOrdenServicio'];?>"></td>
 			<td><span class="<?php if(strstr($row['Validacion'],"OK")){echo "badge badge-primary";}else{echo "badge badge-danger";}?>"><?php echo $row['Validacion'];?></span></td>
@@ -225,6 +244,19 @@ function SeleccionarTodos(){
 				 $('.ibox-content').toggleClass('sk-loading');
 			}); 
 		  $(".select2").select2();
+
+		// SMM, 12/09/2022
+		<?php if(isset($_GET["IdEstadoServicio"]) && ($_GET["IdEstadoServicio"]!="")) { ?> 
+			$(".IdEstadoServicio").change();
+		<?php } ?>
+
+		<?php if(isset($_GET["IdCanceladoPor"]) && ($_GET["IdCanceladoPor"]!="")) { ?> 
+			$(".IdCanceladoPor").change();
+		<?php } ?>
+
+		<?php if(isset($_GET["ComentariosCierre"]) && ($_GET["ComentariosCierre"]!="")) { ?> 
+			$(".ComentariosCierre").change();
+		<?php } ?>
 	});
 </script>
 </body>
