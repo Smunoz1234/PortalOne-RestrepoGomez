@@ -79,9 +79,29 @@ $SQL_CanceladoPorLlamada = Seleccionar('uvw_Sap_tbl_LlamadasServiciosCanceladoPo
 		overflow: auto
 	}
 
-	/** SMM, 13/09/2022 */
+	/** SMM, 19/09/2022 */
 	.swal2-container, .clockpicker-popover {
 		z-index: 9999999 !important;
+	}
+
+	.tooltip-inner {
+    	min-width: 200px !important;
+	}
+
+	/**
+	* Iconos del panel de información.
+	* SMM, 15/09/2022
+	*/
+	.panel-heading  a:before {
+		font-family: 'Glyphicons Halflings';
+		content: "\e114";
+		float: right;
+		transition: all 0.5s;
+	}
+	.panel-heading.active a:before {
+		-webkit-transform: rotate(180deg);
+		-moz-transform: rotate(180deg);
+		transform: rotate(180deg);
 	}
 </style>
 
@@ -138,9 +158,15 @@ function EjecutarProceso(Tipo){
 
 		$.ajax({
 			url:"ajx_ejecutar_json.php",
-			data:{type:2,Evento:Evento,FechaInicial:FechaInicial,FechaFinal:FechaFinal,Sucursal:Sucursal,Serie:Series,Tipo:Tipo},
+			data:{
+				type:2,Evento:Evento,FechaInicial:FechaInicial,FechaFinal:FechaFinal,Sucursal:Sucursal,Serie:Series,Tipo:Tipo,
+				<?php if (isset($_GET['BasadoEscaneados'])) {echo "BasadoEscaneados: " . $_GET['BasadoEscaneados'];}?>
+			},
 			dataType:'json',
 			success: function(data){
+				// SMM, 19/09/2022
+				console.log("Respuesta ajx_ejecutar_json(2): ", data.Parametros);
+
 				if(data.Estado==1){
 					$("#UltEjecucion").html(MostrarFechaHora());
 					DG_Actividades.src="detalle_cierre_ot_lote_actividades.php";
@@ -226,6 +252,25 @@ function ConsultarCant(){
 						<!-- form id="formCambiarLlamadas" -->
 							<div class="modal-body">
 								<div class="ibox-content">
+
+									<div class="panel panel-info"> <!-- SMM, 15/09/2022 -->
+										<div class="panel-heading active" role="tab" id="headingOne">
+											<h4 class="panel-title">
+												<a role="button" data-toggle="collapse" href="#collapseOne" aria-controls="collapseOne">
+													<i class="fa fa-info-circle"></i> Instrucciones de uso
+												</a>
+											</h4>
+										</div>
+										<div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+											<div class="panel-body">
+												<b>
+													Esta ventana permite cambiar rápidamente el valor de los campos en la lista de llamadas de servicio, ninguno
+													de los campos es obligatorio y solo se veran afectados los campos para los cuales "seleccione" o digite un valor.
+												</b>
+											</div> <!-- panel-body-->
+										</div> <!-- panel-collapse -->
+									</div> <!-- panel-info -->
+
 									<div class="form-group">
 										<label class="col-lg-2">Estado servicio</label>
 										<div class="col-lg-10">
@@ -285,6 +330,23 @@ function ConsultarCant(){
 						<!-- form id="formCambiarActividades" -->
 							<div class="modal-body">
 								<div class="ibox-content">
+								<div class="panel panel-info"> <!-- SMM, 15/09/2022 -->
+										<div class="panel-heading active" role="tab" id="headingTwo">
+											<h4 class="panel-title">
+												<a role="button" data-toggle="collapse" href="#collapseTwo" aria-controls="collapseTwo">
+													<i class="fa fa-info-circle"></i> Instrucciones de uso
+												</a>
+											</h4>
+										</div>
+										<div id="collapseTwo" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingTwo">
+											<div class="panel-body">
+												<p>
+													Esta ventana permite cambiar rápidamente el valor de los campos en la lista de actividades, ninguno
+													de los campos es obligatorio y solo se veran afectados los campos para los cuales seleccione o digite un valor.
+												</p>
+											</div> <!-- panel-body-->
+										</div> <!-- panel-collapse -->
+									</div> <!-- panel-info -->
 									<br>
 									<!-- Inicio, Componente de Fecha y Hora -->
 									<div class="form-group">
@@ -397,12 +459,18 @@ function ConsultarCant(){
 								</select>
 							</div>
 							<label class="col-lg-1 control-label">Basado en archivos escaneados <span class="text-danger">*</span></label>
-							<div class="col-lg-3">
+							<div class="col-lg-2">
 								<select name="BasadoEscaneados" class="form-control" id="BasadoEscaneados" required>
 									<option value="1" <?php if (isset($_GET['BasadoEscaneados']) && ($_GET['BasadoEscaneados'] == "1")) {echo "selected";}?>>SI</option>
 									<option value="0" <?php if (isset($_GET['BasadoEscaneados']) && ($_GET['BasadoEscaneados'] == "0")) {echo "selected";}?>>NO</option>
 								</select>
 							</div>
+							<div class="col-lg-1">
+								<button type="button" class="btn btn-sm btn-secondary btn-circle" data-toggle="tooltip" data-html="true"
+								title="<b>SI</b> - Búsqueda basada en los archivos que se encuentran en la ruta compartida de directorios.
+								<br><b>NO</b> - Búsqueda basada en el registro de la llamada de servicio."><i class="fa fa-info"></i></button>
+							</div>
+
 							<div class="col-lg-4">
 								<button type="submit" class="btn btn-outline btn-success pull-right"><i class="fa fa-search"></i> Buscar</button>
 							</div>
@@ -542,14 +610,35 @@ function ConsultarCant(){
 // SMM, 12/09/2022
 function cambiarCampos(tipo) {
 	if(tipo === 1) {
+		document.getElementById("IdEstadoServicio").value = "";
+		document.getElementById("IdCanceladoPor").value = "";
+		document.getElementById("ComentariosCierre").value = "";
+
 		$('#modalCambiarLlamadas').modal('show');
 	} else {
+		document.getElementById("FechaInicioEjecucion").value = "";
+		document.getElementById("HoraInicioEjecucion").value = "";
+		document.getElementById("FechaFinEjecucion").value = "";
+		document.getElementById("HoraFinEjecucion").value = "";
+
 		$('#modalCambiarActividades').modal('show');
 	}
 }
 // Hasta aquí, 12/09/2022
 
 	$(document).ready(function(){
+		// SMM, 09/19/2022
+		$('[data-toggle="tooltip"]').tooltip();
+
+		// SMM, 15/09/2022
+		$('.panel-collapse').on('show.bs.collapse', function () {
+			$(this).siblings('.panel-heading').addClass('active');
+		});
+
+		$('.panel-collapse').on('hide.bs.collapse', function () {
+			$(this).siblings('.panel-heading').removeClass('active');
+		});
+		// Hasta aquí, 15/09/2022
 
 		// SMM, 12/09/2022
 		$("#formCambiarLlamadas").on("click", function(event) {
