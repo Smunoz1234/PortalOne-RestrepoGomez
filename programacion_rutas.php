@@ -14,6 +14,8 @@ $Num_TiposEstadoServ = sqlsrv_num_rows($SQL_TiposEstadoServ);
 $FilRec = "";
 //$Filtro="";
 
+$FiltrarActividades = "NULL"; // SMM, 20/09/2022
+
 //Fechas
 if (isset($_GET['FechaInicial']) && $_GET['FechaInicial'] != "") {
     $FechaInicial = $_GET['FechaInicial'];
@@ -86,7 +88,6 @@ if ($sw == 1) {
     $SQL_Actividad = EjecutarSP("sp_ConsultarDatosCalendarioRutasRecargar", $ParamCons);
 
     // SMM, 02/09/2022
-    $FiltrarActividades = "NULL";
     if (getCookiePHP("FiltrarActividades") == "true") {
         $FiltrarActividades = "1";
     }
@@ -366,8 +367,12 @@ if ($Sede != "") {$j = 0;
 													<span class="switcher-yes"></span>
 													<span class="switcher-no"></span>
 												</span>
-												<span class="switcher-label">Mostrar OTs programadas</span>
+												<span class="switcher-label">Listar OTs programadas</span>
 											</label>
+
+											<button type="button" class="btn btn-sm btn-info btn-circle" data-toggle="tooltip" data-html="true"
+											title="Si esta opción se encuentra seleccionada se mostrarán solamente las ordenes
+											que están programadas con al menos una actividad asignada."><i class="fa fa-info"></i></button>
 										</div>
 									</div>
 									<!-- Hasta aquí, 02/09/2022 -->
@@ -396,8 +401,8 @@ while ($row_TiposEstadoServ = sqlsrv_fetch_array($SQL_TiposEstadoServ)) {?>
 		</div>
 		<div class="row">
 			<div id="dvOT" class="card col-lg-2" style="max-height: 1110px; min-height: auto;">
-				<div class="alert alert-primary mt-lg-3 text-center" role="alert">
-				  <strong>Lista de OT pendientes (<span id="CantOT"><?php echo isset($Num_OT) ? number_format($Num_OT) : 0; ?></span> resultados)</strong>
+				<div class="alert <?php echo ($FiltrarActividades == "1") ? "alert-primary" : "alert-danger"; ?> mt-lg-3 text-center" role="alert">
+				  <strong>Lista de OT <?php echo ($FiltrarActividades == "1") ? "programadas" : "pendientes"; ?> (<span id="CantOT"><?php echo isset($Num_OT) ? number_format($Num_OT) : 0; ?></span> resultados)</strong>
 				</div>
 				<?php if ($sw == 1) {?>
 				<button id="btnAsigarAct" type="button" class="btn btn-success load" onClick="AbrirActLote();"><i class="fas fa-list-ol"></i> Asignar actividades en lote</button>

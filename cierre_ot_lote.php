@@ -466,7 +466,7 @@ function ConsultarCant(){
 								</select>
 							</div>
 							<div class="col-lg-1">
-								<button type="button" class="btn btn-sm btn-secondary btn-circle" data-toggle="tooltip" data-html="true"
+								<button type="button" class="btn btn-sm btn-info btn-circle" data-toggle="tooltip" data-html="true"
 								title="<b>SI</b> - Búsqueda basada en los archivos que se encuentran en la ruta compartida de directorios.
 								<br><b>NO</b> - Búsqueda basada en el registro de la llamada de servicio."><i class="fa fa-info"></i></button>
 							</div>
