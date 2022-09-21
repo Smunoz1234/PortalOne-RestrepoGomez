@@ -594,8 +594,8 @@ $j = 0;
 			<div id="dvCal" class="card card-body col-lg-10">
 				<div class="row">
 					<div class="form-group col-lg-12">
-						<button id="btnExpandir" type="button" class="btn icon-btn btn-sm btn-success fa-pull-right" title="Expandir calendario" onClick="Expandir();"><span id="iconBtnExpandir" class="fas fa-expand-arrows-alt"></span>
-                      	</button>
+						<button type="button" class="btn icon-btn btn-sm btn-success" title="Mostrar/ocultar lista de OTs" onClick="ExpandirListaOT();"><span class="fa fa-bars"></span></button>
+						<button id="btnExpandir" type="button" class="btn icon-btn btn-sm btn-success fa-pull-right" title="Expandir calendario" onClick="Expandir();"><span id="iconBtnExpandir" class="fas fa-expand-arrows-alt"></span></button>
 					</div>
 				</div>
 				<div id="dv_calendar"><?php require_once 'programacion_rutas_calendario.php';?></div>
@@ -607,6 +607,15 @@ $j = 0;
 var calendar;
 
 $(document).ready(function() {
+	// SMM, 20/09/2022
+	$('[data-toggle="tooltip"]').tooltip();
+
+	// SMM, 21/09/2022
+	<?php if ($sw == 0) {?>
+		ExpandirListaOT();
+	<?php }?>
+
+
 	$("#frmProgramacion").validate({
 		submitHandler: function(form){
 			$.ajax({
@@ -913,8 +922,14 @@ function Expandir(show=false){
 		$("#btnExpandir").attr("onClick","Expandir(true);");
 
 	}
+}
 
+// SMM, 21/09/2022
+function ExpandirListaOT() {
+	$('#dvOT').toggle();
+  	$('#dvCal').toggleClass('col-lg-10 col-lg-12');
 }
 </script>
+
 </html>
 <?php sqlsrv_close($conexion);?>
