@@ -1,42 +1,42 @@
-<?php 
-require_once("includes/conexion.php");
+<?php
+require_once "includes/conexion.php";
 PermitirAcceso(311);
-$sw=0;
+$sw = 0;
 //$Proyecto="";
 //$Almacen="";
-$CardCode="";
-$type=1;
-$Estado=1;//Abierto
+$CardCode = "";
+$type = 1;
+$Estado = 1; //Abierto
 
-if(isset($_GET['ot'])&&($_GET['ot']!="")){
-	$FiltroOT="AND ID_Llamada='".$_GET['ot']."'";
-}else{
-	$FiltroOT="";
+if (isset($_GET['ot']) && ($_GET['ot'] != "")) {
+    $FiltroOT = "AND ID_Llamada='" . $_GET['ot'] . "'";
+} else {
+    $FiltroOT = "";
 }
 
-$SQL=Seleccionar("uvw_tbl_CierreOTActividadesCarrito","*","Usuario='".strtolower($_SESSION['User'])."' $FiltroOT",'ID_OrdenServicio');
-if($SQL){
-	$sw=1;
+$SQL = Seleccionar("uvw_tbl_CierreOTActividadesCarrito", "*", "Usuario='" . strtolower($_SESSION['User']) . "' $FiltroOT", 'ID_OrdenServicio');
+if ($SQL) {
+    $sw = 1;
 }
 
-if(isset($_GET['id'])&&($_GET['id']!="")){
-	if($_GET['type']==1){
-		$type=1;
-	}else{
-		$type=$_GET['type'];
-	}
-	if($type==1){//Creando Orden de Venta
-		
-	}
+if (isset($_GET['id']) && ($_GET['id'] != "")) {
+    if ($_GET['type'] == 1) {
+        $type = 1;
+    } else {
+        $type = $_GET['type'];
+    }
+    if ($type == 1) { //Creando Orden de Venta
+
+    }
 }
 ?>
 <!doctype html>
 <html>
 <head>
-<?php include_once("includes/cabecera.php"); ?>
+<?php include_once "includes/cabecera.php";?>
 <style>
 	.ibox-content{
-		padding: 0px !important;	
+		padding: 0px !important;
 	}
 	body{
 		background-color: #ffffff;
@@ -66,17 +66,17 @@ if(isset($_GET['id'])&&($_GET['id']!="")){
 <script>
 var json=[];
 var cant=0;
-	
+
 function BorrarLinea(LineNum){
 	if(confirm(String.fromCharCode(191)+'Est'+String.fromCharCode(225)+' seguro que desea eliminar este item? Este proceso no se puede revertir.')){
 		$.ajax({
 			type: "GET",
-			url: "includes/procedimientos.php?type=25&tdoc=1&linenum="+json,		
+			url: "includes/procedimientos.php?type=25&tdoc=1&linenum="+json,
 			success: function(response){
-				window.location.href="detalle_cierre_ot_lote_actividades.php?<?php echo $_SERVER['QUERY_STRING'];?>";
+				window.location.href="detalle_cierre_ot_lote_actividades.php?<?php echo $_SERVER['QUERY_STRING']; ?>";
 			}
 		});
-	}	
+	}
 }
 
 function ActualizarDatos(name,id,line){//Actualizar datos asincronicamente
@@ -101,9 +101,9 @@ function Seleccionar(ID){
 		if(json[index]==ID){
 			sw=index;
 		}
-		
+
 	});
-	
+
 	if(sw>=0){
 		json.splice(sw, 1);
 		cant--;
@@ -116,7 +116,7 @@ function Seleccionar(ID){
 	}else{
 		$("#btnBorrarLineas").addClass("disabled");
 	}
-	
+
 	//console.log(json);
 }
 
@@ -130,18 +130,18 @@ function SeleccionarTodos(){
 	$(".chkSel").prop("checked", Check);
 	if(Check){
 		$(".chkSel").trigger('change');
-	}		
+	}
 }
 
 function ValidarFechas(id,t){
 	var FechaIni = document.getElementById("FechaHoraInicioActividad"+id);
 	var FechaFin = document.getElementById("FechaHoraFinEjecucion"+id);
-	
+
 	var FechaInicial = new Date(FechaIni.value)
 	var FechaFinal = new Date(FechaFin.value)
-	
+
 	var Tiempo = FechaFinal - FechaInicial
-	
+
 	if(Tiempo < 0){
 		swal({
 			title: '¡Error!',
@@ -159,7 +159,7 @@ function ValidarFechas(id,t){
 	}else{
 		window.parent.document.getElementById('CierreAct').disabled=false;
 	}
-	
+
 }
 </script>
 </head>
@@ -173,56 +173,57 @@ function ValidarFechas(id,t){
 				<th>#</th>
 				<th class="text-center form-inline w-80"><div class="checkbox checkbox-success"><input type="checkbox" id="chkAll" value="" onChange="SeleccionarTodos();" title="Seleccionar todos"><label></label></div> <button type="button" id="btnBorrarLineas" title="Borrar lineas" class="btn btn-danger btn-xs disabled" onClick="BorrarLinea();"><i class="fa fa-trash"></i></button></th>
 				<th>Número de OT</th>
-				<th>ID Actividad</th>				
+				<th>ID Actividad</th>
 				<th>Nombre empleado</th>
-				<th>Fecha y hora inicio Actividad</th>	
-				<th>Fecha y hora inicio Ejecución</th>		
+				<th>Fecha y hora inicio Actividad</th>
+				<th>Fecha y hora inicio Ejecución</th>
 				<th>Fecha y hora fin Ejecución</th>
 				<th>Estado actividad</th>
 				<th>Ejecución</th>
 			</tr>
 		</thead>
 		<tbody>
-		<?php 
-		if($sw==1){
-			$i=1;
-			while($row=sqlsrv_fetch_array($SQL)){
-		?>
+		<?php
+if ($sw == 1) {
+    $i = 1;
+    while ($row = sqlsrv_fetch_array($SQL)) {
+        ?>
 		<tr>
-			<td class="text-center"><?php echo $i;?></td>
+			<td class="text-center"><?php echo $i; ?></td>
 			<td class="text-center">
 				<div class="checkbox checkbox-success no-margins">
-					<input type="checkbox" class="chkSel" id="chkSel<?php echo $row['ID'];?>" value="" onChange="Seleccionar('<?php echo $row['ID'];?>');" aria-label="Single checkbox One"><label></label>
+					<input type="checkbox" class="chkSel" id="chkSel<?php echo $row['ID']; ?>" value="" onChange="Seleccionar('<?php echo $row['ID']; ?>');" aria-label="Single checkbox One"><label></label>
 				</div>
-			</td>		
-			<td><input size="15" type="text" id="ID_OrdenServicio<?php echo $i;?>" name="ID_OrdenServicio[]" class="form-control" readonly value="<?php echo $row['ID_OrdenServicio'];?>"></td>
-			<td><input size="15" type="text" id="ID_Actividad<?php echo $i;?>" name="ID_Actividad[]" class="form-control" readonly value="<?php echo $row['ID_Actividad'];?>"><input type="hidden" name="ID[]" id="ID<?php echo $i;?>" value="<?php echo $row['ID'];?>"></td>			
-			<td><input size="30" type="text" id="NombreEmpleado<?php echo $i;?>" name="NombreEmpleado[]" class="form-control" readonly value="<?php echo $row['NombreEmpleadoActividad'];?>"></td>
-			<td><input size="25" type="text" id="FechaHoraInicioActividad<?php echo $i;?>" name="FechaHoraInicioActividad[]" class="form-control" readonly value="<?php echo $row['FechaHoraInicioActividad']->format('Y-m-d H:i');?>"></td>
-			
-			<td><input size="25" type="text" id="FechaHoraInicioEjecucion<?php echo $i;?>" name="FechaHoraInicioEjecucion[]" class="form-control FechaHoraInicioEjecucion" onChange="ActualizarDatos('FechaHoraInicioEjecucion',<?php echo $i;?>,<?php echo $row['ID'];?>);" data-mask="9999-99-99 99:99" value="<?php 
-			// SMM, 13/09/2022
-			if(isset($_GET["FechaInicioEjecucion"]) && ($_GET["FechaInicioEjecucion"]!="") && isset($_GET["HoraInicioEjecucion"]) && ($_GET["HoraInicioEjecucion"]!="")) {
-				echo FormatoFecha($_GET["FechaInicioEjecucion"], $_GET["HoraInicioEjecucion"]); 
-			} else {
-				if($row['FechaHoraInicioEjecucion']!=""){echo $row['FechaHoraInicioEjecucion']->format('Y-m-d H:i');}
-			} ?>"></td>
-			
-			<td><input size="25" type="text" id="FechaHoraFinEjecucion<?php echo $i;?>" name="FechaHoraFinEjecucion[]" class="form-control FechaHoraFinEjecucion" onChange="ActualizarDatos('FechaHoraFinEjecucion',<?php echo $i;?>,<?php echo $row['ID'];?>);" data-mask="9999-99-99 99:99" value="<?php 
-			// SMM, 13/09/2022
-			if(isset($_GET["FechaFinEjecucion"]) && ($_GET["FechaFinEjecucion"]!="") && isset($_GET["HoraFinEjecucion"]) && ($_GET["HoraFinEjecucion"]!="")) {
-				echo FormatoFecha($_GET["FechaFinEjecucion"], $_GET["HoraFinEjecucion"]); 
-			} else {
-				if($row['FechaHoraFinEjecucion']!=""){echo $row['FechaHoraFinEjecucion']->format('Y-m-d H:i');}
-			} ?>"></td>
-			
-			<td><input size="15" type="text" id="EstadoActividad<?php echo $i;?>" name="EstadoActividad[]" class="form-control <?php if($row['EstadoActividad']=="Abierto"){echo "bg-danger";}else{echo "bg-primary";}?>" readonly value="<?php echo $row['EstadoActividad'];?>"></td>
-			<td><span class="<?php if($row['Integracion']==0){echo "badge badge-warning";}elseif($row['Integracion']==2){"badge badge-danger";}else{echo "badge badge-primary";}?>"><?php echo $row['Ejecucion'];?></span></td>
+			</td>
+			<td><input size="15" type="text" id="ID_OrdenServicio<?php echo $i; ?>" name="ID_OrdenServicio[]" class="form-control" readonly value="<?php echo $row['ID_OrdenServicio']; ?>"></td>
+			<td><input size="15" type="text" id="ID_Actividad<?php echo $i; ?>" name="ID_Actividad[]" class="form-control" readonly value="<?php echo $row['ID_Actividad']; ?>"><input type="hidden" name="ID[]" id="ID<?php echo $i; ?>" value="<?php echo $row['ID']; ?>"></td>
+			<td><input size="30" type="text" id="NombreEmpleado<?php echo $i; ?>" name="NombreEmpleado[]" class="form-control" readonly value="<?php echo $row['NombreEmpleadoActividad']; ?>"></td>
+			<td><input size="25" type="text" id="FechaHoraInicioActividad<?php echo $i; ?>" name="FechaHoraInicioActividad[]" class="form-control" readonly value="<?php echo $row['FechaHoraInicioActividad']->format('Y-m-d H:i'); ?>"></td>
+
+			<td><input size="25" type="text" id="FechaHoraInicioEjecucion<?php echo $i; ?>" name="FechaHoraInicioEjecucion[]" class="form-control FechaHoraInicioEjecucion" onChange="ActualizarDatos('FechaHoraInicioEjecucion',<?php echo $i; ?>,<?php echo $row['ID']; ?>);" data-mask="9999-99-99 99:99" value="<?php
+// SMM, 13/09/2022
+        if (isset($_GET["FechaInicioEjecucion"]) && ($_GET["FechaInicioEjecucion"] != "") && isset($_GET["HoraInicioEjecucion"]) && ($_GET["HoraInicioEjecucion"] != "")) {
+            echo FormatoFecha($_GET["FechaInicioEjecucion"], $_GET["HoraInicioEjecucion"]);
+        } else {
+            if ($row['FechaHoraInicioEjecucion'] != "") {echo $row['FechaHoraInicioEjecucion']->format('Y-m-d H:i');}
+        }?>"></td>
+
+			<td><input size="25" type="text" id="FechaHoraFinEjecucion<?php echo $i; ?>" name="FechaHoraFinEjecucion[]" class="form-control FechaHoraFinEjecucion" onChange="ActualizarDatos('FechaHoraFinEjecucion',<?php echo $i; ?>,<?php echo $row['ID']; ?>);" data-mask="9999-99-99 99:99" value="<?php
+// SMM, 13/09/2022
+        if (isset($_GET["FechaFinEjecucion"]) && ($_GET["FechaFinEjecucion"] != "") && isset($_GET["HoraFinEjecucion"]) && ($_GET["HoraFinEjecucion"] != "")) {
+            echo FormatoFecha($_GET["FechaFinEjecucion"], $_GET["HoraFinEjecucion"]);
+        } else {
+            if ($row['FechaHoraFinEjecucion'] != "") {echo $row['FechaHoraFinEjecucion']->format('Y-m-d H:i');}
+        }?>"></td>
+
+			<td><input size="15" type="text" id="EstadoActividad<?php echo $i; ?>" name="EstadoActividad[]" class="form-control <?php if ($row['EstadoActividad'] == "Abierto") {echo "bg-danger";} else {echo "bg-primary";}?>" readonly value="<?php echo $row['EstadoActividad']; ?>"></td>
+
+			<td><span style="white-space:normal; width: 200px;" class="<?php if ($row['Integracion'] == 0) {echo "badge badge-warning";} elseif ($row['Integracion'] == 1) {"badge badge-primary";} else {echo "badge badge-danger";}?>"><?php echo $row['Ejecucion']; ?></span></td>
 		</tr>
-		<?php 
-			$i++;}
-		}
-		?>
+		<?php
+$i++;}
+}
+?>
 		</tbody>
 	</table>
 	</div>
@@ -231,21 +232,21 @@ function ValidarFechas(id,t){
 	 $(document).ready(function(){
 		 $(".alkin").on('click', function(){
 				 $('.ibox-content').toggleClass('sk-loading');
-			}); 
+			});
 		  $(".select2").select2();
 
 		// SMM, 12/09/2022
-		<?php if(isset($_GET["FechaInicioEjecucion"]) && ($_GET["FechaInicioEjecucion"]!="") && isset($_GET["HoraInicioEjecucion"]) && ($_GET["HoraInicioEjecucion"]!="")) { ?> 
+		<?php if (isset($_GET["FechaInicioEjecucion"]) && ($_GET["FechaInicioEjecucion"] != "") && isset($_GET["HoraInicioEjecucion"]) && ($_GET["HoraInicioEjecucion"] != "")) {?>
 			$(".FechaHoraInicioEjecucion").change();
-		<?php } ?>
+		<?php }?>
 
-		<?php if(isset($_GET["FechaFinEjecucion"]) && ($_GET["FechaFinEjecucion"]!="") && isset($_GET["HoraFinEjecucion"]) && ($_GET["HoraFinEjecucion"]!="")) { ?> 
+		<?php if (isset($_GET["FechaFinEjecucion"]) && ($_GET["FechaFinEjecucion"] != "") && isset($_GET["HoraFinEjecucion"]) && ($_GET["HoraFinEjecucion"] != "")) {?>
 			$(".FechaHoraFinEjecucion").change();
-		<?php } ?>
+		<?php }?>
 	});
 </script>
 </body>
 </html>
-<?php 
-	sqlsrv_close($conexion);
+<?php
+sqlsrv_close($conexion);
 ?>
