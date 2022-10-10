@@ -14,7 +14,7 @@ if(isset($_GET['id'])&&($_GET['id']!="")){
 			"'".$_GET['tipotrans']."'",
 			"'".$_GET['cardcode']."'"
 		);
-		$SQL=EjecutarSP('sp_ConsultarInventarioSeriales',$Parametros,0,2);
+		$SQL=EjecutarSP('sp_ConsultarInventarioSeriales',$Parametros,0);
 		
 		$TotalSerEnt=SumarTotalSerialesEntregar($_GET['id'], $_GET['linenum'], $_GET['whscode'], $_GET['cardcode'], $objtype, $_GET['usuario']);
 		
@@ -25,7 +25,7 @@ if(isset($_GET['id'])&&($_GET['id']!="")){
 			"'".$_GET['linenum']."'",
 			"'".$_GET['id']."'"
 		);
-		$SQL=EjecutarSP('sp_ConsultarSerialDocSAP',$Parametros,0,2);
+		$SQL=EjecutarSP('sp_ConsultarSerialDocSAP',$Parametros,0);
 	}
 	
 ?>
@@ -216,7 +216,7 @@ function SetDesp(value){
 						</thead>
 						<tbody>
 						<?php 
-						while($row=sql_fetch_array($SQL,2)){
+						while($row=sql_fetch_array($SQL)){
 							//Consultar si hay datos ingresados en los lotes
 							$Parametros=array(
 								"'".$_GET['id']."'",
@@ -265,7 +265,7 @@ function SetDesp(value){
 						</thead>
 						<tbody>
 						<?php 
-						while($row=sql_fetch_array($SQL,2)){
+						while($row=sql_fetch_array($SQL)){
 						?>
 						<tr>
 							<td><?php echo $row['IdSerial'];?></td>
