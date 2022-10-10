@@ -10,13 +10,17 @@ if (isset($_GET['docentry']) && ($_GET['docentry'] != "")) {
     }
 
     if ($edit == 1) { //Creando documento
+
+        // SMM, 10/08/2022
+        // Se elimino el filtro -> "' and WhsCode='" . $_GET['whscode'] .
+
         //Consultar los articulos que tienen seriales en este documento
         if ($objtype == 15) { //Entrega de ventas
-            $SQL_Items = Seleccionar("uvw_tbl_EntregaVentaDetalleCarrito", "*", "Usuario='" . $_GET['usuario'] . "' and CardCode='" . $_GET['cardcode'] . "' and WhsCode='" . $_GET['whscode'] . "' and ManSerNum='Y'");
+            $SQL_Items = Seleccionar("uvw_tbl_EntregaVentaDetalleCarrito", "*", "Usuario='" . $_GET['usuario'] . "' and CardCode='" . $_GET['cardcode'] . "' and ManSerNum='Y'");
         } elseif ($objtype == 16) { //Devolucion de ventas
-            $SQL_Items = Seleccionar("uvw_tbl_DevolucionVentaDetalleCarrito", "*", "Usuario='" . $_GET['usuario'] . "' and CardCode='" . $_GET['cardcode'] . "' and WhsCode='" . $_GET['whscode'] . "' and ManSerNum='Y'");
+            $SQL_Items = Seleccionar("uvw_tbl_DevolucionVentaDetalleCarrito", "*", "Usuario='" . $_GET['usuario'] . "' and CardCode='" . $_GET['cardcode'] . "' and ManSerNum='Y'");
         } elseif ($objtype == 67) { //Traslado de inventario
-            $SQL_Items = Seleccionar("uvw_tbl_TrasladoInventarioDetalleCarrito", "*", "Usuario='" . $_GET['usuario'] . "' and CardCode='" . $_GET['cardcode'] . "' and WhsCode='" . $_GET['whscode'] . "' and ManSerNum='Y'");
+            $SQL_Items = Seleccionar("uvw_tbl_TrasladoInventarioDetalleCarrito", "*", "Usuario='" . $_GET['usuario'] . "' and CardCode='" . $_GET['cardcode'] . "' and ManSerNum='Y'");
         }
 
     } else { //Consultando documento
@@ -63,7 +67,7 @@ function BuscarSerial(item,almacen,numlinea,itemname,und, cant){
 	$.ajax({
 		type: "POST",
 		<?php if ($edit == 1) {?>
-		url: "ajx_seriales_articulos.php?id="+item+"&cardcode=<?php echo $_GET['cardcode']; ?>&whscode=<?php echo $_GET['whscode']; ?>&tipotrans=<?php echo $tipotrans; ?>&usuario=<?php echo $_GET['usuario']; ?>&edit=<?php echo $edit; ?>&objtype=<?php echo $objtype; ?>&linenum="+numlinea+"&itemname="+itemname+"&und="+und+"&cant="+cant,
+		url: "ajx_seriales_articulos.php?id="+item+"&cardcode=<?php echo $_GET['cardcode']; ?>&whscode="+almacen+"&tipotrans=<?php echo $tipotrans; ?>&usuario=<?php echo $_GET['usuario']; ?>&edit=<?php echo $edit; ?>&objtype=<?php echo $objtype; ?>&linenum="+numlinea+"&itemname="+itemname+"&und="+und+"&cant="+cant,
 		<?php } else {?>
 		url: "ajx_seriales_articulos.php?id="+item+"&linenum="+numlinea+"&itemname="+itemname+"&docentry=<?php echo $IdDocEntry; ?>&idevento=<?php echo $IdEvento; ?>&edit=<?php echo $edit; ?>&objtype=<?php echo $objtype; ?>",
 		<?php }?>
