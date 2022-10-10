@@ -1308,6 +1308,7 @@ function Validar(){
 	var TotalItems = document.getElementById("TotalItems");
 	
 	//Validar si fue actualizado por otro usuario
+	/*
 	$.ajax({
 		url:"ajx_buscar_datos_json.php",
 		data:{type:15,
@@ -1326,6 +1327,7 @@ function Validar(){
 			}
 		}
 	 });
+	 */
 	
 	if(TotalItems.value=="0"){
 		result=false;
