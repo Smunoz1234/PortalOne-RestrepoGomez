@@ -1,66 +1,66 @@
-<?php 
-if(isset($_GET['id'])&&($_GET['id']!="")){
-	require_once("includes/conexion.php");
-	
-	$edit=$_GET['edit'];
-	$objtype=$_GET['objtype'];
-	
-	if($edit==1){//Creando
-		//Consultar los seriales del articulo
-		//Si se cambia este procedimiento, cambiar tambien en ajx_buscar_datos_json.php (id: 20)
-		$Parametros=array(
-			"'".$_GET['id']."'",
-			"'".$_GET['whscode']."'",
-			"'".$_GET['tipotrans']."'",
-			"'".$_GET['cardcode']."'"
-		);
-		$SQL=EjecutarSP('sp_ConsultarInventarioSeriales',$Parametros,0);
-		
-		$TotalSerEnt=SumarTotalSerialesEntregar($_GET['id'], $_GET['linenum'], $_GET['whscode'], $_GET['cardcode'], $objtype, $_GET['usuario']);
-		
-	}else{//Consultando
-		$Parametros=array(
-			"'".$objtype."'",
-			"'".$_GET['docentry']."'",
-			"'".$_GET['linenum']."'",
-			"'".$_GET['id']."'"
-		);
-		$SQL=EjecutarSP('sp_ConsultarSerialDocSAP',$Parametros,0);
-	}
-	
-?>
+<?php
+if (isset($_GET['id']) && ($_GET['id'] != "")) {
+    require_once "includes/conexion.php";
+
+    $edit = $_GET['edit'];
+    $objtype = $_GET['objtype'];
+
+    if ($edit == 1) { //Creando
+        //Consultar los seriales del articulo
+        //Si se cambia este procedimiento, cambiar tambien en ajx_buscar_datos_json.php (id: 20)
+        $Parametros = array(
+            "'" . $_GET['id'] . "'",
+            "'" . $_GET['whscode'] . "'",
+            // "'".$_GET['tipotrans']."'",
+            // "'".$_GET['cardcode']."'"
+        );
+        $SQL = EjecutarSP('sp_ConsultarInventarioSeriales', $Parametros, 0);
+
+        $TotalSerEnt = SumarTotalSerialesEntregar($_GET['id'], $_GET['linenum'], $_GET['whscode'], $_GET['cardcode'], $objtype, $_GET['usuario']);
+
+    } else { //Consultando
+        $Parametros = array(
+            "'" . $objtype . "'",
+            "'" . $_GET['docentry'] . "'",
+            "'" . $_GET['linenum'] . "'",
+            "'" . $_GET['id'] . "'",
+        );
+        $SQL = EjecutarSP('sp_ConsultarSerialDocSAP', $Parametros, 0);
+    }
+
+    ?>
 <!doctype html>
 <html>
 <head>
-<?php include_once("includes/cabecera.php"); ?>
+<?php include_once "includes/cabecera.php";?>
 <style>
 	.iboxedit{
-		padding: 10px !important;	
+		padding: 10px !important;
 	}
 	body{
 		background-color: #ffffff;
 	}
-	<?php if($edit==1){?>
+	<?php if ($edit == 1) {?>
 	.tableedit > tbody > tr > td{
 		padding-left: 8px !important;
 		vertical-align: middle;
 		padding-top: 1px !important;
 		padding-bottom: 1px !important;
 	}
-	<?php }else{?>
+	<?php } else {?>
 	.tableedit > tbody > tr > td{
 		padding-left: 8px !important;
 		vertical-align: middle;
 	}
 	<?php }?>
 </style>
-<?php if($edit==1){?>
+<?php if ($edit == 1) {?>
 <script>
 var DespVal=0;
 function ActualizarDatos(idserial,sysnumber, fechavenc, fechaadmin){//Actualizar datos asincronicamente
 	$.ajax({
 		type: "GET",
-		url: "includes/procedimientos.php?type=18&edit=<?php echo $edit;?>&objtype=<?php echo $objtype;?>&linenum=<?php echo $_GET['linenum'];?>&itemcode=<?php echo $_GET['id'];?>&itemname=<?php echo $_GET['itemname'];?>&und=<?php echo $_GET['und'];?>&whscode=<?php echo $_GET['whscode'];?>&distnumber="+idserial+"&sysnumber="+sysnumber+"&fechavenc="+fechavenc+"&fechaadmin="+fechaadmin+"&cant="+document.getElementById("ItemCode"+idserial).value+"&cardcode=<?php echo $_GET['cardcode'];?>&usuario=<?php echo $_GET['usuario'];?>",
+		url: "includes/procedimientos.php?type=18&edit=<?php echo $edit; ?>&objtype=<?php echo $objtype; ?>&linenum=<?php echo $_GET['linenum']; ?>&itemcode=<?php echo $_GET['id']; ?>&itemname=<?php echo $_GET['itemname']; ?>&und=<?php echo $_GET['und']; ?>&whscode=<?php echo $_GET['whscode']; ?>&distnumber="+idserial+"&sysnumber="+sysnumber+"&fechavenc="+fechavenc+"&fechaadmin="+fechaadmin+"&cant="+document.getElementById("ItemCode"+idserial).value+"&cardcode=<?php echo $_GET['cardcode']; ?>&usuario=<?php echo $_GET['usuario']; ?>",
 		success: function(response){
 			if(response!="Error"){
 				document.getElementById('TimeAct').innerHTML="<strong>Actualizado:</strong> "+response;
@@ -72,11 +72,11 @@ function ActualizarDatos(idserial,sysnumber, fechavenc, fechaadmin){//Actualizar
 function CalcularTotal(idserial,sysnumber, fechavenc, fechaadmin){
 	$.ajax({
 		type: "GET",
-		url: "includes/procedimientos.php?type=19&edit=<?php echo $edit;?>&objtype=<?php echo $objtype;?>&linenum=<?php echo $_GET['linenum'];?>&itemcode=<?php echo $_GET['id'];?>&whscode=<?php echo $_GET['whscode'];?>&cardcode=<?php echo $_GET['cardcode'];?>&usuario=<?php echo $_GET['usuario'];?>",
+		url: "includes/procedimientos.php?type=19&edit=<?php echo $edit; ?>&objtype=<?php echo $objtype; ?>&linenum=<?php echo $_GET['linenum']; ?>&itemcode=<?php echo $_GET['id']; ?>&whscode=<?php echo $_GET['whscode']; ?>&cardcode=<?php echo $_GET['cardcode']; ?>&usuario=<?php echo $_GET['usuario']; ?>",
 		success: function(response){
 			if(response!="Error"){
 				var TotalEnt=response.replace(/,/g, '');
-				var CantSalida='<?php echo $_GET['cant'];?>';
+				var CantSalida='<?php echo $_GET['cant']; ?>';
 				if(parseFloat(TotalEnt)>parseFloat(CantSalida)){
 					swal({
 						title: "¡Lo sentimos!",
@@ -103,10 +103,10 @@ function SeleccionarSerial(){
 			url:"ajx_buscar_datos_json.php",
 			data:{
 				type:20,
-				id:'<?php echo $_GET['id'];?>',
-				whscode:'<?php echo $_GET['whscode'];?>',
-				cardcode:'<?php echo $_GET['cardcode'];?>',
-				tipotrans:'<?php echo $_GET['tipotrans'];?>',
+				id:'<?php echo $_GET['id']; ?>',
+				whscode:'<?php echo $_GET['whscode']; ?>',
+				cardcode:'<?php echo $_GET['cardcode']; ?>',
+				tipotrans:'<?php echo $_GET['tipotrans']; ?>',
 				buscar:Buscar.value
 			},
 			dataType:'json',
@@ -114,18 +114,18 @@ function SeleccionarSerial(){
 				var id_result=data.IdSerial;
 				var dv_msg = document.getElementById("MsgBuscar");
 				dv_msg.innerHTML = '';
-				
+
 				if(id_result!=null){
 					if($("#Select"+id_result).prop('checked')){
 						$("#Select"+id_result).prop("checked", false);
 					}else{
 						$("#Select"+id_result).prop("checked", true);
 					}
-					
+
 					if(DespVal==1){
 						goToId("Select"+id_result);
 					}
-					
+
 					$("#Select"+id_result).trigger('change');
 					dv_msg.innerHTML = '<p class="text-info"><i class="fa fa-thumbs-up"></i> Serial encontrado</p>';
 					Buscar.value='';
@@ -138,7 +138,7 @@ function SeleccionarSerial(){
 			}
 		});
 		$('.ibox-content').toggleClass('sk-loading',false);
-	}	
+	}
 }
 function goToId(idName){
 	if($("#"+idName).length){
@@ -153,7 +153,7 @@ function PonerQuitarClase(idName,evento=1){
 			$("#"+idName).parents('tr').addClass('bg-info');
 		}else{
 			$("#"+idName).parents('tr').removeClass('bg-info');
-		}		
+		}
 	}
 }
 function SetDesp(value){
@@ -165,21 +165,21 @@ function SetDesp(value){
 
 <body>
 	<div class="ibox-content iboxedit">
-		<?php include("includes/spinner.php"); ?>
-		<div class="row"> 
+		<?php include "includes/spinner.php";?>
+		<div class="row">
 			<div class="col-lg-12">
 				<form action="" method="post" class="form-horizontal" id="FrmSeriales">
-					<?php if($edit==1){?>
+					<?php if ($edit == 1) {?>
 					<div class="form-group">
 						<label class="col-xs-12">
-							<h3 class="bg-success p-xs b-r-sm"><i class="fa fa-barcode"></i> Seriales disponibles: <?php echo base64_decode($_GET['itemname'])." (".$_GET['id'].")";?></h3>
+							<h3 class="bg-success p-xs b-r-sm"><i class="fa fa-barcode"></i> Seriales disponibles: <?php echo base64_decode($_GET['itemname']) . " (" . $_GET['id'] . ")"; ?></h3>
 						</label>
 					</div>
 					<div class="form-group">
 						<label class="col-lg-1 control-label">Desplazamiento</label>
 						<div class="col-lg-4">
 							<label class="checkbox-inline i-checks"><input name="chkDesp" id="chkDesp" type="checkbox" value="1"> Activar desplazamiento</label>
-						</div>					
+						</div>
 					</div>
 					<div class="form-group">
 						<label class="col-lg-1 control-label">Buscar serial</label>
@@ -194,9 +194,9 @@ function SetDesp(value){
 								<h2 class="text-success pull-right"><strong>Total a entregar: </strong></h2>
 							</div>
 							<div class="col-xs-1">
-								<h2 class="text-danger"><strong id="TotalSerEnt"><?php echo $TotalSerEnt;?></strong></h2>
+								<h2 class="text-danger"><strong id="TotalSerEnt"><?php echo $TotalSerEnt; ?></strong></h2>
 							</div>
-						</div>						
+						</div>
 					</div>
 					<div class="form-group">
 						<div class="col-xs-12">
@@ -215,41 +215,41 @@ function SetDesp(value){
 							</tr>
 						</thead>
 						<tbody>
-						<?php 
-						while($row=sql_fetch_array($SQL)){
-							//Consultar si hay datos ingresados en los lotes
-							$Parametros=array(
-								"'".$_GET['id']."'",
-								"'".$_GET['linenum']."'",
-								"'".$_GET['whscode']."'",
-								"'".$row['IdSerial']."'",
-								"'".$_GET['cardcode']."'",
-								"'".$objtype."'",
-								"'".$_SESSION['CodUser']."'"
-							);
-							$SQL_DtAct=EjecutarSP('sp_ConsultarSerialesDatos',$Parametros);
-							$row_DtAct=sqlsrv_fetch_array($SQL_DtAct);
-						?>
-						<tr <?php if($row_DtAct['Cantidad']>0){?>class="bg-info"<?php }?>>
-							<td><?php echo $row['IdSerial'];?></td>
-							<td><?php echo number_format($row['Cantidad'],0);?></td>
-							<td><?php echo $row['FechaVenciSerial'];?></td>
-							<td><?php echo $row['FechaAdminSerial'];?></td>
-							<td><?php echo $row['IdSysNumber'];?></td>
+						<?php
+while ($row = sql_fetch_array($SQL)) {
+        //Consultar si hay datos ingresados en los lotes
+        $Parametros = array(
+            "'" . $_GET['id'] . "'",
+            "'" . $_GET['linenum'] . "'",
+            "'" . $_GET['whscode'] . "'",
+            "'" . $row['IdSerial'] . "'",
+            "'" . $_GET['cardcode'] . "'",
+            "'" . $objtype . "'",
+            "'" . $_SESSION['CodUser'] . "'",
+        );
+        $SQL_DtAct = EjecutarSP('sp_ConsultarSerialesDatos', $Parametros);
+        $row_DtAct = sqlsrv_fetch_array($SQL_DtAct);
+        ?>
+						<tr <?php if ($row_DtAct['Cantidad'] > 0) {?>class="bg-info"<?php }?>>
+							<td><?php echo $row['IdSerial']; ?></td>
+							<td><?php echo number_format($row['Cantidad'], 0); ?></td>
+							<td><?php echo $row['FechaVenciSerial']; ?></td>
+							<td><?php echo $row['FechaAdminSerial']; ?></td>
+							<td><?php echo $row['IdSysNumber']; ?></td>
 						  <td>
 								<div class="checkbox checkbox-success">
-									<input type="checkbox" id="Select<?php echo $row['IdSerial'];?>" onChange="VerificarCant('<?php echo $row['IdSerial'];?>','<?php echo $row['IdSysNumber'];?>','<?php echo number_format($row['Cantidad'],0);?>','<?php echo $row['FechaVenciSerial'];?>','<?php echo $row['FechaAdminSerial'];?>');" <?php if($row_DtAct['Cantidad']>0){?>checked="checked"<?php }?>><label></label>
+									<input type="checkbox" id="Select<?php echo $row['IdSerial']; ?>" onChange="VerificarCant('<?php echo $row['IdSerial']; ?>','<?php echo $row['IdSysNumber']; ?>','<?php echo number_format($row['Cantidad'], 0); ?>','<?php echo $row['FechaVenciSerial']; ?>','<?php echo $row['FechaAdminSerial']; ?>');" <?php if ($row_DtAct['Cantidad'] > 0) {?>checked="checked"<?php }?>><label></label>
 								</div>
-							<input type="hidden" id="ItemCode<?php echo $row['IdSerial'];?>" name="ItemCode[]" value="<?php echo number_format($row_DtAct['Cantidad'],0);?>" />
+							<input type="hidden" id="ItemCode<?php echo $row['IdSerial']; ?>" name="ItemCode[]" value="<?php echo number_format($row_DtAct['Cantidad'], 0); ?>" />
 						  </td>
 						</tr>
 						<?php }?>
 						</tbody>
 					</table>
-					<?php }else{?>
+					<?php } else {?>
 						<div class="form-group">
 							<label class="col-xs-12">
-								<h3 class="bg-muted p-xs b-r-sm"><i class="fa fa-barcode"></i> Seriales: <?php echo base64_decode($_GET['itemname'])." (".$_GET['id'].")";?></h3>
+								<h3 class="bg-muted p-xs b-r-sm"><i class="fa fa-barcode"></i> Seriales: <?php echo base64_decode($_GET['itemname']) . " (" . $_GET['id'] . ")"; ?></h3>
 							</label>
 						</div>
 						<table width="100%" class="table table-bordered tableedit dataTables-example">
@@ -264,16 +264,16 @@ function SetDesp(value){
 							</tr>
 						</thead>
 						<tbody>
-						<?php 
-						while($row=sql_fetch_array($SQL)){
-						?>
+						<?php
+while ($row = sql_fetch_array($SQL)) {
+        ?>
 						<tr>
-							<td><?php echo $row['IdSerial'];?></td>
-							<td><?php echo $row['UndMedida'];?></td>
-							<td><?php echo $row['FechaVenciSerial'];?></td>
-							<td><?php echo $row['FechaAdminSerial'];?></td>
-							<td><?php echo $row['IdSysNumber'];?></td>
-							<td><?php echo number_format($row['Cantidad']);?></td>
+							<td><?php echo $row['IdSerial']; ?></td>
+							<td><?php echo $row['UndMedida']; ?></td>
+							<td><?php echo $row['FechaVenciSerial']; ?></td>
+							<td><?php echo $row['FechaAdminSerial']; ?></td>
+							<td><?php echo $row['IdSysNumber']; ?></td>
+							<td><?php echo number_format($row['Cantidad']); ?></td>
 						</tr>
 						<?php }?>
 						</tbody>
@@ -283,12 +283,12 @@ function SetDesp(value){
 			</div>
 		</div>
 	</div>
-<?php if($edit==1){?>
+<?php if ($edit == 1) {?>
 <script>
 function VerificarCant(id, sysnumber, cant_actual, fechavenc, fechaadmin){
 	var CantIngresada=document.getElementById('ItemCode'+id);
 	var Check = document.getElementById('Select'+id).checked;
-    
+
 	if(Check){
 		CantIngresada.value='1';
 		PonerQuitarClase("Select"+id);
@@ -296,22 +296,22 @@ function VerificarCant(id, sysnumber, cant_actual, fechavenc, fechaadmin){
 		CantIngresada.value='0';
 		PonerQuitarClase("Select"+id,2);
 	}
-	
+
 	ActualizarDatos(id, sysnumber, fechavenc, fechaadmin);
 }
 </script>
 <?php }?>
 <script>
 	 $(document).ready(function(){
-		 
+
 		 $('.i-checks').iCheck({
 			 checkboxClass: 'icheckbox_square-green',
              radioClass: 'iradio_square-green',
           });
-		 
-		<?php if($edit==1){?>
+
+		<?php if ($edit == 1) {?>
 		 $("#BuscarSerialSelect").focus();
-		 
+
 		 $('#chkDesp').on('ifChecked', function(event){
 			SetDesp(1);
 		});
@@ -319,9 +319,9 @@ function VerificarCant(id, sysnumber, cant_actual, fechavenc, fechaadmin){
 			SetDesp(0);
 		});
 	 	<?php }?>
-		 
-		
-		 
+
+
+
 		var tabla = $('#tabla_datos').DataTable({
                 pageLength: 100,
                 dom: '<"html5buttons"B>lTfgitp',
@@ -355,6 +355,6 @@ function VerificarCant(id, sysnumber, cant_actual, fechavenc, fechaadmin){
 </script>
 </body>
 </html>
-<?php 
-	sqlsrv_close($conexion);
+<?php
+sqlsrv_close($conexion);
 }?>

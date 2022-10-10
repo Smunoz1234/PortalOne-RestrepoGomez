@@ -300,9 +300,9 @@ if ((isset($_GET['type']) && ($_GET['type'] != "")) || (isset($_POST['type']) &&
         $Parametros = array(
             "'" . $_GET['id'] . "'",
             "'" . $_GET['whscode'] . "'",
-            "'" . $_GET['tipotrans'] . "'",
-            "'" . $_GET['cardcode'] . "'",
-            "'" . strtoupper($_GET['buscar']) . "'",
+            // "'" . $_GET['tipotrans'] . "'",
+            // "'" . $_GET['cardcode'] . "'",
+            // "'" . strtoupper($_GET['buscar']) . "'",
         );
         $SQL = EjecutarSP('sp_ConsultarInventarioSeriales', $Parametros, 0, 2);
         $row = sql_fetch_array($SQL, 2);
