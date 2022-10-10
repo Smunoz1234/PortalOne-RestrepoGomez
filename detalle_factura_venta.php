@@ -147,9 +147,9 @@ function ActualizarDatos(name,id,line){//Actualizar datos asincronicamente
 	$.ajax({
 		type: "GET",
 		<?php if($type==1){?>
-		url: "registro.php?P=36&doctype=9&type=1&name="+name+"&value="+Base64.encode(document.getElementById(name+id).value)+"&line="+line+"&cardcode=<?php echo $CardCode;?>&whscode=<?php echo $Almacen;?>",
+		url: "registro.php?P=36&doctype=9&type=1&name="+name+"&value="+Base64.encode(document.getElementById(name+id).value)+"&line="+line+"&cardcode=<?php echo $CardCode;?>&whscode=<?php echo $Almacen;?>&actodos=0",
 		<?php }else{?>
-		url: "registro.php?P=36&doctype=9&type=2&name="+name+"&value="+Base64.encode(document.getElementById(name+id).value)+"&line="+line+"&id=<?php echo base64_decode($_GET['id']);?>&evento=<?php echo base64_decode($_GET['evento']);?>",
+		url: "registro.php?P=36&doctype=9&type=2&name="+name+"&value="+Base64.encode(document.getElementById(name+id).value)+"&line="+line+"&id=<?php echo base64_decode($_GET['id']);?>&evento=<?php echo base64_decode($_GET['evento']);?>&actodos=0",
 		<?php }?>
 		success: function(response){
 			if(response!="Error"){
