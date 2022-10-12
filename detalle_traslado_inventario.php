@@ -143,9 +143,11 @@ function BuscarLote(){
 	posicion_x=(screen.width/2)-(1200/2);
 	posicion_y=(screen.height/2)-(500/2);
 	<?php if ($type == 1) { //Creando Entrega de venta ?>
+
 		//var Almacen='<?php echo $Almacen; ?>';
 		var CardCode='<?php echo $CardCode; ?>';
 		var Lotes='<?php echo $Lotes; ?>'
+		
 		if(CardCode!=""&&Lotes>0){
 			remote=open('popup_lotes_sap.php?docentry=0&evento=0&edit=<?php echo $type; ?>&usuario=<?php echo $Usuario; ?>&cardcode=<?php echo $CardCode; ?>&objtype=67','remote',"width=1200,height=500,location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=no,fullscreen=no,directories=no,status=yes,left="+posicion_x+",top="+posicion_y+"");
 			remote.focus();
@@ -162,9 +164,11 @@ function BuscarSerial(){
 	posicion_x=(screen.width/2)-(1200/2);
 	posicion_y=(screen.height/2)-(500/2);
 	<?php if ($type == 1) { //Creando Entrega de venta ?>
+		
 		//var Almacen='<?php echo $Almacen; ?>';
 		var CardCode='<?php echo $CardCode; ?>';
 		var Seriales='<?php echo $Seriales; ?>'
+		
 		if(CardCode!=""&&Seriales>0){
 			remote=open('popup_seriales_sap.php?docentry=0&evento=0&edit=<?php echo $type; ?>&usuario=<?php echo $Usuario; ?>&cardcode=<?php echo $CardCode; ?>&objtype=67','remote',"width=1200,height=500,location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=no,fullscreen=no,directories=no,status=yes,left="+posicion_x+",top="+posicion_y+"");
 			remote.focus();

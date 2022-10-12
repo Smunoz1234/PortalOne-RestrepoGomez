@@ -72,6 +72,8 @@ function BuscarLote(item,almacen,numlinea,itemname,und,cant,basetype,base_entry,
 		<?php }?>
 		success: function(response){
 			if(response!=""){				
+				// console.log(response);
+
 				$('#LotesItem').html(response).fadeIn();
 				$('.ibox-content').toggleClass('sk-loading',false);
 			}

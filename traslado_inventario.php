@@ -202,7 +202,7 @@ if (isset($_POST['P']) && ($_POST['P'] != "")) { //Grabar Salida de inventario
             $SQL_Lotes = Seleccionar("uvw_tbl_LotesDocSAP", '*', "DocEntry='" . $IdTrasladoInv . "' and IdEvento='" . $IdEvento . "' and ObjType='67' and Cantidad > 0");
 
             //Consultar Seriales, 10/10/2022
-			$SQL_Seriales = Seleccionar("uvw_tbl_SerialesDocSAP", '*', "DocEntry='" . $IdTrasladoInv . "' and IdEvento='" . $IdEvento . "' and ObjType='67' and Cantidad > 0");
+            $SQL_Seriales = Seleccionar("uvw_tbl_SerialesDocSAP", '*', "DocEntry='" . $IdTrasladoInv . "' and IdEvento='" . $IdEvento . "' and ObjType='67' and Cantidad > 0");
 
             $Detalle = array();
             $Anexos = array();
@@ -333,7 +333,7 @@ if (isset($_POST['P']) && ($_POST['P'] != "")) { //Grabar Salida de inventario
                 "documentos_Seriales" => $Seriales,
             );
 
-           	// $Cabecera_json=json_encode($Cabecera);
+            // $Cabecera_json=json_encode($Cabecera);
             // echo $Cabecera_json;
             // exit();
 
@@ -696,9 +696,11 @@ function AbrirFirma(IDCampo){
 		$("#CardCode").change(function(){
 			$('.ibox-content').toggleClass('sk-loading',true);
 			var frame=document.getElementById('DataGrid');
+
 			var carcode=document.getElementById('CardCode').value;
 			var almacen=document.getElementById('Almacen').value;
 			var almacendestino=document.getElementById('AlmacenDestino').value;
+
 			<?php if ($edit == 0 && $dt_DR == 0) {?>
 			$.ajax({
 				type: "POST",
@@ -1733,11 +1735,15 @@ function Validar(){
 			success: function(data){
 				if(data.Result!='1'){
 					result=false;
+
 					Swal.fire({
 						title: '¡Advertencia!',
 						text: 'Algunos articulos faltan por seleccionar seriales. Por favor verifique.',
 						icon: 'warning'
 					});
+
+					console.log("Cantidad solicitada diferente a cantidad total de salida");
+					console.log(`ERROR, ${data.CantSolicitada} != ${data.CantTotalSalida}`);
 				}
 			}
 		});

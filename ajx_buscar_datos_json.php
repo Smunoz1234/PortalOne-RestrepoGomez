@@ -285,16 +285,27 @@ if ((isset($_GET['type']) && ($_GET['type'] != "")) || (isset($_POST['type']) &&
     } elseif ($type == 19) { //Consultar si todos los items con seriales ya fueron seleccionados
         $Param = array("'" . $_GET['cardcode'] . "'", "'" . $_GET['whscode'] . "'", "'" . $_GET['objtype'] . "'", "'" . $_SESSION['CodUser'] . "'");
         $SQL = EjecutarSP('sp_ConsultarSerialesVerificarSeleccion', $Param);
+
         $Valid = 1;
         $records = array();
+
+        $CantSolicitada = 0;
+        $CantTotalSalida = 0;
+
         while ($row = sqlsrv_fetch_array($SQL)) {
             if ($row['CantSolicitada'] != $row['CantTotalSalida']) {
                 $Valid = 2;
+                $CantSolicitada = $row['CantSolicitada'];
+                $CantTotalSalida = $row['CantTotalSalida'];
             }
         }
+
         $records = array(
             'Result' => $Valid,
+            'CantSolicitada' => $CantSolicitada,
+            'CantTotalSalida' => $CantTotalSalida,
         );
+
         echo json_encode($records);
     } elseif ($type == 20) { //Buscar seriales para seleccionarlos
         $Parametros = array(

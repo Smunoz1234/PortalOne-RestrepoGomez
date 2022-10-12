@@ -270,13 +270,28 @@ function CalcularTotal(idlote, sysnumber, fechavenc, idfila=''){
 						<?php 
 						while($row=sqlsrv_fetch_array($SQL)){
 						?>
-						<tr>
-							<td><?php echo $row['IdLote'];?></td>
-							<td><?php echo $row['UndMedida'];?></td>
-							<td><?php echo $row['FechaVenc'];?></td>
-							<td><?php echo $row['IdSysNumber'];?></td>
-							<td><?php echo number_format($row['Cantidad']);?></td>
-						</tr>
+						<!-- 67 - Traslado de inventario. SMM, 11/10/2022 -->
+						<?php if(($objtype == 67)) {?>
+							<!-- Solo mostrar los articulos de salida -->
+							<?php if(isset($row['Sentido']) && ($row['Sentido'] == 'OUT')) {?>
+								<tr>
+									<td><?php echo $row['IdLote'];?></td>
+									<td><?php echo $row['UndMedida'];?></td>
+									<td><?php echo $row['FechaVenc'];?></td>
+									<td><?php echo $row['IdSysNumber'];?></td>
+									<td><?php echo number_format($row['Cantidad']);?></td>
+								</tr>
+							<?php }?>
+						<?php } else {?>
+								<!-- Mostrar respuesta completa -->
+								<tr>
+									<td><?php echo $row['IdLote'];?></td>
+									<td><?php echo $row['UndMedida'];?></td>
+									<td><?php echo $row['FechaVenc'];?></td>
+									<td><?php echo $row['IdSysNumber'];?></td>
+									<td><?php echo number_format($row['Cantidad']);?></td>
+								</tr>
+							<?php }?>	
 						<?php }?>
 						</tbody>
 					</table>
