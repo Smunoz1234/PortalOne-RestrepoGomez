@@ -511,7 +511,7 @@ if($type_act==1&&$sw_error==0){//Editando la actividad
 	$SQL_DocMarketing=EjecutarSP('sp_ConsultarDocMarketing',$ParametrosDoc);
 	
 	//Orden de servicio
-	$SQL_OrdenServicioCliente=Seleccionar('uvw_Sap_tbl_LlamadasServicios','*',"ID_CodigoCliente='".$row['ID_CodigoCliente']."' and NombreSucursal='".$row['NombreSucursal']."' And IdEstadoLlamada='-3'",'AsuntoLlamada');
+	$SQL_OrdenServicioCliente=Seleccionar('uvw_Sap_tbl_LlamadasServicios','*',"ID_CodigoCliente='".$row['ID_CodigoCliente']."' and NombreSucursal='".$row['NombreSucursal']."' And IdEstadoLlamada<>'-1'",'AsuntoLlamada');
 }
 
 if($sw_error==1){
@@ -546,7 +546,7 @@ if($sw_error==1){
 	$SQL_DocMarketing=EjecutarSP('sp_ConsultarDocMarketing',$ParametrosDoc);
 	
 	//Orden de servicio
-	$SQL_OrdenServicioCliente=Seleccionar('uvw_Sap_tbl_LlamadasServicios','*',"ID_CodigoCliente='".$row['ID_CodigoCliente']."' and NombreSucursal='".$row['NombreSucursal']."' And IdEstadoLlamada='-3'",'AsuntoLlamada');
+	$SQL_OrdenServicioCliente=Seleccionar('uvw_Sap_tbl_LlamadasServicios','*',"ID_CodigoCliente='".$row['ID_CodigoCliente']."' and NombreSucursal='".$row['NombreSucursal']."' And IdEstadoLlamada<>'-1'",'AsuntoLlamada');
 }
 
 //Tipos de actividad

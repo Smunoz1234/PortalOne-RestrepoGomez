@@ -820,7 +820,7 @@ function AbrirFirma(IDCampo){
 			$('.ibox-content').toggleClass('sk-loading',true);
 			$.ajax({
 				type: "POST",
-				url: "ajx_cbo_select.php?type=20&id="+Sucursal+"&serie="+Serie+"&tdoc=67&twhs=2",
+				url: "ajx_cbo_select.php?type=20&id="+Sucursal+"&serie="+Serie+"&tdoc=67&twhs=2&towhscode=<?php echo isset($_GET['AlmacenDestino']) ? base64_decode($_GET['AlmacenDestino']) : ""; ?>",
 				success: function(response){
 					$('#AlmacenDestino').html(response).fadeIn();
 					$('.ibox-content').toggleClass('sk-loading',false);

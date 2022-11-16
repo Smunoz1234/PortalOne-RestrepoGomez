@@ -429,11 +429,15 @@ if(!isset($_GET['type'])||($_GET['type']=="")){//Saber que combo voy a consultar
 					echo "<option value=''>Seleccione...</option>";
 				}
 			}else{
+				$selected = "";
+				$towhscode = $_GET['towhscode'] ?? "";
+
 				$SQL=SeleccionarGroupBy('uvw_tbl_SeriesSucursalesAlmacenes','ToWhsCode, ToWhsName',"IdSeries='".$_GET['serie']."' and IdSucursal='".$_GET['id']."' and IdTipoDocumento='".$_GET['tdoc']."' and ToWhsCode <> ''","ToWhsCode, ToWhsName",'ToWhsName');
 				$Num=sqlsrv_num_rows($SQL);
 				if($Num){
 					while($row=sqlsrv_fetch_array($SQL)){
-						echo "<option value=\"".$row['ToWhsCode']."\">".$row['ToWhsName']."</option>";
+						$selected = ($towhscode == $row['ToWhsCode']) ? "selected":"";
+						echo "<option value=\"".$row['ToWhsCode']."\" $selected>".$row['ToWhsName']."</option>";
 					}
 				}else{
 					echo "<option value=''>Seleccione...</option>";

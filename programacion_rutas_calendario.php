@@ -234,6 +234,7 @@ if ($sw == 1) {
 						classNames: [<?php echo $classAdd; ?>],
 						tl:'<?php echo ($row_Actividad['IdActividadPortal'] == 0) ? 1 : 0; ?>',
 						estado:'<?php echo $row_Actividad['IdEstadoActividad']; ?>',
+						tipoEstado:'<?php echo $row_Actividad['DeTipoEstadoActividad'] ?? ""; ?>', // SMM, 10/11/2022
 						llamadaServicio: '<?php echo $row_Actividad['ID_LlamadaServicio']; ?>',
 						estadoLlamadaServ: '<?php echo $row_Actividad['IdEstadoLlamada']; ?>',
 						informacionAdicional: '<?php echo $row_Actividad['InformacionAdicional']; ?>',
@@ -264,7 +265,7 @@ if ($sw == 1) {
 							end: info.event.end,
 							resourceId: info.event.getResources()[0].id,
 							textColor: '#fff',
-							backgroundColor: info.event.backgroundColor,
+							backgroundColor: "#3788D8", // [uvw_tbl_TipoEstadoServicio].[ColorEstadoServicio] "PROGRAMADA"
 							borderColor: info.event.borderColor,
 							extendedProps: {}
 						}
@@ -319,8 +320,20 @@ if ($sw == 1) {
 							metodo=2
 							manual=info.event.extendedProps.manualChange
 						}
-	//					console.log(estado)
-						if(estado==='Y'&&copiado===false){
+
+						let tipoEstado=info.event.extendedProps.tipoEstado;
+
+						// console.log(estado)
+						console.log("tipoEstado", tipoEstado);
+
+						if (tipoEstado === 'INICIADA' && copiado === false) { // SMM, 10/11/2022
+							info.revert()
+							Swal.fire({
+								title: '¡Advertencia!',
+								text: 'La actividad se encuentra INICIADA. No puede ejecutar esta acción.',
+								icon: 'warning',
+							});
+						} else if(estado==='Y'&&copiado===false){
 							info.revert()
 							Swal.fire({
 								title: '¡Advertencia!',
@@ -464,30 +477,93 @@ if ($sw == 1) {
 					}
 				},
 				eventClick: function(info){
-//					console.log(info.event.title)
-//					var ID;
-					var tl;
-					if((!info.event.extendedProps.tl)||(info.event.extendedProps.tl==0)){
-//						ID=info.event.extendedProps.id
-						tl=0 //Es nuevo
-					}else{
-//						ID=info.event.id
-						tl=info.event.extendedProps.tl //Ya existe
-					}
-//					console.log('ID',ID)
-//					console.log('tl',tl)
-//					console.log('tl:',info.event.extendedProps.tl)
-					blockUI();
-					$.ajax({
-						type: "POST",
-						async: false,
-						url: "programacion_rutas_actividad.php?id="+btoa(info.event.id)+"&idEvento="+btoa($("#IdEvento").val())+"&tl="+tl,
-						success: function(response){
-							$('#ContenidoModal').html(response);
-							$('#ModalAct').modal("show");
-							blockUI(false);
+					console.log('Se ejecuto eventClick en el calendario');
+
+					if(info.jsEvent.ctrlKey) {
+						console.log("Duplicando con CTRL + Click");
+
+						// Fragmento de código copiado desde "Click + CTRL". SMM, 10/11/2022
+
+						copiado=true;
+						var new_id=0;
+						$.ajax({
+							url:"ajx_buscar_datos_json.php",
+							data:{type:26},
+							dataType:'json',
+							async:false,
+							success: function(data){
+								new_id=data.NewID;
+							}
+						});
+						var data = {
+							id: new_id,
+							title: info.event.title,
+							start: info.event.start,
+							end: info.event.end,
+							resourceId: info.event.getResources()[0].id,
+							textColor: '#fff',
+							backgroundColor: "#3788D8", // [uvw_tbl_TipoEstadoServicio].[ColorEstadoServicio] "PROGRAMADA"
+							borderColor: info.event.borderColor,
+							extendedProps: {}
 						}
-					});
+						$.ajax({
+							type: "GET",
+							url: "includes/procedimientos.php?type=31&id_actividad="+new_id+"&id_evento="+$("#IdEvento").val()+"&llamada_servicio="+info.event.extendedProps.llamadaServicio+"&id_empleadoactividad="+info.event.getResources()[0].id+"&fechainicio="+info.event.startStr.substring(0,10)+"&horainicio="+info.event.startStr.substring(11,16)+"&fechafin="+info.event.endStr.substring(0,10)+"&horafin="+info.event.endStr.substring(11,16)+"&sptype=1&metodo=1&docentry=&comentarios_actividad=&estado=&id_tipoestadoact=&fechainicio_ejecucion=&horainicio_ejecucion=&fechafin_ejecucion=&horafin_ejecucion=&turno_tecnico=&id_asuntoactividad=&titulo_actividad=",
+							async: false,
+							success: function(response){
+								if(isNaN(response)){
+									Swal.fire({
+										title: '¡Advertencia!',
+										text: 'No se pudo insertar la actividad en la ruta',
+										icon: 'warning',
+									});
+								}else{
+									$("#btnGuardar").prop('disabled', false);
+									$("#btnPendientes").prop('disabled', false);
+									// data.extendedProps.id = response;
+									data.estado = 'N';
+									data.llamadaServicio = info.event.extendedProps.llamadaServicio;
+									data.manualChange = '0'
+									calendar.addEvent(data);
+									// var dev = calendar.addEvent(data);
+									// console.log("Dev: ",dev)
+									info.revert()
+									// console.log("newEvent: ",info.event)
+									console.log("Se ejecuto eventDrop duplicando.")
+									mostrarNotify('Se ha duplicado una actividad')
+								}
+								copiado=false;
+								// console.log(response)
+							}
+						});
+
+						// Copiado hasta aquí. SMM, 10/11/2022
+					} else {
+	//					console.log(info.event.title)
+	//					var ID;
+						var tl;
+						if((!info.event.extendedProps.tl)||(info.event.extendedProps.tl==0)){
+	//						ID=info.event.extendedProps.id
+							tl=0 //Es nuevo
+						}else{
+	//						ID=info.event.id
+							tl=info.event.extendedProps.tl //Ya existe
+						}
+	//					console.log('ID',ID)
+	//					console.log('tl',tl)
+	//					console.log('tl:',info.event.extendedProps.tl)
+						blockUI();
+						$.ajax({
+							type: "POST",
+							async: false,
+							url: "programacion_rutas_actividad.php?id="+btoa(info.event.id)+"&idEvento="+btoa($("#IdEvento").val())+"&tl="+tl,
+							success: function(response){
+								$('#ContenidoModal').html(response);
+								$('#ModalAct').modal("show");
+								blockUI(false);
+							}
+						});
+					}
 				},
 				height: 'auto', // will activate stickyHeaderDates automatically!
 				contentHeight: 'auto',
