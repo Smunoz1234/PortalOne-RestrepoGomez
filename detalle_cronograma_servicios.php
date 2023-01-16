@@ -545,7 +545,7 @@ $i++;}
 				$("#Areas").val(linea.Areas);
 				$("#Servicios").val(linea.Servicios);
 				$("#MetodoAplicacion").val(linea.MetodoAplicacion);
-
+				$("#Observaciones").val(linea.Observaciones);
 			},
 			error: function(error) {
 				console.error("520->", error.responseText);

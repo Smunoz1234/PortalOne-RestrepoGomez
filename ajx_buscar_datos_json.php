@@ -617,6 +617,7 @@ if ((isset($_GET['type']) && ($_GET['type'] != "")) || (isset($_POST['type']) &&
             "Areas" => $row["Areas"],
             "Servicios" => $row["Servicios"],
             "MetodoAplicacion" => $row["MetodoAplicacion"],
+            "Observaciones" => $row["Observaciones"],
         );
         echo json_encode($records);
     }
