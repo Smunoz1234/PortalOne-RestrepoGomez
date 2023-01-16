@@ -308,14 +308,14 @@ if ($sw_suc == 1) { //Cuando se ha seleccionado una opción
 									<button data-toggle="dropdown" class="btn btn-info m-t-md dropdown-toggle"><i class="fa fa-download"></i> Descargar formato <i class="fa fa-caret-down"></i></button>
 									<ul class="dropdown-menu">
 										<li>
-											<a class="dropdown-item alkin" href="#">PDF</a>
+											<a class="dropdown-item alkin" href="sapdownload.php?type=<?php echo base64_encode('2'); ?>&id=<?php echo base64_encode('19'); ?>&IdCliente=<?php echo $_GET['Cliente']; ?>&IdPeriodo=<?php echo $Anno; ?>&TipoExp=1" target="_blank">PDF</a>
 										</li>
 										<li>
-											<a class="dropdown-item alkin" href="#">Excel</a>
+											<a class="dropdown-item alkin" href="sapdownload.php?type=<?php echo base64_encode('2'); ?>&id=<?php echo base64_encode('19'); ?>&IdCliente=<?php echo $_GET['Cliente']; ?>&IdPeriodo=<?php echo $Anno; ?>&TipoExp=2" target="_blank">Excel</a>
 										</li>
 									</ul>
-								</div>
-							</div>
+								</div> <!-- btn-group-->
+							</div> <!-- col-lg-2 -->
 						</div>
 					</div>
 					<div class="tabs-container">
