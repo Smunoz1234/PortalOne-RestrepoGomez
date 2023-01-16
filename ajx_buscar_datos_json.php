@@ -605,6 +605,20 @@ if ((isset($_GET['type']) && ($_GET['type'] != "")) || (isset($_POST['type']) &&
             );
         }
         echo json_encode($records);
+    } elseif ($type == 44) { // Consultar linea del cronograma de ordenes de servicio. SMM, 14/01/2023
+        $SQL = Seleccionar("uvw_tbl_ProgramacionOrdenesServicio", "*", "ID='" . $_GET['id'] . "'");
+        $records = array();
+        $row = sqlsrv_fetch_array($SQL);
+        $records = array(
+            "SucursalCliente" => $row["IdSucursalCliente"],
+            "Estado" => $row["Estado"],
+            "Frecuencia" => $row["Frecuencia"],
+            "ArticuloLMT" => $row["IdArticuloLMT"],
+            "Areas" => $row["Areas"],
+            "Servicios" => $row["Servicios"],
+            "MetodoAplicacion" => $row["MetodoAplicacion"],
+        );
+        echo json_encode($records);
     }
     sqlsrv_close($conexion);
 }
