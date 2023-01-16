@@ -66,7 +66,7 @@ function BuscarLote(item,almacen,numlinea,itemname,und,cant,basetype,base_entry,
 	$.ajax({
 		type: "POST",
 		<?php if($edit==1){//Creando documento?>
-		url: "ajx_lotes_articulos.php?id="+item+"&cardcode=<?php echo $_GET['cardcode'];?>&whscode="+almacen+"&usuario=<?php echo $_GET['usuario'];?>&edit=<?php echo $edit;?>&objtype=<?php echo $objtype;?>&linenum="+numlinea+"&itemname="+itemname+"&und="+und+"&cant="+cant+"&basetype="+basetype+"&base_entry="+base_entry+"&baseline="+baseline+"&sentido=<?php echo $sentido;?>",
+		url: "ajx_lotes_articulos.php?id="+item+"&cardcode=<?php echo $_GET['cardcode'];?>&whscode="+almacen+"&usuario=<?php echo $_GET['usuario'];?>&edit=<?php echo $edit;?>&objtype=<?php echo $objtype;?>&linenum="+numlinea+"&itemname="+itemname+"&und="+und+"&cant="+(cant.replace(',', ''))+"&basetype="+basetype+"&base_entry="+base_entry+"&baseline="+baseline+"&sentido=<?php echo $sentido;?>",
 		<?php }else{?>
 		url: "ajx_lotes_articulos.php?id="+item+"&linenum="+numlinea+"&itemname="+itemname+"&docentry=<?php echo $IdDocEntry;?>&idevento=<?php echo $IdEvento;?>&edit=<?php echo $edit;?>&objtype=<?php echo $objtype;?>&sentido=<?php echo $sentido;?>",
 		<?php }?>

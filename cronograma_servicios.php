@@ -289,7 +289,7 @@ if ($sw_suc == 1) { //Cuando se ha seleccionado una opción
 								<select name="Frecuencia" class="form-control" id="Frecuencia">
 									<option value="">Ninguna</option>
 									 <?php while ($row_Frecuencia = sqlsrv_fetch_array($SQL_Frecuencia)) {?>
-										<option value="<?php echo $row_Frecuencia['IdFrecuencia']; ?>"><?php echo $row_Frecuencia['DeFrecuencia']; ?></option>
+										<option value="<?php echo $row_Frecuencia['IdFrecuencia']; ?>"><?php echo $row_Frecuencia['DeFrecuencia'] . " (" . $row_Frecuencia['CantidadVeces'] . ")"; ?></option>
 								  <?php }?>
 								</select>
 							</div>

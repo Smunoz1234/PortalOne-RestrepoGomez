@@ -183,6 +183,10 @@ function Validar(Tipo){
 					}else if(data.Result==0){
 						EjecutarProceso(Tipo);
 					}		
+				},
+				error: function(error){
+					$('.ibox-content').toggleClass('sk-loading', false);
+					console.error("Line 189", error.responseText);
 				}
 			});
 	  }
@@ -228,6 +232,10 @@ function EjecutarProceso(Tipo){
 				icon: data.Icon,
 			});
 			$('.ibox-content').toggleClass('sk-loading',false);
+		},
+		error: function(error){
+			$('.ibox-content').toggleClass('sk-loading', false);
+			console.error("Line 238", error.responseText);
 		}
 	});
 	
@@ -313,6 +321,7 @@ function ConsultarCant(){
 									<option value="2020" <?php if((isset($Anno))&&(strcmp(2020,$Anno)==0)){ echo "selected=\"selected\"";}?>>2020</option>
 									<option value="2021" <?php if((isset($Anno))&&(strcmp(2021,$Anno)==0)){ echo "selected=\"selected\"";}?>>2021</option>
 									<option value="2022" <?php if((isset($Anno))&&(strcmp(2022,$Anno)==0)){ echo "selected=\"selected\"";}?>>2022</option>
+									<option value="2023" <?php if((isset($Anno))&&(strcmp(2023,$Anno)==0)){ echo "selected=\"selected\"";}?>>2023</option>
 								</select>
 							</div>						
 						</div>

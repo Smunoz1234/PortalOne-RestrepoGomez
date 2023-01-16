@@ -1591,8 +1591,8 @@ function ConsultarContrato(){
 								<div class="panel-body">
 									<div class="row">
 									<?php if(PermitirFuncion(302)&&($row['IdEstadoLlamada']!='-1')){
-											if(PermitirFuncion(402)){?>
-												<div class="btn-group">
+										if(PermitirFuncion(402)){?>
+											<div class="btn-group">
 												<button data-toggle="dropdown" class="btn btn-outline btn-success dropdown-toggle"><i class="fa fa-plus-circle"></i> Agregar documento <i class="fa fa-caret-down"></i></button>
 												<ul class="dropdown-menu">
 													<li>
@@ -1615,8 +1615,8 @@ function ConsultarContrato(){
 													</li>
 												</ul>
 											</div>
-									<?php }
-										}?>
+										<?php }
+									}?>
 									</div>
 									<br>
 									<div class="table-responsive">

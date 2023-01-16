@@ -25,6 +25,24 @@ if ((isset($_GET['type']) && ($_GET['type'] != "")) || (isset($_POST['type']) &&
 
             echo json_encode($records, JSON_PRETTY_PRINT);
         }
+    } elseif ($type == 2) { // Ejecutar procedimiento almacenado. (No se ha probado XD)
+        $sp = $_GET['sp'] ?? '';
+        $params = $_GET['params'] ?? '';
+
+        $stmt = EjecutarSP($sp, $params);
+
+        if ($stmt === false) {
+            echo json_encode(sqlsrv_errors(), JSON_PRETTY_PRINT);
+        } else {
+            $records = array();
+
+            // Devolver cada fila como un objeto.
+            while ($obj = sqlsrv_fetch_object($stmt)) {
+                array_push($records, $obj);
+            }
+
+            echo json_encode($records, JSON_PRETTY_PRINT);
+        }
     }
 
     sqlsrv_close($conexion);

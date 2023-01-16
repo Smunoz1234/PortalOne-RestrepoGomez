@@ -136,20 +136,23 @@ if ((isset($_GET['type']) && ($_GET['type'] != "")) || (isset($_POST['type']) &&
             );
             $Metodo = "LlamadasServicios/CreacionLote";
             $Resultado = EnviarWebServiceSAP($Metodo, $Parametros, true, true);
-        } else {
+        }
+
+        // Modificado. SMM, 19/12/2022
+        else {
             $Parametros = array(
-                'pIdEvento' => $_GET['Evento'],
-                'pPeriodo' => $_GET['Anno'],
-                'pFechaInicial' => $_GET['FechaInicial'],
-                'pFechaFinal' => $_GET['FechaFinal'],
-                'pSucursal' => $_GET['Sucursal'],
-                'pIdCliente' => $_GET['Cliente'],
-                'pLogin' => $_SESSION['User'],
-                'pIdSerieOT' => $_GET['SeriesOT'],
-                'pIdSerieOV' => $_GET['SeriesOV'],
+                'id_evento' => $_GET['Evento'],
+                'id_periodo' => $_GET['Anno'],
+                'fecha_inicial' => $_GET['FechaInicial'],
+                'fecha_final' => $_GET['FechaFinal'],
+                'id_sede' => $_GET['Sucursal'],
+                'id_socio_negocio' => $_GET['Cliente'],
+                'usuario' => $_SESSION['User'],
+                'id_serie_OT' => $_GET['SeriesOT'],
+                'id_serie_OV' => $_GET['SeriesOV'],
             );
-            $Metodo = "AppPortal_CrearProgramaOrdenesVentas";
-            $Resultado = EnviarWebServiceSAP($Metodo, $Parametros, true);
+            $Metodo = "LlamadasServicios/CreacionLoteOrdenesVentas";
+            $Resultado = EnviarWebServiceSAP($Metodo, $Parametros, true, true);
         }
 
         $records = array(
@@ -157,6 +160,7 @@ if ((isset($_GET['type']) && ($_GET['type'] != "")) || (isset($_POST['type']) &&
             'Mensaje' => $Resultado->Mensaje,
             'Title' => ($Resultado->Success == 1) ? "¡Listo!" : "¡Advertencia!",
             'Icon' => ($Resultado->Success == 1) ? "success" : "error",
+            "JSON" => json_encode($Parametros), // SMM, 19/12/2022
         );
         echo json_encode($records);
     }
