@@ -186,32 +186,9 @@ function ActualizarDatos(name,id,line){//Actualizar datos asincronicamente
 	});
 }
 
-function ActualizarDatosModal(name, value, line){//Actualizar datos asincronicamente
-	let valor = Base64.encode(value);
-
-	$.ajax({
-		type: "GET",
-		url: `registro.php?P=36&doctype=11&type=2&name=${name}&value=${valor}&line=${line}`,
-		success: function(response) {
-			// console.log(response);
-
-			if(response != "Error") {
-				alert("Actualizado :)");
-			} else {
-				alert("Error :(");
-			}
-
-			// Carga terminada.
-			$('.ibox-content').toggleClass('sk-loading', false);
-		},
-		error: function(error) {
-			console.error("Error en Línea 190");
-			$('.ibox-content').toggleClass('sk-loading', false);
-		}
-	});
-}
-
 function ActualizarDatosModal(datos, linea){
+	console.log(datos);
+
     let Actualizado = true;
 
     for (const clave in datos) {
@@ -219,7 +196,7 @@ function ActualizarDatosModal(datos, linea){
             let valor = Base64.encode(datos[clave]);
             $.ajax({
                 type: "GET",
-                url: `registro.php?P=36&doctype=11&type=2&name=${clave}&value=${valor}&line=${linea}`,
+                url: `registro.php?P=36&doctype=11&type=2&name=${clave}&value=${valor}&line=${linea}&new=1`,
                 success: function(response) {
                     if(response != "Error") {
                         Actualizado = false;
