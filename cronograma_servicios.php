@@ -89,7 +89,10 @@ if ($sw == 1) {
     $SQL_Frecuencia = Seleccionar("tbl_ProgramacionOrdenesServicioFrecuencia", "*");
 }
 
+// SMM, 25/01/2023
+$SQL_Periodos = Seleccionar("tbl_Periodos", "*", "Estado = 'Y'", "Periodo"); 
 ?>
+
 <!DOCTYPE html>
 <html><!-- InstanceBegin template="/Templates/PlantillaPrincipal.dwt.php" codeOutsideHTMLIsLocked="false" -->
 
@@ -205,7 +208,7 @@ function AgregarLMT(){
 						<form action="cronograma_servicios.php" method="get" class="form-horizontal" id="frmBuscar" name="frmBuscar">
 							<div class="form-group">
 								<label class="col-xs-12"><h3 class="bg-success p-xs b-r-sm"><i class="fa fa-filter"></i> Datos para filtrar</h3></label>
-							  </div>
+							</div>
 							<div class="form-group">
 								<label class="col-lg-1 control-label">Cliente <span class="text-danger">*</span></label>
 								<div class="col-lg-3">
@@ -231,20 +234,22 @@ if ($sw_suc == 1) { //Cuando se ha seleccionado una opción
 }?>
 									</select>
 								</div>
+								
+								<!-- Actualizado con la tabla de periodos -->
 								<label class="col-lg-1 control-label">Año <span class="text-danger">*</span></label>
-								<div class="col-lg-2">
+								<div class="col-lg-3">
 									<select name="Anno" required class="form-control" id="Anno">
-										<option value="2019" <?php if ((isset($Anno)) && (strcmp(2019, $Anno) == 0)) {echo "selected=\"selected\"";}?>>2019</option>
-										<option value="2020" <?php if ((isset($Anno)) && (strcmp(2020, $Anno) == 0)) {echo "selected=\"selected\"";}?>>2020</option>
-										<option value="2021" <?php if ((isset($Anno)) && (strcmp(2021, $Anno) == 0)) {echo "selected=\"selected\"";}?>>2021</option>
-										<option value="2022" <?php if ((isset($Anno)) && (strcmp(2022, $Anno) == 0)) {echo "selected=\"selected\"";}?>>2022</option>
-										<option value="2023" <?php if ((isset($Anno)) && (strcmp(2023, $Anno) == 0)) {echo "selected=\"selected\"";}?>>2023</option>
+										<?php while($row_Periodo=sqlsrv_fetch_array($SQL_Periodos)){?>
+											<option value="<?php echo $row_Periodo['Periodo'];?>" <?php if ((isset($Anno)) && (strcmp($row_Periodo['Periodo'], $Anno) == 0)) {echo "selected=\"selected\"";}?>><?php echo $row_Periodo['Periodo'];?></option>
+										<?php }?>
 									</select>
 								</div>
+								<!-- Hasta aquí. SMM, 25/01/2023 -->
 							</div>
+
 							<div class="form-group">
 								<label class="col-lg-1 control-label">Sede <span class="text-danger">*</span></label>
-								<div class="col-lg-2">
+								<div class="col-lg-3">
 									<select name="DRSucursal" class="form-control" id="DRSucursal" required>
 										<option value="">Seleccione...</option>
 									  <?php while ($row_DRSucursal = sqlsrv_fetch_array($SQL_DRSucursal)) {?>
@@ -252,10 +257,40 @@ if ($sw_suc == 1) { //Cuando se ha seleccionado una opción
 										<?php }?>
 									</select>
 								</div>
-								<div class="col-lg-9">
+								<div class="col-lg-8">
 									<button type="submit" class="btn btn-outline btn-info pull-right"><i class="fa fa-search"></i> Buscar</button>
 								</div>
 							</div>
+
+							<?php if ($sw == 1) {?>
+								<br>
+								<div class="form-group">
+									<label class="col-xs-12"><h3 class="bg-success p-xs b-r-sm"><i class="fa fa-ellipsis-h"></i> Acciones</h3></label>
+								</div>
+
+								<div class="form-group">
+									<div class="col-lg-2">
+										<div class="btn-group">
+											<button data-toggle="dropdown" class="btn btn-info dropdown-toggle"><i class="fa fa-download"></i> Descargar formato <i class="fa fa-caret-down"></i></button>
+											<ul class="dropdown-menu">
+												<li>
+													<a class="dropdown-item alkin" href="sapdownload.php?type=<?php echo base64_encode('2'); ?>&id=<?php echo base64_encode('19'); ?>&IdCliente=<?php echo $_GET['Cliente']; ?>&IdPeriodo=<?php echo $Anno; ?>&TipoExp=1" target="_blank">PDF</a>
+												</li>
+												<li>
+													<a class="dropdown-item alkin" href="sapdownload.php?type=<?php echo base64_encode('2'); ?>&id=<?php echo base64_encode('19'); ?>&IdCliente=<?php echo $_GET['Cliente']; ?>&IdPeriodo=<?php echo $Anno; ?>&TipoExp=2" target="_blank">Excel</a>
+												</li>
+											</ul>
+										</div> <!-- btn-group-->
+									</div>
+
+									<div class="col-lg-4">
+										<button class="btn btn-warning" id="ActualizarCronograma"><i class="fa fa-refresh"></i> Actualizar cronograma basado en LMT</button>
+
+										<button style="margin-left: 5px;" type="button" class="btn btn-sm btn-circle" data-toggle="tooltip" data-html="true"
+										title="Actualiza de manera masiva los campos de Áreas, Servicios, Método de aplicación de las LMT hacia el Cronograma de Servicios."><i class="fa fa-info"></i></button>
+									</div>
+								</div>
+							<?php }?>
 						</form>
 					</div>
 				</div>
@@ -304,17 +339,7 @@ if ($sw_suc == 1) { //Cuando se ha seleccionado una opción
 							</div>
 
 							<div class="col-lg-2">
-								<div class="btn-group">
-									<button data-toggle="dropdown" class="btn btn-info m-t-md dropdown-toggle"><i class="fa fa-download"></i> Descargar formato <i class="fa fa-caret-down"></i></button>
-									<ul class="dropdown-menu">
-										<li>
-											<a class="dropdown-item alkin" href="sapdownload.php?type=<?php echo base64_encode('2'); ?>&id=<?php echo base64_encode('19'); ?>&IdCliente=<?php echo $_GET['Cliente']; ?>&IdPeriodo=<?php echo $Anno; ?>&TipoExp=1" target="_blank">PDF</a>
-										</li>
-										<li>
-											<a class="dropdown-item alkin" href="sapdownload.php?type=<?php echo base64_encode('2'); ?>&id=<?php echo base64_encode('19'); ?>&IdCliente=<?php echo $_GET['Cliente']; ?>&IdPeriodo=<?php echo $Anno; ?>&TipoExp=2" target="_blank">Excel</a>
-										</li>
-									</ul>
-								</div> <!-- btn-group-->
+								<!-- Espacio para un botón -->
 							</div> <!-- col-lg-2 -->
 						</div>
 					</div>
@@ -340,10 +365,51 @@ if ($sw_suc == 1) { //Cuando se ha seleccionado una opción
 
     </div>
 </div>
+
 <?php include_once "includes/pie.php";?>
+
 <!-- InstanceBeginEditable name="EditRegion4" -->
 <script>
-	 $(document).ready(function(){
+	$("#ActualizarCronograma").on("click", function() {
+		event.preventDefault(); // Evitar otras acciones del botón
+
+		Swal.fire({
+			title: "¿Desea actualizar todas las lineas?",
+			icon: 'question',
+			showCancelButton: true,
+			confirmButtonText: 'Si, confirmo',
+			cancelButtonText: 'No'
+		}).then((result) => {
+			if (result.isConfirmed) {
+
+				// Cargando...
+				$('.ibox-content').toggleClass('sk-loading', true);
+
+				$.ajax({
+					type: "GET",
+					url: "includes/procedimientos.php?type=52&Metodo=1&Cliente=<?php echo $_GET['Cliente'] ?? ""; ?>&Sucursal=<?php echo $_GET['Sucursal'] ?? ""; ?>&Periodo=<?php echo $Anno ?? ""; ?>",
+					success: function(response) {
+						let frame = document.getElementById('DataGrid');
+						frame.src = "detalle_cronograma_servicios.php?cardcode=<?php echo base64_encode($_GET['Cliente'] ?? ""); ?>&idsucursal=<?php echo base64_encode($_GET['Sucursal'] ?? ""); ?>&periodo=<?php echo base64_encode($Anno ?? ""); ?>";
+
+						Swal.fire({
+							title: '¡Listo!',
+							text: 'Las lineas han sido actualizadas exitosamente',
+							icon: 'success'
+						}); // Swal
+					}
+				}); // ajax
+
+				// Carga terminada.
+				$('.ibox-content').toggleClass('sk-loading', false);
+			}
+		}); // Swal
+	});
+
+	$(document).ready(function(){
+		// SMM, 18/01/2023
+		$('[data-toggle="tooltip"]').tooltip();
+
 		$("#frmBuscar").validate({
 			 submitHandler: function(form){
 				 $('.ibox-content').toggleClass('sk-loading');

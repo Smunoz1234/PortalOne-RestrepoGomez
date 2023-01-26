@@ -433,6 +433,9 @@ if ($sw == 1) {
 
 			<td class="text-center form-inline w-80">
 				<!-- SMM, 10/01/2022 -->
+				<button type="button" title="Actualizar información de la LMT" class="btn btn-warning btn-xs" onClick="ActualizarLinea(<?php echo $row['ID']; ?>);"><i class="fa fa-refresh"></i></button>
+
+				<!-- SMM, 10/01/2022 -->
 				<button type="button" title="Más información" class="btn btn-info btn-xs" onClick="InfoLinea(<?php echo $row['ID']; ?>);"><i class="fa fa-info"></i></button>
 
 				<button type="button" title="Duplicar linea" class="btn btn-success btn-xs" onClick="DuplicarLinea(<?php echo $row['ID']; ?>);"><i class="fa fa-copy"></i></button>
@@ -472,6 +475,37 @@ $i++;}
 	</div>
 </form>
 <script>
+	function ActualizarLinea(ID) {
+		Swal.fire({
+			title: "¿Está seguro que desea actualizar la linea en base a la LMT?",
+			icon: 'question',
+			showCancelButton: true,
+			confirmButtonText: 'Si, confirmo',
+			cancelButtonText: 'No'
+		}).then((result) => {
+			if (result.isConfirmed) {
+
+				// Cargando...
+				$('.ibox-content').toggleClass('sk-loading', true);
+
+				$.ajax({
+					type: "GET",
+					url: `includes/procedimientos.php?type=52&Metodo=2&Linea=${ID}&Cliente=<?php echo base64_decode($_GET['cardcode'] ?? ""); ?>&Sucursal=<?php echo base64_decode($_GET['idsucursal'] ?? ""); ?>&Periodo=<?php echo base64_decode($_GET['periodo'] ?? ""); ?>`,
+					success: function(response) {
+						Swal.fire({
+							title: '¡Listo!',
+							text: 'La linea se actualizo exitosamente',
+							icon: 'success'
+						}); // Swal
+					}
+				}); // ajax
+
+				// Carga terminada.
+				$('.ibox-content').toggleClass('sk-loading', false);
+			}
+		}); // Swal
+	}
+
 	// SMM, 10/01/2022
 	function InfoLinea(ID) {
 		$.ajax({
