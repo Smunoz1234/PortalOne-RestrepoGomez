@@ -585,6 +585,7 @@ $j = 0;
 						<p class="card-text mb-0 small"><span class="font-weight-bold">Fecha:</span> <?php echo $row_OT['FechaLlamada']->format('Y-m-d'); ?></p>
 						<p class="card-text mb-0 small"><span class="font-weight-bold">Servicios:</span> <?php echo $row_OT['Servicios']; ?></p>
 						<p class="card-text mb-0 small"><span class="font-weight-bold">Áreas:</span> <?php echo substr($row_OT['Areas'], 0, 150); ?></p>
+						<p class="card-text mb-0 small"><span class="font-weight-bold">Método Aplicación:</span> <?php echo substr($row_OT['MetodoAplicaLlamadas'] ?? "", 0, 150); ?></p>
 						<p class="card-text mb-0 small"><span class="font-weight-bold">Validación:</span> <span class="<?php if ($row_OT['Validacion'] != "OK") {echo "text-danger";} else {echo "text-success";}?>"><?php echo $row_OT['Validacion']; ?></span></p>
 					</div>
 				<?php }

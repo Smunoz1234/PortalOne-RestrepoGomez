@@ -242,6 +242,12 @@ if (isset($row['IdTipoEstadoActividad']) && (strcmp("05", $row['IdTipoEstadoActi
 					<p><?php echo $row['CDU_Areas']; ?></p>
 				</div>
 			</div>
+			<div class="form-group row">
+				<div class="col-lg-4">
+					<label class="col-form-label">Método Aplicación</label>
+					<p><?php echo $row['MetodoAplicaLlamadas'] ?? ""; ?></p>
+				</div>
+			</div>
 		</div>
 		<div class="tab-pane fade" id="tab-2">
 			<br>
