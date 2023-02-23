@@ -153,6 +153,16 @@ $Num_Menu = sqlsrv_num_rows($SQL_Menu);
 								<?php if (PermitirFuncion(1208)) {?><li><a class="alnk" href="consultar_lista_materiales.php">Consultar lista de materiales</a></li><?php }?>
 							</ul>
 						</li>
+
+						<?php if (true) {?>
+							<li>
+								<a href="#">Puntos de control <span class="fa arrow"></span></a>
+								<ul class='nav nav-third-level'>
+									<?php if (true) {?><li><a class="alnk" href="socios_negocios_zonas.php">Zonas de socios de negocios</a></li><?php }?>
+									<?php if (true) {?><li><a class="alnk" href="punto_control_tipos.php">Tipos de punto de control</a></li><?php }?>
+								</ul>
+							</li>
+						<?php }?>
                     </ul>
                 </li>
 				<?php }?>
