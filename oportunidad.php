@@ -273,7 +273,13 @@ if (isset($sw_error) && ($sw_error == 1)) {
 	.swal2-container {
 	  	z-index: 9000;
 	}
+
+	/* SMM, 16/11/2022 */
+	.easy-autocomplete {
+		width: 100% !important;
+	}
 </style>
+
 <script type="text/javascript">
 	$(document).ready(function() {//Cargar los combos dependiendo de otro
 		$("#CardCode").change(function(){
@@ -285,9 +291,32 @@ if (isset($sw_error) && ($sw_error == 1)) {
 					$('#CondicionPago').html(response).fadeIn();
 				}
 			});
+
+			// SMM, 16/11/2022
+			$.ajax({
+				type: "POST",
+				url: "ajx_cbo_select.php?type=2&id="+carcode,
+				success: function(response){
+					$('#ContactoCliente').html(response).fadeIn();
+					$('#ContactoCliente').trigger('change');
+					$('.ibox-content').toggleClass('sk-loading',false);
+				}
+			});
 		});
 
+		// SMM, 16/11/2022
+		$("#CanalSN").change(function(){
+			let CanalSN = document.getElementById('CanalSN').value;
 
+			$.ajax({
+				type: "POST",
+				url: `ajx_cbo_select.php?type=2&id=${CanalSN}`,
+				success: function(response){
+					$('#ContactoCanalSN').html(response).fadeIn();
+					$('#ContactoCanalSN').trigger('change');
+				}
+			});
+		});
 	});
 </script>
 <script>
@@ -397,6 +426,18 @@ function dateDaysDiff(date1, date2) {
 	dt2 = new Date(date2);
 	return Math.floor((Date.UTC(dt2.getFullYear(), dt2.getMonth(), dt2.getDate()) - Date.UTC(dt1.getFullYear(), dt1.getMonth(), dt1.getDate()) ) /(1000 * 60 * 60 * 24));
 }
+
+// SMM, 16/11/2022
+function ConsultarCliente(id){
+	let Cliente = document.getElementById(id);
+
+	if(Cliente.value != ""){
+		self.name='opener';
+
+		remote=open('socios_negocios.php?id='+Base64.encode(Cliente.value)+'&ext=1&tl=1','remote','location=no,scrollbar=yes,menubars=no,toolbars=no,resizable=yes,fullscreen=yes,status=yes');
+		remote.focus();
+	}
+}
 </script>
 <!-- InstanceEndEditable -->
 </head>
@@ -428,13 +469,136 @@ function dateDaysDiff(date1, date2) {
             </div>
 
          <div class="wrapper wrapper-content">
-			 <div class="modal inmodal fade" id="myModal" tabindex="1" role="dialog" aria-hidden="true">
+			<!-- Fin, myModal -->
+			<div class="modal inmodal fade" id="myModal" tabindex="1" role="dialog" aria-hidden="true">
 				<div class="modal-dialog modal-lg">
 					<div class="modal-content" id="ContenidoModal">
-
+						<!-- Se llena con JS -->
 					</div>
 				</div>
-			 </div>
+			</div>
+			<!-- Fin, myModal -->
+
+			<!-- Inicio, modalActividades -->
+			<div class="modal inmodal fade" id="modalActividades" tabindex="-1" role="dialog" aria-hidden="true">
+				<div class="modal-dialog modal-lg" style="width: 70% !important;">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h4 class="modal-title">Resumen de actividades para oportunidad</h4>
+						</div>
+
+						<form id="formActividades">
+							<div class="modal-body">
+								<div class="row">
+									<div class="col-lg-1"></div>
+									<div class="col-lg-10">
+										<label class="checkbox-inline i-checks"><input name="chkVisualizar" id="chkVisualizar" type="checkbox" value="1"> Visualizar sólo actividades pendientes</label>
+									</div>
+									<div class="col-lg-1"></div>
+								</div>
+
+								<br><br>
+								<div class="row">
+									<div class="col-lg-1"></div>
+									<div class="col-lg-10">
+										<div class="table-responsive">
+											<table class="table table-bordered table-hover" >
+												<thead>
+												<tr>
+													<th>Fecha</th>
+													<th>Hora</th>
+													<th>Tratado por</th>
+													<th>Fecha actividad</th>
+													<th>Repetición</th>
+													<th>Contenido</th>
+												</tr>
+												</thead>
+												<tbody>
+												<?php //while ($row = sqlsrv_fetch_array($SQL)) {?>
+													<!-- tr>
+														<td><?php //echo $i; ?></td>
+														<td><?php //echo $row['ID_CodigoCliente']; ?></td>
+														<td><?php //echo $row['NombreCliente']; ?></td>
+														<td><?php //echo $row['FechaVencimiento']->format('Y-m-d'); ?></td>
+													</tr -->
+												<?php //}?>
+												</tbody>
+											</table>
+										</div>
+									</div>
+									<div class="col-lg-1"></div>
+								</div>
+							</div>
+
+							<div class="modal-footer">
+								<!-- button type="submit" class="btn btn-success m-t-md"><i class="fa fa-check"></i> Aceptar</button -->
+								<button type="button" class="btn btn-secondary m-t-md CancelarSN" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+			<!-- Fin, modalActividades -->
+
+			<!-- Inicio, modalCompetidor -->
+			<div class="modal inmodal fade" id="modalCompetidor" tabindex="-1" role="dialog" aria-hidden="true">
+				<div class="modal-dialog modal-lg" style="width: 70% !important;">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h4 class="modal-title">Crear Competidor</h4>
+						</div>
+
+						<form id="formCompetidor">
+							<div class="modal-body">
+								<div class="form-group">
+									<div class="ibox-content">
+										<?php include "includes/spinner.php";?>
+
+										<div class="col-lg-6">
+											<div class="form-group">
+												<label class="control-label">Nombre <span class="text-danger">*</span></label>
+												<input type="text" class="form-control" name="NombreCompetidor" id="NombreCompetidor" autocomplete="off" required>
+											</div>
+											<div class="form-group">
+												<label class="control-label">Nivel de amenaza <span class="text-danger">*</span></label>
+												<select name="AmenazaCompetidor" class="form-control" id="AmenazaCompetidor" required>
+													<option value="-1">Seleccione...</option>
+												<?php while ($row_Etapas = sqlsrv_fetch_array($SQL_Etapas)) {?>
+														<option value="<?php echo $row_Etapas['ID_Etapa']; ?>"><?php echo $row_Etapas['DE_Etapa']; ?></option>
+												<?php }?>
+												</select>
+											</div>
+										</div>
+
+										<div class="col-lg-6">
+											<div class="form-group">
+												<label class="col-lg-1 control-label">Ganada</label>
+												<select name="GanadaCompetidor" class="form-control" id="GanadaCompetidor">
+													<option value="NO">NO</option>
+													<option value="SI">SI</option>
+												</select>
+											</div>
+											<div class="form-group">
+												<label class="control-label">Comentarios</label>
+												<textarea name="ComentariosCompetidor" id="ComentariosCompetidor" rows="2" maxlength="3000" class="form-control" type="text"></textarea>
+											</div>
+										</div>
+
+										<label style="visibility: hidden;">Espaciador</label>
+									</div>
+								</div>
+							</div>
+
+							<div class="modal-footer">
+								<button type="submit" class="btn btn-success m-t-md"><i class="fa fa-check"></i> Aceptar</button>
+								<button type="button" class="btn btn-secondary m-t-md CancelarSN" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+			<!-- Fin, modalCompetidor -->
+
 			 <form action="oportunidad.php" method="post" class="form-horizontal" enctype="multipart/form-data" id="FrmOp">
 			  <?php
 $_GET['obj'] = "97";
@@ -457,6 +621,11 @@ if ($edit == 1) {
 } elseif (PermitirFuncion(1101)) {?>
 										<button class="btn btn-primary" type="submit" id="Crear"><i class="fa fa-check"></i> Crear oportunidad</button>
 								<?php }?>
+
+								<!-- SMM, 16/11/2022 -->
+								<button class="btn btn-info" onclick="$('#modalActividades').modal('show');"><i class="fa fa-tasks"></i> Actividades relacionadas</button>
+								<!-- Hasta aquí, 16/11/2022 -->
+
 								<button class="btn btn-success" type="button" id="DatoAdicionales" onClick="VerCamposAdi();"><i class="fa fa-list"></i> Ver campos adicionales</button>
 								<?php
 if (isset($_GET['return'])) {
@@ -468,6 +637,7 @@ if (isset($_GET['return'])) {
 }
 $return = QuitarParametrosURL($return, array("a"));
 ?>
+
 								<a href="<?php echo $return; ?>" class="alkin btn btn-outline btn-default"><i class="fa fa-arrow-circle-o-left"></i> Regresar</a>
 							</div>
 						</div>
@@ -488,28 +658,31 @@ $return = QuitarParametrosURL($return, array("a"));
 							<label class="col-xs-12"><h3 class="bg-success p-xs b-r-sm"><i class="fa fa-user"></i> Información de cliente</h3></label>
 						</div>
 						<div class="form-group">
-							<label class="col-lg-1 control-label">Cliente <span class="text-danger">*</span></label>
+							<label class="col-lg-1 control-label"><i onClick="ConsultarCliente('CardCode');" title="Consultar cliente" style="cursor: pointer" class="btn-xs btn-success fa fa-search"></i> Cliente <span class="text-danger">*</span></label>
 							<div class="col-lg-3">
 								<input name="CardCode" type="hidden" id="CardCode" value="<?php if (($edit == 1) || ($sw_error == 1)) {echo $row['IdClienteOportunidad'];}?>">
-
 								<input name="CardName" type="text" required="required" class="form-control" id="CardName" placeholder="Digite para buscar..." value="<?php if (($edit == 1) || ($sw_error == 1)) {echo $row['DeClienteOportunidad'];}?>" <?php if (($edit == 1) && ($row['IdEstadoOportunidad'] == 'C')) {echo "readonly";}?>>
 							</div>
 							<label class="col-lg-1 control-label">Contacto <span class="text-danger">*</span></label>
 							<div class="col-lg-3">
 								<select name="ContactoCliente" class="form-control" id="ContactoCliente" required <?php if (($edit == 1) && ($row['IdEstadoOportunidad'] == 'C')) {echo "disabled='disabled'";}?>>
 										<option value="">Seleccione...</option>
-								<?php
-if ($edit == 1 || $sw_error == 1) {
-    while ($row_ContactoCliente = sqlsrv_fetch_array($SQL_ContactoCliente)) {?>
-											<option value="<?php echo $row_ContactoCliente['CodigoContacto']; ?>" <?php if ((isset($row['IdContactoOportunidad'])) && (strcmp($row_ContactoCliente['CodigoContacto'], $row['IdContactoOportunidad']) == 0)) {echo "selected=\"selected\"";}?>><?php echo $row_ContactoCliente['ID_Contacto']; ?></option>
-								<?php }
-}?>
+										<?php if ($edit == 1 || $sw_error == 1) {?>
+											<?php while ($row_ContactoCliente = sqlsrv_fetch_array($SQL_ContactoCliente)) {?>
+												<option value="<?php echo $row_ContactoCliente['CodigoContacto']; ?>" <?php if ((isset($row['IdContactoOportunidad'])) && (strcmp($row_ContactoCliente['CodigoContacto'], $row['IdContactoOportunidad']) == 0)) {echo "selected=\"selected\"";}?>><?php echo $row_ContactoCliente['ID_Contacto']; ?></option>
+											<?php }?>
+										<?php }?>
 								</select>
 							</div>
-							<label class="col-lg-1 control-label">Propietario <span class="text-danger">*</span></label>
+
+							<label class="col-lg-1 control-label">Industria</label>
 							<div class="col-lg-3">
-								<input name="Propietario" id="Propietario" type="hidden" value="<?php if ($edit == 1 || $sw_error == 1) {echo $row['IdPropietario'];}?>" />
-								<input name="NombrePropietario" type="text" class="form-control" id="NombrePropietario" value="<?php if ($edit == 1 || $sw_error == 1) {echo $row['NombrePropietario'];}?>" readonly="readonly">
+								<select name="Industria" class="form-control" id="Industria">
+									<option value="">(Ninguna)</option>
+								<?php while ($row_Industria = sqlsrv_fetch_array($SQL_Industria)) {?>
+										<option value="<?php echo $row_Industria['IdIndustria']; ?>" <?php if ((isset($row['IdIndustria'])) && (strcmp($row_Industria['IdIndustria'], $row['IdIndustria']) == 0)) {echo "selected=\"selected\"";}?>><?php echo $row_Industria['DeIndustria']; ?></option>
+								<?php }?>
+								</select>
 							</div>
 						</div>
 						<div class="form-group">
@@ -517,22 +690,18 @@ if ($edit == 1 || $sw_error == 1) {
 							<div class="col-lg-3">
 								<input name="ImporteFact" type="text" class="form-control" id="ImporteFact" value="<?php if ($edit == 1 || $sw_error == 1) {echo number_format($row['ImporteFacturaTotal'], 2);}?>" readonly="readonly">
 							</div>
-							<label class="col-lg-1 control-label">Industria</label>
+
+							<label class="col-lg-1 control-label">Propietario <span class="text-danger">*</span></label>
 							<div class="col-lg-3">
-								<select name="Industria" class="form-control" id="Industria">
-									<option value="">(Ninguna)</option>
-								<?php
-while ($row_Industria = sqlsrv_fetch_array($SQL_Industria)) {?>
-										<option value="<?php echo $row_Industria['IdIndustria']; ?>" <?php if ((isset($row['IdIndustria'])) && (strcmp($row_Industria['IdIndustria'], $row['IdIndustria']) == 0)) {echo "selected=\"selected\"";}?>><?php echo $row_Industria['DeIndustria']; ?></option>
-								<?php }?>
-								</select>
+								<input name="Propietario" id="Propietario" type="hidden" value="<?php if ($edit == 1 || $sw_error == 1) {echo $row['IdPropietario'];}?>" />
+								<input name="NombrePropietario" type="text" class="form-control" id="NombrePropietario" value="<?php if ($edit == 1 || $sw_error == 1) {echo $row['NombrePropietario'];}?>" readonly="readonly">
 							</div>
+
 							<label class="col-lg-1 control-label">Territorio</label>
 							<div class="col-lg-3">
 								<select name="Territorio" class="form-control" id="Territorio">
 									<option value="">(Ninguno)</option>
-								<?php
-while ($row_Territorio = sqlsrv_fetch_array($SQL_Territorio)) {?>
+								<?php while ($row_Territorio = sqlsrv_fetch_array($SQL_Territorio)) {?>
 										<option value="<?php echo $row_Territorio['IdTerritorio']; ?>" <?php if ((isset($row['IdTerritorio'])) && (strcmp($row_Territorio['IdTerritorio'], $row['IdTerritorio']) == 0)) {echo "selected=\"selected\"";}?>><?php echo $row_Territorio['DeTerritorio']; ?></option>
 								<?php }?>
 								</select>
@@ -543,16 +712,13 @@ while ($row_Territorio = sqlsrv_fetch_array($SQL_Territorio)) {?>
 						</div>
 						<div class="form-group">
 							<label class="col-lg-1 control-label">Nombre de la oportunidad <span class="text-danger">*</span></label>
-							<div class="col-lg-3">
+							<div class="col-lg-7">
 								<input autocomplete="off" name="NombreOportunidad" type="text" required="required" class="form-control" id="NombreOportunidad" maxlength="150" value="<?php if ($edit == 1 || $sw_error == 1) {echo $row['NombreOportunidad'];}?>">
 							</div>
+
 							<label class="col-lg-1 control-label">Número de oportunidad</label>
 							<div class="col-lg-3">
 								<input autocomplete="off" name="NumeroOportunidad" type="text" class="form-control" id="NumeroOportunidad" maxlength="10" value="<?php if ($edit == 1 || $sw_error == 1) {echo $row['ID_Oportunidad'];}?>" readonly>
-							</div>
-							<label class="col-lg-1 control-label">Estado <span class="text-danger">*</span></label>
-							<div class="col-lg-3">
-								<input autocomplete="off" name="EstadoOportunidad" type="text" class="form-control" id="EstadoOportunidad" maxlength="10" value="<?php if ($edit == 1 || $sw_error == 1) {echo $row['DeEstadoOportunidad'];}?>" readonly>
 							</div>
 						</div>
 						<div class="form-group">
@@ -563,16 +729,12 @@ while ($row_Territorio = sqlsrv_fetch_array($SQL_Territorio)) {?>
 									<option value="P" <?php if (($edit == 1 || $sw_error == 1) && ($row['IdTipoOportunidad'] == "P")) {echo "selected=\"selected\"";}?>>Compras</option>
 								</select>
 							</div>
-							<label class="col-lg-1 control-label">Fecha de inicio <span class="text-danger">*</span></label>
-							<div class="col-lg-3 input-group date">
-								 <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input name="FechaInicio" id="FechaInicio" type="text" onChange="CalcularDiasCierre();" required="required" class="form-control" value="<?php if ($edit == 1 || $sw_error == 1) {echo $row['FechaInicio']->format('Y-m-d');}?>" <?php if (($edit == 1) && ($row['IdEstadoOportunidad'] == 'C')) {echo "readonly";}?>>
+
+							<label class="col-lg-1 control-label">Estado <span class="text-danger">*</span></label>
+							<div class="col-lg-3">
+								<input autocomplete="off" name="EstadoOportunidad" type="text" class="form-control" id="EstadoOportunidad" maxlength="10" value="<?php if ($edit == 1 || $sw_error == 1) {echo $row['DeEstadoOportunidad'];}?>" readonly>
 							</div>
-							<label class="col-lg-1 control-label">Fecha de cierre</label>
-							<div class="col-lg-3 input-group date">
-								 <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input name="FechaCierre" id="FechaCierre" type="text" class="form-control" value="<?php if ($edit == 1 || $sw_error == 1) {echo ($row['FechaCierre'] != "") ? $row['FechaCierre']->format('Y-m-d') : "";}?>" <?php if (($edit == 1) && ($row['IdEstadoOportunidad'] == 'C')) {echo "readonly";}?>>
-							</div>
-						</div>
-						<div class="form-group">
+
 							<label class="col-lg-1 control-label">Empleado de ventas <span class="text-danger">*</span></label>
 							<div class="col-lg-3">
 								<select name="EmpleadoVentas" class="form-control select2" id="EmpleadoVentas" required>
@@ -582,12 +744,27 @@ while ($row_Territorio = sqlsrv_fetch_array($SQL_Territorio)) {?>
 								  <?php }?>
 								</select>
 							</div>
+						</div>
+						<div class="form-group">
 							<label class="col-lg-1 control-label">% de cierre <span class="text-danger">*</span></label>
 							<div class="col-lg-7">
 								<input type="hidden" name="PrctOpor" id="PrctOpor" value="<?php if ($edit == 1 || $sw_error == 1) {echo $row['PorcentajeOportunidad'];}?>" />
 								<div class="progress">
 									<div class="progress-bar progress-bar-success" role="progressbar" style="width: <?php if (($edit == 1) || ($sw_error == 1)) {echo number_format($row['PorcentajeOportunidad'], 0);} else {echo "0";}?>%;" aria-valuenow="<?php if (($edit == 1) || ($sw_error == 1)) {echo number_format($row['PorcentajeOportunidad'], 0);} else {echo "0";}?>" aria-valuemin="0" aria-valuemax="100"><?php if (($edit == 1) || ($sw_error == 1)) {echo number_format($row['PorcentajeOportunidad'], 0);} else {echo "0";}?>%</div>
 								</div>
+							</div>
+
+							<label class="col-lg-1 control-label">Fecha de inicio <span class="text-danger">*</span></label>
+							<div class="col-lg-3 input-group date">
+								 <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input name="FechaInicio" id="FechaInicio" type="text" onChange="CalcularDiasCierre();" required="required" class="form-control" value="<?php if ($edit == 1 || $sw_error == 1) {echo $row['FechaInicio']->format('Y-m-d');}?>" <?php if (($edit == 1) && ($row['IdEstadoOportunidad'] == 'C')) {echo "readonly";}?>>
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="col-lg-8"></div>
+
+							<label class="col-lg-1 control-label">Fecha de cierre</label>
+							<div class="col-lg-3 input-group date">
+								 <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input name="FechaCierre" id="FechaCierre" type="text" class="form-control" value="<?php if ($edit == 1 || $sw_error == 1) {echo ($row['FechaCierre'] != "") ? $row['FechaCierre']->format('Y-m-d') : "";}?>" <?php if (($edit == 1) && ($row['IdEstadoOportunidad'] == 'C')) {echo "readonly";}?>>
 							</div>
 						</div>
 						<div class="form-group">
@@ -598,7 +775,7 @@ while ($row_Territorio = sqlsrv_fetch_array($SQL_Territorio)) {?>
 									<li class="active"><a data-toggle="tab" href="#tabOpr-1"><i class="fa fa-shopping-cart"></i> Potencial</a></li>
 									<li><a data-toggle="tab" href="#tabOpr-2"><i class="fa fa-book"></i> General</a></li>
 									<li><a data-toggle="tab" href="#tabOpr-3"><i class="fa fa-flag-checkered"></i> Etapas</a></li>
-									<?php /*?><li><a data-toggle="tab" href="#tabOpr-4"><i class="fa fa-group"></i> Socios de negocios</a></li><?php */?>
+									<li><a data-toggle="tab" href="#tabOpr-4"><i class="fa fa-group"></i> Socios de negocios</a></li>
 									<li><a data-toggle="tab" href="#tabOpr-5"><i class="fa fa-trophy"></i> Competidores</a></li>
 									<li><a data-toggle="tab" href="#tabOpr-6"><i class="fa fa-tasks"></i> Resumen</a></li>
 									<li><a data-toggle="tab" href="#tabOpr-7"><i class="fa fa-paperclip"></i> Anexos</a></li>
@@ -606,108 +783,130 @@ while ($row_Territorio = sqlsrv_fetch_array($SQL_Territorio)) {?>
 							   <div class="tab-content">
 								   <div id="tabOpr-1" class="tab-pane active">
 									   <br>
-										<div class="form-group">
-											<label class="col-lg-1 control-label">Cierre planificado en <span class="text-danger">*</span></label>
-											<div class="col-lg-1">
-												<input autocomplete="off" name="CierrePlan" type="text" required="required" class="form-control" id="CierrePlan" maxlength="10" value="<?php if ($edit == 1 || $sw_error == 1) {echo $row['CierrePlanificado'];}?>" onChange="CalcularCierre();">
+									   <div class="form-group">
+											<div class="col-lg-4">
+												<div class="form-group">
+													<label class="col-lg-4 control-label">Cierre planificado en <span class="text-danger">*</span></label>
+													<div class="col-lg-4">
+														<input autocomplete="off" name="CierrePlan" type="text" required="required" class="form-control" id="CierrePlan" maxlength="10" value="<?php if ($edit == 1 || $sw_error == 1) {echo $row['CierrePlanificado'];}?>" onChange="CalcularCierre();">
+													</div>
+													<div class="col-lg-4">
+														<select name="CierreTipo" class="form-control" id="CierreTipo" <?php if (($edit == 1) && ($row['IdEstadoOportunidad'] == 'C')) {echo "disabled='disabled'";}?>>
+															<option value="M" <?php if (($edit == 1 || $sw_error == 1) && ($row['DifType'] == "M")) {echo "selected=\"selected\"";}?>>Meses</option>
+															<option value="W" <?php if (($edit == 1 || $sw_error == 1) && ($row['DifType'] == "W")) {echo "selected=\"selected\"";}?>>Semanas</option>
+															<option value="D" <?php if (($edit == 1 || $sw_error == 1) && ($row['DifType'] == "D")) {echo "selected=\"selected\"";}?>>Días</option>
+														</select>
+													</div>
+												</div>
+												<div class="form-group">
+													<label class="col-lg-4 control-label">Fecha de cierre prevista <span class="text-danger">*</span></label>
+													<div class="col-lg-8 input-group date">
+														<span class="input-group-addon"><i class="fa fa-calendar"></i></span><input name="FechaCierrePrev" id="FechaCierrePrev" type="text" onChange="CalcularDiasCierre();" required="required" class="form-control" value="<?php if ($edit == 1 || $sw_error == 1) {echo $row['FechaCierrePrevista']->format('Y-m-d');}?>" <?php if (($edit == 1) && ($row['IdEstadoOportunidad'] == 'C')) {echo "readonly";}?>>
+													</div>
+												</div>
+												<div class="form-group">
+													<label class="col-lg-4 control-label">Monto potencial ($)</label>
+													<div class="col-lg-8">
+														<input name="MontoPotencial" type="text" class="form-control" id="MontoPotencial" value="<?php if ($edit == 1 || $sw_error == 1) {echo number_format($row['MontoPotencial'], 2);}?>" <?php if (($edit == 1) && ($row['IdEstadoOportunidad'] != 'O')) {echo "readonly";}?>>
+													</div>
+												</div>
+												<div class="form-group">
+													<label class="col-lg-4 control-label">Monto ponderado ($)</label>
+													<div class="col-lg-8">
+														<input name="MontoPonderado" type="text" class="form-control" id="MontoPonderado" value="<?php if ($edit == 1 || $sw_error == 1) {echo number_format($row['MontoPonderado'], 2);}?>" <?php if (($edit == 1) && ($row['IdEstadoOportunidad'] != 'O')) {echo "readonly";}?>>
+													</div>
+												</div>
+												<div class="form-group">
+													<label class="col-lg-4 control-label">% de ganancia bruta</label>
+													<div class="col-lg-8">
+														<input name="PrcGananciaBruta" type="text" class="form-control" id="PrcGananciaBruta" value="<?php if ($edit == 1 || $sw_error == 1) {echo number_format($row['PrcnGananciaBruta'], 0);}?>" <?php if (($edit == 1) && ($row['IdEstadoOportunidad'] != 'O')) {echo "readonly";}?>>
+													</div>
+												</div>
+												<div class="form-group">
+													<label class="col-lg-4 control-label">Ganancia bruta total ($)</label>
+													<div class="col-lg-8">
+														<input name="GananciaBruta" type="text" class="form-control" id="GananciaBruta" value="<?php if ($edit == 1 || $sw_error == 1) {echo number_format($row['GananciaBruta'], 2);}?>" <?php if (($edit == 1) && ($row['IdEstadoOportunidad'] != 'O')) {echo "readonly";}?>>
+													</div>
+												</div>
+												<div class="form-group">
+													<label class="col-lg-4 control-label">Nivel de interés <span class="text-danger">*</span></label>
+													<div class="col-lg-8">
+														<select name="NivelInteres" class="form-control" id="NivelInteres" <?php if (($edit == 1) && ($row['IdEstadoOportunidad'] != 'O')) {echo "disabled='disabled'";}?> required="required">
+															<option value="">Seleccione...</option>
+															<?php while ($row_NivelInteres = sqlsrv_fetch_array($SQL_NivelInteres)) {?>
+																<option value="<?php echo $row_NivelInteres['ID_NivelInteres']; ?>" <?php if (($edit == 1) && (isset($row['IdNivelInteres'])) && (strcmp($row_NivelInteres['ID_NivelInteres'], $row['IdNivelInteres']) == 0)) {echo "selected=\"selected\"";}?>><?php echo $row_NivelInteres['DE_NivelInteres']; ?></option>
+															<?php }?>
+														</select>
+													</div>
+												</div>
+											</div><!-- form-group, "principal" -->
+
+											<div class="col-lg-8">
+												<b>Rango de interés</b>
 											</div>
-											<div class="col-lg-1">
-												<select name="CierreTipo" class="form-control" id="CierreTipo" <?php if (($edit == 1) && ($row['IdEstadoOportunidad'] == 'C')) {echo "disabled='disabled'";}?>>
-													<option value="M" <?php if (($edit == 1 || $sw_error == 1) && ($row['DifType'] == "M")) {echo "selected=\"selected\"";}?>>Meses</option>
-													<option value="W" <?php if (($edit == 1 || $sw_error == 1) && ($row['DifType'] == "W")) {echo "selected=\"selected\"";}?>>Semanas</option>
-													<option value="D" <?php if (($edit == 1 || $sw_error == 1) && ($row['DifType'] == "D")) {echo "selected=\"selected\"";}?>>Días</option>
-												</select>
-											</div>
-											<label class="col-lg-1 control-label">Fecha de cierre prevista <span class="text-danger">*</span></label>
-											<div class="col-lg-2 input-group date">
-												 <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input name="FechaCierrePrev" id="FechaCierrePrev" type="text" onChange="CalcularDiasCierre();" required="required" class="form-control" value="<?php if ($edit == 1 || $sw_error == 1) {echo $row['FechaCierrePrevista']->format('Y-m-d');}?>" <?php if (($edit == 1) && ($row['IdEstadoOportunidad'] == 'C')) {echo "readonly";}?>>
-											</div>
-											<label class="col-lg-1 control-label">Monto potencial ($)</label>
-											<div class="col-lg-2">
-												<input name="MontoPotencial" type="text" class="form-control" id="MontoPotencial" value="<?php if ($edit == 1 || $sw_error == 1) {echo number_format($row['MontoPotencial'], 2);}?>" <?php if (($edit == 1) && ($row['IdEstadoOportunidad'] != 'O')) {echo "readonly";}?>>
-											</div>
-											<label class="col-lg-1 control-label">Monto ponderado ($)</label>
-											<div class="col-lg-2">
-												<input name="MontoPonderado" type="text" class="form-control" id="MontoPonderado" value="<?php if ($edit == 1 || $sw_error == 1) {echo number_format($row['MontoPonderado'], 2);}?>" <?php if (($edit == 1) && ($row['IdEstadoOportunidad'] != 'O')) {echo "readonly";}?>>
-											</div>
-										</div>
-										<div class="form-group">
-											<label class="col-lg-1 control-label">% de ganancia bruta</label>
-											<div class="col-lg-2">
-												<input name="PrcGananciaBruta" type="text" class="form-control" id="PrcGananciaBruta" value="<?php if ($edit == 1 || $sw_error == 1) {echo number_format($row['PrcnGananciaBruta'], 0);}?>" <?php if (($edit == 1) && ($row['IdEstadoOportunidad'] != 'O')) {echo "readonly";}?>>
-											</div>
-											<label class="col-lg-1 control-label">Ganancia bruta total ($)</label>
-											<div class="col-lg-2">
-												<input name="GananciaBruta" type="text" class="form-control" id="GananciaBruta" value="<?php if ($edit == 1 || $sw_error == 1) {echo number_format($row['GananciaBruta'], 2);}?>" <?php if (($edit == 1) && ($row['IdEstadoOportunidad'] != 'O')) {echo "readonly";}?>>
-											</div>
-											<label class="col-lg-1 control-label">Nivel de interés <span class="text-danger">*</span></label>
-											<div class="col-lg-2">
-												<select name="NivelInteres" class="form-control" id="NivelInteres" <?php if (($edit == 1) && ($row['IdEstadoOportunidad'] != 'O')) {echo "disabled='disabled'";}?> required="required">
-													<option value="">Seleccione...</option>
-													<?php while ($row_NivelInteres = sqlsrv_fetch_array($SQL_NivelInteres)) {?>
-														<option value="<?php echo $row_NivelInteres['ID_NivelInteres']; ?>" <?php if (($edit == 1) && (isset($row['IdNivelInteres'])) && (strcmp($row_NivelInteres['ID_NivelInteres'], $row['IdNivelInteres']) == 0)) {echo "selected=\"selected\"";}?>><?php echo $row_NivelInteres['DE_NivelInteres']; ?></option>
-											  		<?php }?>
-												</select>
-											</div>
-										</div>
+									   </div>
 								   </div>
 								   <div id="tabOpr-2" class="tab-pane">
 										<br>
 										<div class="form-group">
-											<label class="col-lg-1 control-label">Canal SN</label>
+											<label class="col-lg-2 control-label"><i onClick="ConsultarCliente('CanalSN');" title="Consultar cliente" style="cursor: pointer" class="btn-xs btn-success fa fa-search"></i> Canal SN</label>
 											<div class="col-lg-3">
 												<input name="CanalSN" type="hidden" id="CanalSN" value="<?php if (($edit == 1) || ($sw_error == 1)) {echo $row['CodigoCanalSN'];}?>">
-
 												<input name="NombreCanalSN" type="text" class="form-control" id="NombreCanalSN" placeholder="Digite para buscar..." value="<?php if (($edit == 1) || ($sw_error == 1)) {echo $row['NombreCanalSN'];}?>" <?php if (($edit == 1) && ($row['IdEstadoOportunidad'] != 'O')) {echo "readonly";}?>>
 											</div>
-											<label class="col-lg-1 control-label">Contacto</label>
-											<div class="col-lg-3">
-												<select name="ContactoCanalSN" class="form-control" id="ContactoCanalSN" <?php if (($edit == 1) && ($row['IdEstadoOportunidad'] == 'C')) {echo "disabled='disabled'";}?>>
-														<option value="">Seleccione...</option>
-												<?php
-if (($edit == 1 || $sw_error == 1) && ($row['CodigoCanalSN'] != "")) {
-    while ($row_ContactoCanalSN = sqlsrv_fetch_array($SQL_ContactoCanalSN)) {?>
-															<option value="<?php echo $row_ContactoCanalSN['CodigoContacto']; ?>" <?php if ((isset($row['CodigoContactoCanalSN'])) && (strcmp($row_ContactoCanalSN['CodigoContacto'], $row['CodigoContactoCanalSN']) == 0)) {echo "selected=\"selected\"";}?>><?php echo $row_ContactoCanalSN['ID_Contacto']; ?></option>
-												<?php }
-}?>
-												</select>
-											</div>
-											<label class="col-lg-1 control-label">Proyecto</label>
+
+											<label class="col-lg-2 control-label">Proyecto</label>
 											<div class="col-lg-3">
 												<select name="Proyecto" class="form-control select2" id="Proyecto">
 													<option value="">Seleccione...</option>
-												<?php
-while ($row_Proyecto = sqlsrv_fetch_array($SQL_Proyecto)) {?>
+												<?php while ($row_Proyecto = sqlsrv_fetch_array($SQL_Proyecto)) {?>
 														<option value="<?php echo $row_Proyecto['IdProyecto']; ?>" <?php if ((isset($row['IdProyecto'])) && (strcmp($row_Proyecto['IdProyecto'], $row['IdProyecto']) == 0)) {echo "selected=\"selected\"";}?>><?php echo $row_Proyecto['DeProyecto']; ?></option>
 												<?php }?>
 												</select>
 											</div>
 										</div>
+
 									   	<div class="form-group">
-											<label class="col-lg-1 control-label">Fuente de información</label>
+										   <label class="col-lg-2 control-label">Contacto</label>
+											<div class="col-lg-3">
+												<select name="ContactoCanalSN" class="form-control" id="ContactoCanalSN" <?php if (($edit == 1) && ($row['IdEstadoOportunidad'] == 'C')) {echo "disabled='disabled'";}?>>
+													<option value="">Seleccione...</option>
+													<?php if (($edit == 1 || $sw_error == 1) && ($row['CodigoCanalSN'] != "")) {?>
+														<?php while ($row_ContactoCanalSN = sqlsrv_fetch_array($SQL_ContactoCanalSN)) {?>
+															<option value="<?php echo $row_ContactoCanalSN['CodigoContacto']; ?>" <?php if ((isset($row['CodigoContactoCanalSN'])) && (strcmp($row_ContactoCanalSN['CodigoContacto'], $row['CodigoContactoCanalSN']) == 0)) {echo "selected=\"selected\"";}?>><?php echo $row_ContactoCanalSN['ID_Contacto']; ?></option>
+														<?php }?>
+													<?php }?>
+												</select>
+											</div>
+
+											<label class="col-lg-2 control-label">Fuente de información</label>
 											<div class="col-lg-3">
 												<select name="FuenteInfo" class="form-control select2" id="FuenteInfo">
 													<option value="">Seleccione...</option>
-												<?php
-while ($row_FuenteInfo = sqlsrv_fetch_array($SQL_FuenteInfo)) {?>
+												<?php while ($row_FuenteInfo = sqlsrv_fetch_array($SQL_FuenteInfo)) {?>
 														<option value="<?php echo $row_FuenteInfo['ID_FuenteInfo']; ?>" <?php if ((isset($row['IdFuenteInfo'])) && (strcmp($row_FuenteInfo['ID_FuenteInfo'], $row['IdFuenteInfo']) == 0)) {echo "selected=\"selected\"";}?>><?php echo $row_FuenteInfo['DE_FuenteInfo']; ?></option>
 												<?php }?>
 												</select>
 											</div>
-											<label class="col-lg-1 control-label">Ramo</label>
+										</div>
+
+										<div class="form-group">
+											<div class="col-lg-5"></div>
+
+											<label class="col-lg-2 control-label">Ramo</label>
 											<div class="col-lg-3">
 												<select name="RamoInd" class="form-control select2" id="RamoInd">
 													<option value="">Seleccione...</option>
-												<?php
-while ($row_RamoInd = sqlsrv_fetch_array($SQL_RamoInd)) {?>
+												<?php while ($row_RamoInd = sqlsrv_fetch_array($SQL_RamoInd)) {?>
 														<option value="<?php echo $row_RamoInd['ID_RamoIndustria']; ?>" <?php if ((isset($row['IdIndustria'])) && (strcmp($row_RamoInd['ID_RamoIndustria'], $row['IdIndustria']) == 0)) {echo "selected=\"selected\"";}?>><?php echo $row_RamoInd['DescripcionRamoIndustria']; ?></option>
 												<?php }?>
 												</select>
 											</div>
 										</div>
+
 									   	<div class="form-group">
-											<label class="col-lg-1 control-label">Comentarios</label>
-											<div class="col-lg-7">
+											<label class="col-lg-2 control-label">Comentarios</label>
+											<div class="col-lg-8">
 												<textarea name="Comentarios" rows="7" maxlength="1000" class="form-control" id="Comentarios" type="text"><?php if ($edit == 1 || $sw_error == 1) {echo $row['ComentariosOportunidad'];}?></textarea>
 											</div>
 										</div>
@@ -723,7 +922,7 @@ while ($row_RamoInd = sqlsrv_fetch_array($SQL_RamoInd)) {?>
 											<script>
 												window.sessionStorage.removeItem('OPR<?php echo ($edit == 1) ? $row['ID_Oportunidad'] : ""; ?>');
 											</script>
-											<table class="table table-bordered table-hover dataTables-example" >
+											<table class="table table-bordered table-hover dataTables-example" id="tablaEtapas">
 											<thead>
 											<tr>
 												<th>#</th>
@@ -743,8 +942,8 @@ while ($row_RamoInd = sqlsrv_fetch_array($SQL_RamoInd)) {?>
 											</tr>
 											</thead>
 											<tbody id="listaEtapas">
-											<?php $i = 1;
-while ($row_Detalle = sqlsrv_fetch_array($SQL_Detalle)) {?>
+												<?php $i = 1;?>
+												<?php while (($edit == 1) && ($row_Detalle = sqlsrv_fetch_array($SQL_Detalle))) {?>
 													<tr class="gradeX">
 														<td id="idLin<?php echo $row_Detalle['IdLinea']; ?>"><?php echo $i; ?></td>
 														<td id="FIni<?php echo $row_Detalle['IdLinea']; ?>"><?php echo $row_Detalle['FechaInicio']; ?></td>
@@ -764,7 +963,8 @@ while ($row_Detalle = sqlsrv_fetch_array($SQL_Detalle)) {?>
 															<button type="button" id="btnDel<?php echo $row_Detalle['IdLinea']; ?>" class="btn btn-danger btn-xs" onClick="BorrarLinea('<?php echo $row_Detalle['ID_Oportunidad']; ?>');"><i class="fa fa-trash"></i> Eliminar</button>
 														</td>
 													</tr>
-											<?php echo "<script>
+
+													<?php echo "<script>
 													CargarEtapa(
 													'" . $row_Detalle['ID_Oportunidad'] . "',
 													'" . $row_Detalle['IdLinea'] . "',
@@ -787,21 +987,24 @@ while ($row_Detalle = sqlsrv_fetch_array($SQL_Detalle)) {?>
 													'" . $row_Detalle['NombrePropietario'] . "',
 													'" . $row_Detalle['IdEstado'] . "',
 													'" . $row_Detalle['DeEstado'] . "');
-													</script>";
-    $i++;
-} ?>
+													</script>"; ?>
+
+    												<?php $i++;?>
+												<?php }?>
 											</tbody>
 											</table>
 									  </div>
 								   </div>
-								   <?php /*?><div id="tabOpr-4" class="tab-pane">
-<br>
 
-</div><?php */?>
-								   <div id="tabOpr-5" class="tab-pane">
+								   <div id="tabOpr-4" class="tab-pane">
 										<br>
+									   	<div class="row m-b-md">
+											<div class="col-lg-12">
+												<button class="btn btn-primary" type="button" id="NewParam" onClick="CrearSN();"><i class="fa fa-plus-circle"></i> Añadir Socio de Negocio</button>
+											</div>
+										</div>
 										<div class="table-responsive">
-											<table class="table table-bordered table-hover dataTables-example" >
+											<table class="table table-bordered table-hover dataTables-example" id="tablaSN">
 											<thead>
 											<tr>
 												<th>#</th>
@@ -812,7 +1015,32 @@ while ($row_Detalle = sqlsrv_fetch_array($SQL_Detalle)) {?>
 											</tr>
 											</thead>
 											<tbody>
+												<!-- Se agrega dinamicamente con JS -->
+											</tbody>
+											</table>
+									  </div>
+								   </div>
 
+								   <div id="tabOpr-5" class="tab-pane">
+										<br>
+									   	<div class="row m-b-md">
+											<div class="col-lg-12">
+												<button class="btn btn-primary" type="button" id="NewParam" onClick="CrearCompetidor();"><i class="fa fa-plus-circle"></i> Añadir Competidor</button>
+											</div>
+										</div>
+										<div class="table-responsive">
+											<table class="table table-bordered table-hover dataTables-example" id="tablaCompetidores">
+											<thead>
+											<tr>
+												<th>#</th>
+												<th>Nombre</th>
+												<th>Nivel de amenaza</th>
+												<th>Comentarios</th>
+												<th>Ganada</th>
+											</tr>
+											</thead>
+											<tbody>
+												<!-- Se agrega dinamicamente con JS -->
 											</tbody>
 											</table>
 									  </div>
@@ -895,6 +1123,47 @@ if ($edit == 1) {
 <!-- InstanceBeginEditable name="EditRegion4" -->
 <script>
  $(document).ready(function(){
+	// Limpiar "sessionStorage"
+	sessionStorage.removeItem("OportunidadCompetidores");
+
+	$("#formCompetidor").on("submit", function(event) {
+		event.preventDefault(); // Evitar redirección del formulario
+
+		let competidores = sessionStorage.hasOwnProperty("OportunidadCompetidores") ? JSON.parse(sessionStorage.OportunidadCompetidores): [];
+
+		let jsonCompetidor = {
+			"id": (competidores.length + 1),
+			"nombre": $("#NombreCompetidor").val(),
+			"nivel_amenaza": $("#AmenazaCompetidor").val(),
+			"comentarios": $("#ComentariosCompetidor").val(),
+			"ganada": $("#GanadaCompetidor").val()
+		};
+
+		let trCompetidor = document.createElement("tr");
+
+		trCompetidor.innerHTML=`
+			<td id="${jsonCompetidor.id}">${jsonCompetidor.id}</td>
+			<td id="Nombre${jsonCompetidor.id}">${jsonCompetidor.nombre}</td>
+			<td id="Amenaza${jsonCompetidor.id}">${jsonCompetidor.nivel_amenaza}</td>
+			<td id="Comentarios${jsonCompetidor.id}">${jsonCompetidor.comentarios}</td>
+			<td id="Ganada${jsonCompetidor.id}">${jsonCompetidor.ganada}</td>`;
+
+		let tablaCompetidores = $('#tablaCompetidores').DataTable();
+		tablaCompetidores.row.add(trCompetidor).draw();
+
+		competidores.push(jsonCompetidor);
+		sessionStorage.OportunidadCompetidores = JSON.stringify(competidores);
+
+		$(this).trigger("reset");
+		$("#modalCompetidor").modal("hide");
+	});
+
+	// SMM, 21/11/2022
+	$('.i-checks').iCheck({
+		checkboxClass: 'icheckbox_square-green',
+		radioClass: 'iradio_square-green',
+	});
+	// Hasta aquí, 21/11/2022
 
 	 $("#FrmOp").validate({
 		submitHandler: function(form){
@@ -946,6 +1215,26 @@ if ($edit == 1) {
 			  }
 		 };
 	$("#CardName").easyAutocomplete(options);
+
+	// SMM, 16/11/2022
+	let optionSN = {
+		url: function(phrase) {
+			return "ajx_buscar_datos_json.php?type=7&id="+phrase;
+		},
+		getValue: "NombreBuscarCliente",
+		requestDelay: 400,
+		list: {
+			match: {
+				enabled: true
+			},
+			onClickEvent: function() {
+				var value = $("#NombreCanalSN").getSelectedItemData().CodigoCliente;
+				$("#CanalSN").val(value).trigger("change");
+			}
+		}
+	};
+	$("#NombreCanalSN").easyAutocomplete(optionSN);
+	// Hasta aquí, 16/11/2022
 
 	 $('#FechaInicio').datepicker({
 			todayBtn: "linked",
@@ -1034,7 +1323,16 @@ function Validar(){
 	return result;
 }
 
+// SMM, 21/11/2022
+function CrearCompetidor(){
+	$('#modalCompetidor').modal('show');
+}
+
+function CrearSN() {
+	CrearCompetidor();
+}
 </script>
+
 <script>
  Dropzone.options.dropzoneForm = {
 		paramName: "File", // The name that will be used to transfer the file

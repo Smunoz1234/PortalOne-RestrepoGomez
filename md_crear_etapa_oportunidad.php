@@ -1,31 +1,31 @@
-<?php  
-require_once("includes/conexion.php");
+<?php
+require_once "includes/conexion.php";
 
 $edit = isset($_POST['edit']) ? $_POST['edit'] : 0;
 $id = isset($_POST['id']) ? $_POST['id'] : "";
 $estado = isset($_POST['estado']) ? $_POST['estado'] : "O";
 $linea = isset($_POST['linea']) ? $_POST['linea'] : random_int(100, 999);
 
-$Title="Añadir etapa";
-$Type=1;
+$Title = "Añadir etapa";
+$Type = 1;
 
 //Tipos de documentos
-$SQL_TipoDoc=Seleccionar("uvw_tbl_ObjetosSAP","*",'','CategoriaObjeto, DeTipoDocumento');
+$SQL_TipoDoc = Seleccionar("uvw_tbl_ObjetosSAP", "*", '', 'CategoriaObjeto, DeTipoDocumento');
 
 //Empleados de ventas
-$SQL_EmpVentas=Seleccionar('uvw_Sap_tbl_EmpleadosVentas','*');
+$SQL_EmpVentas = Seleccionar('uvw_Sap_tbl_EmpleadosVentas', '*');
 
 //Etapas
-$SQL_Etapas=Seleccionar('uvw_Sap_tbl_OportunidadesEtapas','*');
+$SQL_Etapas = Seleccionar('uvw_Sap_tbl_OportunidadesEtapas', '*');
 
 //Empleados
-$SQL_Empleados=Seleccionar('uvw_Sap_tbl_Empleados','ID_Empleado, NombreEmpleado','','NombreEmpleado');
+$SQL_Empleados = Seleccionar('uvw_Sap_tbl_Empleados', 'ID_Empleado, NombreEmpleado', '', 'NombreEmpleado');
 
-if($edit==1){
-	$SQL_Data=Seleccionar("uvw_Sap_tbl_OportunidadesDetalle","*","ID_Oportunidad='".$id."' and IdLinea='".$linea."'");
-	$row_Data=sqlsrv_fetch_array($SQL_Data);
-	$Title="Editar etapa";
-	$Type=2;
+if ($edit == 1) {
+    $SQL_Data = Seleccionar("uvw_Sap_tbl_OportunidadesDetalle", "*", "ID_Oportunidad='" . $id . "' and IdLinea='" . $linea . "'");
+    $row_Data = sqlsrv_fetch_array($SQL_Data);
+    $Title = "Editar etapa";
+    $Type = 2;
 }
 
 ?>
@@ -38,98 +38,110 @@ if($edit==1){
 	<div class="modal-body">
 		<div class="form-group">
 			<div class="ibox-content">
-				<?php include("includes/spinner.php"); ?>
-				<div class="form-group">
-					<label class="control-label">Fecha de inicio <span class="text-danger">*</span></label>
-					<div class="input-group date">
-						 <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input name="FechaInicio" type="text" class="form-control" id="FechaInicio" value="" readonly="readonly" required>
+				<?php include "includes/spinner.php";?>
+
+				<div class="col-lg-6">
+					<div class="form-group">
+						<label class="control-label">Fecha de inicio <span class="text-danger">*</span></label>
+						<div class="input-group date">
+							<span class="input-group-addon"><i class="fa fa-calendar"></i></span><input name="FechaInicio" type="text" class="form-control" id="FechaInicio" value="" readonly="readonly" required>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="control-label">Fecha de cierre</label>
+						<div class="input-group date">
+							<span class="input-group-addon"><i class="fa fa-calendar"></i></span><input name="FechaCierre" type="text" class="form-control" id="FechaCierre" value="" readonly="readonly">
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="control-label">Empleado de ventas <span class="text-danger">*</span></label>
+						<select name="EmpVentas" class="form-control" id="EmpVentas" required <?php if ($estado == "C") {echo "disabled='disabled'";}?>>
+								<option value="">Seleccione...</option>
+						<?php while ($row_EmpVentas = sqlsrv_fetch_array($SQL_EmpVentas)) {?>
+								<option value="<?php echo $row_EmpVentas['ID_EmpVentas']; ?>"><?php echo $row_EmpVentas['DE_EmpVentas']; ?></option>
+						<?php }?>
+						</select>
+					</div>
+					<div class="form-group">
+						<label class="control-label">Etapa <span class="text-danger">*</span></label>
+						<select name="Etapa" class="form-control" id="Etapa" required <?php if ($estado == "C") {echo "disabled='disabled'";}?>>
+								<option value="">Seleccione...</option>
+						<?php while ($row_Etapas = sqlsrv_fetch_array($SQL_Etapas)) {?>
+								<option value="<?php echo $row_Etapas['ID_Etapa']; ?>"><?php echo $row_Etapas['DE_Etapa']; ?></option>
+						<?php }?>
+						</select>
+					</div>
+					<div class="form-group">
+						<label class="control-label">% Etapa</label>
+						<input type="text" class="form-control" name="PrctEtapa" id="PrctEtapa" autocomplete="off" value="" readonly>
 					</div>
 				</div>
-				<div class="form-group">
-					<label class="control-label">Fecha de cierre</label>
-					<div class="input-group date">
-						 <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input name="FechaCierre" type="text" class="form-control" id="FechaCierre" value="" readonly="readonly">
+
+				<div class="col-lg-6">
+					<div class="form-group">
+						<label class="control-label">Monto potencial <span class="text-danger">*</span></label>
+						<input type="text" class="form-control" name="MontoPotencial" id="MontoPotencial" required autocomplete="off" value="" <?php if ($estado == "C") {echo "readonly";}?>>
+					</div>
+					<div class="form-group">
+						<label class="control-label">Importe ponderado <span class="text-danger">*</span></label>
+						<input type="text" class="form-control" name="ImportePonderado" id="ImportePonderado" required autocomplete="off" value="" <?php if ($estado == "C") {echo "readonly";}?>>
+					</div>
+					<div class="form-group">
+						<label class="control-label">Tipo de documento relacionado</label>
+						<select name="TipoDoc" class="form-control" id="TipoDoc" <?php if ($estado == "C") {echo "disabled='disabled'";}?>>
+							<option value="">Seleccione...</option>
+
+							<?php $CatActual = "";?>
+							<?php while ($row_TipoDoc = sqlsrv_fetch_array($SQL_TipoDoc)) {?>
+								<?php if ($CatActual != $row_TipoDoc['CategoriaObjeto']) {?>
+									<?php echo "<optgroup label='" . $row_TipoDoc['CategoriaObjeto'] . "'></optgroup>"; ?>
+									<?php $CatActual = $row_TipoDoc['CategoriaObjeto'];?>
+								<?php }?>
+
+								<option value="<?php echo $row_TipoDoc['IdTipoDocumento']; ?>"><?php echo $row_TipoDoc['DeTipoDocumento']; ?></option>
+							<?php }?>
+						</select>
+					</div>
+					<div class="form-group">
+						<label class="control-label">Documento relacionado</label>
+						<input type="text" class="form-control" name="DocRelacionado" id="DocRelacionado" autocomplete="off" value="" <?php if ($estado == "C") {echo "readonly";}?>>
+					</div>
+					<div class="form-group">
+						<label class="control-label">Propietario <span class="text-danger">*</span></label>
+						<select name="Propietario" class="form-control" id="Propietario" <?php if ($estado == "C") {echo "disabled='disabled'";}?>>
+								<option value="">Seleccione...</option>
+						<?php while ($row_Empleados = sqlsrv_fetch_array($SQL_Empleados)) {?>
+								<option value="<?php echo $row_Empleados['ID_Empleado']; ?>"><?php echo $row_Empleados['NombreEmpleado']; ?></option>
+						<?php }?>
+						</select>
 					</div>
 				</div>
+
 				<div class="form-group">
-					<label class="control-label">Empleado de ventas <span class="text-danger">*</span></label>
-					<select name="EmpVentas" class="form-control" id="EmpVentas" required <?php if($estado=="C"){echo "disabled='disabled'";}?>>
-							<option value="">Seleccione...</option>
-					  <?php while($row_EmpVentas=sqlsrv_fetch_array($SQL_EmpVentas)){?>
-							<option value="<?php echo $row_EmpVentas['ID_EmpVentas'];?>"><?php echo $row_EmpVentas['DE_EmpVentas'];?></option>
-					  <?php }?>
-					</select>
+					<div class="col-lg-12">
+						<label class="control-label">Comentarios</label>
+						<textarea name="Comentarios" rows="2" maxlength="3000" class="form-control" id="Comentarios" type="text" <?php if ($estado == "C") {echo "readonly";}?>></textarea>
+					</div>
 				</div>
-				<div class="form-group">
-					<label class="control-label">Etapa <span class="text-danger">*</span></label>
-					<select name="Etapa" class="form-control" id="Etapa" required <?php if($estado=="C"){echo "disabled='disabled'";}?>>
-							<option value="">Seleccione...</option>
-					  <?php while($row_Etapas=sqlsrv_fetch_array($SQL_Etapas)){?>
-							<option value="<?php echo $row_Etapas['ID_Etapa'];?>"><?php echo $row_Etapas['DE_Etapa'];?></option>
-					  <?php }?>
-					</select>
-				</div>
-				<div class="form-group">
-					<label class="control-label">% Etapa</label>
-					<input type="text" class="form-control" name="PrctEtapa" id="PrctEtapa" autocomplete="off" value="" readonly>
-				</div>
-				<div class="form-group">
-					<label class="control-label">Monto potencial <span class="text-danger">*</span></label>
-					<input type="text" class="form-control" name="MontoPotencial" id="MontoPotencial" required autocomplete="off" value="" <?php if($estado=="C"){echo "readonly";}?>>
-				</div>
-				<div class="form-group">
-					<label class="control-label">Importe ponderado <span class="text-danger">*</span></label>
-					<input type="text" class="form-control" name="ImportePonderado" id="ImportePonderado" required autocomplete="off" value="" <?php if($estado=="C"){echo "readonly";}?>>
-				</div>
-				<div class="form-group">
-					<label class="control-label">Comentarios</label>
-					<textarea name="Comentarios" rows="2" maxlength="3000" class="form-control" id="Comentarios" type="text" <?php if($estado=="C"){echo "readonly";}?>></textarea>
-				</div>
-				<div class="form-group">
-					<label class="control-label">Tipo de documento relacionado</label>
-					<select name="TipoDoc" class="form-control" id="TipoDoc" <?php if($estado=="C"){echo "disabled='disabled'";}?>>
-							<option value="">Seleccione...</option>
-					  <?php $CatActual="";
-						while($row_TipoDoc=sqlsrv_fetch_array($SQL_TipoDoc)){
-							if($CatActual!=$row_TipoDoc['CategoriaObjeto']){
-								echo "<optgroup label='".$row_TipoDoc['CategoriaObjeto']."'></optgroup>";
-								$CatActual=$row_TipoDoc['CategoriaObjeto'];
-							}
-						?>
-							<option value="<?php echo $row_TipoDoc['IdTipoDocumento'];?>"><?php echo $row_TipoDoc['DeTipoDocumento'];?></option>
-					  <?php }?>
-					</select>
-				</div>
-				<div class="form-group">
-					<label class="control-label">Documento relacionado</label>
-					<input type="text" class="form-control" name="DocRelacionado" id="DocRelacionado" autocomplete="off" value="" <?php if($estado=="C"){echo "readonly";}?>>
-				</div>
-				<div class="form-group">
-					<label class="control-label">Propietario <span class="text-danger">*</span></label>
-					<select name="Propietario" class="form-control" id="Propietario" <?php if($estado=="C"){echo "disabled='disabled'";}?>>
-							<option value="">Seleccione...</option>
-					  <?php while($row_Empleados=sqlsrv_fetch_array($SQL_Empleados)){?>
-							<option value="<?php echo $row_Empleados['ID_Empleado'];?>"><?php echo $row_Empleados['NombreEmpleado'];?></option>
-					  <?php }?>
-					</select>
-				</div>
+
+				<label style="visibility: hidden;">Espaciador</label>
 			</div>
 		</div>
 	</div>
 	<div class="modal-footer">
-		<?php if($estado=="O"){?><button type="button" class="btn btn-success m-t-md" onClick="ValidarDatos();"><i class="fa fa-check"></i> Aceptar</button><?php }?>
+		<?php if ($estado == "O") {?><button type="button" class="btn btn-success m-t-md" onClick="ValidarDatos();"><i class="fa fa-check"></i> Aceptar</button><?php }?>
 		<button type="button" class="btn btn-danger m-t-md" data-dismiss="modal"><i class="fa fa-times"></i> Cerrar</button>
 	</div>
 	<input type="hidden" id="MM_Insert" name="MM_Insert" value="1" />
-	<input type="hidden" id="id" name="id" value="<?php echo $id;?>" />
-	<input type="hidden" id="type" name="type" value="<?php echo $Type;?>" />
-	<input type="hidden" id="linea" name="linea" value="<?php echo $linea;?>" />
+	<input type="hidden" id="id" name="id" value="<?php echo $id; ?>" />
+	<input type="hidden" id="type" name="type" value="<?php echo $Type; ?>" />
+	<input type="hidden" id="linea" name="linea" value="<?php echo $linea; ?>" />
 </form>
 <script>
  $(document).ready(function(){
 	 CargarDatos();
-	 
-	 <?php if($estado=="O"){?>
+
+	 <?php if ($estado == "O") {?>
 	 $('#FechaInicio').datepicker({
 			todayBtn: "linked",
 			keyboardNavigation: false,
@@ -138,8 +150,8 @@ if($edit==1){
 			autoclose: true,
 			todayHighlight: true,
 			format: 'yyyy-mm-dd'
-		});	
-	 
+		});
+
 	  $('#FechaCierre').datepicker({
 			todayBtn: "linked",
 			keyboardNavigation: false,
@@ -148,9 +160,9 @@ if($edit==1){
 			autoclose: true,
 			todayHighlight: true,
 			format: 'yyyy-mm-dd'
-		});	
+		});
  	<?php }?>
-	 
+
 	$("#Etapa").change(function(){
 		var Etapa=document.getElementById('Etapa').value;
 		$.ajax({
@@ -163,19 +175,19 @@ if($edit==1){
 		});
 	});
  });
-	
+
 function CargarDatos(){
-	let datosCliente = window.sessionStorage.getItem('OPR<?php echo $id;?>')
+	let datosCliente = window.sessionStorage.getItem('OPR<?php echo $id; ?>')
 	let LineNum = document.getElementById('linea').value;
 	let json=[]
 	let sw=-1;
-	
+
 	if(datosCliente){
 		json = JSON.parse(datosCliente)
 	}else{
-		window.sessionStorage.setItem('OPR<?php echo $id;?>','')
+		window.sessionStorage.setItem('OPR<?php echo $id; ?>','')
 	}
-	
+
 	//Buscar si existe la direccion en la cadena JSON
 	json.forEach(function(element,index){
 		if(json[index].id_linea==LineNum){
@@ -183,7 +195,7 @@ function CargarDatos(){
 			sw=index;
 		}
 	});
-	
+
 	if(sw>=0){
 		document.getElementById('FechaInicio').value = json[sw].fecha_inicio;
 		document.getElementById('FechaCierre').value = json[sw].fecha_cierre;
@@ -198,7 +210,7 @@ function CargarDatos(){
 		document.getElementById('Propietario').value = json[sw].id_propietario;
 	}
 }
-	
+
 function ValidarDatos(){
 	Swal.fire({
 		title: "¿Está seguro que desea guardar los datos?",
@@ -212,21 +224,21 @@ function ValidarDatos(){
 		}
 	});
 }
-	
+
 function GuardarDatos(){
-	
-	let datosCliente = window.sessionStorage.getItem('OPR<?php echo $id;?>')
+
+	let datosCliente = window.sessionStorage.getItem('OPR<?php echo $id; ?>')
 	let LineNum = document.getElementById('linea').value;
 	let json=[]
 	let metodo=2;
 	let sw=-1;
-	
+
 	if(datosCliente){
 		json = JSON.parse(datosCliente)
 	}else{
-		window.sessionStorage.setItem('OPR<?php echo $id;?>','')
+		window.sessionStorage.setItem('OPR<?php echo $id; ?>','')
 	}
-	
+
 	//Buscar si existe la direccion en la cadena JSON
 	json.forEach(function(element,index){
 		if(json[index].id_linea==LineNum){
@@ -236,10 +248,10 @@ function GuardarDatos(){
 			metodo= (metodo==1) ? 1: 2;
 		}
 	});
-	
+
 	if(sw>=0){
-//		json.splice(sw, 1);	
-		json[sw].id_oportunidad= '<?php echo $id;?>';
+//		json.splice(sw, 1);
+		json[sw].id_oportunidad= '<?php echo $id; ?>';
 		json[sw].id_linea= LineNum;
 		json[sw].fecha_inicio= document.getElementById('FechaInicio').value;
 		json[sw].fecha_cierre= document.getElementById('FechaCierre').value;
@@ -261,7 +273,7 @@ function GuardarDatos(){
 		json[sw].id_estado= 'O';
 		json[sw].nombre_estado= 'Abierto';
 		json[sw].metodo= metodo;
-		
+
 		document.getElementById('FIni'+LineNum).innerHTML = json[sw].fecha_inicio
 		document.getElementById('FCie'+LineNum).innerHTML = json[sw].fecha_cierre
 		document.getElementById('NomEmp'+LineNum).innerHTML = json[sw].nombre_empleado
@@ -273,10 +285,10 @@ function GuardarDatos(){
 		document.getElementById('NomObj'+LineNum).innerHTML = json[sw].nombre_documento
 		document.getElementById('DocNum'+LineNum).innerHTML = json[sw].docnum_documento
 		document.getElementById('NomProp'+LineNum).innerHTML = json[sw].nombre_propietario
-		
+
 	}else{
 		json.push({
-			id_oportunidad: '<?php echo $id;?>',
+			id_oportunidad: '<?php echo $id; ?>',
 			id_linea: LineNum,
 			fecha_inicio: document.getElementById('FechaInicio').value,
 			fecha_cierre: document.getElementById('FechaCierre').value,
@@ -299,10 +311,15 @@ function GuardarDatos(){
 			nombre_estado: 'Abierto',
 			metodo: 1
 		})
-		
+
 		let html = document.implementation.createHTMLDocument()
 		let tr = html.createElement("tr");
 		let count = document.getElementById("listaEtapas").childElementCount;
+
+		// SMM, 17/11/2022
+		if (sessionStorage.getItem('OPR<?php echo $id; ?>')) {
+			count++;
+		}
 
 		json.forEach(function(element,index){
 			if(json[index].id_linea==LineNum){
@@ -312,7 +329,7 @@ function GuardarDatos(){
 		});
 
 		tr.innerHTML=`
-			<td id="idLin${json[sw].id_linea}">${count+1}</td>
+			<td id="idLin${json[sw].id_linea}">${count}</td>
 			<td id="FIni${json[sw].id_linea}">${json[sw].fecha_inicio}</td>
 			<td id="FCie${json[sw].id_linea}">${json[sw].fecha_cierre}</td>
 			<td id="NomEmp${json[sw].id_linea}">${json[sw].nombre_empleado}</td>
@@ -329,12 +346,18 @@ function GuardarDatos(){
 				<button type="button" id="btnEdit${json[sw].id_linea}" class="btn btn-success btn-xs" onClick="EditarEtapa('${json[sw].id_oportunidad}','${json[sw].id_linea}');"><i class="fa fa-pencil"></i> Editar</button>
 				<button type="button" id="btnDel${json[sw].id_linea}" class="btn btn-danger btn-xs" onClick="BorrarLinea('${json[sw].id_oportunidad}');"><i class="fa fa-trash"></i> Eliminar</button>
 			</td>`;
-		let tbody=document.getElementById("listaEtapas")
-		tbody.appendChild(tr);
+
+		// let tbody=document.getElementById("listaEtapas")
+		// tbody.appendChild(tr);
+
+		// SMM, 17/11/2022
+		let tablaEtapas = $('#tablaEtapas').DataTable();
+		// console.log(`<tr>${tr.innerHTML}</tr>`);
+		tablaEtapas.row.add(tr).draw();
 	}
-	
-	window.sessionStorage.setItem('OPR<?php echo $id;?>',JSON.stringify(json))
-		
+
+	window.sessionStorage.setItem('OPR<?php echo $id; ?>',JSON.stringify(json))
+
 	$('#myModal').modal("hide");
 }
 </script>

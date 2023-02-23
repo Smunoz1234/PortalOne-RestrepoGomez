@@ -689,12 +689,13 @@ if ((isset($_POST['id']) && $_POST['id'] != "") || (isset($_GET['id']) && $_GET[
                     'pNombreReporte' => "CronogramaServicios",
                     'pIdCliente' => $_REQUEST['IdCliente'],
                     'pIdPeriodo' => $_REQUEST['IdPeriodo'],
+                    'pIdSucursalCliente' => (($_REQUEST['IdSucursal'] == "") ? '-1' : $_REQUEST['IdSucursal']), // SMM, 14/02/2023
                     'pTipoExportar' => ($_REQUEST['TipoExp'] == '1') ? ".pdf" : ".xls",
-                    'pUsuario' => $_SESSION['CodUser'],
+                    'pUsuario' => strtolower($_SESSION['User']), // CodUser -> User, 14/02/2023
                 );
 
-				// print_r($Parametros);
-				// exit();
+                // print_r($Parametros);
+                // exit();
 
                 $result = $Client->CrearCronogramaServicios($Parametros);
                 if (is_soap_fault($result)) {

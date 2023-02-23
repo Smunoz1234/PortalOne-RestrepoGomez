@@ -4,6 +4,7 @@ $sw = 0; //Para saber si ya se selecciono un cliente y mostrar las sucursales
 $Filtro = "";
 $sw_Clt = 0; //Tipo cliente
 $sw_Std = 0; //Tipo Estandar
+$sw_suc = 0; // SMM, 14/02/2023
 
 //Normas de reparto (Sucursal)
 $SQL_DRSucursal = Seleccionar('uvw_Sap_tbl_DimensionesReparto', '*', 'DimCode=3');
@@ -90,7 +91,7 @@ if ($sw == 1) {
 }
 
 // SMM, 25/01/2023
-$SQL_Periodos = Seleccionar("tbl_Periodos", "*", "Estado = 'Y'", "Periodo"); 
+$SQL_Periodos = Seleccionar("tbl_Periodos", "*", "Estado = 'Y'", "Periodo");
 ?>
 
 <!DOCTYPE html>
@@ -210,37 +211,41 @@ function AgregarLMT(){
 								<label class="col-xs-12"><h3 class="bg-success p-xs b-r-sm"><i class="fa fa-filter"></i> Datos para filtrar</h3></label>
 							</div>
 							<div class="form-group">
+								<!-- Inicio, Cliente -->
 								<label class="col-lg-1 control-label">Cliente <span class="text-danger">*</span></label>
 								<div class="col-lg-3">
 									<input name="Cliente" type="hidden" id="Cliente" value="<?php if (isset($_GET['Cliente']) && ($_GET['Cliente'] != "")) {echo $_GET['Cliente'];}?>">
 									<input name="NombreCliente" type="text" class="form-control" id="NombreCliente" placeholder="Ingrese para buscar..." value="<?php if (isset($_GET['NombreCliente']) && ($_GET['NombreCliente'] != "")) {echo $_GET['NombreCliente'];}?>" required>
 								</div>
+								<!-- Fin, Cliente -->
+
+								<!-- Inicio, Sucursal que depende del Cliente -->
 								<label class="col-lg-1 control-label">Sucursal cliente</label>
 								<div class="col-lg-3">
 									 <select id="Sucursal" name="Sucursal" class="form-control select2">
 										<option value="">(Todos)</option>
-										<?php
-if ($sw_suc == 1) { //Cuando se ha seleccionado una opción
-    if (PermitirFuncion(205)) {
-        $Where = "CodigoCliente='" . $_GET['Cliente'] . "' and TipoDireccion='S'";
-        $SQL_Sucursal = Seleccionar("uvw_Sap_tbl_Clientes_Sucursales", "NombreSucursal, NumeroLinea", $Where);
-    } else {
-        $Where = "CodigoCliente='" . $_GET['Cliente'] . "' and TipoDireccion='S' and ID_Usuario = " . $_SESSION['CodUser'];
-        $SQL_Sucursal = Seleccionar("uvw_tbl_SucursalesClienteUsuario", "NombreSucursal, NumeroLinea", $Where);
-    }
-    while ($row_Sucursal = sqlsrv_fetch_array($SQL_Sucursal)) {?>
+										<?php if ($sw_suc == 1) {?>
+											<?php if (PermitirFuncion(205)) {?>
+												<?php $Where = "CodigoCliente='" . $_GET['Cliente'] . "' and TipoDireccion='S'";?>
+												<?php $SQL_Sucursal = Seleccionar("uvw_Sap_tbl_Clientes_Sucursales", "NombreSucursal, NumeroLinea", $Where);?>
+											<?php } else {?>
+												<?php $Where = "CodigoCliente='" . $_GET['Cliente'] . "' and TipoDireccion='S' and ID_Usuario = " . $_SESSION['CodUser'];?>
+												<?php $SQL_Sucursal = Seleccionar("uvw_tbl_SucursalesClienteUsuario", "NombreSucursal, NumeroLinea", $Where);?>
+											<?php }?>
+											<?php while ($row_Sucursal = sqlsrv_fetch_array($SQL_Sucursal)) {?>
 												<option value="<?php echo $row_Sucursal['NumeroLinea']; ?>" <?php if (strcmp($row_Sucursal['NumeroLinea'], $_GET['Sucursal']) == 0) {echo "selected=\"selected\"";}?>><?php echo $row_Sucursal['NombreSucursal']; ?></option>
-										<?php }
-}?>
+											<?php }?>
+										<?php }?>
 									</select>
 								</div>
-								
+								<!-- Fin, Sucursal que depende del Cliente -->
+
 								<!-- Actualizado con la tabla de periodos -->
 								<label class="col-lg-1 control-label">Año <span class="text-danger">*</span></label>
 								<div class="col-lg-3">
 									<select name="Anno" required class="form-control" id="Anno">
-										<?php while($row_Periodo=sqlsrv_fetch_array($SQL_Periodos)){?>
-											<option value="<?php echo $row_Periodo['Periodo'];?>" <?php if ((isset($Anno)) && (strcmp($row_Periodo['Periodo'], $Anno) == 0)) {echo "selected=\"selected\"";}?>><?php echo $row_Periodo['Periodo'];?></option>
+										<?php while ($row_Periodo = sqlsrv_fetch_array($SQL_Periodos)) {?>
+											<option value="<?php echo $row_Periodo['Periodo']; ?>" <?php if ((isset($Anno)) && (strcmp($row_Periodo['Periodo'], $Anno) == 0)) {echo "selected=\"selected\"";}?>><?php echo $row_Periodo['Periodo']; ?></option>
 										<?php }?>
 									</select>
 								</div>
@@ -274,10 +279,10 @@ if ($sw_suc == 1) { //Cuando se ha seleccionado una opción
 											<button data-toggle="dropdown" class="btn btn-info dropdown-toggle"><i class="fa fa-download"></i> Descargar formato <i class="fa fa-caret-down"></i></button>
 											<ul class="dropdown-menu">
 												<li>
-													<a class="dropdown-item alkin" href="sapdownload.php?type=<?php echo base64_encode('2'); ?>&id=<?php echo base64_encode('19'); ?>&IdCliente=<?php echo $_GET['Cliente']; ?>&IdPeriodo=<?php echo $Anno; ?>&TipoExp=1" target="_blank">PDF</a>
+													<a class="dropdown-item alkin" href="sapdownload.php?type=<?php echo base64_encode('2'); ?>&id=<?php echo base64_encode('19'); ?>&IdCliente=<?php echo $_GET['Cliente']; ?>&IdPeriodo=<?php echo $Anno; ?>&IdSucursal=<?php echo $_GET['Sucursal'] ?? '-1'; ?>&TipoExp=1" target="_blank">PDF</a>
 												</li>
 												<li>
-													<a class="dropdown-item alkin" href="sapdownload.php?type=<?php echo base64_encode('2'); ?>&id=<?php echo base64_encode('19'); ?>&IdCliente=<?php echo $_GET['Cliente']; ?>&IdPeriodo=<?php echo $Anno; ?>&TipoExp=2" target="_blank">Excel</a>
+													<a class="dropdown-item alkin" href="sapdownload.php?type=<?php echo base64_encode('2'); ?>&id=<?php echo base64_encode('19'); ?>&IdCliente=<?php echo $_GET['Cliente']; ?>&IdPeriodo=<?php echo $Anno; ?>&IdSucursal=<?php echo $_GET['Sucursal'] ?? '-1'; ?>&TipoExp=2" target="_blank">Excel</a>
 												</li>
 											</ul>
 										</div> <!-- btn-group-->

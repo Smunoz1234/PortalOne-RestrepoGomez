@@ -7,12 +7,12 @@ $sw = 0;
 $SQL_EstadoLlamada = Seleccionar('uvw_tbl_EstadoLlamada', '*');
 
 //Sucursal
-$ParamSucursal = array(
+$ParamSede = array(
     "'" . $_SESSION['CodUser'] . "'",
 );
-$SQL_Sucursal = EjecutarSP('sp_ConsultarSucursalesUsuario', $ParamSucursal);
+$SQL_Sede = EjecutarSP('sp_ConsultarSucursalesUsuario', $ParamSede);
 
-if (isset($_GET['Sucursal']) && $_GET['Sucursal'] != "") {
+if (isset($_GET['Sede']) && $_GET['Sede'] != "") {
     //Serie de llamada
     $ParamSerie = array(
         "'" . $_SESSION['CodUser'] . "'",
@@ -50,8 +50,32 @@ if ($sw == 1) {
         "'" . strtolower($_SESSION['User']) . "'",
         "'" . $estados . "'", // SMM, 09/08/2022
         "'" . $_GET['BasadoEscaneados'] . "'", // SMM, 09/08/2022
+        "'" . $_GET['TipoFecha'] . "'", // SMM, 09/08/2022
+        "'" . $_GET['BasadoEn'] . "'", // SMM, 09/08/2022
+        "'" . $_GET['Cliente'] . "'", // SMM, 14/02/2022
+        "'" . $_GET['Sucursal'] . "'", // SMM, 14/02/2022
         $_GET['reload'] ?? 0,
     );
+
+    /*
+    $Consulta = "EXEC usp_tbl_CierreOrdenesServicio_Sel " . implode(',', $Param);
+    $SQL = sqlsrv_query($conexion, $Consulta);
+
+    $error = "";
+    if ($SQL === false) {
+    $error = json_encode(sqlsrv_errors(), JSON_PRETTY_PRINT);
+    $errorString = "JSON.stringify($error, null, '\t')";
+
+    if (false) {
+    echo $Consulta . '<br>';
+    exit(var_dump($error));
+    }
+
+    echo "<script> console.log($errorString); </script>";
+    }
+     */
+
+    // Comentar esta línea, y descomentar arriba para debug.
     $SQL = EjecutarSP('usp_tbl_CierreOrdenesServicio_Sel', $Param);
     $row = sqlsrv_fetch_array($SQL);
 }
@@ -69,7 +93,7 @@ $SQL_CanceladoPorLlamada = Seleccionar('uvw_Sap_tbl_LlamadasServiciosCanceladoPo
 <head>
 <?php include "includes/cabecera.php";?>
 <!-- InstanceBeginEditable name="doctitle" -->
-<title>Cierre de OT en lote | <?php echo NOMBRE_PORTAL; ?></title>
+<title>Cierre de Llamadas de Servicio en Lote | <?php echo NOMBRE_PORTAL; ?></title>
 	<!-- InstanceEndEditable -->
 <!-- InstanceBeginEditable name="head" -->
 <style>
@@ -107,6 +131,36 @@ $SQL_CanceladoPorLlamada = Seleccionar('uvw_Sap_tbl_LlamadasServiciosCanceladoPo
 
 <script type="text/javascript">
 	$(document).ready(function() {
+		// SMM, 14/02/2023
+		$("#NombreCliente").change(function(){
+			var NomCliente=document.getElementById("NombreCliente");
+			var Cliente=document.getElementById("Cliente");
+			if(NomCliente.value==""){
+				Cliente.value="";
+				$("#Cliente").trigger("change");
+			}
+		});
+		$("#Cliente").change(function(){
+			var Cliente=document.getElementById("Cliente");
+			$('.ibox-content').toggleClass('sk-loading',true);
+			$.ajax({
+				type: "POST",
+				url: "ajx_cbo_sucursales_clientes_simple.php?CardCode="+Cliente.value+"&tdir=S",
+				success: function(response){
+					$('#Sucursal').html(response).fadeIn();
+
+					// SMM, 14/02/2023
+					<?php if ($sw == 1) {?>
+						$("#Sucursal").val("<?php echo $_GET["Sucursal"]; ?>");
+					<?php }?>
+
+					$("#Sucursal").trigger("change");
+					$('.ibox-content').toggleClass('sk-loading',false);
+				}
+			});
+		});
+		// Hasta aquí, 14/02/2023
+
 		$("#NombreClienteActividad").change(function(){
 			var NomCliente=document.getElementById("NombreClienteActividad");
 			var Cliente=document.getElementById("ClienteActividad");
@@ -115,12 +169,12 @@ $SQL_CanceladoPorLlamada = Seleccionar('uvw_Sap_tbl_LlamadasServiciosCanceladoPo
 			}
 		});
 
-		$("#Sucursal").change(function(){
+		$("#Sede").change(function(){
 			$('.ibox-content').toggleClass('sk-loading',true);
-			var Sucursal=document.getElementById('Sucursal').value;
+			var Sede=document.getElementById('Sede').value;
 			$.ajax({
 				type: "POST",
-				url: "ajx_cbo_select.php?type=26&id="+Sucursal+"&tdoc=191&taccion=3",
+				url: `ajx_cbo_select.php?type=26&id=${Sede}&tdoc=191&taccion=3`,
 				success: function(response){
 					$('#Series').html(response).fadeIn();
 					$('.ibox-content').toggleClass('sk-loading',false);
@@ -223,7 +277,7 @@ function ConsultarCant(){
         <!-- InstanceBeginEditable name="Contenido" -->
         <div class="row wrapper border-bottom white-bg page-heading">
                 <div class="col-sm-8">
-                    <h2>Cierre de OT en lote</h2>
+                    <h2>Cierre de Llamadas de Servicio en Lote</h2>
                     <ol class="breadcrumb">
                         <li>
                             <a href="index1.php">Inicio</a>
@@ -235,7 +289,7 @@ function ConsultarCant(){
                             <a href="#">Asistentes</a>
                         </li>
                         <li class="active">
-                            <strong>Cierre de OT en lote</strong>
+                            <strong>Cierre de Llamadas de Servicio en Lote</strong>
                         </li>
                     </ol>
                 </div>
@@ -414,8 +468,15 @@ function ConsultarCant(){
 					  <div class="form-group">
 						<label class="col-xs-12"><h3 class="bg-success p-xs b-r-sm"><i class="fa fa-filter"></i> Datos para filtrar</h3></label>
 					  </div>
+
 						<div class="form-group">
-							<label class="col-lg-1 control-label">Fechas</label>
+							<!-- Inicio, Fechas -->
+							<label class="col-lg-1 control-label">
+								<select id="TipoFecha" name="TipoFecha">
+									<option value="1" <?php if (isset($_GET['TipoFecha']) && ($_GET['TipoFecha'] == "1")) {echo "selected=\"selected\"";}?>>Fecha Inicio</option>
+									<option value="0" <?php if (isset($_GET['TipoFecha']) && ($_GET['TipoFecha'] == "0")) {echo "selected=\"selected\"";}?>>Fecha Fin</option>
+								</select>
+							</label>
 							<div class="col-lg-3">
 								<div class="input-daterange input-group" id="datepicker">
 									<input name="FechaInicial" type="text" class="input-sm form-control" id="FechaInicial" placeholder="Fecha inicial" value="<?php echo $FechaInicial; ?>"/>
@@ -423,31 +484,52 @@ function ConsultarCant(){
 									<input name="FechaFinal" type="text" class="input-sm form-control" id="FechaFinal" placeholder="Fecha final" value="<?php echo $FechaFinal; ?>" />
 								</div>
 							</div>
-							<label class="col-lg-1 control-label">Sucursal <span class="text-danger">*</span></label>
+							<!-- Fin Fechas -->
+
+							<!-- Inicio, Cliente -->
+							<label class="col-lg-1 control-label">Cliente</label>
 							<div class="col-lg-3">
-								<select name="Sucursal" class="form-control" id="Sucursal" required>
+								<input name="Cliente" type="hidden" id="Cliente" value="<?php if (isset($_GET['Cliente']) && ($_GET['Cliente'] != "")) {echo $_GET['Cliente'];}?>">
+								<input name="NombreCliente" type="text" class="form-control" id="NombreCliente" placeholder="Ingrese para buscar..." value="<?php if (isset($_GET['NombreCliente']) && ($_GET['NombreCliente'] != "")) {echo $_GET['NombreCliente'];}?>">
+							</div>
+							<!-- Fin, Cliente -->
+
+							<!-- Inicio, Sucursal que depende del Cliente -->
+							<label class="col-lg-1 control-label">Sucursal cliente</label>
+							<div class="col-lg-3">
+									<select id="Sucursal" name="Sucursal" class="form-control select2">
+									<option value="">(Todos)</option>
+									<!-- Se genera por JS, OnChange(Cliente) -->
+								</select>
+							</div>
+							<!-- Fin, Sucursal que depende del Cliente -->
+						</div> <!-- form-group-->
+
+						<!-- SMM, 09/08/2022 -->
+					 	<div class="form-group">
+						 	<label class="col-lg-1 control-label">Sede <span class="text-danger">*</span></label>
+							<div class="col-lg-3">
+								<select name="Sede" class="form-control select2" id="Sede" required>
 									<option value="">Seleccione...</option>
-								  <?php	while ($row_Sucursal = sqlsrv_fetch_array($SQL_Sucursal)) {?>
-											<option value="<?php echo $row_Sucursal['IdSucursal']; ?>" <?php if (isset($_GET['Sucursal']) && (strcmp($row_Sucursal['IdSucursal'], $_GET['Sucursal']) == 0)) {echo "selected=\"selected\"";}?>><?php echo $row_Sucursal['DeSucursal']; ?></option>
+								  <?php	while ($row_Sede = sqlsrv_fetch_array($SQL_Sede)) {?>
+											<option value="<?php echo $row_Sede['IdSucursal']; ?>" <?php if (isset($_GET['Sede']) && (strcmp($row_Sede['IdSucursal'], $_GET['Sede']) == 0)) {echo "selected=\"selected\"";}?>><?php echo $row_Sede['DeSucursal']; ?></option>
 									<?php }?>
 								</select>
 							</div>
+
 							<label class="col-lg-1 control-label">Serie <span class="text-danger">*</span></label>
 							<div class="col-lg-3">
 								<select name="Series" class="form-control" id="Series" required>
 										<option value="">Seleccione...</option>
-								  <?php if ($sw == 1) {
-    while ($row_Series = sqlsrv_fetch_array($SQL_Series)) {?>
+								 	<?php if ($sw == 1) {?>
+    									<?php while ($row_Series = sqlsrv_fetch_array($SQL_Series)) {?>
 											<option value="<?php echo $row_Series['IdSeries']; ?>" <?php if ((isset($_GET['Series'])) && (strcmp($row_Series['IdSeries'], $_GET['Series']) == 0)) {echo "selected=\"selected\"";}?>><?php echo $row_Series['DeSeries']; ?></option>
-								  <?php }
-}?>
+								  		<?php }?>
+									<?php }?>
 								</select>
 							</div>
-						</div>
 
-						<!-- SMM, 09/08/2022 -->
-					 	<div class="form-group">
-							<label class="col-lg-1 control-label">Estado OT <span class="text-danger">*</span></label>
+							<label class="col-lg-1 control-label">Estado Llamada de Servicio</label>
 							<div class="col-lg-3">
 								<select data-placeholder="Digite para buscar..." name="EstadosLlamada[]" class="form-control select2" id="EstadosLlamada" multiple>
 									<?php while ($row_EstadoLlamada = sqlsrv_fetch_array($SQL_EstadoLlamada)) {?>
@@ -458,6 +540,22 @@ function ConsultarCant(){
 									<?php }?>
 								</select>
 							</div>
+						</div> <!-- Hasta aquí, 09/08/2022 -->
+
+						<div class="form-group">
+							<label class="col-lg-1 control-label">Basado en <span class="text-danger">*</span></label>
+							<div class="col-lg-2">
+								<select name="BasadoEn" class="form-control" id="BasadoEn" required>
+									<option value="1" <?php if (isset($_GET['BasadoEn']) && ($_GET['BasadoEn'] == "1")) {echo "selected";}?>>Actividades</option>
+									<option value="0" <?php if (isset($_GET['BasadoEn']) && ($_GET['BasadoEn'] == "0")) {echo "selected";}?>>Llamadas de servicio</option>
+								</select>
+							</div>
+							<div class="col-lg-1">
+								<button type="button" class="btn btn-sm btn-info btn-circle" data-toggle="tooltip" data-html="true"
+								title="<b>Actividades</b> - Se filtrará la búsqueda en base a las llamadas de servicio con actividad y a las fechas de dicha actividad.
+								<br><b>Llamadas de servicio</b> - Se filtrará la búsqueda en base a las llamadas de servicio sin actividad."><i class="fa fa-info"></i></button>
+							</div>
+
 							<label class="col-lg-1 control-label">Basado en archivos escaneados <span class="text-danger">*</span></label>
 							<div class="col-lg-2">
 								<select name="BasadoEscaneados" class="form-control" id="BasadoEscaneados" required>
@@ -474,8 +572,7 @@ function ConsultarCant(){
 							<div class="col-lg-4">
 								<button type="submit" class="btn btn-outline btn-success pull-right"><i class="fa fa-search"></i> Buscar</button>
 							</div>
-						</div>
-						<!-- Hasta aquí, 09/08/2022 -->
+						</div> <!--form-group -->
 
 					  <input type="hidden" id="reload" name="reload" value="0" />
 				 </form>
@@ -627,6 +724,11 @@ function cambiarCampos(tipo) {
 // Hasta aquí, 12/09/2022
 
 	$(document).ready(function(){
+		// SMM, 14/02/2023
+		<?php if ($sw == 1) {?>
+			$("#Cliente").change();
+		<?php }?>
+
 		// SMM, 09/19/2022
 		$('[data-toggle="tooltip"]').tooltip();
 
@@ -772,6 +874,28 @@ function cambiarCampos(tipo) {
 			};
 
 			$("#NombreClienteActividad").easyAutocomplete(options);
+
+			// SMM, 14/02/2023
+			var options2 = {
+				url: function(phrase) {
+					return "ajx_buscar_datos_json.php?type=7&id="+phrase;
+				},
+
+				getValue: "NombreBuscarCliente",
+				requestDelay: 400,
+				list: {
+					match: {
+						enabled: true
+					},
+					onClickEvent: function() {
+						var value = $("#NombreCliente").getSelectedItemData().CodigoCliente;
+						$("#Cliente").val(value).trigger("change");
+					}
+				}
+			};
+
+			$("#NombreCliente").easyAutocomplete(options2);
+			// Hasta aquí, 14/02/2023
 
 			<?php if ($sw == 1) {?>
 			ConsultarCant();
