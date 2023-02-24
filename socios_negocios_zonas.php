@@ -100,7 +100,7 @@ $SQL_Periodos = Seleccionar("tbl_Periodos", "*", "Estado = 'Y'", "Periodo");
 <head>
 <?php include_once "includes/cabecera.php";?>
 <!-- InstanceBeginEditable name="doctitle" -->
-<title>Cronograma de servicios | <?php echo NOMBRE_PORTAL; ?></title>
+<title>Zonas de socios de negocios | <?php echo NOMBRE_PORTAL; ?></title>
 <!-- InstanceEndEditable -->
 <!-- InstanceBeginEditable name="head" -->
 <script type="text/javascript">
@@ -151,7 +151,7 @@ function AgregarLMT(){
 			type: "GET",
 			url: "includes/procedimientos.php?type=22&itemcode="+LMT.value+"&cardcode=<?php echo $_GET['Cliente']; ?>&idsucursal=<?php echo $_GET['Sucursal']; ?>&periodo=<?php echo $_GET['Anno']; ?>&frecuencia="+Frecuencia.value+"&fechacorte="+FechaCorte.value,
 			success: function(response){
-				frame.src="detalle_cronograma_servicios.php?cardcode=<?php echo base64_encode($_GET['Cliente']); ?>&idsucursal=<?php echo base64_encode($_GET['Sucursal']); ?>&periodo=<?php echo base64_encode($Anno); ?>";
+				frame.src="detalle_zonas_sn.php?cardcode=<?php echo base64_encode($_GET['Cliente']); ?>&idsucursal=<?php echo base64_encode($_GET['Sucursal']); ?>&periodo=<?php echo base64_encode($Anno); ?>";
 				$('#ListaLMT').val(null).trigger('change');
 				Swal.fire({
 					title: '¡Listo!',
@@ -184,7 +184,7 @@ function AgregarLMT(){
         <!-- InstanceBeginEditable name="Contenido" -->
         <div class="row wrapper border-bottom white-bg page-heading">
                 <div class="col-sm-8">
-                    <h2>Cronograma de servicios</h2>
+                    <h2>Zonas de socios de negocios</h2>
                     <ol class="breadcrumb">
                         <li>
                             <a href="index1.php">Inicio</a>
@@ -196,7 +196,7 @@ function AgregarLMT(){
                             <a href="#">Asistentes</a>
                         </li>
                         <li class="active">
-                            <strong>Cronograma de servicios</strong>
+                            <strong>Zonas de socios de negocios</strong>
                         </li>
                     </ol>
                 </div>
@@ -206,7 +206,7 @@ function AgregarLMT(){
 				<div class="col-lg-12">
 					<div class="ibox-content">
 						 <?php include "includes/spinner.php";?>
-						<form action="cronograma_servicios.php" method="get" class="form-horizontal" id="frmBuscar" name="frmBuscar">
+						<form action="socios_negocios_zonas.php" method="get" class="form-horizontal" id="frmBuscar" name="frmBuscar">
 							<div class="form-group">
 								<label class="col-xs-12"><h3 class="bg-success p-xs b-r-sm"><i class="fa fa-filter"></i> Datos para filtrar</h3></label>
 							</div>
@@ -240,31 +240,11 @@ function AgregarLMT(){
 								</div>
 								<!-- Fin, Sucursal que depende del Cliente -->
 
-								<!-- Actualizado con la tabla de periodos -->
-								<label class="col-lg-1 control-label">Año <span class="text-danger">*</span></label>
-								<div class="col-lg-3">
-									<select name="Anno" required class="form-control" id="Anno">
-										<?php while ($row_Periodo = sqlsrv_fetch_array($SQL_Periodos)) {?>
-											<option value="<?php echo $row_Periodo['Periodo']; ?>" <?php if ((isset($Anno)) && (strcmp($row_Periodo['Periodo'], $Anno) == 0)) {echo "selected=\"selected\"";}?>><?php echo $row_Periodo['Periodo']; ?></option>
-										<?php }?>
-									</select>
-								</div>
-								<!-- Hasta aquí. SMM, 25/01/2023 -->
-							</div>
-
-							<div class="form-group">
-								<label class="col-lg-1 control-label">Sede <span class="text-danger">*</span></label>
-								<div class="col-lg-3">
-									<select name="DRSucursal" class="form-control" id="DRSucursal" required>
-										<option value="">Seleccione...</option>
-									  <?php while ($row_DRSucursal = sqlsrv_fetch_array($SQL_DRSucursal)) {?>
-												<option value="<?php echo $row_DRSucursal['OcrCode']; ?>" <?php if ((isset($_GET['DRSucursal']) && ($_GET['DRSucursal'] != "")) && (strcmp($row_DRSucursal['OcrCode'], $_GET['DRSucursal']) == 0)) {echo "selected=\"selected\"";}?>><?php echo $row_DRSucursal['OcrName']; ?></option>
-										<?php }?>
-									</select>
-								</div>
-								<div class="col-lg-8">
+								<!-- Inicio, Submit BTN -->
+								<div class="col-lg-4">
 									<button type="submit" class="btn btn-outline btn-info pull-right"><i class="fa fa-search"></i> Buscar</button>
 								</div>
+								<!-- Fin, Submit BTN -->
 							</div>
 
 							<?php if ($sw == 1) {?>
@@ -272,6 +252,24 @@ function AgregarLMT(){
 								<div class="form-group">
 									<label class="col-xs-12"><h3 class="bg-success p-xs b-r-sm"><i class="fa fa-ellipsis-h"></i> Acciones</h3></label>
 								</div>
+
+
+							<?php }?>
+						</form>
+					</div>
+				</div>
+			</div>
+         <br>
+			<?php if ($sw == 1) {?>
+				<div class="row">
+					<div class="col-lg-12">
+						<div class="ibox-content">
+							<?php include "includes/spinner.php";?>
+
+							<div class="row">
+								<div class="form-group">
+									<label class="col-xs-12"><h3 class="bg-success p-xs b-r-sm"><i class="fa fa-ellipsis-h"></i> Acciones</h3></label>
+								</div> <!-- form-group -->
 
 								<div class="form-group">
 									<div class="col-lg-2">
@@ -294,80 +292,37 @@ function AgregarLMT(){
 										<button style="margin-left: 5px;" type="button" class="btn btn-sm btn-circle" data-toggle="tooltip" data-html="true"
 										title="Actualiza de manera masiva los campos de Áreas, Servicios, Método de aplicación de las LMT hacia el Cronograma de Servicios."><i class="fa fa-info"></i></button>
 									</div>
-								</div>
-							<?php }?>
-						</form>
-					</div>
-				</div>
-			</div>
-         <br>
-		<?php if ($sw == 1) {?>
-          <div class="row">
-           <div class="col-lg-12">
-			    <div class="ibox-content">
-					 <?php include "includes/spinner.php";?>
-					<div class="row p-md">
-						<div class="form-group">
-							<div class="col-lg-5">
-								<label class="control-label">Lista materiales / artículos</label>
-								<select name="ListaLMT" class="form-control select2" id="ListaLMT">
-										<option value="">Seleccione...</option>
-								  <?php while ($row_LMT = sqlsrv_fetch_array($SQL_LMT)) {
-    if (($row_LMT['IdTipoListaArticulo'] == 1) && ($sw_Clt == 0)) {
-        echo "<optgroup label='Cliente'></optgroup>";
-        $sw_Clt = 1;
-    } elseif (($row_LMT['IdTipoListaArticulo'] == 2) && ($sw_Std == 0)) {
-        echo "<optgroup label='Genericas'></optgroup>";
-        $sw_Std = 1;
-    }?>
-										<option value="<?php echo $row_LMT['ItemCode']; ?>"><?php echo $row_LMT['ItemCode'] . " - " . $row_LMT['ItemName'] . " (SERV: " . substr($row_LMT['Servicios'], 0, 20) . " - ÁREA: " . substr($row_LMT['Areas'], 0, 20) . ")"; ?></option>
-								  <?php }?>
-								</select>
-							</div>
-							<div class="col-lg-2">
-								<label class="control-label">Frecuencia</label>
-								<select name="Frecuencia" class="form-control" id="Frecuencia">
-									<option value="">Ninguna</option>
-									 <?php while ($row_Frecuencia = sqlsrv_fetch_array($SQL_Frecuencia)) {?>
-										<option value="<?php echo $row_Frecuencia['IdFrecuencia']; ?>"><?php echo $row_Frecuencia['DeFrecuencia'] . " (" . $row_Frecuencia['CantidadVeces'] . ")"; ?></option>
-								  <?php }?>
-								</select>
-							</div>
-							<div class="col-lg-2">
-								<label class="control-label">Fecha de corte</label>
-								<div class="input-group date">
-									 <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input name="FechaCorte" type="text" class="form-control" id="FechaCorte" value="<?php echo date('Y-m-d'); ?>" readonly="readonly" placeholder="YYYY-MM-DD">
-								</div>
-							</div>
-							<div class="col-lg-1">
-								<button type="button" id="btnNuevo" class="btn btn-success m-t-md" onClick="AgregarLMT();"><i class="fa fa-plus-circle"></i> Añadir</button>
-							</div>
 
-							<div class="col-lg-2">
-								<!-- Espacio para un botón -->
-							</div> <!-- col-lg-2 -->
-						</div>
-					</div>
-					<div class="tabs-container">
-						<ul class="nav nav-tabs">
-							<li class="active"><a data-toggle="tab" href="#tab-1"><i class="fa fa-list"></i> Contenido</a></li>
-							<li><span class="TimeAct"><div id="TimeAct">&nbsp;</div></span></li>
-						</ul>
-						<div class="tab-content">
-							<div id="tab-1" class="tab-pane active">
-								<iframe id="DataGrid" name="DataGrid" style="border: 0;" width="100%" height="700" src="detalle_cronograma_servicios.php?cardcode=<?php echo base64_encode($_GET['Cliente']); ?>&idsucursal=<?php echo base64_encode($_GET['Sucursal']); ?>&periodo=<?php echo base64_encode($Anno); ?>"></iframe>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-          </div>
-		 <?php }
-?>
-        </div>
+									<div class="col-lg-1">
+										<button type="button" id="btnNuevo" class="btn btn-success" onClick="AgregarLMT();"><i class="fa fa-plus-circle"></i> Adicionar zonas</button>
+									</div>
+								</div>
+							</div> <!-- row -->
+
+							<div class="row m-t-md">
+								<div class="col-lg-12">
+									<div class="tabs-container">
+										<ul class="nav nav-tabs">
+											<li class="active"><a data-toggle="tab" href="#tab-1"><i class="fa fa-list"></i> Contenido</a></li>
+										</ul> <!-- nav-tabs -->
+
+										<div class="tab-content">
+											<div id="tab-1" class="tab-pane active">
+												<iframe id="DataGrid" name="DataGrid" style="border: 0;" width="100%" height="700" src="detalle_zonas_sn.php?cardcode=<?php echo base64_encode($_GET['Cliente']); ?>&idsucursal=<?php echo base64_encode($_GET['Sucursal']); ?>&periodo=<?php echo base64_encode($Anno); ?>"></iframe>
+											</div>
+										</div> <!-- tab-content -->
+									</div> <!-- tabs-container -->
+								</div> <!-- col-lg-12 -->
+							</div> <!-- row m-t-md -->
+						</div> <!-- ibox-content -->
+					</div> <!-- col-lg-12 -->
+				</div> <!-- row -->
+			<?php }?>
+        </div> <!-- row -->
+
         <!-- InstanceEndEditable -->
-        <?php include_once "includes/footer.php";?>
-
+        <br>
+		<?php include_once "includes/footer.php";?>
     </div>
 </div>
 
@@ -395,7 +350,7 @@ function AgregarLMT(){
 					url: "includes/procedimientos.php?type=52&Metodo=1&Cliente=<?php echo $_GET['Cliente'] ?? ""; ?>&Sucursal=<?php echo $_GET['Sucursal'] ?? ""; ?>&Periodo=<?php echo $Anno ?? ""; ?>",
 					success: function(response) {
 						let frame = document.getElementById('DataGrid');
-						frame.src = "detalle_cronograma_servicios.php?cardcode=<?php echo base64_encode($_GET['Cliente'] ?? ""); ?>&idsucursal=<?php echo base64_encode($_GET['Sucursal'] ?? ""); ?>&periodo=<?php echo base64_encode($Anno ?? ""); ?>";
+						frame.src = "detalle_zonas_sn.php?cardcode=<?php echo base64_encode($_GET['Cliente'] ?? ""); ?>&idsucursal=<?php echo base64_encode($_GET['Sucursal'] ?? ""); ?>&periodo=<?php echo base64_encode($Anno ?? ""); ?>";
 
 						Swal.fire({
 							title: '¡Listo!',
