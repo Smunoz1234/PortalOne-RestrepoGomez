@@ -9,7 +9,7 @@ if (isset($_GET['idsucursal']) && ($_GET['idsucursal'] != "")) {
     $SucursalSN = "AND [id_consecutivo_direccion]='" . base64_decode($_GET['idsucursal']) . "'";
 }
 
-// SMM, 11/01/2022
+// SMM, 24/02/2022
 $SQL_SucursalSN = "";
 if (isset($_GET['cardcode']) && ($_GET['cardcode'] != "")) {
     $CardCodeID = base64_decode($_GET['cardcode']);
@@ -25,7 +25,90 @@ if (isset($_GET['cardcode']) && ($_GET['cardcode'] != "")) {
     }
 }
 
-$SQL = Seleccionar("[tbl_SociosNegocios_Zonas]", "*", "[id_socio_negocio]='$CardCodeID'", "[id_zona_sn]");
+// SMM, 24/02/2023
+$SQL = Seleccionar("tbl_SociosNegocios_Zonas", "*", "[id_socio_negocio]='$CardCodeID'", "[id_zona_sn]");
+
+// SMM, 25/02/2023
+$sw_error = 0;
+$msg_error = "";
+
+$parametros = array();
+
+$coduser = $_SESSION['CodUser'];
+$datetime = FormatoFecha(date('Y-m-d'), date('H:i:s'));
+
+$type = $_POST['type'] ?? 0;
+$id_zona_sn = $POST['id_zona_sn'] ?? "";
+$zona_sn = $POST['zona_sn'] ?? "";
+$id_socio_negocio = $POST['id_socio_negocio'] ?? "";
+$socio_negocio = $POST['socio_negocio'] ?? "";
+$id_consecutivo_direccion = $POST['id_consecutivo_direccion'] ?? "NULL";
+$id_direccion_destino = $POST['id_direccion_destino'] ?? "";
+$direccion_destino = $POST['direccion_destino'] ?? "";
+$estado = $POST['estado'] ?? "";
+$observaciones = $POST['observaciones'] ?? "";
+
+$id_usuario_creacion = "'$coduser'";
+$fecha_creacion = "'$datetime'";
+$hora_creacion = "'$datetime'";
+$id_usuario_actualizacion = "'$coduser'";
+$fecha_actualizacion = "'$datetime'";
+$hora_actualizacion = "'$datetime'";
+
+if ($type == 1) {
+    $msg_error = "No se pudo crear el registro";
+
+    $parametros = array(
+        $type,
+        "'$id_zona_sn'",
+        "'$zona_sn'",
+        "'$id_socio_negocio'",
+        "'$socio_negocio'",
+        $id_consecutivo_direccion,
+        "'$id_direccion_destino'",
+        "'$direccion_destino'",
+        "'$estado'",
+        "'$observaciones'",
+        $id_usuario_actualizacion,
+        $fecha_actualizacion,
+        $hora_actualizacion,
+        $id_usuario_creacion,
+        $fecha_creacion,
+        $hora_creacion,
+    );
+
+} elseif ($type == 2) {
+    $msg_error = "No se pudo actualizar el registro";
+
+    $parametros = array(
+        $type,
+        "'$id_zona_sn'",
+        "'$zona_sn'",
+        "'$id_socio_negocio'",
+        "'$socio_negocio'",
+        $id_consecutivo_direccion,
+        "'$id_direccion_destino'",
+        "'$direccion_destino'",
+        "'$estado'",
+        "'$observaciones'",
+        $id_usuario_actualizacion,
+        $fecha_actualizacion,
+        $hora_actualizacion,
+    );
+
+} elseif ($type == 3) {
+    $msg_error = "No se pudo eliminar el registro";
+
+    $parametros = array(
+        $type, // 3 - Eliminar
+        "'$id_zona_sn'",
+    );
+}
+
+$SQL = EjecutarSP('sp_tbl_SociosNegocios_Zonas', $paramtros);
+if (!$SQL) {
+    $sw_error = 1;
+}
 ?>
 
 <!doctype html>
