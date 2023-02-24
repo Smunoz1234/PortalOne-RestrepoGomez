@@ -128,48 +128,7 @@ $SQL_Periodos = Seleccionar("tbl_Periodos", "*", "Estado = 'Y'", "Periodo");
 		});
 	});
 </script>
-<script>
-<?php if ($sw == 1) {?>
-function AgregarLMT(){
-	var LMT=document.getElementById("ListaLMT");
-	var Frecuencia=document.getElementById("Frecuencia");
-	var FechaCorte=document.getElementById("FechaCorte");
-	var frame=document.getElementById('DataGrid');
 
-	if(LMT.value!=""){
-		if(Frecuencia.value!=""){
-			if(FechaCorte.value==""){
-				Swal.fire({
-					title: '¡Lo sentimos!',
-					text: 'Debe seleccionar la fecha de corte',
-					icon: 'error'
-				});
-				return
-			}
-		}
-		$.ajax({
-			type: "GET",
-			url: "includes/procedimientos.php?type=22&itemcode="+LMT.value+"&cardcode=<?php echo $_GET['Cliente']; ?>&idsucursal=<?php echo $_GET['Sucursal']; ?>&periodo=<?php echo $_GET['Anno']; ?>&frecuencia="+Frecuencia.value+"&fechacorte="+FechaCorte.value,
-			success: function(response){
-				frame.src="detalle_zonas_sn.php?cardcode=<?php echo base64_encode($_GET['Cliente']); ?>&idsucursal=<?php echo base64_encode($_GET['Sucursal']); ?>&periodo=<?php echo base64_encode($Anno); ?>";
-				$('#ListaLMT').val(null).trigger('change');
-				Swal.fire({
-					title: '¡Listo!',
-					text: 'Se ha agregado el item exitosamente',
-					icon: 'success'
-				});
-			}
-		});
-	}else{
-		Swal.fire({
-			title: '¡Lo sentimos!',
-			text: 'Debe seleccionar la lista de materiales para agregar',
-			icon: 'error'
-		});
-	}
-}
-<?php }?>
-</script>
 <!-- InstanceEndEditable -->
 </head>
 
@@ -212,7 +171,7 @@ function AgregarLMT(){
 							</div>
 							<div class="form-group">
 								<!-- Inicio, Cliente -->
-								<label class="col-lg-1 control-label">Cliente <span class="text-danger">*</span></label>
+								<label class="col-lg-1 control-label">Socio Negocio <span class="text-danger">*</span></label>
 								<div class="col-lg-3">
 									<input name="Cliente" type="hidden" id="Cliente" value="<?php if (isset($_GET['Cliente']) && ($_GET['Cliente'] != "")) {echo $_GET['Cliente'];}?>">
 									<input name="NombreCliente" type="text" class="form-control" id="NombreCliente" placeholder="Ingrese para buscar..." value="<?php if (isset($_GET['NombreCliente']) && ($_GET['NombreCliente'] != "")) {echo $_GET['NombreCliente'];}?>" required>
@@ -220,7 +179,7 @@ function AgregarLMT(){
 								<!-- Fin, Cliente -->
 
 								<!-- Inicio, Sucursal que depende del Cliente -->
-								<label class="col-lg-1 control-label">Sucursal cliente</label>
+								<label class="col-lg-1 control-label">Sucursal Socio Negocio</label>
 								<div class="col-lg-3">
 									 <select id="Sucursal" name="Sucursal" class="form-control select2">
 										<option value="">(Todos)</option>

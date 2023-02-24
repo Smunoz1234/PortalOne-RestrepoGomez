@@ -9,14 +9,9 @@ $type = 1;
 $Estado = 1; //Abierto
 
 if (isset($_GET['idsucursal']) && ($_GET['idsucursal'] != "")) {
-    $Sucursal = "and IdLineaSucursal='" . base64_decode($_GET['idsucursal']) . "'";
+    $SucursalSN = "and IdLineaSucursal='" . base64_decode($_GET['idsucursal']) . "'";
 } else {
-    $Sucursal = "";
-}
-
-$SQL = Seleccionar("uvw_tbl_ProgramacionOrdenesServicio", "*", "IdCliente='" . base64_decode($_GET['cardcode']) . "' $Sucursal and Periodo='" . base64_decode($_GET['periodo']) . "'", "IdSucursalCliente");
-if ($SQL) {
-    $sw = 1;
+    $SucursalSN = "";
 }
 
 if (isset($_GET['id']) && ($_GET['id'] != "")) {
@@ -31,253 +26,336 @@ if (isset($_GET['id']) && ($_GET['id'] != "")) {
 }
 
 // SMM, 11/01/2022
-$SQL_Sucursal = "";
+$SQL_SucursalSN = "";
 $SQL_Frecuencia = "";
 if (isset($_GET['cardcode']) && ($_GET['cardcode'] != "")) {
     $CardCode = base64_decode($_GET['cardcode']);
-    $Sucursal = (isset($_GET['idsucursal']) && ($_GET['idsucursal'] != "")) ? base64_decode($_GET['idsucursal']) : "";
+    $SucursalSN = (isset($_GET['idsucursal']) && ($_GET['idsucursal'] != "")) ? base64_decode($_GET['idsucursal']) : "";
 
     // Sucursales
     if (PermitirFuncion(205)) {
         $Where = "CodigoCliente='$CardCode' AND TipoDireccion='S'";
-        $SQL_Sucursal = Seleccionar("uvw_Sap_tbl_Clientes_Sucursales", "NombreSucursal, NumeroLinea", $Where);
+        $SQL_SucursalSN = Seleccionar("uvw_Sap_tbl_Clientes_Sucursales", "NombreSucursal, NumeroLinea", $Where);
     } else {
         $Where = "CodigoCliente='$CardCode' AND TipoDireccion='S' AND ID_Usuario = " . $_SESSION['CodUser'];
-        $SQL_Sucursal = Seleccionar("uvw_tbl_SucursalesClienteUsuario", "NombreSucursal, NumeroLinea", $Where);
+        $SQL_SucursalSN = Seleccionar("uvw_tbl_SucursalesClienteUsuario", "NombreSucursal, NumeroLinea", $Where);
     }
 
     // Frecuencias
     $SQL_Frecuencia = Seleccionar("tbl_ProgramacionOrdenesServicioFrecuencia", "*");
 
     // Articulos
-    $Where = "(CodigoCliente='$CardCode' AND LineaSucursal='$Sucursal' AND Estado='Y') OR IdTipoListaArticulo='2'";
-    $SQL_LMT = ($Sucursal != "") ? Seleccionar("uvw_Sap_tbl_ArticulosLlamadas", "*", $Where, "IdTipoListaArticulo, ItemCode") : "";
+    $Where = "(CodigoCliente='$CardCode' AND LineaSucursal='$SucursalSN' AND Estado='Y') OR IdTipoListaArticulo='2'";
+    $SQL_LMT = ($SucursalSN != "") ? Seleccionar("uvw_Sap_tbl_ArticulosLlamadas", "*", $Where, "IdTipoListaArticulo, ItemCode") : "";
+}
+
+$SQL = Seleccionar("tbl_SociosNegocios_Zonas", "*", "id_socio_negocio='$CardCode'", "id_zona_sn");
+if ($SQL) {
+    $sw = 1;
 }
 ?>
 
 <!doctype html>
 <html>
+
 <head>
-<?php include_once "includes/cabecera.php";?>
+	<?php include_once "includes/cabecera.php";?>
 
-<style>
-	body{
-		background-color: #ffffff;
-		overflow-x: auto;
-	}
+	<style>
+		body{
+			background-color: #ffffff;
+			overflow-x: auto;
+		}
 
-	#from .ibox-content{
-		padding: 0px !important;
-	}
-	#from .form-control{
-		width: auto;
-		height: 28px;
-	}
-	#from .table > tbody > tr > td{
-		padding: 1px !important;
-		vertical-align: middle;
-	}
-	#from .select2-container{ width: 100% !important; }
-	#from .bg-success[readonly]{
-		background-color: #1c84c6 !important;
-		color: #ffffff !important;
-	}
+		#from .ibox-content{
+			padding: 0px !important;
+		}
+		#from .form-control{
+			width: auto;
+			height: 28px;
+		}
+		#from .table > tbody > tr > td{
+			padding: 1px !important;
+			vertical-align: middle;
+		}
+		#from .select2-container{ width: 100% !important; }
+		#from .bg-success[readonly]{
+			background-color: #1c84c6 !important;
+			color: #ffffff !important;
+		}
 
-	.select2-container, .swal2-container {
-		z-index: 10000;
-	}
-	.select2-search--inline {
-    display: contents;
-	}
-	.select2-search__field:placeholder-shown {
-		width: 100% !important;
-	}
-</style>
+		.select2-container, .swal2-container {
+			z-index: 10000;
+		}
+		.select2-search--inline {
+		display: contents;
+		}
+		.select2-search__field:placeholder-shown {
+			width: 100% !important;
+		}
+	</style>
 
-<script>
-var json=[];
-var cant=0;
+	<script>
+		var json=[];
+		var cant=0;
 
-function BorrarLinea(){
-	if(confirm(String.fromCharCode(191)+'Est'+String.fromCharCode(225)+' seguro que desea eliminar este item? Este proceso no se puede revertir.')){
-		$.ajax({
-			type: "GET",
-			url: "includes/procedimientos.php?type=21&linenum="+json,
-			success: function(response){
-				window.location.href="detalle_cronograma_servicios.php?<?php echo $_SERVER['QUERY_STRING']; ?>";
-			}
-		});
-	}
-}
-
-function DuplicarLinea(LineNum){
-	if(confirm(String.fromCharCode(191)+'Est'+String.fromCharCode(225)+' seguro que desea duplicar este item? El nuevo registro se pondr'+String.fromCharCode(225)+' al final de la tabla.')){
-		$.ajax({
-			type: "GET",
-			url: "includes/procedimientos.php?type=27&linenum="+LineNum,
-			success: function(response){
-				window.location.href="detalle_cronograma_servicios.php?<?php echo $_SERVER['QUERY_STRING']; ?>";
-			}
-		});
-	}
-}
-
-function CorregirSuc(LineNum, Val='', Clt=''){
-//	$('.ibox-content').toggleClass('sk-loading',true);
-	if(Val=='Sucursal no existe'){
-		let select=document.createElement("select");
-		let td=document.getElementById("SucCliente_"+LineNum);
-
-		select.className='form-control';
-		select.id="SelSucCliente_"+LineNum;
-
-		td.innerHTML='';
-		td.appendChild(select);
-
-		$.ajax({
-			type: "POST",
-			url: "ajx_cbo_sucursales_clientes_simple.php?CardCode="+Clt+"&sucline=1&tdir=S&selec=1",
-			success: function(response){
-				$('#SelSucCliente_'+LineNum).html(response);
-				select.addEventListener("change", function(){
-					let value=document.getElementById("SelSucCliente_"+LineNum).value
-					CambiarSuc(LineNum, value);
+		function BorrarLinea(){
+			if(confirm(String.fromCharCode(191)+'Est'+String.fromCharCode(225)+' seguro que desea eliminar este item? Este proceso no se puede revertir.')){
+				$.ajax({
+					type: "GET",
+					url: "includes/procedimientos.php?type=21&linenum="+json,
+					success: function(response){
+						window.location.href="detalle_cronograma_servicios.php?<?php echo $_SERVER['QUERY_STRING']; ?>";
+					}
 				});
-//				$('#SelSucCliente_'+LineNum).trigger("change");
-//				$('.ibox-content').toggleClass('sk-loading',false);
 			}
-		});
-	}else{
-		if(confirm('Se cambiar'+String.fromCharCode(225)+' el nombre de la sucursal en el cronograma seg'+String.fromCharCode(250)+'n el que est'+String.fromCharCode(225)+' en el dato maestro.')){
+		}
+
+		function DuplicarLinea(LineNum){
+			if(confirm(String.fromCharCode(191)+'Est'+String.fromCharCode(225)+' seguro que desea duplicar este item? El nuevo registro se pondr'+String.fromCharCode(225)+' al final de la tabla.')){
+				$.ajax({
+					type: "GET",
+					url: "includes/procedimientos.php?type=27&linenum="+LineNum,
+					success: function(response){
+						window.location.href="detalle_cronograma_servicios.php?<?php echo $_SERVER['QUERY_STRING']; ?>";
+					}
+				});
+			}
+		}
+
+		function CorregirSuc(LineNum, Val='', Clt=''){
+		//	$('.ibox-content').toggleClass('sk-loading',true);
+			if(Val=='Sucursal no existe'){
+				let select=document.createElement("select");
+				let td=document.getElementById("SucCliente_"+LineNum);
+
+				select.className='form-control';
+				select.id="SelSucCliente_"+LineNum;
+
+				td.innerHTML='';
+				td.appendChild(select);
+
+				$.ajax({
+					type: "POST",
+					url: "ajx_cbo_sucursales_clientes_simple.php?CardCode="+Clt+"&sucline=1&tdir=S&selec=1",
+					success: function(response){
+						$('#SelSucCliente_'+LineNum).html(response);
+						select.addEventListener("change", function(){
+							let value=document.getElementById("SelSucCliente_"+LineNum).value
+							CambiarSuc(LineNum, value);
+						});
+		//				$('#SelSucCliente_'+LineNum).trigger("change");
+		//				$('.ibox-content').toggleClass('sk-loading',false);
+					}
+				});
+			}else{
+				if(confirm('Se cambiar'+String.fromCharCode(225)+' el nombre de la sucursal en el cronograma seg'+String.fromCharCode(250)+'n el que est'+String.fromCharCode(225)+' en el dato maestro.')){
+					$.ajax({
+						type: "GET",
+						url: "includes/procedimientos.php?type=48&linenum="+LineNum,
+						success: function(response){
+							window.location.href="detalle_cronograma_servicios.php?<?php echo $_SERVER['QUERY_STRING']; ?>";
+						}
+					});
+				}
+			}
+
+		}
+
+		function CambiarSuc(LineNum, IdSuc){
+		//	console.log("LineNum", LineNum)
+		//	console.log("IdSuc", IdSuc)
+			$('.ibox-content').toggleClass('sk-loading',true);
 			$.ajax({
 				type: "GET",
-				url: "includes/procedimientos.php?type=48&linenum="+LineNum,
+				url: "includes/procedimientos.php?type=48&linenum="+LineNum+"&idsuc="+IdSuc,
 				success: function(response){
 					window.location.href="detalle_cronograma_servicios.php?<?php echo $_SERVER['QUERY_STRING']; ?>";
 				}
 			});
 		}
-	}
 
-}
-
-function CambiarSuc(LineNum, IdSuc){
-//	console.log("LineNum", LineNum)
-//	console.log("IdSuc", IdSuc)
-	$('.ibox-content').toggleClass('sk-loading',true);
-	$.ajax({
-		type: "GET",
-		url: "includes/procedimientos.php?type=48&linenum="+LineNum+"&idsuc="+IdSuc,
-		success: function(response){
-			window.location.href="detalle_cronograma_servicios.php?<?php echo $_SERVER['QUERY_STRING']; ?>";
+		function ActualizarDatos(name,id,line){//Actualizar datos asincronicamente
+			$.ajax({
+				type: "GET",
+				url: "registro.php?P=36&doctype=11&type=2&name="+name+"&value="+Base64.encode(document.getElementById(name+id).value)+"&line="+line,
+				success: function(response){
+					if(response!="Error"){
+						window.parent.document.getElementById('TimeAct').innerHTML="<strong>Actualizado:</strong> "+response;
+					}
+				}
+			});
 		}
-	});
-}
 
-function ActualizarDatos(name,id,line){//Actualizar datos asincronicamente
-	$.ajax({
-		type: "GET",
-		url: "registro.php?P=36&doctype=11&type=2&name="+name+"&value="+Base64.encode(document.getElementById(name+id).value)+"&line="+line,
-		success: function(response){
-			if(response!="Error"){
-				window.parent.document.getElementById('TimeAct').innerHTML="<strong>Actualizado:</strong> "+response;
+		function ActualizarDatosModal(datos, linea){
+			console.log(datos);
+
+			let Actualizado = true;
+
+			for (const clave in datos) {
+				if (datos.hasOwnProperty(clave)) {
+					let valor = Base64.encode(datos[clave]);
+					$.ajax({
+						type: "GET",
+						url: `registro.php?P=36&doctype=11&type=2&name=${clave}&value=${valor}&line=${linea}&new=1`,
+						success: function(response) {
+							if(response != "Error") {
+								Actualizado = false;
+							}
+						},
+						error: function(error) {
+							console.error(`Error en Línea 230 con ${key}`);
+							Actualizado = false;
+						}
+					});
+				}
+			}
+
+			if(Actualizado) {
+				Swal.fire("Actualizado", "Se han actualizado todos los campos correctamente.", "success");
+			} else {
+				Swal.fire("Error", "Ocurrió un error durante la actualización.", "error");
 			}
 		}
-	});
-}
-
-function ActualizarDatosModal(datos, linea){
-	console.log(datos);
-
-    let Actualizado = true;
-
-    for (const clave in datos) {
-        if (datos.hasOwnProperty(clave)) {
-            let valor = Base64.encode(datos[clave]);
-            $.ajax({
-                type: "GET",
-                url: `registro.php?P=36&doctype=11&type=2&name=${clave}&value=${valor}&line=${linea}&new=1`,
-                success: function(response) {
-                    if(response != "Error") {
-                        Actualizado = false;
-                    }
-                },
-                error: function(error) {
-                    console.error(`Error en Línea 230 con ${key}`);
-                    Actualizado = false;
-                }
-            });
-        }
-    }
-
-	if(Actualizado) {
-		Swal.fire("Actualizado", "Se han actualizado todos los campos correctamente.", "success");
-	} else {
-		Swal.fire("Error", "Ocurrió un error durante la actualización.", "error");
-	}
-}
 
 
-function Seleccionar(ID){
-	var btnBorrarLineas=document.getElementById('btnBorrarLineas');
-	var Check = document.getElementById('chkSel'+ID).checked;
-	var sw=-1;
-	json.forEach(function(element,index){
-//		console.log(element,index);
-//		console.log(json[index])deta
-		if(json[index]==ID){
-			sw=index;
+		function Seleccionar(ID){
+			var btnBorrarLineas=document.getElementById('btnBorrarLineas');
+			var Check = document.getElementById('chkSel'+ID).checked;
+			var sw=-1;
+			json.forEach(function(element,index){
+		//		console.log(element,index);
+		//		console.log(json[index])deta
+				if(json[index]==ID){
+					sw=index;
+				}
+
+			});
+
+			if(sw>=0){
+				json.splice(sw, 1);
+				cant--;
+			}else if(Check){
+				json.push(ID);
+				cant++;
+			}
+			if(cant>0){
+				$("#btnBorrarLineas").removeClass("disabled");
+			}else{
+				$("#btnBorrarLineas").addClass("disabled");
+			}
+
+			//console.log(json);
 		}
 
-	});
+		function SeleccionarTodos(){
+			var Check = document.getElementById('chkAll').checked;
+			if(Check==false){
+				json=[];
+				cant=0;
+				$("#btnBorrarLineas").addClass("disabled");
+			}
+			$(".chkSel").prop("checked", Check);
+			if(Check){
+				$(".chkSel").trigger('change');
+			}
+		}
 
-	if(sw>=0){
-		json.splice(sw, 1);
-		cant--;
-	}else if(Check){
-		json.push(ID);
-		cant++;
-	}
-	if(cant>0){
-		$("#btnBorrarLineas").removeClass("disabled");
-	}else{
-		$("#btnBorrarLineas").addClass("disabled");
-	}
+		function ConsultarArticulo(Articulo){
+			if(Articulo.value!=""){
+				self.name='opener';
+				remote=open('articulos.php?id='+Articulo+'&ext=1&tl=1','remote','location=no,scrollbar=yes,menubars=no,toolbars=no,resizable=yes,fullscreen=yes,status=yes');
+				remote.focus();
+			}
+		}
 
-	//console.log(json);
-}
-
-function SeleccionarTodos(){
-	var Check = document.getElementById('chkAll').checked;
-	if(Check==false){
-		json=[];
-		cant=0;
-		$("#btnBorrarLineas").addClass("disabled");
-	}
-	$(".chkSel").prop("checked", Check);
-	if(Check){
-		$(".chkSel").trigger('change');
-	}
-}
-
-function ConsultarArticulo(Articulo){
-	if(Articulo.value!=""){
-		self.name='opener';
-		remote=open('articulos.php?id='+Articulo+'&ext=1&tl=1','remote','location=no,scrollbar=yes,menubars=no,toolbars=no,resizable=yes,fullscreen=yes,status=yes');
-		remote.focus();
-	}
-}
-
-function Resaltar(ID){
-	$("input").removeClass('bg-success');
-	$("#"+ID).find("input").addClass('bg-success');
-}
-</script>
+		function Resaltar(ID){
+			$("input").removeClass('bg-success');
+			$("#"+ID).find("input").addClass('bg-success');
+		}
+	</script>
 </head>
 
 <body>
+	<!-- Inicio, modalInfo -->
+	<div class="modal inmodal fade" id="modalInfo" tabindex="-1" role="dialog" aria-hidden="true">
+		<div class="modal-dialog modal-lg" style="width: 70% !important;">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title">Adicionar Zonas a Socios de negocios</h4>
+				</div>
+
+				<form id="formActualizarInfo">
+					<div class="modal-body">
+						<div class="form-group">
+							<div class="ibox-content">
+								<div class="form-group">
+									<div class="col-md-6">
+										<label class="control-label">Socio Negocio <span class="text-danger">*</span></label>
+										<input required type="text" class="form-control" autocomplete="off" name="IDSocioNegocio" id="IDSocioNegocio" value="<?php echo $CardCode; ?>" readonly>
+									</div>
+
+									<div class="col-md-6">
+										<label class="control-label">Estado</label>
+										<select class="form-control" id="Estado" name="Estado" disabled>
+											<option value="Y">ACTIVO</option>
+											<option value="N">INACTIVO</option>
+										</select>
+									</div>
+								</div> <!-- form-group -->
+
+								<br><br><br><br>
+								<div class="form-group">
+									<div class="col-md-6">
+										<label class="control-label">ID Zona <span class="text-danger">*</span></label>
+										<input required type="text" class="form-control" autocomplete="off" name="IDZonaSN" id="IDZonaSN">
+									</div>
+
+									<div class="col-md-6">
+										<label class="control-label">Nombre Zona <span class="text-danger">*</span></label>
+										<input required type="text" class="form-control" autocomplete="off" name="ZonaSN" id="ZonaSN">
+									</div>
+								</div> <!-- form-group -->
+
+								<br><br><br><br>
+								<div class="form-group">
+									<div class="col-md-12">
+										<label class="control-label">Sucursal Socio Negocio</label>
+										<select id="SucursalSN" name="SucursalSN" class="form-control" <?php if ($SucursalSN != "") {echo "readonly";}?>>
+											<option value="">Seleccione...</option>
+
+											<?php while ($row_SucursalSN = sqlsrv_fetch_array($SQL_SucursalSN)) {?>
+												<option value="<?php echo $row_SucursalSN['NumeroLinea']; ?>" <?php if ($SucursalSN == $row_SucursalSN['NumeroLinea']) {echo "selected";}?>><?php echo $row_SucursalSN['NombreSucursal']; ?></option>
+											<?php }?>
+										</select>
+									</div>
+								</div> <!-- form-group -->
+
+								<br><br><br><br>
+								<div class="form-group">
+									<div class="col-md-12">
+										<label class="control-label">Observaciones (250 caracteres)</label>
+										<textarea type="text" class="form-control" name="Observaciones" id="Observaciones" rows="3" maxlength="250"></textarea>
+									</div>
+								</div> <!-- form-group -->
+
+								<br><br>
+							</div> <!-- ibox-content -->
+						</div> <!-- form-group -->
+					</div> <!-- modal-body -->
+
+					<div class="modal-footer">
+						<button type="submit" class="btn btn-success m-t-md"><i class="fa fa-check"></i> Aceptar</button>
+						<button type="button" class="btn btn-warning m-t-md" data-dismiss="modal"><i class="fa fa-times"></i> Cerrar</button>
+					</div> <!-- modal-footer -->
+				</form>
+			</div>
+		</div>
+	</div>
+	<!-- Fin, modalInfo -->
+
 	<div class="row">
-		
+
 			<div class="row">
 				<div class="form-group">
 					<div class="col-lg-2">
@@ -302,7 +380,7 @@ function Resaltar(ID){
 					</div>
 
 					<div class="col-lg-1">
-						<button type="button" id="btnNuevo" class="btn btn-success" onClick="AgregarLMT();"><i class="fa fa-plus-circle"></i> Adicionar zonas</button>
+						<button type="button" id="btnNuevo" class="btn btn-success" onClick="InfoLinea(0);"><i class="fa fa-plus-circle"></i> Adicionar zonas</button>
 					</div>
 				</div>
 				<br><br>
@@ -317,117 +395,6 @@ function Resaltar(ID){
 
 						<div class="tab-content">
 							<div id="tab-1" class="tab-pane active">
-								<!-- Inicio, modalInfo -->
-								<div class="modal inmodal fade" id="modalInfo" tabindex="-1" role="dialog" aria-hidden="true">
-									<div class="modal-dialog modal-lg" style="width: 70% !important;">
-										<div class="modal-content">
-											<div class="modal-header">
-												<h4 class="modal-title">Más información</h4>
-											</div>
-
-											<form id="formActualizarInfo">
-												<div class="modal-body">
-													<div class="form-group">
-														<div class="ibox-content">
-															<div class="form-group">
-																<input type="hidden" id="IdLinea" name="IdLinea">
-															</div>
-															<div class="form-group">
-																<div class="col-md-12">
-																	<label class="control-label">Sucursal Cliente</label>
-																	<select id="SucursalCliente" name="SucursalCliente" class="form-control select2" disabled>
-																		<option value="">Seleccione...</option>
-																		<?php while ($row_Sucursal = sqlsrv_fetch_array($SQL_Sucursal)) {?>
-																			<!-- El ID es NumeroLinea -->
-																			<option value="<?php echo $row_Sucursal['NombreSucursal']; ?>"><?php echo $row_Sucursal['NombreSucursal']; ?></option>
-																		<?php }?>
-																	</select>
-																</div>
-															</div>
-
-															<br><br><br><br>
-															<div class="form-group">
-																<div class="col-md-6">
-																	<label class="control-label">Estado</label>
-																	<select class="form-control" id="Estado" name="Estado" disabled>
-																		<option value="Y">ACTIVO</option>
-																		<option value="N">INACTIVO</option>
-																	</select>
-																</div>
-																<div class="col-md-6">
-																	<label class="control-label">Frecuencia</label>
-																	<select name="Frecuencia" class="form-control" id="Frecuencia" disabled>
-																		<option value="">Ninguna</option>
-																		<?php while ($row_Frecuencia = sqlsrv_fetch_array($SQL_Frecuencia)) {?>
-																			<option value="<?php echo $row_Frecuencia['DeFrecuencia']; ?>"><?php echo $row_Frecuencia['DeFrecuencia'] . " (" . $row_Frecuencia['CantidadVeces'] . ")"; ?></option>
-																		<?php }?>
-																	</select>
-																</div>
-															</div>
-
-															<br><br><br><br>
-															<div class="form-group">
-																<div class="col-md-12">
-																	<label class="control-label"><i id="BuscarArticulo" title="Consultar Articulo LMT" style="cursor: pointer" class="btn-xs btn-success fa fa-search"></i> Lista materiales / artículos</label>
-																	<select name="ListaLMT" class="form-control select2" id="ListaLMT" disabled>
-																		<option value="">Seleccione...</option>
-
-																		<?php while ($row_LMT = sqlsrv_fetch_array($SQL_LMT)) {?>
-
-																			<?php if (($row_LMT['IdTipoListaArticulo'] == 1) && ($sw_Clt == 0)) {?>
-																				<?php echo "<optgroup label='Cliente'></optgroup>"; ?>
-																				<?php $sw_Clt = 1;?>
-																			<?php } elseif (($row_LMT['IdTipoListaArticulo'] == 2) && ($sw_Std == 0)) {?>
-																				<?php echo "<optgroup label='Genericas'></optgroup>"; ?>
-																				<?php $sw_Std = 1;?>
-																			<?php }?>
-
-																			<option value="<?php echo $row_LMT['ItemCode']; ?>"><?php echo $row_LMT['ItemCode'] . " - " . $row_LMT['ItemName'] . " (SERV: " . substr($row_LMT['Servicios'], 0, 20) . " - ÁREA: " . substr($row_LMT['Areas'], 0, 20) . ")"; ?></option>
-																		<?php }?>
-																	</select>
-																</div>
-															</div>
-
-															<br><br><br><br>
-															<div class="form-group">
-																<div class="col-md-6">
-																	<label class="control-label">Áreas (3000 caracteres)</label>
-																	<textarea name="Areas" rows="3" maxlength="3000" class="form-control" id="Areas" type="text"></textarea>
-																</div>
-
-																<div class="col-md-6">
-																	<label class="control-label">Servicios (3000 caracteres)</label>
-																	<textarea name="Servicios" rows="3" maxlength="3000" class="form-control" id="Servicios" type="text"></textarea>
-																</div>
-															</div>
-
-															<br><br><br><br><br><br>
-															<div class="form-group">
-																<div class="col-md-6">
-																	<label class="control-label">Método de aplicación (3000 caracteres)</label>
-																	<textarea name="MetodoAplicacion" rows="3" maxlength="3000" class="form-control" id="MetodoAplicacion" type="text"></textarea>
-																</div>
-
-																<div class="col-md-6">
-																	<label class="control-label">Observaciones (3000 caracteres)</label>
-																	<textarea name="Observaciones" rows="3" maxlength="3000" class="form-control" id="Observaciones" type="text"></textarea>
-																</div>
-															</div>
-															<br><br>
-														</div> <!-- ibox-content -->
-													</div> <!-- form-group -->
-												</div> <!-- modal-body -->
-
-												<div class="modal-footer">
-													<button type="submit" class="btn btn-success m-t-md"><i class="fa fa-check"></i> Aceptar</button>
-													<button type="button" class="btn btn-warning m-t-md" data-dismiss="modal"><i class="fa fa-times"></i> Cerrar</button>
-												</div> <!-- modal-footer -->
-											</form>
-										</div>
-									</div>
-								</div>
-								<!-- Fin, modalInfo -->
-
 								<div id="from" name="form">
 									<div class="ibox-content">
 										<?php include "includes/spinner.php";?>
@@ -436,19 +403,20 @@ function Resaltar(ID){
 											<tr>
 												<th class="text-center form-inline w-80"><div class="checkbox checkbox-success"><input type="checkbox" id="chkAll" value="" onChange="SeleccionarTodos();" title="Seleccionar todos"><label></label></div> <button type="button" id="btnBorrarLineas" title="Borrar lineas" class="btn btn-danger btn-xs disabled" onClick="BorrarLinea();"><i class="fa fa-trash"></i></button></th>
 												<th>&nbsp;</th>
-												<th>#</th>
-												<th>Validación</th>
-												<th>Sucursal cliente</th>
-												<th>Código artículo</th>
-												<th>Nombre artículo</th>
+												<th>ID Zona</th>
+												<th>Zona</th>
+												<th>ID Socio Negocio</th>
+												<th>ID Consecutivo Dirección</th>
+												<th>ID Dirección Destino</th>
+												<th>Dirección Destino</th>
 												<th>Estado</th>
-												<th>Frecuencia</th>
-												<th>Fecha Últ. Actualización</th>
-												<th>Usuario Últ. Actualización</th>
+												<th>Observaciones</th>
+												<th>Fecha Actualización</th>
+												<th>Usuario Actualización</th>
 											</tr>
 										</thead>
 										<tbody>
-										<?php while ($row = sqlsrv_fetch_array($SQL)) { ?>
+										<?php while ($row = sqlsrv_fetch_array($SQL)) {?>
 										<tr id="<?php echo $i; ?>" onClick="Resaltar('<?php echo $i; ?>');">
 											<td class="text-center">
 												<div class="checkbox checkbox-success no-margins">
@@ -470,11 +438,11 @@ function Resaltar(ID){
 											</td>
 
 											<td class="text-center"><?php echo $i ?? ""; ?></td>
-											<td><span class="<?php if (strstr($row['Validacion'], "OK")) {echo "badge badge-primary";} else {echo "badge badge-danger";}?>"><?php echo $row['Validacion']; ?></span></td>
 											<td id="SucCliente_<?php echo $row['ID']; ?>"><input size="50" type="text" id="SucursalCliente<?php echo $i; ?>" name="SucursalCliente[]" class="form-control" readonly value="<?php echo $row['IdSucursalCliente']; ?>"></td>
 											<td><input size="20" type="text" id="CodListaMateriales<?php echo $i; ?>" name="CodListaMateriales[]" class="form-control btn-link" readonly value="<?php echo $row['IdArticuloLMT']; ?>" onClick="ConsultarArticulo('<?php echo base64_encode($row['IdArticuloLMT']); ?>');" title="Consultar artículo" style="cursor: pointer"></td>
 											<td><input size="80" type="text" id="ListaMateriales<?php echo $i; ?>" name="ListaMateriales[]" class="form-control" readonly value="<?php echo $row['DeArticuloLMT']; ?>"></td>
 											<td><input size="15" type="text" id="Estado<?php echo $i; ?>" name="Estado[]" class="form-control" readonly value="<?php echo $row['NombreEstado']; ?>"></td>
+											<td><span class="<?php if (strstr($row['Validacion'], "OK")) {echo "badge badge-primary";} else {echo "badge badge-danger";}?>"><?php echo $row['Validacion']; ?></span></td>
 											<td><input size="15" type="text" id="Frecuencia<?php echo $i; ?>" name="Frecuencia[]" class="form-control" readonly value="<?php echo $row['Frecuencia']; ?>"></td>
 											<td><input size="15" type="text" id="FechaActualizacion<?php echo $i; ?>" name="FechaActualizacion[]" class="form-control" value="<?php if ($row['FechaActualizacion'] != "") {echo $row['FechaActualizacion']->format('Y-m-d H:i');}?>" readonly></td>
 											<td><input size="20" type="text" id="Usuario<?php echo $i; ?>" name="Usuario[]" class="form-control" value="<?php echo $row['Usuario']; ?>" readonly></td>
@@ -642,10 +610,10 @@ function Resaltar(ID){
 					</div> <!-- tabs-container -->
 				</div> <!-- col-lg-12 -->
 			</div> <!-- row m-t-md -->
-		
+
 	</div> <!-- row -->
 </body>
+
 </html>
-<?php
-sqlsrv_close($conexion);
-?>
+
+<?php sqlsrv_close($conexion);?>
