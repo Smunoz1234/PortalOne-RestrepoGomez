@@ -36,15 +36,15 @@ $coduser = $_SESSION['CodUser'];
 $datetime = FormatoFecha(date('Y-m-d'), date('H:i:s'));
 
 $type = $_POST['type'] ?? 0;
-$id_zona_sn = $POST['id_zona_sn'] ?? "";
-$zona_sn = $POST['zona_sn'] ?? "";
-$id_socio_negocio = $POST['id_socio_negocio'] ?? "";
-$socio_negocio = $POST['socio_negocio'] ?? "";
-$id_consecutivo_direccion = $POST['id_consecutivo_direccion'] ?? "NULL";
-$id_direccion_destino = $POST['id_direccion_destino'] ?? "";
-$direccion_destino = $POST['direccion_destino'] ?? "";
-$estado = $POST['estado'] ?? "";
-$observaciones = $POST['observaciones'] ?? "";
+$id_zona_sn = $_POST['id_zona_sn'] ?? "";
+$zona_sn = $_POST['zona_sn'] ?? "";
+$id_socio_negocio = $_POST['id_socio_negocio'] ?? "";
+$socio_negocio = $_POST['socio_negocio'] ?? "";
+$id_consecutivo_direccion = $_POST['id_consecutivo_direccion'] ?? "NULL";
+$id_direccion_destino = $_POST['id_direccion_destino'] ?? "";
+$direccion_destino = $_POST['direccion_destino'] ?? "";
+$estado = $_POST['estado'] ?? "";
+$observaciones = $_POST['observaciones'] ?? "";
 
 $id_usuario_creacion = "'$coduser'";
 $fecha_creacion = "'$datetime'";
@@ -359,7 +359,7 @@ if ($type != 0) {
 				<div class="modal-body">
 					<div class="form-group">
 						<div class="ibox-content">
-							<input type="hidden" id="type">
+							<input type="hidden" id="Type">
 
 							<div class="form-group">
 								<div class="col-md-6">
@@ -477,48 +477,52 @@ if ($type != 0) {
 									<th>ID Zona</th>
 									<th>Zona</th>
 									<th>ID Socio Negocio</th>
+									<th>Socio Negocio</th>
 									<th>ID Consecutivo Dirección</th>
 									<th>ID Dirección Destino</th>
 									<th>Dirección Destino</th>
 									<th>Estado</th>
 									<th>Observaciones</th>
 									<th>Fecha Actualización</th>
-									<th>Usuario Actualización</th>
+									<th>ID Usuario Actualización</th>
 								</tr>
 							</thead>
+
 							<tbody>
-							<?php while ($row = sqlsrv_fetch_array($SQL)) {?>
-							<tr id="<?php echo $i; ?>" onClick="Resaltar('<?php echo $i; ?>');">
-								<td class="text-center">
-									<div class="checkbox checkbox-success no-margins">
-										<input type="checkbox" class="chkSel" id="chkSel<?php echo $row['ID']; ?>" value="" onChange="Seleccionar('<?php echo $row['ID']; ?>');" aria-label="Single checkbox One"><label></label>
-									</div>
-								</td>
+								<?php while ($row = sqlsrv_fetch_array($SQL)) {?>
+								<tr>
+									<td class="text-center">
+										<div class="checkbox checkbox-success no-margins">
+											<input type="checkbox" class="chkSel" id="chkSel<?php echo $row['ID']; ?>" value="" onChange="Seleccionar('<?php echo $row['ID']; ?>');" aria-label="Single checkbox One"><label></label>
+										</div>
+									</td>
 
-								<td class="text-center form-inline w-80">
-									<!-- SMM, 10/01/2022 -->
-									<button type="button" title="Actualizar información de la LMT" class="btn btn-warning btn-xs" onClick="ActualizarLinea(<?php echo $row['ID']; ?>);"><i class="fa fa-refresh"></i></button>
+									<td class="text-center form-inline w-80">
+										<button type="button" title="Actualizar información de la LMT" class="btn btn-warning btn-xs" onClick="ActualizarLinea(<?php echo $row['ID']; ?>);"><i class="fa fa-refresh"></i></button>
+										<button type="button" title="Más información" class="btn btn-info btn-xs" onClick="InfoLinea(<?php echo $row['ID']; ?>);"><i class="fa fa-info"></i></button>
+										<button type="button" title="Duplicar linea" class="btn btn-success btn-xs" onClick="DuplicarLinea(<?php echo $row['ID']; ?>);"><i class="fa fa-copy"></i></button>
+									</td>
 
-									<!-- SMM, 10/01/2022 -->
-									<button type="button" title="Más información" class="btn btn-info btn-xs" onClick="InfoLinea(<?php echo $row['ID']; ?>);"><i class="fa fa-info"></i></button>
+									<td><?php echo $row['id_zona_sn']; ?></td>
+									<td><?php echo $row['zona_sn']; ?></td>
+									<td><?php echo $row['id_socio_negocio']; ?></td>
+									<td><?php echo $row['socio_negocio']; ?></td>
+									<td><?php echo $row['id_consecutivo_direccion']; ?></td>
+									<td><?php echo $row['id_direccion_destino']; ?></td>
+									<td><?php echo $row['direccion_destino']; ?></td>
 
-									<button type="button" title="Duplicar linea" class="btn btn-success btn-xs" onClick="DuplicarLinea(<?php echo $row['ID']; ?>);"><i class="fa fa-copy"></i></button>
-									<?php if (!strstr($row['Validacion'], "OK")) {?>
-										<button type="button" title="Corregir sucursal" class="btn btn-warning btn-xs" onClick="CorregirSuc(<?php echo $row['ID']; ?>,'<?php echo $row['Validacion']; ?>','<?php echo $row['IdCliente']; ?>');"><i class="fa fa-gavel"></i></button>
-									<?php }?>
-								</td>
+									<td>
+										<span class="badge <?php echo ($row['estado'] == "Y") ? "badge-primary" : "badge-danger"; ?>">
+											<?php echo ($row['estado'] == "Y") ? "Activo" : "Inactivo"; ?>
+										</span>
+									</td>
 
-								<td class="text-center"><?php echo $i ?? ""; ?></td>
-								<td id="SucCliente_<?php echo $row['ID']; ?>"><input size="50" type="text" id="SucursalCliente<?php echo $i; ?>" name="SucursalCliente[]" class="form-control" readonly value="<?php echo $row['IdSucursalCliente']; ?>"></td>
-								<td><input size="20" type="text" id="CodListaMateriales<?php echo $i; ?>" name="CodListaMateriales[]" class="form-control btn-link" readonly value="<?php echo $row['IdArticuloLMT']; ?>" onClick="ConsultarArticulo('<?php echo base64_encode($row['IdArticuloLMT']); ?>');" title="Consultar artículo" style="cursor: pointer"></td>
-								<td><input size="80" type="text" id="ListaMateriales<?php echo $i; ?>" name="ListaMateriales[]" class="form-control" readonly value="<?php echo $row['DeArticuloLMT']; ?>"></td>
-								<td><input size="15" type="text" id="Estado<?php echo $i; ?>" name="Estado[]" class="form-control" readonly value="<?php echo $row['NombreEstado']; ?>"></td>
-								<td><span class="<?php if (strstr($row['Validacion'], "OK")) {echo "badge badge-primary";} else {echo "badge badge-danger";}?>"><?php echo $row['Validacion']; ?></span></td>
-								<td><input size="15" type="text" id="Frecuencia<?php echo $i; ?>" name="Frecuencia[]" class="form-control" readonly value="<?php echo $row['Frecuencia']; ?>"></td>
-								<td><input size="15" type="text" id="FechaActualizacion<?php echo $i; ?>" name="FechaActualizacion[]" class="form-control" value="<?php if ($row['FechaActualizacion'] != "") {echo $row['FechaActualizacion']->format('Y-m-d H:i');}?>" readonly></td>
-								<td><input size="20" type="text" id="Usuario<?php echo $i; ?>" name="Usuario[]" class="form-control" value="<?php echo $row['Usuario']; ?>" readonly></td>
-							</tr>
-							<?php }?>
+									<td><?php echo $row['observaciones']; ?></td>
+
+									<td><?php echo isset($row['fecha_actualizacion']) ? date_format($row['fecha_actualizacion'], 'Y-m-d H:i:s') : ""; ?></td>
+									<td><?php echo $row['id_usuario_actualizacion']; ?></td>
+								</tr>
+								<?php }?>
 							</tbody>
 						</table>
 					</div> <!-- ibox-content -->
@@ -535,22 +539,26 @@ if ($type != 0) {
 			type: "POST",
 			url: "detalle_zonas_sn.php",
 			data: {
-				type: $("#type").val(),
-				id_zona_sn: "",
-				zona_sn: "",
-				id_socio_negocio: "",
+				type: $("#Type").val(),
+				id_zona_sn: $("#IDZonaSN").val(),
+				zona_sn: $("#ZonaSN").val(),
+				id_socio_negocio: $("#IDSocioNegocio").val(),
 				socio_negocio: "",
 				id_consecutivo_direccion: $("#SucursalSN").val(),
 				id_direccion_destino: "",
 				direccion_destino: "",
-				estado: "",
-				observaciones: "",
+				estado: $("#Estado").val(),
+				observaciones: $("#Observaciones").val(),
 			},
 			success: function(response) {
 				Swal.fire({
 					icon: (response == "OK") ? "success" : "warning'",
 					title: (response == "OK") ? "Operación exitosa" : "Ocurrió un error",
 					text: (response == "OK") ? "La consulta se ha ejecutado correctamente." : response
+				}).then((result) => {
+					if (result.isConfirmed) {
+						location.reload();
+					}
 				});
 			},
 			error: function(error) {
@@ -562,7 +570,7 @@ if ($type != 0) {
 	// SMM, 24/02/2023
 	function MostrarModal(ID = "") {
 		if(ID != "") {
-			$("#type").val(2);
+			$("#Type").val(2);
 
 			$.ajax({
 				url:"ajx_buscar_datos_json.php",
@@ -587,7 +595,7 @@ if ($type != 0) {
 				}
 			});
 		} else {
-			$("#type").val(1);
+			$("#Type").val(1);
 		}
 
 		// Siempre se muestra el Modal.
