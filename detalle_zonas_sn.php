@@ -29,9 +29,7 @@ if (isset($_GET['cardcode']) && ($_GET['cardcode'] != "")) {
 $SQL = Seleccionar("tbl_SociosNegocios_Zonas", "*", "[id_socio_negocio]='$CardCodeID'", "[id_zona_sn]");
 
 // SMM, 25/02/2023
-$sw_error = 0;
 $msg_error = "";
-
 $parametros = array();
 
 $coduser = $_SESSION['CodUser'];
@@ -56,7 +54,7 @@ $fecha_actualizacion = "'$datetime'";
 $hora_actualizacion = "'$datetime'";
 
 if ($type == 1) {
-    $msg_error = "No se pudo crear el registro";
+    $msg_error = "No se pudo crear el registro.";
 
     $parametros = array(
         $type,
@@ -78,7 +76,7 @@ if ($type == 1) {
     );
 
 } elseif ($type == 2) {
-    $msg_error = "No se pudo actualizar el registro";
+    $msg_error = "No se pudo actualizar el registro.";
 
     $parametros = array(
         $type,
@@ -97,7 +95,7 @@ if ($type == 1) {
     );
 
 } elseif ($type == 3) {
-    $msg_error = "No se pudo eliminar el registro";
+    $msg_error = "No se pudo eliminar el registro.";
 
     $parametros = array(
         $type, // 3 - Eliminar
@@ -106,10 +104,23 @@ if ($type == 1) {
 }
 
 if ($type != 0) {
-    $SQL = EjecutarSP('sp_tbl_SociosNegocios_Zonas', $parametros);
-    if (!$SQL) {
-        $sw_error = 1;
+    $SQL_Operacion = EjecutarSP('sp_tbl_SociosNegocios_Zonas', $parametros);
+
+    if (!$SQL_Operacion) {
+        echo $msg_error;
+    } else {
+        $row = sqlsrv_fetch_array($SQL_Operacion);
+
+        if (isset($row['Error']) && ($row['Error'] != "")) {
+            echo "$msg_error ";
+            echo "(" . $row['Error'] . ")";
+        } else {
+            echo "OK";
+        }
     }
+
+    // Mostrar mensajes AJAX.
+    exit();
 }
 ?>
 
@@ -119,20 +130,6 @@ if ($type != 0) {
 <head>
 
 <?php include_once "includes/cabecera.php";?>
-
-<?php
-if ($sw_error == 1) {
-    echo "<script>
-		$(document).ready(function() {
-			Swal.fire({
-				title: '¡Ha ocurrido un error!',
-				text: '$msg_error',
-				icon: 'warning'
-			});
-		});
-	</script>";
-}
-?>
 
 <style>
 	body{
@@ -351,26 +348,28 @@ if ($sw_error == 1) {
 </head>
 <body>
 
-<div class="modal inmodal fade" id="modalInfo" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal inmodal fade" id="modalZonasSN" tabindex="-1" role="dialog" aria-hidden="true">
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
 			<div class="modal-header">
 				<h4 class="modal-title">Adicionar Zonas a Socios de negocios</h4>
 			</div> <!-- modal-header -->
 
-			<form id="formActualizarInfo">
+			<form id="modalForm">
 				<div class="modal-body">
 					<div class="form-group">
 						<div class="ibox-content">
+							<input type="hidden" id="type">
+
 							<div class="form-group">
 								<div class="col-md-6">
 									<label class="control-label">Socio Negocio <span class="text-danger">*</span></label>
-									<input required type="text" class="form-control" autocomplete="off" name="IDSocioNegocio" id="IDSocioNegocio" value="<?php echo $CardCodeID; ?>" readonly>
+									<input required type="text" class="form-control" autocomplete="off" id="IDSocioNegocio" value="<?php echo $CardCodeID; ?>" readonly>
 								</div>
 
 								<div class="col-md-6">
 									<label class="control-label">Estado</label>
-									<select class="form-control" id="Estado" name="Estado" disabled>
+									<select class="form-control" id="Estado">
 										<option value="Y">ACTIVO</option>
 										<option value="N">INACTIVO</option>
 									</select>
@@ -381,21 +380,21 @@ if ($sw_error == 1) {
 							<div class="form-group">
 								<div class="col-md-6">
 									<label class="control-label">ID Zona <span class="text-danger">*</span></label>
-									<input required type="text" class="form-control" autocomplete="off" name="IDZonaSN" id="IDZonaSN">
+									<input required type="text" class="form-control" autocomplete="off" id="IDZonaSN">
 								</div>
 
 								<div class="col-md-6">
 									<label class="control-label">Nombre Zona <span class="text-danger">*</span></label>
-									<input required type="text" class="form-control" autocomplete="off" name="ZonaSN" id="ZonaSN">
+									<input required type="text" class="form-control" autocomplete="off" id="ZonaSN">
 								</div>
 							</div> <!-- form-group -->
 
 							<br><br><br><br>
 							<div class="form-group">
 								<div class="col-md-12">
-									<label class="control-label">Sucursal Socio Negocio</label>
-									<select id="SucursalSN" name="SucursalSN" class="form-control" <?php if ($SucursalSN != "") {echo "readonly";}?>>
-										<option value="">Seleccione...</option>
+									<label class="control-label">Sucursal Socio Negocio <span class="text-danger">*</span></label>
+									<select id="SucursalSN" class="form-control" <?php if ($SucursalSN != "") {echo "readonly";}?> required>
+										<option value="" <?php if ($SucursalSN == "") {echo "disabled selected";}?>>Seleccione...</option>
 
 										<?php while ($row_SucursalSN = sqlsrv_fetch_array($SQL_SucursalSN)) {?>
 											<option value="<?php echo $row_SucursalSN['NumeroLinea']; ?>" <?php if ($SucursalSN == $row_SucursalSN['NumeroLinea']) {echo "selected";}?>><?php echo $row_SucursalSN['NombreSucursal']; ?></option>
@@ -450,7 +449,7 @@ if ($sw_error == 1) {
 		</div>
 
 		<div class="col-lg-1">
-			<button type="button" id="btnNuevo" class="btn btn-success" onClick="InfoLinea(0);"><i class="fa fa-plus-circle"></i> Adicionar zonas</button>
+			<button type="button" id="btnNuevo" class="btn btn-success" onClick="MostrarModal();"><i class="fa fa-plus-circle"></i> Adicionar zonas</button>
 		</div>
 	</div> <!-- form-group -->
 
@@ -530,137 +529,86 @@ if ($sw_error == 1) {
 </div> <!-- row m-t-md -->
 
 <script>
-	function ActualizarLinea(ID) {
-		Swal.fire({
-			title: "¿Está seguro que desea actualizar la linea en base a la LMT?",
-			icon: 'question',
-			showCancelButton: true,
-			confirmButtonText: 'Si, confirmo',
-			cancelButtonText: 'No'
-		}).then((result) => {
-			if (result.isConfirmed) {
-
-				// Cargando...
-				$('.ibox-content').toggleClass('sk-loading', true);
-
-				$.ajax({
-					type: "GET",
-					url: `includes/procedimientos.php?type=52&Metodo=2&Linea=${ID}&Cliente=<?php echo base64_decode($_GET['cardcode'] ?? ""); ?>&Sucursal=<?php echo base64_decode($_GET['idsucursal'] ?? ""); ?>&Periodo=<?php echo base64_decode($_GET['periodo'] ?? ""); ?>`,
-					success: function(response) {
-						Swal.fire({
-							title: '¡Listo!',
-							text: 'La linea se actualizo exitosamente',
-							icon: 'success'
-						}); // Swal
-					}
-				}); // ajax
-
-				// Carga terminada.
-				$('.ibox-content').toggleClass('sk-loading', false);
-			}
-		}); // Swal
-	}
-
-	// SMM, 10/01/2022
-	function InfoLinea(ID) {
+	// SMM, 24/02/2023
+	function OperacionModal() {
 		$.ajax({
-			url:"ajx_buscar_datos_json.php",
-			data:{
-				type: 44,
-				id: ID
+			type: "POST",
+			url: "detalle_zonas_sn.php",
+			data: {
+				type: $("#type").val(),
+				id_zona_sn: "",
+				zona_sn: "",
+				id_socio_negocio: "",
+				socio_negocio: "",
+				id_consecutivo_direccion: $("#SucursalSN").val(),
+				id_direccion_destino: "",
+				direccion_destino: "",
+				estado: "",
+				observaciones: "",
 			},
-			dataType:'json',
-			success: function(linea){
-				$("#IdLinea").val(ID);
-
-				let sucursal = linea.SucursalCliente;
-				$("#SucursalCliente").val(sucursal);
-				$("#SucursalCliente").trigger("change");
-
-				$("#Estado").val(linea.Estado);
-				$("#Estado").trigger("change");
-
-				let frecuencia = (linea.Frecuencia !== "Ninguna") ? linea.Frecuencia : "";
-				$("#Frecuencia").val(frecuencia);
-				$("#Frecuencia").trigger("change");
-
-				let articuloLMT = linea.ArticuloLMT;
-				$("#BuscarArticulo").on("click", function() {
-					let base64 = btoa(articuloLMT);
-					ConsultarArticulo(base64);
+			success: function(response) {
+				Swal.fire({
+					icon: (response == "OK") ? "success" : "warning'",
+					title: (response == "OK") ? "Operación exitosa" : "Ocurrió un error",
+					text: (response == "OK") ? "La consulta se ha ejecutado correctamente." : response
 				});
-				$.ajax({
-					type: "POST",
-					url: `ajx_cbo_select.php?type=11&id=<?php echo $CardCodeID; ?>&suc=${sucursal}`,
-					success: function(response){
-						$('#ListaLMT').html(response).fadeIn();
-						$('#ListaLMT').trigger('change');
-
-						$("#ListaLMT").val(articuloLMT);
-						$("#ListaLMT").trigger("change");
-
-						$('.ibox-content').toggleClass('sk-loading', false);
-					},
-					error: function(data) {
-						console.error("510->", data.responseText);
-
-						$('.ibox-content').toggleClass('sk-loading', false);
-					}
-				});
-
-				$("#Areas").val(linea.Areas);
-				$("#Servicios").val(linea.Servicios);
-				$("#MetodoAplicacion").val(linea.MetodoAplicacion);
-				$("#Observaciones").val(linea.Observaciones);
 			},
 			error: function(error) {
-				console.error("520->", error.responseText);
-
-				// $('.ibox-content').toggleClass('sk-loading', false);
+				console.error("560->", error.responseText);
 			}
 		});
-
-		// Mostrar modal
-		$('#modalInfo').modal("show");
 	}
 
-	$("#formActualizarInfo").on("submit", function(event) {
+	// SMM, 24/02/2023
+	function MostrarModal(ID = "") {
+		if(ID != "") {
+			$("#type").val(2);
+
+			$.ajax({
+				url:"ajx_buscar_datos_json.php",
+				data:{
+					type: 44,
+					id: ID
+				},
+				dataType:'json',
+				success: function(linea){
+					$("#IdLinea").val(ID);
+
+					$("#Estado").val(linea.Estado);
+					$("#Estado").trigger("change");
+
+					$("#Areas").val(linea.Areas);
+					$("#Servicios").val(linea.Servicios);
+					$("#MetodoAplicacion").val(linea.MetodoAplicacion);
+					$("#Observaciones").val(linea.Observaciones);
+				},
+				error: function(error) {
+					console.error("520->", error.responseText);
+				}
+			});
+		} else {
+			$("#type").val(1);
+		}
+
+		// Siempre se muestra el Modal.
+		$('#modalZonasSN').modal("show");
+	}
+
+	$("#modalForm").on("submit", function(event) {
 		event.preventDefault(); // Evitar redirección del formulario
 
 		Swal.fire({
-			title: "¿Está seguro que desea actualizar la linea?",
+			title: "¿Está seguro que desea continuar con la operación?",
 			icon: "question",
 			showCancelButton: true,
 			confirmButtonText: "Si, confirmo",
 			cancelButtonText: "No"
 		}).then((result) => {
 			if (result.isConfirmed) {
-				let ID = $("#IdLinea").val();
+				OperacionModal();
 
-				// Cargando...
-				$('.ibox-content').toggleClass('sk-loading', true);
-
-				let datos = {};
-
-				/*
-				datos.IdSucursal = $("#SucursalCliente").val();
-				datos.Estado = $("#Estado").val();
-				datos.Frecuencia = $("#Frecuencia").val();
-				datos.IdArticuloLMT = $("#ListaLMT").val();
-				*/
-
-				datos.Areas = $("#Areas").val();
-				datos.Servicios = $("#Servicios").val();
-				datos.MetodoAplicacion = $("#MetodoAplicacion").val();
-				datos.Observaciones = $("#Observaciones").val();
-
-				ActualizarDatosModal(datos, ID);
-
-				// Mostrar modal
-				$('#modalInfo').modal("hide");
-
-				// Carga terminada.
-				$('.ibox-content').toggleClass('sk-loading', false);
+				// Ocultar modal.
+				$('#modalZonasSN').modal("hide");
 			}
 		}); // Swal.fire
 	});
