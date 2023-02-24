@@ -253,71 +253,14 @@ function AgregarLMT(){
 									<label class="col-xs-12"><h3 class="bg-success p-xs b-r-sm"><i class="fa fa-ellipsis-h"></i> Acciones</h3></label>
 								</div>
 
-
+								<div class="form-group">
+									<iframe id="DataGrid" name="DataGrid" style="border: 0;" width="100%" height="700" src="detalle_zonas_sn.php?cardcode=<?php echo base64_encode($_GET['Cliente']); ?>&idsucursal=<?php echo base64_encode($_GET['Sucursal']); ?>&periodo=<?php echo base64_encode($Anno); ?>"></iframe>
+								</div>
 							<?php }?>
 						</form>
 					</div>
 				</div>
 			</div>
-         <br>
-			<?php if ($sw == 1) {?>
-				<div class="row">
-					<div class="col-lg-12">
-						<div class="ibox-content">
-							<?php include "includes/spinner.php";?>
-
-							<div class="row">
-								<div class="form-group">
-									<label class="col-xs-12"><h3 class="bg-success p-xs b-r-sm"><i class="fa fa-ellipsis-h"></i> Acciones</h3></label>
-								</div> <!-- form-group -->
-
-								<div class="form-group">
-									<div class="col-lg-2">
-										<div class="btn-group">
-											<button data-toggle="dropdown" class="btn btn-info dropdown-toggle"><i class="fa fa-download"></i> Descargar formato <i class="fa fa-caret-down"></i></button>
-											<ul class="dropdown-menu">
-												<li>
-													<a class="dropdown-item alkin" href="sapdownload.php?type=<?php echo base64_encode('2'); ?>&id=<?php echo base64_encode('19'); ?>&IdCliente=<?php echo $_GET['Cliente']; ?>&IdPeriodo=<?php echo $Anno; ?>&IdSucursal=<?php echo $_GET['Sucursal'] ?? '-1'; ?>&TipoExp=1" target="_blank">PDF</a>
-												</li>
-												<li>
-													<a class="dropdown-item alkin" href="sapdownload.php?type=<?php echo base64_encode('2'); ?>&id=<?php echo base64_encode('19'); ?>&IdCliente=<?php echo $_GET['Cliente']; ?>&IdPeriodo=<?php echo $Anno; ?>&IdSucursal=<?php echo $_GET['Sucursal'] ?? '-1'; ?>&TipoExp=2" target="_blank">Excel</a>
-												</li>
-											</ul>
-										</div> <!-- btn-group-->
-									</div>
-
-									<div class="col-lg-4">
-										<button class="btn btn-warning" id="ActualizarCronograma"><i class="fa fa-refresh"></i> Actualizar cronograma basado en LMT</button>
-
-										<button style="margin-left: 5px;" type="button" class="btn btn-sm btn-circle" data-toggle="tooltip" data-html="true"
-										title="Actualiza de manera masiva los campos de Áreas, Servicios, Método de aplicación de las LMT hacia el Cronograma de Servicios."><i class="fa fa-info"></i></button>
-									</div>
-
-									<div class="col-lg-1">
-										<button type="button" id="btnNuevo" class="btn btn-success" onClick="AgregarLMT();"><i class="fa fa-plus-circle"></i> Adicionar zonas</button>
-									</div>
-								</div>
-							</div> <!-- row -->
-
-							<div class="row m-t-md">
-								<div class="col-lg-12">
-									<div class="tabs-container">
-										<ul class="nav nav-tabs">
-											<li class="active"><a data-toggle="tab" href="#tab-1"><i class="fa fa-list"></i> Contenido</a></li>
-										</ul> <!-- nav-tabs -->
-
-										<div class="tab-content">
-											<div id="tab-1" class="tab-pane active">
-												<iframe id="DataGrid" name="DataGrid" style="border: 0;" width="100%" height="700" src="detalle_zonas_sn.php?cardcode=<?php echo base64_encode($_GET['Cliente']); ?>&idsucursal=<?php echo base64_encode($_GET['Sucursal']); ?>&periodo=<?php echo base64_encode($Anno); ?>"></iframe>
-											</div>
-										</div> <!-- tab-content -->
-									</div> <!-- tabs-container -->
-								</div> <!-- col-lg-12 -->
-							</div> <!-- row m-t-md -->
-						</div> <!-- ibox-content -->
-					</div> <!-- col-lg-12 -->
-				</div> <!-- row -->
-			<?php }?>
         </div> <!-- row -->
 
         <!-- InstanceEndEditable -->
