@@ -26,7 +26,7 @@ if (isset($_GET['cardcode']) && ($_GET['cardcode'] != "")) {
 }
 
 // SMM, 24/02/2023
-$SQL = Seleccionar("tbl_SociosNegocios_Zonas", "*", "[id_socio_negocio]='$CardCodeID'", "[id_zona_sn]");
+$SQL = Seleccionar("uvw_tbl_SociosNegocios_Zonas", "*", "[id_socio_negocio]='$CardCodeID'", "[id_zona_sn]");
 
 // SMM, 25/02/2023
 $msg_error = "";
@@ -170,7 +170,7 @@ if ($type != 0) {
 	var cant=0;
 
 	function BorrarLinea(){
-		if(confirm(String.fromCharCode(191)+'Est'+String.fromCharCode(225)+' seguro que desea eliminar este item? Este proceso no se puede revertir.')){
+		if(confirm('¿Está seguro que desea eliminar este item? Este proceso no se puede revertir.')){
 			$.ajax({
 				type: "GET",
 				url: "includes/procedimientos.php?type=21&linenum="+json,
@@ -180,114 +180,6 @@ if ($type != 0) {
 			});
 		}
 	}
-
-	function DuplicarLinea(LineNum){
-		if(confirm(String.fromCharCode(191)+'Est'+String.fromCharCode(225)+' seguro que desea duplicar este item? El nuevo registro se pondr'+String.fromCharCode(225)+' al final de la tabla.')){
-			$.ajax({
-				type: "GET",
-				url: "includes/procedimientos.php?type=27&linenum="+LineNum,
-				success: function(response){
-					window.location.href="detalle_cronograma_servicios.php?<?php echo $_SERVER['QUERY_STRING']; ?>";
-				}
-			});
-		}
-	}
-
-	function CorregirSuc(LineNum, Val='', Clt=''){
-	//	$('.ibox-content').toggleClass('sk-loading',true);
-		if(Val=='Sucursal no existe'){
-			let select=document.createElement("select");
-			let td=document.getElementById("SucCliente_"+LineNum);
-
-			select.className='form-control';
-			select.id="SelSucCliente_"+LineNum;
-
-			td.innerHTML='';
-			td.appendChild(select);
-
-			$.ajax({
-				type: "POST",
-				url: "ajx_cbo_sucursales_clientes_simple.php?CardCode="+Clt+"&sucline=1&tdir=S&selec=1",
-				success: function(response){
-					$('#SelSucCliente_'+LineNum).html(response);
-					select.addEventListener("change", function(){
-						let value=document.getElementById("SelSucCliente_"+LineNum).value
-						CambiarSuc(LineNum, value);
-					});
-	//				$('#SelSucCliente_'+LineNum).trigger("change");
-	//				$('.ibox-content').toggleClass('sk-loading',false);
-				}
-			});
-		}else{
-			if(confirm('Se cambiar'+String.fromCharCode(225)+' el nombre de la sucursal en el cronograma seg'+String.fromCharCode(250)+'n el que est'+String.fromCharCode(225)+' en el dato maestro.')){
-				$.ajax({
-					type: "GET",
-					url: "includes/procedimientos.php?type=48&linenum="+LineNum,
-					success: function(response){
-						window.location.href="detalle_cronograma_servicios.php?<?php echo $_SERVER['QUERY_STRING']; ?>";
-					}
-				});
-			}
-		}
-
-	}
-
-	function CambiarSuc(LineNum, IdSuc){
-	//	console.log("LineNum", LineNum)
-	//	console.log("IdSuc", IdSuc)
-		$('.ibox-content').toggleClass('sk-loading',true);
-		$.ajax({
-			type: "GET",
-			url: "includes/procedimientos.php?type=48&linenum="+LineNum+"&idsuc="+IdSuc,
-			success: function(response){
-				window.location.href="detalle_cronograma_servicios.php?<?php echo $_SERVER['QUERY_STRING']; ?>";
-			}
-		});
-	}
-
-	function ActualizarDatos(name,id,line){//Actualizar datos asincronicamente
-		$.ajax({
-			type: "GET",
-			url: "registro.php?P=36&doctype=11&type=2&name="+name+"&value="+Base64.encode(document.getElementById(name+id).value)+"&line="+line,
-			success: function(response){
-				if(response!="Error"){
-					window.parent.document.getElementById('TimeAct').innerHTML="<strong>Actualizado:</strong> "+response;
-				}
-			}
-		});
-	}
-
-	function ActualizarDatosModal(datos, linea){
-		console.log(datos);
-
-		let Actualizado = true;
-
-		for (const clave in datos) {
-			if (datos.hasOwnProperty(clave)) {
-				let valor = Base64.encode(datos[clave]);
-				$.ajax({
-					type: "GET",
-					url: `registro.php?P=36&doctype=11&type=2&name=${clave}&value=${valor}&line=${linea}&new=1`,
-					success: function(response) {
-						if(response != "Error") {
-							Actualizado = false;
-						}
-					},
-					error: function(error) {
-						console.error(`Error en Línea 230 con ${key}`);
-						Actualizado = false;
-					}
-				});
-			}
-		}
-
-		if(Actualizado) {
-			Swal.fire("Actualizado", "Se han actualizado todos los campos correctamente.", "success");
-		} else {
-			Swal.fire("Error", "Ocurrió un error durante la actualización.", "error");
-		}
-	}
-
 
 	function Seleccionar(ID){
 		var btnBorrarLineas=document.getElementById('btnBorrarLineas');
@@ -310,9 +202,9 @@ if ($type != 0) {
 			cant++;
 		}
 		if(cant>0){
-			$("#btnBorrarLineas").removeClass("disabled");
+			$("#btnBorrarLineas").prop('disabled', false);
 		}else{
-			$("#btnBorrarLineas").addClass("disabled");
+			$("#btnBorrarLineas").prop('disabled', true);
 		}
 
 		//console.log(json);
@@ -323,25 +215,13 @@ if ($type != 0) {
 		if(Check==false){
 			json=[];
 			cant=0;
-			$("#btnBorrarLineas").addClass("disabled");
+			$("#btnBorrarLineas").prop('disabled', true);
 		}
-		$(".chkSel").prop("checked", Check);
+		$(".chkSel:not(:disabled)").prop("checked", Check);
+
 		if(Check){
-			$(".chkSel").trigger('change');
+			$(".chkSel:not(:disabled)").trigger('change');
 		}
-	}
-
-	function ConsultarArticulo(Articulo){
-		if(Articulo.value!=""){
-			self.name='opener';
-			remote=open('articulos.php?id='+Articulo+'&ext=1&tl=1','remote','location=no,scrollbar=yes,menubars=no,toolbars=no,resizable=yes,fullscreen=yes,status=yes');
-			remote.focus();
-		}
-	}
-
-	function Resaltar(ID){
-		$("input").removeClass('bg-success');
-		$("#"+ID).find("input").addClass('bg-success');
 	}
 </script>
 
@@ -472,19 +352,21 @@ if ($type != 0) {
 						<table width="100%" class="table table-bordered dataTables-example">
 							<thead>
 								<tr>
-									<th class="text-center form-inline w-80"><div class="checkbox checkbox-success"><input type="checkbox" id="chkAll" value="" onChange="SeleccionarTodos();" title="Seleccionar todos"><label></label></div> <button type="button" id="btnBorrarLineas" title="Borrar lineas" class="btn btn-danger btn-xs disabled" onClick="BorrarLinea();"><i class="fa fa-trash"></i></button></th>
+									<th class="text-center form-inline w-80">
+										<div class="checkbox checkbox-success"><input type="checkbox" id="chkAll" value="" onChange="SeleccionarTodos();" title="Seleccionar todos"><label></label></div>
+										<button type="button" id="btnBorrarLineas" title="Borrar lineas" class="btn btn-danger btn-xs" disabled onClick="BorrarLinea();"><i class="fa fa-trash"></i></button>
+									</th>
+
 									<th>&nbsp;</th>
 									<th>ID Zona</th>
 									<th>Zona</th>
-									<th>ID Socio Negocio</th>
 									<th>Socio Negocio</th>
-									<th>ID Consecutivo Dirección</th>
 									<th>ID Dirección Destino</th>
 									<th>Dirección Destino</th>
 									<th>Estado</th>
 									<th>Observaciones</th>
 									<th>Fecha Actualización</th>
-									<th>ID Usuario Actualización</th>
+									<th>Usuario Actualización</th>
 								</tr>
 							</thead>
 
@@ -493,21 +375,19 @@ if ($type != 0) {
 								<tr>
 									<td class="text-center">
 										<div class="checkbox checkbox-success no-margins">
-											<input type="checkbox" class="chkSel" id="chkSel<?php echo $row['ID']; ?>" value="" onChange="Seleccionar('<?php echo $row['ID']; ?>');" aria-label="Single checkbox One"><label></label>
+											<input type="checkbox" class="chkSel" id="chkSel<?php echo $row['id_zona_sn']; ?>" value="" onChange="Seleccionar('<?php echo $row['id_zona_sn']; ?>');" aria-label="Single checkbox One"><label></label>
 										</div>
 									</td>
 
 									<td class="text-center form-inline w-80">
-										<button type="button" title="Actualizar información de la LMT" class="btn btn-warning btn-xs" onClick="ActualizarLinea(<?php echo $row['ID']; ?>);"><i class="fa fa-refresh"></i></button>
-										<button type="button" title="Más información" class="btn btn-info btn-xs" onClick="InfoLinea(<?php echo $row['ID']; ?>);"><i class="fa fa-info"></i></button>
-										<button type="button" title="Duplicar linea" class="btn btn-success btn-xs" onClick="DuplicarLinea(<?php echo $row['ID']; ?>);"><i class="fa fa-copy"></i></button>
+										<button type="button" title="Actualizar información de la LMT" class="btn btn-warning btn-xs" onClick="ActualizarLinea(<?php echo $row['id_zona_sn']; ?>);"><i class="fa fa-refresh"></i></button>
+										<button type="button" title="Más información" class="btn btn-info btn-xs" onClick="InfoLinea(<?php echo $row['id_zona_sn']; ?>);"><i class="fa fa-info"></i></button>
+										<button type="button" title="Duplicar linea" class="btn btn-success btn-xs" onClick="DuplicarLinea(<?php echo $row['id_zona_sn']; ?>);"><i class="fa fa-copy"></i></button>
 									</td>
 
 									<td><?php echo $row['id_zona_sn']; ?></td>
 									<td><?php echo $row['zona_sn']; ?></td>
-									<td><?php echo $row['id_socio_negocio']; ?></td>
 									<td><?php echo $row['socio_negocio']; ?></td>
-									<td><?php echo $row['id_consecutivo_direccion']; ?></td>
 									<td><?php echo $row['id_direccion_destino']; ?></td>
 									<td><?php echo $row['direccion_destino']; ?></td>
 
@@ -520,7 +400,7 @@ if ($type != 0) {
 									<td><?php echo $row['observaciones']; ?></td>
 
 									<td><?php echo isset($row['fecha_actualizacion']) ? date_format($row['fecha_actualizacion'], 'Y-m-d H:i:s') : ""; ?></td>
-									<td><?php echo $row['id_usuario_actualizacion']; ?></td>
+									<td><?php echo $row['usuario_actualizacion']; ?></td>
 								</tr>
 								<?php }?>
 							</tbody>
