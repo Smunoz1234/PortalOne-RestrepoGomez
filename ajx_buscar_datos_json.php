@@ -620,6 +620,20 @@ if ((isset($_GET['type']) && ($_GET['type'] != "")) || (isset($_POST['type']) &&
             "Observaciones" => $row["Observaciones"],
         );
         echo json_encode($records);
+    } elseif ($type == 45) { // Consultar una zona de socio de negocio en particular. SMM, 25/02/2023
+        $SQL = Seleccionar("uvw_tbl_SociosNegocios_Zonas", "*", "[id_zona_sn]='" . $_GET['id'] . "'");
+        $records = array();
+        $row = sqlsrv_fetch_array($SQL);
+        $records = array(
+            "id_zona_sn" => $row["id_zona_sn"],
+            "zona_sn" => $row["zona_sn"],
+            "id_socio_negocio" => $row["id_socio_negocio"],
+            "id_consecutivo_direccion" => $row["id_consecutivo_direccion"],
+            "estado" => $row["estado"],
+            "observaciones" => $row["observaciones"],
+        );
+        echo json_encode($records);
     }
+
     sqlsrv_close($conexion);
 }

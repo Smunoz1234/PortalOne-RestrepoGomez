@@ -4,11 +4,6 @@ require_once "includes/conexion.php";
 $CardCodeID = "";
 $SucursalSN = "";
 
-// SMM, 24/02/2023
-if (isset($_GET['idsucursal']) && ($_GET['idsucursal'] != "")) {
-    $SucursalSN = "AND [id_consecutivo_direccion]='" . base64_decode($_GET['idsucursal']) . "'";
-}
-
 // SMM, 24/02/2022
 $SQL_SucursalSN = "";
 if (isset($_GET['cardcode']) && ($_GET['cardcode'] != "")) {
@@ -26,7 +21,13 @@ if (isset($_GET['cardcode']) && ($_GET['cardcode'] != "")) {
 }
 
 // SMM, 24/02/2023
-$SQL = Seleccionar("uvw_tbl_SociosNegocios_Zonas", "*", "[id_socio_negocio]='$CardCodeID'", "[id_zona_sn]");
+$WhereSucursalSN = "";
+if (isset($_GET['idsucursal']) && ($_GET['idsucursal'] != "")) {
+    $WhereSucursalSN = "AND [id_consecutivo_direccion]='" . base64_decode($_GET['idsucursal']) . "'";
+}
+
+// SMM, 24/02/2023
+$SQL = Seleccionar("uvw_tbl_SociosNegocios_Zonas", "*", "[id_socio_negocio]='$CardCodeID' $WhereSucursalSN", "[id_zona_sn]");
 
 // SMM, 25/02/2023
 $msg_error = "";
@@ -166,62 +167,63 @@ if ($type != 0) {
 </style>
 
 <script>
-	var json=[];
-	var cant=0;
+	var json = [];
+	var cant = 0;
 
-	function BorrarLinea(){
-		if(confirm('¿Está seguro que desea eliminar este item? Este proceso no se puede revertir.')){
-			$.ajax({
-				type: "GET",
-				url: "includes/procedimientos.php?type=21&linenum="+json,
-				success: function(response){
-					window.location.href="detalle_cronograma_servicios.php?<?php echo $_SERVER['QUERY_STRING']; ?>";
-				}
-			});
-		}
-	}
+	// SMM, 25/02/2023
+	function Seleccionar(ID) {
+		let check = document.getElementById('chkSel' + ID).checked;
 
-	function Seleccionar(ID){
-		var btnBorrarLineas=document.getElementById('btnBorrarLineas');
-		var Check = document.getElementById('chkSel'+ID).checked;
-		var sw=-1;
-		json.forEach(function(element,index){
-	//		console.log(element,index);
-	//		console.log(json[index])deta
-			if(json[index]==ID){
-				sw=index;
-			}
-
+		let index = json.findIndex(function(element) {
+			return element == ID;
 		});
 
-		if(sw>=0){
-			json.splice(sw, 1);
+		if (index >= 0) {
+			json.splice(index, 1);
 			cant--;
-		}else if(Check){
-			json.push(ID);
-			cant++;
-		}
-		if(cant>0){
-			$("#btnBorrarLineas").prop('disabled', false);
-		}else{
-			$("#btnBorrarLineas").prop('disabled', true);
+		} else {
+			check ? json.push(ID) : null;
+			cant += check ? 1 : 0;
 		}
 
-		//console.log(json);
+		$("#btnBorrarLineas").prop('disabled', cant <= 0);
 	}
 
-	function SeleccionarTodos(){
-		var Check = document.getElementById('chkAll').checked;
-		if(Check==false){
-			json=[];
-			cant=0;
+	// SMM, 25/02/2023
+	function SeleccionarTodos() {
+		let checkAll = document.getElementById('chkAll');
+		let isChecked = checkAll.checked;
+		let chkSel = $(".chkSel:not(:disabled)");
+
+		if(!isChecked) {
+			json = [];
+			cant = 0;
+
 			$("#btnBorrarLineas").prop('disabled', true);
 		}
-		$(".chkSel:not(:disabled)").prop("checked", Check);
 
-		if(Check){
-			$(".chkSel:not(:disabled)").trigger('change');
+		chkSel.prop("checked", isChecked);
+
+		if(isChecked) {
+			chkSel.trigger('change');
 		}
+	}
+
+	// SMM, 25/02/2023
+	function BorrarLineas() {
+		Swal.fire({
+			title: '¿Está seguro que desea eliminar los registros seleccionados?',
+			text: "Esta acción no se puede deshacer.",
+			icon: 'warning',
+			showCancelButton: true,
+			confirmButtonText: 'Sí, eliminar'
+		}).then((result) => {
+			if (result.isConfirmed) {
+				json.forEach(function(id) {
+					OperacionModal(id);
+				});
+			}
+		});
 	}
 </script>
 
@@ -329,7 +331,7 @@ if ($type != 0) {
 		</div>
 
 		<div class="col-lg-1">
-			<button type="button" id="btnNuevo" class="btn btn-success" onClick="MostrarModal();"><i class="fa fa-plus-circle"></i> Adicionar zonas</button>
+			<button type="button" id="btnNuevo" class="btn btn-success" onclick="MostrarModal();"><i class="fa fa-plus-circle"></i> Adicionar zonas</button>
 		</div>
 	</div> <!-- form-group -->
 
@@ -353,8 +355,8 @@ if ($type != 0) {
 							<thead>
 								<tr>
 									<th class="text-center form-inline w-80">
-										<div class="checkbox checkbox-success"><input type="checkbox" id="chkAll" value="" onChange="SeleccionarTodos();" title="Seleccionar todos"><label></label></div>
-										<button type="button" id="btnBorrarLineas" title="Borrar lineas" class="btn btn-danger btn-xs" disabled onClick="BorrarLinea();"><i class="fa fa-trash"></i></button>
+										<div class="checkbox checkbox-success"><input type="checkbox" id="chkAll" value="" onchange="SeleccionarTodos();" title="Seleccionar todos"><label></label></div>
+										<button type="button" id="btnBorrarLineas" title="Borrar lineas" class="btn btn-danger btn-xs" disabled onclick="BorrarLineas();"><i class="fa fa-trash"></i></button>
 									</th>
 
 									<th>&nbsp;</th>
@@ -375,14 +377,12 @@ if ($type != 0) {
 								<tr>
 									<td class="text-center">
 										<div class="checkbox checkbox-success no-margins">
-											<input type="checkbox" class="chkSel" id="chkSel<?php echo $row['id_zona_sn']; ?>" value="" onChange="Seleccionar('<?php echo $row['id_zona_sn']; ?>');" aria-label="Single checkbox One"><label></label>
+											<input type="checkbox" class="chkSel" id="chkSel<?php echo $row['id_zona_sn']; ?>" value="" onchange="Seleccionar('<?php echo $row['id_zona_sn']; ?>');" aria-label="Single checkbox One"><label></label>
 										</div>
 									</td>
 
 									<td class="text-center form-inline w-80">
-										<button type="button" title="Actualizar información de la LMT" class="btn btn-warning btn-xs" onClick="ActualizarLinea(<?php echo $row['id_zona_sn']; ?>);"><i class="fa fa-refresh"></i></button>
-										<button type="button" title="Más información" class="btn btn-info btn-xs" onClick="InfoLinea(<?php echo $row['id_zona_sn']; ?>);"><i class="fa fa-info"></i></button>
-										<button type="button" title="Duplicar linea" class="btn btn-success btn-xs" onClick="DuplicarLinea(<?php echo $row['id_zona_sn']; ?>);"><i class="fa fa-copy"></i></button>
+										<button type="button" title="Editar información" class="btn btn-warning btn-xs" onclick="MostrarModal('<?php echo $row['id_zona_sn']; ?>');"><i class="fa fa-pencil"></i></button>
 									</td>
 
 									<td><?php echo $row['id_zona_sn']; ?></td>
@@ -414,13 +414,13 @@ if ($type != 0) {
 
 <script>
 	// SMM, 24/02/2023
-	function OperacionModal() {
+	function OperacionModal(ID = "") {
 		$.ajax({
 			type: "POST",
 			url: "detalle_zonas_sn.php",
 			data: {
-				type: $("#Type").val(),
-				id_zona_sn: $("#IDZonaSN").val(),
+				type: (ID == "") ? $("#Type").val() : 3,
+				id_zona_sn: (ID == "") ? $("#IDZonaSN").val() : ID,
 				zona_sn: $("#ZonaSN").val(),
 				id_socio_negocio: $("#IDSocioNegocio").val(),
 				socio_negocio: "",
@@ -442,44 +442,42 @@ if ($type != 0) {
 				});
 			},
 			error: function(error) {
-				console.error("560->", error.responseText);
+				console.error("445->", error.responseText);
 			}
 		});
 	}
 
-	// SMM, 24/02/2023
+	// SMM, 25/02/2023
 	function MostrarModal(ID = "") {
 		if(ID != "") {
-			$("#Type").val(2);
-
 			$.ajax({
 				url:"ajx_buscar_datos_json.php",
 				data:{
-					type: 44,
+					type: 45,
 					id: ID
 				},
 				dataType:'json',
-				success: function(linea){
-					$("#IdLinea").val(ID);
+				success: function(linea) {
+					console.log(linea);
 
-					$("#Estado").val(linea.Estado);
-					$("#Estado").trigger("change");
+					$("#IDZonaSN").val(linea.id_zona_sn);
+					$("#ZonaSN").val(linea.zona_sn);
+					$("#IDSocioNegocio").val(linea.id_socio_negocio);
+					$("#SucursalSN").val(linea.id_consecutivo_direccion);
+					$("#Estado").val(linea.estado);
+					$("#Observaciones").val(linea.observaciones);
 
-					$("#Areas").val(linea.Areas);
-					$("#Servicios").val(linea.Servicios);
-					$("#MetodoAplicacion").val(linea.MetodoAplicacion);
-					$("#Observaciones").val(linea.Observaciones);
+					$("#Type").val(2);
+					$('#modalZonasSN').modal("show");
 				},
 				error: function(error) {
-					console.error("520->", error.responseText);
+					console.error("470->", error.responseText);
 				}
 			});
 		} else {
 			$("#Type").val(1);
+			$('#modalZonasSN').modal("show");
 		}
-
-		// Siempre se muestra el Modal.
-		$('#modalZonasSN').modal("show");
 	}
 
 	$("#modalForm").on("submit", function(event) {
