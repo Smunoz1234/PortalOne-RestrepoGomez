@@ -8,8 +8,8 @@ $edit = isset($_POST['edit']) ? $_POST['edit'] : 0;
 $doc = isset($_POST['doc']) ? $_POST['doc'] : "";
 $id = isset($_POST['id']) ? $_POST['id'] : "";
 
-$SQL_CategoriasModal = Seleccionar('tbl_ConsultasSAPB1_Categorias', '*');
-$SQL_ConsultasModal = Seleccionar('tbl_ConsultasSAPB1_Consultas', '*');
+$SQL_FamiliasModal = Seleccionar('tbl_PuntoControl', '*');
+$SQL_IconosModal = Seleccionar('tbl_PuntoControl_Iconos', '*');
 
 $ids_perfiles = array();
 $SQL_PerfilesUsuarios = Seleccionar('uvw_tbl_PerfilesUsuarios', '*');
@@ -18,14 +18,14 @@ if ($edit == 1 && $id != "") {
     $Title = "Editar registro";
     $Metodo = 2;
 
-    if ($doc == "Categoria") {
-        $SQL = Seleccionar('tbl_ConsultasSAPB1_Categorias', '*', "ID='" . $id . "'");
+    if ($doc == "Familia") {
+        $SQL = Seleccionar('tbl_PuntoControl', '*', "ID='" . $id . "'");
         $row = sqlsrv_fetch_array($SQL);
-    } elseif ($doc == "Consulta") {
-        $SQL = Seleccionar('tbl_ConsultasSAPB1_Consultas', '*', "ID='" . $id . "'");
+    } elseif ($doc == "Icono") {
+        $SQL = Seleccionar('tbl_PuntoControl_Iconos', '*', "ID='" . $id . "'");
         $row = sqlsrv_fetch_array($SQL);
-    } elseif ($doc == "Entrada") {
-        $SQL = Seleccionar('tbl_ConsultasSAPB1_Entradas', '*', "ID='" . $id . "'");
+    } elseif ($doc == "Tipo") {
+        $SQL = Seleccionar('tbl_PuntoControl_Tipos', '*', "ID='" . $id . "'");
         $row = sqlsrv_fetch_array($SQL);
     }
 
@@ -48,7 +48,7 @@ $SQL_Lista = sqlsrv_query($conexion, $Cons_Lista);
 	}
 </style>
 
-<form id="frm_NewParam" method="post" action="parametros_consultas_sap.php" enctype="multipart/form-data">
+<form id="frm_NewParam" method="post" action="parametros_Iconos_sap.php" enctype="multipart/form-data">
 
 <div class="modal-header">
 	<h4 class="modal-title">
@@ -61,13 +61,13 @@ $SQL_Lista = sqlsrv_query($conexion, $Cons_Lista);
 		<div class="ibox-content">
 			<?php include "includes/spinner.php";?>
 
-			<?php if ($doc == "Categoria") {?>
+			<?php if ($doc == "Familia") {?>
 
-				<!-- Inicio Categoria -->
+				<!-- Inicio Familia -->
 				<div class="form-group">
 					<div class="col-md-6">
-						<label class="control-label">Nombre Categoria <span class="text-danger">*</span></label>
-						<input type="text" class="form-control" autocomplete="off" required name="NombreCategoria" id="NombreCategoria" value="<?php if ($edit == 1) {echo $row['NombreCategoria'];}?>">
+						<label class="control-label">Nombre Familia <span class="text-danger">*</span></label>
+						<input type="text" class="form-control" autocomplete="off" required name="NombreFamilia" id="NombreFamilia" value="<?php if ($edit == 1) {echo $row['NombreFamilia'];}?>">
 					</div>
 					<div class="col-md-6">
 						<label class="control-label">Estado <span class="text-danger">*</span></label>
@@ -81,11 +81,11 @@ $SQL_Lista = sqlsrv_query($conexion, $Cons_Lista);
 				<br><br><br><br>
 				<div class="form-group">
 					<div class="col-md-12">
-						<label class="control-label">Categoria Padre</label>
-						<select name="ID_CategoriaPadre" class="form-control select2" id="ID_CategoriaPadre">
+						<label class="control-label">Familia Padre</label>
+						<select name="ID_FamiliaPadre" class="form-control select2" id="ID_FamiliaPadre">
 							<option value="">[Raíz]</option>
-							<?php while ($row_CategoriaModal = sqlsrv_fetch_array($SQL_CategoriasModal)) {?>
-								<option value="<?php echo $row_CategoriaModal['ID']; ?>" <?php if ((isset($row['ID_CategoriaPadre'])) && (strcmp($row_CategoriaModal['ID'], $row['ID_CategoriaPadre']) == 0)) {echo "selected=\"selected\"";}?>><?php echo $row_CategoriaModal['NombreCategoria']; ?></option>
+							<?php while ($row_FamiliaModal = sqlsrv_fetch_array($SQL_FamiliasModal)) {?>
+								<option value="<?php echo $row_FamiliaModal['ID']; ?>" <?php if ((isset($row['ID_FamiliaPadre'])) && (strcmp($row_FamiliaModal['ID'], $row['ID_FamiliaPadre']) == 0)) {echo "selected=\"selected\"";}?>><?php echo $row_FamiliaModal['NombreFamilia']; ?></option>
 							<?php }?>
 						</select>
 					</div>
@@ -114,18 +114,18 @@ $SQL_Lista = sqlsrv_query($conexion, $Cons_Lista);
 					</div>
 				</div>
 				<br><br>
-				<!-- Fin Categoria -->
+				<!-- Fin Familia -->
 
-			<?php } elseif ($doc == "Consulta") {?>
+			<?php } elseif ($doc == "Icono") {?>
 
-				<!-- Inicio Consulta -->
+				<!-- Inicio Icono -->
 				<div class="form-group">
 					<div class="col-md-6">
-						<label class="control-label">Categoria <span class="text-danger">*</span></label>
-						<select name="ID_Categoria" class="form-control select2" id="ID_Categoria" required>
+						<label class="control-label">Familia <span class="text-danger">*</span></label>
+						<select name="ID_Familia" class="form-control select2" id="ID_Familia" required>
 							<option value="" disabled selected>Seleccione...</option>
-							<?php while ($row_CategoriaModal = sqlsrv_fetch_array($SQL_CategoriasModal)) {?>
-								<option value="<?php echo $row_CategoriaModal['ID']; ?>" <?php if ((isset($row['ID_Categoria'])) && (strcmp($row_CategoriaModal['ID'], $row['ID_Categoria']) == 0)) {echo "selected=\"selected\"";}?>><?php echo $row_CategoriaModal['NombreCategoria']; ?></option>
+							<?php while ($row_FamiliaModal = sqlsrv_fetch_array($SQL_FamiliasModal)) {?>
+								<option value="<?php echo $row_FamiliaModal['ID']; ?>" <?php if ((isset($row['ID_Familia'])) && (strcmp($row_FamiliaModal['ID'], $row['ID_Familia']) == 0)) {echo "selected=\"selected\"";}?>><?php echo $row_FamiliaModal['NombreFamilia']; ?></option>
 							<?php }?>
 						</select>
 					</div>
@@ -142,12 +142,12 @@ $SQL_Lista = sqlsrv_query($conexion, $Cons_Lista);
 				<div class="form-group">
 					<div class="col-md-6">
 						<label class="control-label">Procedimiento <span class="text-danger">*</span></label>
-						<input type="text" class="form-control" autocomplete="off" required name="ProcedimientoConsulta" id="ProcedimientoConsulta" value="<?php if ($edit == 1) {echo $row['ProcedimientoConsulta'];}?>">
+						<input type="text" class="form-control" autocomplete="off" required name="ProcedimientoIcono" id="ProcedimientoIcono" value="<?php if ($edit == 1) {echo $row['ProcedimientoIcono'];}?>">
 					</div>
 
 					<div class="col-md-6">
 						<label class="control-label">Etiqueta <span class="text-danger">*</span></label>
-						<input type="text" class="form-control" autocomplete="off" name="EtiquetaConsulta" id="EtiquetaConsulta" value="<?php if ($edit == 1) {echo $row['EtiquetaConsulta'];}?>">
+						<input type="text" class="form-control" autocomplete="off" name="EtiquetaIcono" id="EtiquetaIcono" value="<?php if ($edit == 1) {echo $row['EtiquetaIcono'];}?>">
 					</div>
 				</div>
 
@@ -155,7 +155,7 @@ $SQL_Lista = sqlsrv_query($conexion, $Cons_Lista);
 				<div class="form-group">
 					<div class="col-md-12">
 						<label class="control-label">Parámetros</label>
-						<input type="text" class="form-control" autocomplete="off" data-role="tagsinput" name="ParametrosEntrada" id="ParametrosEntrada" value="<?php if ($edit == 1) {echo $row['ParametrosEntrada'];}?>" placeholder= "Ingrese una entrada y utilice la tecla [ESP] para agregar">
+						<input type="text" class="form-control" autocomplete="off" data-role="tagsinput" name="ParametrosTipo" id="ParametrosTipo" value="<?php if ($edit == 1) {echo $row['ParametrosTipo'];}?>" placeholder= "Ingrese una Tipo y utilice la tecla [ESP] para agregar">
 					</div>
 				</div>
 
@@ -182,18 +182,18 @@ $SQL_Lista = sqlsrv_query($conexion, $Cons_Lista);
 					</div>
 				</div>
 				<br><br>
-				<!-- Fin Consulta -->
+				<!-- Fin Icono -->
 
-			<?php } elseif ($doc == "Entrada") {?>
+			<?php } elseif ($doc == "Tipo") {?>
 
-				<!-- Inicio Entrada -->
+				<!-- Inicio Tipo -->
 				<div class="form-group">
 					<div class="col-md-6">
-						<label class="control-label">Consulta <span class="text-danger">*</span></label>
-						<select name="ID_Consulta" class="form-control select2" id="ID_Consulta" required>
+						<label class="control-label">Icono <span class="text-danger">*</span></label>
+						<select name="ID_Icono" class="form-control select2" id="ID_Icono" required>
 							<option value="" disabled selected>Seleccione...</option>
-							<?php while ($row_ConsultaModal = sqlsrv_fetch_array($SQL_ConsultasModal)) {?>
-								<option value="<?php echo $row_ConsultaModal['ID']; ?>" <?php if ((isset($row['ID_Consulta'])) && (strcmp($row_ConsultaModal['ID'], $row['ID_Consulta']) == 0)) {echo "selected=\"selected\"";}?>><?php echo $row_ConsultaModal['ProcedimientoConsulta']; ?></option>
+							<?php while ($row_IconoModal = sqlsrv_fetch_array($SQL_IconosModal)) {?>
+								<option value="<?php echo $row_IconoModal['ID']; ?>" <?php if ((isset($row['ID_Icono'])) && (strcmp($row_IconoModal['ID'], $row['ID_Icono']) == 0)) {echo "selected=\"selected\"";}?>><?php echo $row_IconoModal['ProcedimientoIcono']; ?></option>
 							<?php }?>
 						</select>
 					</div>
@@ -211,15 +211,15 @@ $SQL_Lista = sqlsrv_query($conexion, $Cons_Lista);
 				<div class="form-group">
 					<div class="col-md-6">
 						<label class="control-label">Parámetro <span class="text-danger">*</span></label>
-						<select name="ParametroEntrada" class="form-control" id="ParametroEntrada" required>
+						<select name="ParametroTipo" class="form-control" id="ParametroTipo" required>
 							<option value="">Seleccione...</option>
-							<!-- Las demás opciones dependen de la consulta -->
+							<!-- Las demás opciones dependen de la Icono -->
 						</select>
 					</div>
 
 					<div class="col-md-6">
 						<label class="control-label">Etiqueta <span class="text-danger">*</span></label>
-						<input type="text" class="form-control" autocomplete="off" required name="EtiquetaEntrada" id="EtiquetaEntrada" value="<?php if ($edit == 1) {echo $row['EtiquetaEntrada'];}?>">
+						<input type="text" class="form-control" autocomplete="off" required name="EtiquetaTipo" id="EtiquetaTipo" value="<?php if ($edit == 1) {echo $row['EtiquetaTipo'];}?>">
 					</div>
 				</div>
 
@@ -309,7 +309,7 @@ $SQL_Lista = sqlsrv_query($conexion, $Cons_Lista);
 					</div>
 				</div>
 				<br><br>
-				<!-- Fin Entrada -->
+				<!-- Fin Tipo -->
 
 			<?php }?>
 		</div> <!-- ibox-content -->
@@ -399,14 +399,14 @@ $(document).ready(function() {
 		});
 	});
 
-	// Cargar entradas dependiendo de la consulta.
-	$("#ID_Consulta").on("change", function() {
+	// Cargar Tipos dependiendo de la Icono.
+	$("#ID_Icono").on("change", function() {
 		$.ajax({
 			type: "POST",
-			url: `ajx_cbo_select.php?type=44&id=${$(this).val()}&input=<?php echo $row['ParametroEntrada'] ?? ""; ?>`,
+			url: `ajx_cbo_select.php?type=44&id=${$(this).val()}&input=<?php echo $row['ParametroTipo'] ?? ""; ?>`,
 			success: function(response){
-				$('#ParametroEntrada').html(response).fadeIn();
-				$('#ParametroEntrada').trigger('change');
+				$('#ParametroTipo').html(response).fadeIn();
+				$('#ParametroTipo').trigger('change');
 			}
 		});
 	});
@@ -415,7 +415,7 @@ $(document).ready(function() {
 	<?php if (($edit == 1) && ($id != "")) {?>
 		$('#VistaLista').trigger('change');
 
-		$('#ID_Consulta').trigger('change');
+		$('#ID_Icono').trigger('change');
 		$('#TipoCampo').trigger('change');
 	<?php }?>
  });

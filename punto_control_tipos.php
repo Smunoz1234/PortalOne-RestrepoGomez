@@ -157,8 +157,6 @@ if ((isset($_POST['frmType']) && ($_POST['frmType'] != "")) || (isset($_POST['Me
 
 }
 
-$SQL_Perfiles = Seleccionar('uvw_tbl_PerfilesUsuarios', '*');
-
 // SMM, 27/02/2023
 $SQL_Familias = Seleccionar("tbl_PuntoControl", "*");
 $SQL_Iconos = Seleccionar("tbl_PuntoControl_Iconos", "*");
@@ -309,46 +307,43 @@ if (isset($sw_error) && ($sw_error == 1)) {
 													<table class="table table-striped table-bordered table-hover dataTables-example">
 														<thead>
 															<tr>
-																<th>Familia Padre</th>
-																<th>Nombre Categoría</th>
-																<th>Perfiles</th>
-																<th>Comentarios</th>
-																<th>Fecha Actualizacion</th>
-																<th>Usuario Actualizacion</th>
+																<th>ID Punto Control</th>
+																<th>Punto Control</th>
+																<th>Descripción Punto Control</th>
+																<th>ID Tipo Punto Control</th>
+																<th>Socio Negocio</th>
+																<th>ID Dirección Destino</th>
+																<th>Dirección Destino</th>
+																<th>ID Zona</th>
+																<th>Zona</th>
 																<th>Estado</th>
+																<th>Fecha Actualización</th>
+																<th>Usuario Actualización</th>
 																<th>Acciones</th>
 															</tr>
 														</thead>
 														<tbody>
 															 <?php while ($row_Familia = sqlsrv_fetch_array($SQL_Familias)) {?>
 															<tr>
-																<td><?php echo ($row_Familia['FamiliaPadre'] == "") ? "[Raíz]" : $row_Familia['FamiliaPadre']; ?></td>
-																<td><?php echo $row_Familia['NombreFamilia']; ?></td>
+																<td><?php echo $row['id_punto_control']; ?></td>
+																<td><?php echo $row['punto_control']; ?></td>
+																<td><?php echo $row['descripcion_punto_control']; ?></td>
+																<td><?php echo $row['id_tipo_punto_control']; ?></td>
+																<td><?php echo $row['socio_negocio']; ?></td>
+																<td><?php echo $row['id_direccion_destino']; ?></td>
+																<td><?php echo $row['direccion_destino']; ?></td>
+																<td><?php echo $row['id_zona_sn']; ?></td>
+																<td><?php echo $row['zona_sn']; ?></td>
 
 																<td>
-																	<?php sqlsrv_fetch($SQL_Perfiles, SQLSRV_SCROLL_ABSOLUTE, -1);?>
-																	<?php $ids_perfiles = explode(";", $row_Familia['Perfiles']);?>
-
-																	<?php echo ($row_Familia['Perfiles'] == "") ? "(Todos)" : ""; ?>
-
-																	<?php while ($row_Perfil = sqlsrv_fetch_array($SQL_Perfiles)) {?>
-																		<?php if (in_array($row_Perfil['ID_PerfilUsuario'], $ids_perfiles)) {?>
-																			<div style="margin: 10px !important;">
-																				<p class="label label-secondary"><?php echo $row_Perfil['PerfilUsuario']; ?></p>
-																			</div>
-																		<?php }?>
-																	<?php }?>
-																</td>
-
-																<td><?php echo $row_Familia['Comentarios']; ?></td>
-
-																<td><?php echo isset($row_Familia['fecha_actualizacion']) ? date_format($row_Familia['fecha_actualizacion'], 'Y-m-d H:i:s') : ""; ?></td>
-																<td><?php echo $row_Familia['usuario_actualizacion']; ?></td>
-																<td>
-																	<span class="label <?php echo ($row_Familia['Estado'] == "Y") ? "label-info" : "label-danger"; ?>">
-																		<?php echo ($row_Familia['Estado'] == "Y") ? "Activo" : "Inactivo"; ?>
+																	<span class="badge <?php echo ($row['estado'] == "Y") ? "badge-primary" : "badge-danger"; ?>">
+																		<?php echo ($row['estado'] == "Y") ? "Activo" : "Inactivo"; ?>
 																	</span>
 																</td>
+
+																<td><?php echo isset($row['fecha_actualizacion']) ? date_format($row['fecha_actualizacion'], 'Y-m-d H:i:s') : ""; ?></td>
+																<td><?php echo $row['usuario_actualizacion']; ?></td>
+
 																<td>
 																	<button type="button" id="btnEdit<?php echo $row_Familia['ID']; ?>" class="btn btn-success btn-xs" onClick="EditarCampo('<?php echo $row_Familia['ID']; ?>','Familia');"><i class="fa fa-pencil"></i> Editar</button>
 																	<button type="button" id="btnDelete<?php echo $row_Familia['ID']; ?>" class="btn btn-danger btn-xs" onClick="EliminarCampo('<?php echo $row_Familia['ID']; ?>','Familia');"><i class="fa fa-trash"></i> Eliminar</button>
@@ -384,50 +379,22 @@ if (isset($sw_error) && ($sw_error == 1)) {
 													<table class="table table-striped table-bordered table-hover dataTables-example">
 														<thead>
 															<tr>
-																<th>Categoría</th>
-																<th>Procedimiento (Icono)</th>
-																<th>Etiqueta</th>
-																<th>Parámetros de Tipo</th>
-																<th>Perfiles</th>
-																<th>Comentarios</th>
+																<th>ID Icono</th>
+																<th>Icono</th>
 																<th>Fecha Actualizacion</th>
 																<th>Usuario Actualizacion</th>
-																<th>Estado</th>
 																<th>Acciones</th>
 															</tr>
 														</thead>
 														<tbody>
 															 <?php while ($row_Icono = sqlsrv_fetch_array($SQL_Iconos)) {?>
 															<tr>
-																<td><?php echo $row_Icono['Familia']; ?></td>
-																<td><?php echo $row_Icono['ProcedimientoIcono']; ?></td>
-																<td><?php echo $row_Icono['EtiquetaIcono']; ?></td>
-																<td><?php echo $row_Icono['ParametrosTipo']; ?></td>
+																<td><?php echo $row_Icono['ID Icono']; ?></td>
+																<td><?php echo $row_Icono['Icono']; ?></td>
 
-																<td>
-																	<?php sqlsrv_fetch($SQL_Perfiles, SQLSRV_SCROLL_ABSOLUTE, -1);?>
-																	<?php $ids_perfiles = explode(";", $row_Icono['Perfiles']);?>
+																<td><?php echo isset($row['fecha_actualizacion']) ? date_format($row['fecha_actualizacion'], 'Y-m-d H:i:s') : ""; ?></td>
+																<td><?php echo $row['usuario_actualizacion']; ?></td>
 
-																	<?php echo ($row_Icono['Perfiles'] == "") ? "(Todos)" : ""; ?>
-
-																	<?php while ($row_Perfil = sqlsrv_fetch_array($SQL_Perfiles)) {?>
-																		<?php if (in_array($row_Perfil['ID_PerfilUsuario'], $ids_perfiles)) {?>
-																			<div style="margin: 10px !important;">
-																				<p class="label label-secondary"><?php echo $row_Perfil['PerfilUsuario']; ?></p>
-																			</div>
-																		<?php }?>
-																	<?php }?>
-																</td>
-
-																<td><?php echo $row_Icono['Comentarios']; ?></td>
-
-																<td><?php echo isset($row_Icono['fecha_actualizacion']) ? date_format($row_Icono['fecha_actualizacion'], 'Y-m-d H:i:s') : ""; ?></td>
-																<td><?php echo $row_Icono['usuario_actualizacion']; ?></td>
-																<td>
-																	<span class="label <?php echo ($row_Icono['Estado'] == "Y") ? "label-info" : "label-danger"; ?>">
-																		<?php echo ($row_Icono['Estado'] == "Y") ? "Activo" : "Inactivo"; ?>
-																	</span>
-																</td>
 																<td>
 																	<button type="button" id="btnEdit<?php echo $row_Icono['ID']; ?>" class="btn btn-success btn-xs" onClick="EditarCampo('<?php echo $row_Icono['ID']; ?>','Icono');"><i class="fa fa-pencil"></i> Editar</button>
 																	<button type="button" id="btnDelete<?php echo $row_Icono['ID']; ?>" class="btn btn-danger btn-xs" onClick="EliminarCampo('<?php echo $row_Icono['ID']; ?>','Icono');"><i class="fa fa-trash"></i> Eliminar</button>
@@ -448,7 +415,7 @@ if (isset($sw_error) && ($sw_error == 1)) {
 									<form class="form-horizontal">
 										<div class="ibox" id="Tipo">
 											<div class="ibox-title bg-success">
-												<h5 class="collapse-link"><i class="fa fa-list"></i> Lista de Tipos SAP B1</h5>
+												<h5 class="collapse-link"><i class="fa fa-list"></i> Lista de Tipos</h5>
 												 <a class="collapse-link pull-right">
 													<i class="fa fa-chevron-up"></i>
 												</a>
@@ -470,32 +437,36 @@ if (isset($sw_error) && ($sw_error == 1)) {
 																<th>Vista de referencia</th>
 																<th>Obligatorio</th>
 																<th>Multiple</th>
+																<th>Estado</th>
 																<th>Fecha Actualizacion</th>
 																<th>Usuario Actualizacion</th>
-																<th>Estado</th>
 																<th>Acciones</th>
 															</tr>
 														</thead>
 														<tbody>
 															 <?php while ($row_Tipo = sqlsrv_fetch_array($SQL_Tipos)) {?>
 															<tr>
-																<td><?php echo $row_Tipo['Icono']; ?></td>
-																<td><?php echo $row_Tipo['ParametroTipo']; ?></td>
-																<td><?php echo $row_Tipo['EtiquetaTipo']; ?></td>
+																<td><?php echo $row['id_tipo_punto_control']; ?></td>
+																<td><?php echo $row['tipo_punto_control']; ?></td>
+																<td><?php echo $row['id_familia_plaga']; ?></td>
+																<td><?php echo $row['familia_plaga']; ?></td>
+																<td><?php echo $row['descripcion']; ?></td>
 
-																<td><?php echo $row_Tipo['TipoCampo']; ?></td>
-																<td><?php echo (isset($row_Tipo['VistaLista']) && ($row_Tipo['VistaLista'] != "")) ? ($row_Tipo['VistaLista'] . " (" . $row_Tipo['ValorLista'] . ", " . $row_Tipo['EtiquetaLista'] . ")") : "(Ninguna)"; ?></td>
-
-																<td><?php echo ($row_Tipo['Obligatorio'] == "Y") ? "SI" : "NO"; ?></td>
-																<td><?php echo ($row_Tipo['Multiple'] == "Y") ? "SI" : "NO"; ?></td>
-
-																<td><?php echo isset($row_Tipo['fecha_actualizacion']) ? date_format($row_Tipo['fecha_actualizacion'], 'Y-m-d H:i:s') : ""; ?></td>
-																<td><?php echo $row_Tipo['usuario_actualizacion']; ?></td>
 																<td>
-																	<span class="label <?php echo ($row_Tipo['Estado'] == "Y") ? "label-info" : "label-danger"; ?>">
-																		<?php echo ($row_Tipo['Estado'] == "Y") ? "Activo" : "Inactivo"; ?>
+																	<span class="badge <?php echo ($row['estado'] == "Y") ? "badge-primary" : "badge-danger"; ?>">
+																		<?php echo ($row['estado'] == "Y") ? "Activo" : "Inactivo"; ?>
 																	</span>
 																</td>
+
+																<td><?php echo $row['id_icono']; ?></td>
+																<td><?php echo $row['id_color']; ?></td>
+																<td><?php echo $row['id_clase_control']; ?></td>
+																<td><?php echo $row['clase_control']; ?></td>
+																<td><?php echo $row['codigo_prefijo']; ?></td>
+
+																<td><?php echo isset($row['fecha_actualizacion']) ? date_format($row['fecha_actualizacion'], 'Y-m-d H:i:s') : ""; ?></td>
+																<td><?php echo $row['usuario_actualizacion']; ?></td>
+
 																<td>
 																	<button type="button" id="btnEdit<?php echo $row_Tipo['ID']; ?>" class="btn btn-success btn-xs" onClick="EditarCampo('<?php echo $row_Tipo['ID']; ?>','Tipo');"><i class="fa fa-pencil"></i> Editar</button>
 																	<button type="button" id="btnDelete<?php echo $row_Tipo['ID']; ?>" class="btn btn-danger btn-xs" onClick="EliminarCampo('<?php echo $row_Tipo['ID']; ?>','Tipo');"><i class="fa fa-trash"></i> Eliminar</button>
