@@ -39,17 +39,11 @@ if (isset($_POST['Metodo']) && ($_POST['Metodo'] == 3)) {
 
 //Insertar datos o actualizar datos
 if ((isset($_POST['frmType']) && ($_POST['frmType'] != "")) || (isset($_POST['Metodo']) && ($_POST['Metodo'] == 2))) {
+    $FechaHora = "'" . FormatoFecha(date('Y-m-d'), date('H:i:s')) . "'";
+    $Usuario = "'" . $_SESSION['CodUser'] . "'";
+
     try {
-
         if ($_POST['TipoDoc'] == "Familia") {
-            $FechaHora = "'" . FormatoFecha(date('Y-m-d'), date('H:i:s')) . "'";
-            $Usuario = "'" . $_SESSION['CodUser'] . "'";
-
-            $Perfiles = implode(";", $_POST['Perfiles']);
-            $Perfiles = count($_POST['Perfiles']) > 0 ? "'$Perfiles'" : "''";
-
-            $ID = (isset($_POST['ID_Actual']) && ($_POST['ID_Actual'] != "")) ? $_POST['ID_Actual'] : "NULL";
-
             $Param = array(
                 $_POST['Metodo'] ?? 1, // 1 - Crear, 2 - Actualizar
                 $ID,
@@ -66,30 +60,16 @@ if ((isset($_POST['frmType']) && ($_POST['frmType'] != "")) || (isset($_POST['Me
                 ($_POST['Metodo'] == 1) ? $FechaHora : "NULL",
             );
 
-            $SQL = EjecutarSP('sp_tbl_IconosSAPB1_Familias', $Param);
+            $SQL = EjecutarSP('sp_tbl_PuntoControl_Familias', $Param);
             if (!$SQL) {
                 $sw_error = 1;
                 $msg_error = "No se pudo insertar la nueva Categoría";
             }
         } elseif ($_POST['TipoDoc'] == "Icono") {
-            $FechaHora = "'" . FormatoFecha(date('Y-m-d'), date('H:i:s')) . "'";
-            $Usuario = "'" . $_SESSION['CodUser'] . "'";
-
-            $Perfiles = implode(";", $_POST['Perfiles']);
-            $Perfiles = count($_POST['Perfiles']) > 0 ? "'$Perfiles'" : "''";
-
-            $ID = (isset($_POST['ID_Actual']) && ($_POST['ID_Actual'] != "")) ? $_POST['ID_Actual'] : "NULL";
-
             $Param = array(
                 $_POST['Metodo'] ?? 1, // 1 - Crear, 2 - Actualizar
-                $ID,
-                "'" . $_POST['ID_Familia'] . "'",
-                "'" . $_POST['ProcedimientoIcono'] . "'",
-                "'" . $_POST['EtiquetaIcono'] . "'",
-                "'" . $_POST['ParametrosTipo'] . "'",
-                $Perfiles,
-                "'" . $_POST['Comentarios'] . "'",
-                "'" . $_POST['Estado'] . "'",
+                "'" . $_POST['id_icono'] . "'",
+                "'" . $_POST['icono'] . "'",
                 $Usuario, // @id_usuario_actualizacion
                 $FechaHora, // @fecha_actualizacion
                 $FechaHora, // @hora_actualizacion
@@ -98,17 +78,12 @@ if ((isset($_POST['frmType']) && ($_POST['frmType'] != "")) || (isset($_POST['Me
                 ($_POST['Metodo'] == 1) ? $FechaHora : "NULL",
             );
 
-            $SQL = EjecutarSP('sp_tbl_IconosSAPB1_Iconos', $Param);
+            $SQL = EjecutarSP('sp_tbl_PuntoControl_Iconos', $Param);
             if (!$SQL) {
                 $sw_error = 1;
                 $msg_error = "No se pudo insertar la nueva Icono SAP B1";
             }
         } elseif ($_POST['TipoDoc'] == "Tipo") {
-            $FechaHora = "'" . FormatoFecha(date('Y-m-d'), date('H:i:s')) . "'";
-            $Usuario = "'" . $_SESSION['CodUser'] . "'";
-
-            $ID = (isset($_POST['ID_Actual']) && ($_POST['ID_Actual'] != "")) ? $_POST['ID_Actual'] : "NULL";
-
             $Param = array(
                 $_POST['Metodo'] ?? 1, // 1 - Crear, 2 - Actualizar
                 $ID,
@@ -132,7 +107,7 @@ if ((isset($_POST['frmType']) && ($_POST['frmType'] != "")) || (isset($_POST['Me
                 ($_POST['Metodo'] == 1) ? $FechaHora : "NULL",
             );
 
-            $SQL = EjecutarSP('sp_tbl_IconosSAPB1_Tipos', $Param);
+            $SQL = EjecutarSP('sp_tbl_tbl_PuntoControl_Tipos', $Param);
             $row = sqlsrv_fetch_array($SQL);
 
             if (!$SQL) {
@@ -147,7 +122,7 @@ if ((isset($_POST['frmType']) && ($_POST['frmType'] != "")) || (isset($_POST['Me
         // OK
         if ($sw_error == 0) {
             $TipoDoc = $_POST['TipoDoc'];
-            header("Location:parametros_Iconos_sap.php?doc=$TipoDoc&a=" . base64_encode("OK_PRUpd") . "#$TipoDoc");
+            header("Location:punto_control_tipos.php?doc=$TipoDoc&a=" . base64_encode("OK_PRUpd") . "#$TipoDoc");
         }
 
     } catch (Exception $e) {
@@ -158,9 +133,9 @@ if ((isset($_POST['frmType']) && ($_POST['frmType'] != "")) || (isset($_POST['Me
 }
 
 // SMM, 27/02/2023
-$SQL_Familias = Seleccionar("tbl_PuntoControl", "*");
-$SQL_Iconos = Seleccionar("tbl_PuntoControl_Iconos", "*");
-$SQL_Tipos = Seleccionar("tbl_PuntoControl_Tipos", "*");
+$SQL_Familias = Seleccionar("uvw_tbl_PuntoControl", "*");
+$SQL_Iconos = Seleccionar("uvw_tbl_PuntoControl_Iconos", "*");
+$SQL_Tipos = Seleccionar("uvw_tbl_PuntoControl_Tipos", "*");
 ?>
 
 <!DOCTYPE html>
@@ -389,11 +364,11 @@ if (isset($sw_error) && ($sw_error == 1)) {
 														<tbody>
 															 <?php while ($row_Icono = sqlsrv_fetch_array($SQL_Iconos)) {?>
 															<tr>
-																<td><?php echo $row_Icono['ID Icono']; ?></td>
-																<td><?php echo $row_Icono['Icono']; ?></td>
+																<td><?php echo $row_Icono['id_icono']; ?></td>
+																<td><?php echo $row_Icono['icono']; ?></td>
 
-																<td><?php echo isset($row['fecha_actualizacion']) ? date_format($row['fecha_actualizacion'], 'Y-m-d H:i:s') : ""; ?></td>
-																<td><?php echo $row['usuario_actualizacion']; ?></td>
+																<td><?php echo isset($row_Icono['fecha_actualizacion']) ? date_format($row_Icono['fecha_actualizacion'], 'Y-m-d H:i:s') : ""; ?></td>
+																<td><?php echo $row_Icono['usuario_actualizacion']; ?></td>
 
 																<td>
 																	<button type="button" id="btnEdit<?php echo $row_Icono['ID']; ?>" class="btn btn-success btn-xs" onClick="EditarCampo('<?php echo $row_Icono['ID']; ?>','Icono');"><i class="fa fa-pencil"></i> Editar</button>
@@ -587,12 +562,12 @@ function EliminarCampo(id, doc){
 
 			$.ajax({
 				type: "post",
-				url: "parametros_Iconos_sap.php",
+				url: "punto_control_tipos.php",
 				data: { TipoDoc: doc, ID: id, Metodo: 3 },
 				async: false,
 				success: function(data){
 					// console.log(data);
-					location.href = `parametros_Iconos_sap.php?doc=${doc}&a=<?php echo base64_encode("OK_PRDel"); ?>`;
+					location.href = `punto_control_tipos.php?doc=${doc}&a=<?php echo base64_encode("OK_PRDel"); ?>`;
 				},
 				error: function(error) {
 					console.error("Icono erronea");

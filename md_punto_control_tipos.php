@@ -48,7 +48,7 @@ $SQL_Lista = sqlsrv_query($conexion, $Cons_Lista);
 	}
 </style>
 
-<form id="frm_NewParam" method="post" action="parametros_Iconos_sap.php" enctype="multipart/form-data">
+<form id="frm_NewParam" method="post" action="punto_control_tipos.php" enctype="multipart/form-data">
 
 <div class="modal-header">
 	<h4 class="modal-title">
@@ -121,64 +121,13 @@ $SQL_Lista = sqlsrv_query($conexion, $Cons_Lista);
 				<!-- Inicio Icono -->
 				<div class="form-group">
 					<div class="col-md-6">
-						<label class="control-label">Familia <span class="text-danger">*</span></label>
-						<select name="ID_Familia" class="form-control select2" id="ID_Familia" required>
-							<option value="" disabled selected>Seleccione...</option>
-							<?php while ($row_FamiliaModal = sqlsrv_fetch_array($SQL_FamiliasModal)) {?>
-								<option value="<?php echo $row_FamiliaModal['ID']; ?>" <?php if ((isset($row['ID_Familia'])) && (strcmp($row_FamiliaModal['ID'], $row['ID_Familia']) == 0)) {echo "selected=\"selected\"";}?>><?php echo $row_FamiliaModal['NombreFamilia']; ?></option>
-							<?php }?>
-						</select>
-					</div>
-					<div class="col-md-6">
-						<label class="control-label">Estado <span class="text-danger">*</span></label>
-						<select class="form-control" id="Estado" name="Estado">
-							<option value="Y" <?php if (($edit == 1) && ($row['Estado'] == "Y")) {echo "selected=\"selected\"";}?>>ACTIVO</option>
-							<option value="N" <?php if (($edit == 1) && ($row['Estado'] == "N")) {echo "selected=\"selected\"";}?>>INACTIVO</option>
-						</select>
-					</div>
-				</div>
-
-				<br><br><br><br>
-				<div class="form-group">
-					<div class="col-md-6">
-						<label class="control-label">Procedimiento <span class="text-danger">*</span></label>
-						<input type="text" class="form-control" autocomplete="off" required name="ProcedimientoIcono" id="ProcedimientoIcono" value="<?php if ($edit == 1) {echo $row['ProcedimientoIcono'];}?>">
+						<label class="control-label">ID Icono <span class="text-danger">*</span></label>
+						<input type="text" class="form-control" autocomplete="off" required name="id_icono" id="id_icono" value="<?php if ($edit == 1) {echo $row['id_icono'];}?>">
 					</div>
 
 					<div class="col-md-6">
-						<label class="control-label">Etiqueta <span class="text-danger">*</span></label>
-						<input type="text" class="form-control" autocomplete="off" name="EtiquetaIcono" id="EtiquetaIcono" value="<?php if ($edit == 1) {echo $row['EtiquetaIcono'];}?>">
-					</div>
-				</div>
-
-				<br><br><br><br>
-				<div class="form-group">
-					<div class="col-md-12">
-						<label class="control-label">Parámetros</label>
-						<input type="text" class="form-control" autocomplete="off" data-role="tagsinput" name="ParametrosTipo" id="ParametrosTipo" value="<?php if ($edit == 1) {echo $row['ParametrosTipo'];}?>" placeholder= "Ingrese una Tipo y utilice la tecla [ESP] para agregar">
-					</div>
-				</div>
-
-				<br><br><br><br>
-				<div class="form-group">
-					<div class="col-md-12">
-						<label class="control-label">Perfiles Usuarios</label>
-						<select data-placeholder="Digite para buscar..." name="Perfiles[]" class="form-control select2" id="Perfiles" multiple>
-							<?php while ($row_Perfil = sqlsrv_fetch_array($SQL_PerfilesUsuarios)) {?>
-								<option value="<?php echo $row_Perfil['ID_PerfilUsuario']; ?>"
-								<?php if (in_array($row_Perfil['ID_PerfilUsuario'], $ids_perfiles)) {echo "selected";}?>>
-									<?php echo $row_Perfil['PerfilUsuario']; ?>
-								</option>
-							<?php }?>
-						</select>
-					</div>
-				</div>
-
-				<br><br><br><br>
-				<div class="form-group">
-					<div class="col-md-12">
-						<label class="control-label">Comentarios</label>
-						<textarea name="Comentarios" rows="3" maxlength="3000" class="form-control" id="Comentarios" type="text"><?php if ($edit == 1) {echo $row['Comentarios'];}?></textarea>
+						<label class="control-label">Icono <span class="text-danger">*</span></label>
+						<input type="text" class="form-control" autocomplete="off" name="icono" id="icono" value="<?php if ($edit == 1) {echo $row['icono'];}?>">
 					</div>
 				</div>
 				<br><br>
