@@ -12,22 +12,22 @@ if (isset($_POST['Metodo']) && ($_POST['Metodo'] == 3)) {
         );
 
         if ($_POST['TipoDoc'] == "Familia") {
-            $SQL = EjecutarSP('sp_tbl_IconosSAPB1_Familias', $Param);
+            $SQL = EjecutarSP('sp_tbl_PuntoControl', $Param);
             if (!$SQL) {
                 $sw_error = 1;
-                $msg_error = "No se pudo eliminar la Categoría.";
+                $msg_error = "No se pudo eliminar la Familia de Plagas.";
             }
         } elseif ($_POST['TipoDoc'] == "Icono") {
-            $SQL = EjecutarSP('sp_tbl_IconosSAPB1_Iconos', $Param);
+            $SQL = EjecutarSP('sp_tbl_PuntoControl_Iconos', $Param);
             if (!$SQL) {
                 $sw_error = 1;
-                $msg_error = "No se pudo eliminar la Icono SAP B1.";
+                $msg_error = "No se pudo eliminar el Icono.";
             }
         } elseif ($_POST['TipoDoc'] == "Tipo") {
-            $SQL = EjecutarSP('sp_tbl_IconosSAPB1_Tipos', $Param);
+            $SQL = EjecutarSP('sp_tbl_PuntoControl_Tipos', $Param);
             if (!$SQL) {
                 $sw_error = 1;
-                $msg_error = "No se pudo eliminar la Tipo.";
+                $msg_error = "No se pudo eliminar el Tipo de Punto de Control.";
             }
         }
 
@@ -46,12 +46,18 @@ if ((isset($_POST['frmType']) && ($_POST['frmType'] != "")) || (isset($_POST['Me
         if ($_POST['TipoDoc'] == "Familia") {
             $Param = array(
                 $_POST['Metodo'] ?? 1, // 1 - Crear, 2 - Actualizar
-                $ID,
-                "'" . $_POST['ID_FamiliaPadre'] . "'",
-                "'" . $_POST['NombreFamilia'] . "'",
-                $Perfiles,
-                "'" . $_POST['Comentarios'] . "'",
-                "'" . $_POST['Estado'] . "'",
+                "'" . ($_POST['id_punto_control'] ?? "") . "'",
+                "'" . ($_POST['punto_control'] ?? "") . "'",
+                "'" . ($_POST['descripcion_punto_control'] ?? "") . "'",
+                "'" . ($_POST['id_tipo_punto_control'] ?? "") . "'",
+                "'" . ($_POST['id_socio_negocio'] ?? "") . "'",
+                "'" . ($_POST['socio_negocio'] ?? "") . "'",
+                ($_POST['id_consecutivo_direccion'] ?? "NULL"),
+                "'" . ($_POST['id_direccion_destino'] ?? "") . "'",
+                "'" . ($_POST['direccion_destino'] ?? "") . "'",
+                "'" . ($_POST['id_zona_sn'] ?? "") . "'",
+                "'" . ($_POST['zona_sn'] ?? "") . "'",
+                "'" . ($_POST['estado'] ?? "") . "'",
                 $Usuario, // @id_usuario_actualizacion
                 $FechaHora, // @fecha_actualizacion
                 $FechaHora, // @hora_actualizacion
@@ -63,7 +69,7 @@ if ((isset($_POST['frmType']) && ($_POST['frmType'] != "")) || (isset($_POST['Me
             $SQL = EjecutarSP('sp_tbl_PuntoControl_Familias', $Param);
             if (!$SQL) {
                 $sw_error = 1;
-                $msg_error = "No se pudo insertar la nueva Categoría";
+                $msg_error = "No se pudo insertar la nueva Familia de Plagas";
             }
         } elseif ($_POST['TipoDoc'] == "Icono") {
             $Param = array(
@@ -81,24 +87,23 @@ if ((isset($_POST['frmType']) && ($_POST['frmType'] != "")) || (isset($_POST['Me
             $SQL = EjecutarSP('sp_tbl_PuntoControl_Iconos', $Param);
             if (!$SQL) {
                 $sw_error = 1;
-                $msg_error = "No se pudo insertar la nueva Icono SAP B1";
+                $msg_error = "No se pudo insertar el Nuevo Icono";
             }
         } elseif ($_POST['TipoDoc'] == "Tipo") {
             $Param = array(
                 $_POST['Metodo'] ?? 1, // 1 - Crear, 2 - Actualizar
                 $ID,
-                "'" . $_POST['ID_Icono'] . "'",
-                "'" . $_POST['ParametroTipo'] . "'",
-                "'" . $_POST['EtiquetaTipo'] . "'",
-                "'" . $_POST['Obligatorio'] . "'",
-                "'" . $_POST['Estado'] . "'",
-                "'" . $_POST['TipoCampo'] . "'",
-                "'" . $_POST['Multiple'] . "'",
-                "'" . $_POST['PermitirTodos'] . "'",
-                "'" . $_POST['VistaLista'] . "'",
-                "'" . $_POST['EtiquetaLista'] . "'",
-                "'" . $_POST['ValorLista'] . "'",
-                "'" . $_POST['Comentarios'] . "'",
+                "'" . ($_POST['id_tipo_punto_control'] ?? "") . "'",
+                "'" . ($_POST['tipo_punto_control'] ?? "") . "'",
+                "'" . ($_POST['id_familia_plaga'] ?? "") . "'",
+                "'" . ($_POST['familia_plaga'] ?? "") . "'",
+                "'" . ($_POST['descripcion'] ?? "") . "'",
+                "'" . ($_POST['estado'] ?? "") . "'",
+                "'" . ($_POST['id_icono'] ?? "") . "'",
+                "'" . ($_POST['id_color'] ?? "") . "'",
+                ($_POST['id_clase_control'] ?? "NULL"),
+                "'" . ($_POST['clase_control'] ?? "") . "'",
+                "'" . ($_POST['codigo_prefijo'] ?? "") . "'",
                 $Usuario, // @id_usuario_actualizacion
                 $FechaHora, // @fecha_actualizacion
                 $FechaHora, // @hora_actualizacion
@@ -107,12 +112,12 @@ if ((isset($_POST['frmType']) && ($_POST['frmType'] != "")) || (isset($_POST['Me
                 ($_POST['Metodo'] == 1) ? $FechaHora : "NULL",
             );
 
-            $SQL = EjecutarSP('sp_tbl_tbl_PuntoControl_Tipos', $Param);
+            $SQL = EjecutarSP('sp_tbl_PuntoControl_Tipos', $Param);
             $row = sqlsrv_fetch_array($SQL);
 
             if (!$SQL) {
                 $sw_error = 1;
-                $msg_error = "No se pudo insertar la nueva Tipo";
+                $msg_error = "No se pudo insertar el Nuevo Tipo de Punto de Control";
             } elseif (isset($row['Error'])) {
                 $sw_error = 1;
                 $msg_error = $row['Error'];
