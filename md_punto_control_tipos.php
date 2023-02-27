@@ -66,53 +66,70 @@ $SQL_Lista = sqlsrv_query($conexion, $Cons_Lista);
 				<!-- Inicio Familia -->
 				<div class="form-group">
 					<div class="col-md-6">
-						<label class="control-label">Nombre Familia <span class="text-danger">*</span></label>
-						<input type="text" class="form-control" autocomplete="off" required name="NombreFamilia" id="NombreFamilia" value="<?php if ($edit == 1) {echo $row['NombreFamilia'];}?>">
+						<label class="control-label">ID Punto Control <span class="text-danger">*</span></label>
+						<input required type="text" class="form-control" autocomplete="off" id="id_punto_control" name="id_punto_control" value="<?php if ($edit == 1) {echo $row['id_punto_control'];}?>">
 					</div>
+
+					<div class="col-md-6">
+						<label class="control-label">Nombre Punto Control <span class="text-danger">*</span></label>
+						<input required type="text" class="form-control" autocomplete="off" id="punto_control" name="punto_control" value="<?php if ($edit == 1) {echo $row['punto_control'];}?>">
+					</div>
+				</div> <!-- form-group -->
+
+				<br><br><br><br>
+				<div class="form-group">
+					<div class="col-md-6">
+						<label class="control-label">Descripción Punto Control</label>
+						<input type="text" class="form-control" autocomplete="off" id="descripcion_punto_control" name="descripcion_punto_control" value="<?php if ($edit == 1) {echo $row['descripcion_punto_control'];}?>">
+					</div>
+
+					<div class="col-md-6">
+						<label class="control-label">ID Tipo Punto Control</label>
+						<input type="text" class="form-control" autocomplete="off" id="id_tipo_punto_control" name="id_tipo_punto_control" value="<?php if ($edit == 1) {echo $row['id_tipo_punto_control'];}?>">
+					</div>
+				</div> <!-- form-group -->
+
+				<br><br><br><br>
+				<div class="form-group">
+					<div class="col-md-12">
+						<label class="control-label">Socio Negocio <span class="text-danger">*</span></label>
+						<input required type="text" class="form-control" autocomplete="off" id="id_socio_negocio" name="id_socio_negocio" value="<?php if ($edit == 1) {echo $row['id_socio_negocio'];}?>">
+					</div>
+				</div> <!-- form-group -->
+
+				<br><br><br><br>
+				<div class="form-group">
+					<div class="col-md-12">
+						<label class="control-label">ID Consecutivo Dirección <span class="text-danger">*</span></label>
+						<select id="SucursalSN" class="form-control" <?php if ($SucursalSN != "") {echo "readonly";}?> required>
+							<option value="" <?php if ($SucursalSN == "") {echo "disabled selected";}?>>Seleccione...</option>
+
+							<?php while ($row_SucursalSN = sqlsrv_fetch_array($SQL_SucursalSN)) {?>
+								<option value="<?php echo $row_SucursalSN['NumeroLinea']; ?>" <?php if ($SucursalSN == $row_SucursalSN['NumeroLinea']) {echo "selected";}?>><?php echo $row_SucursalSN['NombreSucursal']; ?></option>
+							<?php }?>
+						</select>
+					</div>
+				</div> <!-- form-group -->
+
+				<br><br><br><br>
+				<div class="form-group">
+					<div class="col-md-12">
+						<label class="control-label">ID Zona <span class="text-danger">*</span></label>
+						<input required type="text" class="form-control" autocomplete="off" id="id_zona_sn" name="id_zona_sn" value="<?php if ($edit == 1) {echo $row['id_zona_sn'];}?>">
+					</div>
+				</div> <!-- form-group -->
+
+				<br><br><br><br>
+				<div class="form-group">
 					<div class="col-md-6">
 						<label class="control-label">Estado <span class="text-danger">*</span></label>
-						<select class="form-control" id="Estado" name="Estado">
-							<option value="Y" <?php if (($edit == 1) && ($row['Estado'] == "Y")) {echo "selected=\"selected\"";}?>>ACTIVO</option>
-							<option value="N" <?php if (($edit == 1) && ($row['Estado'] == "N")) {echo "selected=\"selected\"";}?>>INACTIVO</option>
+						<select class="form-control" id="estado" name="estado" required>
+							<option value="Y" <?php if (($edit == 1) && ($row['estado'] == "Y")) {echo "selected";}?>>ACTIVO</option>
+							<option value="N" <?php if (($edit == 1) && ($row['estado'] == "N")) {echo "selected";}?>>INACTIVO</option>
 						</select>
 					</div>
-				</div>
+				</div> <!-- form-group -->
 
-				<br><br><br><br>
-				<div class="form-group">
-					<div class="col-md-12">
-						<label class="control-label">Familia Padre</label>
-						<select name="ID_FamiliaPadre" class="form-control select2" id="ID_FamiliaPadre">
-							<option value="">[Raíz]</option>
-							<?php while ($row_FamiliaModal = sqlsrv_fetch_array($SQL_FamiliasModal)) {?>
-								<option value="<?php echo $row_FamiliaModal['ID']; ?>" <?php if ((isset($row['ID_FamiliaPadre'])) && (strcmp($row_FamiliaModal['ID'], $row['ID_FamiliaPadre']) == 0)) {echo "selected=\"selected\"";}?>><?php echo $row_FamiliaModal['NombreFamilia']; ?></option>
-							<?php }?>
-						</select>
-					</div>
-				</div>
-
-				<br><br><br><br>
-				<div class="form-group">
-					<div class="col-md-12">
-						<label class="control-label">Perfiles Usuarios</label>
-						<select data-placeholder="Digite para buscar..." name="Perfiles[]" class="form-control select2" id="Perfiles" multiple>
-							<?php while ($row_Perfil = sqlsrv_fetch_array($SQL_PerfilesUsuarios)) {?>
-								<option value="<?php echo $row_Perfil['ID_PerfilUsuario']; ?>"
-								<?php if (in_array($row_Perfil['ID_PerfilUsuario'], $ids_perfiles)) {echo "selected";}?>>
-									<?php echo $row_Perfil['PerfilUsuario']; ?>
-								</option>
-							<?php }?>
-						</select>
-					</div>
-				</div>
-
-				<br><br><br><br>
-				<div class="form-group">
-					<div class="col-md-12">
-						<label class="control-label">Comentarios</label>
-						<textarea name="Comentarios" rows="3" maxlength="3000" class="form-control" id="Comentarios" type="text"><?php if ($edit == 1) {echo $row['Comentarios'];}?></textarea>
-					</div>
-				</div>
 				<br><br>
 				<!-- Fin Familia -->
 
