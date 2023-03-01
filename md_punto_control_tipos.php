@@ -8,7 +8,7 @@ $edit = isset($_POST['edit']) ? $_POST['edit'] : 0;
 $doc = isset($_POST['doc']) ? $_POST['doc'] : "";
 $id = isset($_POST['id']) ? $_POST['id'] : "";
 
-$SQL_FamiliasModal = Seleccionar('tbl_PuntoControl', '*');
+$SQL_FamiliasModal = Seleccionar('tbl_Plagas_Familias', '*');
 $SQL_IconosModal = Seleccionar('tbl_PuntoControl_Iconos', '*');
 $SQL_SNZonasModal = Seleccionar('tbl_SociosNegocios_Zonas', '*');
 
@@ -67,70 +67,13 @@ $SQL_Lista = sqlsrv_query($conexion, $Cons_Lista);
 				<!-- Inicio Familia -->
 				<div class="form-group">
 					<div class="col-md-6">
-						<label class="control-label">ID Punto Control <span class="text-danger">*</span></label>
-						<input required type="text" class="form-control" autocomplete="off" id="id_punto_control" name="id_punto_control" value="<?php if ($edit == 1) {echo $row['id_punto_control'];}?>">
+						<label class="control-label">ID Familia Plaga <span class="text-danger">*</span></label>
+						<input type="text" class="form-control" autocomplete="off" required id="id_familia_plaga" name="id_familia_plaga" value="<?php if ($edit == 1) {echo $row['id_familia_plaga'];}?>">
 					</div>
 
 					<div class="col-md-6">
-						<label class="control-label">Nombre Punto Control <span class="text-danger">*</span></label>
-						<input required type="text" class="form-control" autocomplete="off" id="punto_control" name="punto_control" value="<?php if ($edit == 1) {echo $row['punto_control'];}?>">
-					</div>
-				</div> <!-- form-group -->
-
-				<br><br><br><br>
-				<div class="form-group">
-					<div class="col-md-6">
-						<label class="control-label">Descripción Punto Control</label>
-						<input type="text" class="form-control" autocomplete="off" id="descripcion_punto_control" name="descripcion_punto_control" value="<?php if ($edit == 1) {echo $row['descripcion_punto_control'];}?>">
-					</div>
-
-					<div class="col-md-6">
-						<label class="control-label">ID Tipo Punto Control</label>
-						<input type="text" class="form-control" autocomplete="off" id="id_tipo_punto_control" name="id_tipo_punto_control" value="<?php if ($edit == 1) {echo $row['id_tipo_punto_control'];}?>">
-					</div>
-				</div> <!-- form-group -->
-
-				<br><br><br><br>
-				<div class="form-group">
-					<div class="col-md-12">
-						<label class="control-label">Socio Negocio <span class="text-danger">*</span></label>
-						<input required type="text" class="form-control" autocomplete="off" id="id_socio_negocio" name="id_socio_negocio" value="<?php if ($edit == 1) {echo $row['id_socio_negocio'];}?>">
-					</div>
-				</div> <!-- form-group -->
-
-				<br><br><br><br>
-				<div class="form-group">
-					<div class="col-md-6">
-						<label class="control-label">ID Consecutivo Dirección</label>
-						<select id="id_icono" name="id_icono" class="form-control">
-							<option value="" <?php if ($edit == 0) {echo "disabled selected";}?>>Seleccione...</option>
-
-							<?php while ($row_Icono = sqlsrv_fetch_array($SQL_IconosModal)) {?>
-								<option value="<?php echo $row_Icono['id_icono']; ?>" <?php if (isset($row['id_icono']) && ($row['id_icono'] == $row_Icono['id_icono'])) {echo "selected";}?>><?php echo $row_Icono['id_icono'] . " - " . $row_Icono['icono']; ?></option>
-							<?php }?>
-						</select>
-					</div>
-
-					<div class="col-md-6">
-						<label class="control-label">ID Zona</label>
-						<select id="id_zona_sn" name="id_zona_sn" class="form-control">
-							<option value="" <?php if ($edit == 0) {echo "disabled selected";}?>>Seleccione...</option>
-
-							<?php while ($row_Zona = sqlsrv_fetch_array($SQL_SNZonasModal)) {?>
-								<option value="<?php echo $row_Zona['id_zona_sn']; ?>" <?php if (isset($row['id_zona_sn']) && ($row['id_zona_sn'] == $row_Zona['id_zona_sn'])) {echo "selected";}?>><?php echo $row_Zona['id_zona_sn'] . " - " . $row_Zona['zona_sn']; ?></option>
-							<?php }?>
-						</select>
-					</div>
-				</div> <!-- form-group -->
-
-				<br><br><br><br>
-				<div class="form-group">
-					<div class="col-md-6">
-						<label class="control-label">Estado <span class="text-danger">*</span></label>
-						<select class="form-control" id="estado" name="estado" required>
-							<option value="Y" <?php if (($edit == 1) && ($row['estado'] == "Y")) {echo "selected";}?>>ACTIVO</option>
-							<option value="N" <?php if (($edit == 1) && ($row['estado'] == "N")) {echo "selected";}?>>INACTIVO</option>
-						</select>
+						<label class="control-label">Familia Plaga <span class="text-danger">*</span></label>
+						<input type="text" class="form-control" autocomplete="off" required id="familia_plaga" name="familia_plaga" value="<?php if ($edit == 1) {echo $row['familia_plaga'];}?>">
 					</div>
 				</div> <!-- form-group -->
 
@@ -148,9 +91,10 @@ $SQL_Lista = sqlsrv_query($conexion, $Cons_Lista);
 
 					<div class="col-md-6">
 						<label class="control-label">Icono <span class="text-danger">*</span></label>
-						<input type="text" class="form-control" autocomplete="off" name="icono" id="icono" value="<?php if ($edit == 1) {echo $row['icono'];}?>">
+						<input type="text" class="form-control" autocomplete="off" required name="icono" id="icono" value="<?php if ($edit == 1) {echo $row['icono'];}?>">
 					</div>
 				</div>
+
 				<br><br>
 				<!-- Fin Icono -->
 
@@ -171,14 +115,15 @@ $SQL_Lista = sqlsrv_query($conexion, $Cons_Lista);
 
 				<br><br><br><br>
 				<div class="form-group">
-					<div class="col-md-6">
+				<div class="col-md-6">
 						<label class="control-label">ID Familia Plaga</label>
-						<input type="text" class="form-control" autocomplete="off" id="id_familia_plaga" name="id_familia_plaga" value="<?php if ($edit == 1) {echo $row['id_familia_plaga'];}?>">
-					</div>
+						<select id="id_familia_plaga" name="id_familia_plaga" class="form-control">
+							<option value="" <?php if ($edit == 0) {echo "disabled selected";}?>>Seleccione...</option>
 
-					<div class="col-md-6">
-						<label class="control-label">Familia Plaga</label>
-						<input type="text" class="form-control" autocomplete="off" id="familia_plaga" name="familia_plaga" value="<?php if ($edit == 1) {echo $row['familia_plaga'];}?>">
+							<?php while ($row_Familia = sqlsrv_fetch_array($SQL_FamiliasModal)) {?>
+								<option value="<?php echo $row_Familia['id_familia_plaga']; ?>" <?php if (isset($row['id_familia_plaga']) && ($row['id_familia_plaga'] == $row_Familia['id_familia_plaga'])) {echo "selected";}?>><?php echo $row_Familia['id_familia_plaga'] . " - " . $row_Familia['familia_plaga']; ?></option>
+							<?php }?>
+						</select>
 					</div>
 				</div> <!-- form-group -->
 

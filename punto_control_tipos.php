@@ -12,7 +12,7 @@ if (isset($_POST['Metodo']) && ($_POST['Metodo'] == 3)) {
         );
 
         if ($_POST['TipoDoc'] == "Familia") {
-            $SQL = EjecutarSP('sp_tbl_PuntoControl', $Param);
+            $SQL = EjecutarSP('sp_tbl_Plagas_Familias', $Param);
             if (!$SQL) {
                 $sw_error = 1;
                 $msg_error = "No se pudo eliminar la Familia de Plagas.";
@@ -46,18 +46,8 @@ if ((isset($_POST['frmType']) && ($_POST['frmType'] != "")) || (isset($_POST['Me
         if ($_POST['TipoDoc'] == "Familia") {
             $Param = array(
                 $_POST['Metodo'] ?? 1, // 1 - Crear, 2 - Actualizar
-                "'" . ($_POST['id_punto_control'] ?? "") . "'",
-                "'" . ($_POST['punto_control'] ?? "") . "'",
-                "'" . ($_POST['descripcion_punto_control'] ?? "") . "'",
-                "'" . ($_POST['id_tipo_punto_control'] ?? "") . "'",
-                "'" . ($_POST['id_socio_negocio'] ?? "") . "'",
-                "'" . ($_POST['socio_negocio'] ?? "") . "'",
-                ($_POST['id_consecutivo_direccion'] ?? "NULL"),
-                "'" . ($_POST['id_direccion_destino'] ?? "") . "'",
-                "'" . ($_POST['direccion_destino'] ?? "") . "'",
-                "'" . ($_POST['id_zona_sn'] ?? "") . "'",
-                "'" . ($_POST['zona_sn'] ?? "") . "'",
-                "'" . ($_POST['estado'] ?? "") . "'",
+                "'" . ($_POST['id_familia_plaga'] ?? "") . "'",
+                "'" . ($_POST['familia_plaga'] ?? "") . "'",
                 $Usuario, // @id_usuario_actualizacion
                 $FechaHora, // @fecha_actualizacion
                 $FechaHora, // @hora_actualizacion
@@ -66,7 +56,7 @@ if ((isset($_POST['frmType']) && ($_POST['frmType'] != "")) || (isset($_POST['Me
                 ($_POST['Metodo'] == 1) ? $FechaHora : "NULL",
             );
 
-            $SQL = EjecutarSP('sp_tbl_PuntoControl_Familias', $Param);
+            $SQL = EjecutarSP('sp_tbl_Plagas_Familias', $Param);
             if (!$SQL) {
                 $sw_error = 1;
                 $msg_error = "No se pudo insertar la nueva Familia de Plagas";
@@ -138,7 +128,7 @@ if ((isset($_POST['frmType']) && ($_POST['frmType'] != "")) || (isset($_POST['Me
 }
 
 // SMM, 27/02/2023
-$SQL_Familias = Seleccionar("uvw_tbl_PuntoControl", "*");
+$SQL_Familias = Seleccionar("uvw_tbl_Plagas_Familias", "*");
 $SQL_Iconos = Seleccionar("uvw_tbl_PuntoControl_Iconos", "*");
 $SQL_Tipos = Seleccionar("uvw_tbl_PuntoControl_Tipos", "*");
 ?>
@@ -287,16 +277,8 @@ if (isset($sw_error) && ($sw_error == 1)) {
 													<table class="table table-striped table-bordered table-hover dataTables-example">
 														<thead>
 															<tr>
-																<th>ID Punto Control</th>
-																<th>Punto Control</th>
-																<th>Descripción Punto Control</th>
-																<th>ID Tipo Punto Control</th>
-																<th>Socio Negocio</th>
-																<th>ID Dirección Destino</th>
-																<th>Dirección Destino</th>
-																<th>ID Zona</th>
-																<th>Zona</th>
-																<th>Estado</th>
+																<th>ID Familia Plaga</th>
+																<th>Familia Plaga</th>
 																<th>Fecha Actualización</th>
 																<th>Usuario Actualización</th>
 																<th>Acciones</th>
@@ -305,24 +287,11 @@ if (isset($sw_error) && ($sw_error == 1)) {
 														<tbody>
 															 <?php while ($row_Familia = sqlsrv_fetch_array($SQL_Familias)) {?>
 															<tr>
-																<td><?php echo $row['id_punto_control']; ?></td>
-																<td><?php echo $row['punto_control']; ?></td>
-																<td><?php echo $row['descripcion_punto_control']; ?></td>
-																<td><?php echo $row['id_tipo_punto_control']; ?></td>
-																<td><?php echo $row['socio_negocio']; ?></td>
-																<td><?php echo $row['id_direccion_destino']; ?></td>
-																<td><?php echo $row['direccion_destino']; ?></td>
-																<td><?php echo $row['id_zona_sn']; ?></td>
-																<td><?php echo $row['zona_sn']; ?></td>
+																<td><?php echo $row_Familia['id_familia_plaga']; ?></td>
+																<td><?php echo $row_Familia['familia_plaga']; ?></td>
 
-																<td>
-																	<span class="badge <?php echo ($row['estado'] == "Y") ? "badge-primary" : "badge-danger"; ?>">
-																		<?php echo ($row['estado'] == "Y") ? "Activo" : "Inactivo"; ?>
-																	</span>
-																</td>
-
-																<td><?php echo isset($row['fecha_actualizacion']) ? date_format($row['fecha_actualizacion'], 'Y-m-d H:i:s') : ""; ?></td>
-																<td><?php echo $row['usuario_actualizacion']; ?></td>
+																<td><?php echo isset($row_Familia['fecha_actualizacion']) ? date_format($row_Familia['fecha_actualizacion'], 'Y-m-d H:i:s') : ""; ?></td>
+																<td><?php echo $row_Familia['usuario_actualizacion']; ?></td>
 
 																<td>
 																	<button type="button" id="btnEdit<?php echo $row_Familia['ID']; ?>" class="btn btn-success btn-xs" onClick="EditarCampo('<?php echo $row_Familia['ID']; ?>','Familia');"><i class="fa fa-pencil"></i> Editar</button>
