@@ -82,7 +82,6 @@ if ((isset($_POST['frmType']) && ($_POST['frmType'] != "")) || (isset($_POST['Me
         } elseif ($_POST['TipoDoc'] == "Tipo") {
             $Param = array(
                 $_POST['Metodo'] ?? 1, // 1 - Crear, 2 - Actualizar
-                $ID,
                 "'" . ($_POST['id_tipo_punto_control'] ?? "") . "'",
                 "'" . ($_POST['tipo_punto_control'] ?? "") . "'",
                 "'" . ($_POST['id_familia_plaga'] ?? "") . "'",
@@ -379,14 +378,17 @@ if (isset($sw_error) && ($sw_error == 1)) {
 													<table class="table table-striped table-bordered table-hover dataTables-example">
 														<thead>
 															<tr>
-																<th>Icono SAP B1</th>
-																<th>Parámetro de Tipo</th>
-																<th>Etiqueta</th>
-																<th>Tipo de Campo</th>
-																<th>Vista de referencia</th>
-																<th>Obligatorio</th>
-																<th>Multiple</th>
+																<th>ID Tipo Punto Control</th>
+																<th>Tipo Punto Control</th>
+																<th>ID Familia Plaga</th>
+																<th>Familia Plaga</th>
+																<th>Descripción</th>
 																<th>Estado</th>
+																<th>ID Icono</th>
+																<th>ID Color</th>
+																<th>ID Clase Control</th>
+																<th>Clase Control</th>
+																<th>Código Prefijo</th>
 																<th>Fecha Actualizacion</th>
 																<th>Usuario Actualizacion</th>
 																<th>Acciones</th>
@@ -395,26 +397,26 @@ if (isset($sw_error) && ($sw_error == 1)) {
 														<tbody>
 															 <?php while ($row_Tipo = sqlsrv_fetch_array($SQL_Tipos)) {?>
 															<tr>
-																<td><?php echo $row['id_tipo_punto_control']; ?></td>
-																<td><?php echo $row['tipo_punto_control']; ?></td>
-																<td><?php echo $row['id_familia_plaga']; ?></td>
-																<td><?php echo $row['familia_plaga']; ?></td>
-																<td><?php echo $row['descripcion']; ?></td>
+																<td><?php echo $row_Tipo['id_tipo_punto_control']; ?></td>
+																<td><?php echo $row_Tipo['tipo_punto_control']; ?></td>
+																<td><?php echo $row_Tipo['id_familia_plaga']; ?></td>
+																<td><?php echo $row_Tipo['familia_plaga']; ?></td>
+																<td><?php echo $row_Tipo['descripcion']; ?></td>
 
 																<td>
-																	<span class="badge <?php echo ($row['estado'] == "Y") ? "badge-primary" : "badge-danger"; ?>">
-																		<?php echo ($row['estado'] == "Y") ? "Activo" : "Inactivo"; ?>
+																	<span class="badge <?php echo ($row_Tipo['estado'] == "Y") ? "badge-primary" : "badge-danger"; ?>">
+																		<?php echo ($row_Tipo['estado'] == "Y") ? "Activo" : "Inactivo"; ?>
 																	</span>
 																</td>
 
-																<td><?php echo $row['id_icono']; ?></td>
-																<td><?php echo $row['id_color']; ?></td>
-																<td><?php echo $row['id_clase_control']; ?></td>
-																<td><?php echo $row['clase_control']; ?></td>
-																<td><?php echo $row['codigo_prefijo']; ?></td>
+																<td><?php echo $row_Tipo['id_icono']; ?></td>
+																<td><?php echo $row_Tipo['id_color']; ?></td>
+																<td><?php echo $row_Tipo['id_clase_control']; ?></td>
+																<td><?php echo $row_Tipo['clase_control']; ?></td>
+																<td><?php echo $row_Tipo['codigo_prefijo']; ?></td>
 
-																<td><?php echo isset($row['fecha_actualizacion']) ? date_format($row['fecha_actualizacion'], 'Y-m-d H:i:s') : ""; ?></td>
-																<td><?php echo $row['usuario_actualizacion']; ?></td>
+																<td><?php echo isset($row_Tipo['fecha_actualizacion']) ? date_format($row_Tipo['fecha_actualizacion'], 'Y-m-d H:i:s') : ""; ?></td>
+																<td><?php echo $row_Tipo['usuario_actualizacion']; ?></td>
 
 																<td>
 																	<button type="button" id="btnEdit<?php echo $row_Tipo['ID']; ?>" class="btn btn-success btn-xs" onClick="EditarCampo('<?php echo $row_Tipo['ID']; ?>','Tipo');"><i class="fa fa-pencil"></i> Editar</button>

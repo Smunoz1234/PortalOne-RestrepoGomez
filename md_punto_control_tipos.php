@@ -1,7 +1,7 @@
 <?php
 require_once "includes/conexion.php";
 
-$Title = "Crear nuevo registro";
+$Title = "Crear Nuevo Registro";
 $Metodo = 1;
 
 $edit = isset($_POST['edit']) ? $_POST['edit'] : 0;
@@ -12,29 +12,26 @@ $SQL_FamiliasModal = Seleccionar('tbl_Plagas_Familias', '*');
 $SQL_IconosModal = Seleccionar('tbl_PuntoControl_Iconos', '*');
 $SQL_SNZonasModal = Seleccionar('tbl_SociosNegocios_Zonas', '*');
 
-$ids_perfiles = array();
-$SQL_PerfilesUsuarios = Seleccionar('uvw_tbl_PerfilesUsuarios', '*');
-
 if ($edit == 1 && $id != "") {
-    $Title = "Editar registro";
     $Metodo = 2;
 
     if ($doc == "Familia") {
-        $SQL = Seleccionar('tbl_PuntoControl', '*', "ID='" . $id . "'");
+        $SQL = Seleccionar('tbl_Plagas_Familias', '*', "ID='$id'");
         $row = sqlsrv_fetch_array($SQL);
+
+        $Title = "Editar Familia de Plagas";
     } elseif ($doc == "Icono") {
-        $SQL = Seleccionar('tbl_PuntoControl_Iconos', '*', "ID='" . $id . "'");
+        $SQL = Seleccionar('tbl_PuntoControl_Iconos', '*', "ID='$id'");
         $row = sqlsrv_fetch_array($SQL);
+
+        $Title = "Editar Icono de Punto de Control";
     } elseif ($doc == "Tipo") {
-        $SQL = Seleccionar('tbl_PuntoControl_Tipos', '*', "ID='" . $id . "'");
+        $SQL = Seleccionar('tbl_PuntoControl_Tipos', '*', "ID='$id'");
         $row = sqlsrv_fetch_array($SQL);
+
+        $Title = "Editar Tipo de Punto de Control";
     }
-
-    $ids_perfiles = isset($row['Perfiles']) ? explode(";", $row['Perfiles']) : [];
 }
-
-$Cons_Lista = "EXEC sp_tables @table_owner = 'dbo', @table_type = \"'VIEW'\"";
-$SQL_Lista = sqlsrv_query($conexion, $Cons_Lista);
 ?>
 
 <style>
@@ -53,7 +50,7 @@ $SQL_Lista = sqlsrv_query($conexion, $Cons_Lista);
 
 <div class="modal-header">
 	<h4 class="modal-title">
-		<?php echo "Crear Nueva $doc"; ?>
+		<?php echo $Title; ?>
 	</h4>
 </div>
 
@@ -115,7 +112,7 @@ $SQL_Lista = sqlsrv_query($conexion, $Cons_Lista);
 
 				<br><br><br><br>
 				<div class="form-group">
-				<div class="col-md-6">
+					<div class="col-md-6">
 						<label class="control-label">ID Familia Plaga</label>
 						<select id="id_familia_plaga" name="id_familia_plaga" class="form-control">
 							<option value="" <?php if ($edit == 0) {echo "disabled selected";}?>>Seleccione...</option>
@@ -123,17 +120,6 @@ $SQL_Lista = sqlsrv_query($conexion, $Cons_Lista);
 							<?php while ($row_Familia = sqlsrv_fetch_array($SQL_FamiliasModal)) {?>
 								<option value="<?php echo $row_Familia['id_familia_plaga']; ?>" <?php if (isset($row['id_familia_plaga']) && ($row['id_familia_plaga'] == $row_Familia['id_familia_plaga'])) {echo "selected";}?>><?php echo $row_Familia['id_familia_plaga'] . " - " . $row_Familia['familia_plaga']; ?></option>
 							<?php }?>
-						</select>
-					</div>
-				</div> <!-- form-group -->
-
-				<br><br><br><br>
-				<div class="form-group">
-					<div class="col-md-6">
-						<label class="control-label">Estado <span class="text-danger">*</span></label>
-						<select class="form-control" id="estado" name="estado" required>
-							<option value="Y" <?php if (($edit == 1) && ($row['estado'] == "Y")) {echo "selected";}?>>ACTIVO</option>
-							<option value="N" <?php if (($edit == 1) && ($row['estado'] == "N")) {echo "selected";}?>>INACTIVO</option>
 						</select>
 					</div>
 
@@ -153,12 +139,12 @@ $SQL_Lista = sqlsrv_query($conexion, $Cons_Lista);
 				<div class="form-group">
 					<div class="col-md-6">
 						<label class="control-label">ID Clase Control</label>
-						<input type="text" class="form-control" autocomplete="off" id="id_clase_control" name="id_clase_control" value="<?php if ($edit == 1) {echo $row['id_clase_control'];}?>">
+						<input type="number" class="form-control" autocomplete="off" id="id_clase_control" name="id_clase_control" value="<?php if ($edit == 1) {echo $row['id_clase_control'];}?>">
 					</div>
 
 					<div class="col-md-6">
-						<label class="control-label">Clase Control</label>
-						<input type="text" class="form-control" autocomplete="off" id="clase_control" name="clase_control" value="<?php if ($edit == 1) {echo $row['clase_control'];}?>">
+						<label class="control-label">Código Prefijo</label>
+						<input type="text" class="form-control" autocomplete="off" id="codigo_prefijo" name="codigo_prefijo" value="<?php if ($edit == 1) {echo $row['codigo_prefijo'];}?>">
 					</div>
 				</div> <!-- form-group -->
 
@@ -166,24 +152,28 @@ $SQL_Lista = sqlsrv_query($conexion, $Cons_Lista);
 				<div class="form-group">
 					<div class="row">
 						<div class="col-md-6">
-						<label class="control-label">ID Color</label>
+							<label class="control-label">ID Color</label>
 						</div>
 						<div class="col-md-6">
-						<label class="control-label">Código Prefijo</label>
+							<label class="control-label">Estado <span class="text-danger">*</span></label>
 						</div>
 					</div>
 
 					<div class="row">
 						<div class="col-md-2">
-						<input type="color" class="form-control" autocomplete="off" id="id_color" name="id_color" value="<?php if ($edit == 1) {echo $row['id_color'];}?>" oninput="$('#color').val(this.value);">
+							<input type="color" class="form-control" autocomplete="off" id="id_color" name="id_color" value="<?php if ($edit == 1) {echo $row['id_color'];}?>" oninput="$('#color').val(this.value);">
 						</div>
 						<div class="col-md-4">
-						<input type="text" class="form-control" id="color" value="<?php if ($edit == 1) {echo $row['id_color'];}?>" readonly>
+							<input type="text" class="form-control" id="color" value="<?php if ($edit == 1) {echo $row['id_color'];}?>" readonly>
 						</div>
+
 						<div class="col-md-6">
-						<div class="form-group">
-							<input type="text" class="form-control" autocomplete="off" id="codigo_prefijo" name="codigo_prefijo" value="<?php if ($edit == 1) {echo $row['codigo_prefijo'];}?>">
-						</div>
+							<div class="form-group">
+								<select class="form-control" id="estado" name="estado" required>
+									<option value="Y" <?php if (($edit == 1) && ($row['estado'] == "Y")) {echo "selected";}?>>ACTIVO</option>
+									<option value="N" <?php if (($edit == 1) && ($row['estado'] == "N")) {echo "selected";}?>>INACTIVO</option>
+								</select>
+							</div>
 						</div>
 					</div>
 				</div> <!-- form-group -->
