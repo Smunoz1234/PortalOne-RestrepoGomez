@@ -734,13 +734,25 @@ if (isset($_GET['type']) && $_GET['type'] != "") {
         $Parametros = array(
             "'" . $_GET['Cliente'] . "'",
             "'" . $_GET['Sucursal'] . "'",
-			"'" . $_GET['Periodo'] . "'",
+            "'" . $_GET['Periodo'] . "'",
             "'" . $_GET['Metodo'] . "'",
             "'" . $_GET['Linea'] . "'",
         );
 
         $SQL_ActualizarLMT = EjecutarSP('sp_tbl_ProgramacionOrdenesServicio_ActualizarLMT', $Parametros);
         if ($SQL_ActualizarLMT) {
+            echo "*Ok*";
+        }
+    }
+
+    // Corregir datos de la tabla de Zonas SN. SMM, 02/03/2023
+    elseif ($_GET['type'] == 53) {
+        $Parametros = array(
+            "'" . ($_GET['id_socio_negocio'] ?? "") . "'",
+            "'" . ($_GET['id_zona_sn'] ?? "") . "'",
+        );
+        $SQL = EjecutarSP('sp_tbl_SociosNegocios_Zonas_Corregir', $Parametros);
+        if ($SQL) {
             echo "*Ok*";
         }
     }

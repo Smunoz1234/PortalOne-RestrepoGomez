@@ -16,17 +16,17 @@ if ($edit == 1 && $id != "") {
     $Metodo = 2;
 
     if ($doc == "Familia") {
-        $SQL = Seleccionar('tbl_Plagas_Familias', '*', "ID='$id'");
+        $SQL = Seleccionar('tbl_Plagas_Familias', '*', "id_familia_plaga='$id'");
         $row = sqlsrv_fetch_array($SQL);
 
         $Title = "Editar Familia de Plagas";
     } elseif ($doc == "Icono") {
-        $SQL = Seleccionar('tbl_PuntoControl_Iconos', '*', "ID='$id'");
+        $SQL = Seleccionar('tbl_PuntoControl_Iconos', '*', "id_icono='$id'");
         $row = sqlsrv_fetch_array($SQL);
 
         $Title = "Editar Icono de Punto de Control";
     } elseif ($doc == "Tipo") {
-        $SQL = Seleccionar('tbl_PuntoControl_Tipos', '*', "ID='$id'");
+        $SQL = Seleccionar('tbl_PuntoControl_Tipos', '*', "id_tipo_punto_control='$id'");
         $row = sqlsrv_fetch_array($SQL);
 
         $Title = "Editar Tipo de Punto de Control";
@@ -65,7 +65,7 @@ if ($edit == 1 && $id != "") {
 				<div class="form-group">
 					<div class="col-md-6">
 						<label class="control-label">ID Familia Plaga <span class="text-danger">*</span></label>
-						<input type="text" class="form-control" autocomplete="off" required id="id_familia_plaga" name="id_familia_plaga" value="<?php if ($edit == 1) {echo $row['id_familia_plaga'];}?>">
+						<input <?php if ($edit == 1) {echo "readonly";}?> type="text" class="form-control" autocomplete="off" required id="id_familia_plaga" name="id_familia_plaga" value="<?php if ($edit == 1) {echo $row['id_familia_plaga'];}?>">
 					</div>
 
 					<div class="col-md-6">
@@ -83,7 +83,7 @@ if ($edit == 1 && $id != "") {
 				<div class="form-group">
 					<div class="col-md-6">
 						<label class="control-label">ID Icono <span class="text-danger">*</span></label>
-						<input type="text" class="form-control" autocomplete="off" required name="id_icono" id="id_icono" value="<?php if ($edit == 1) {echo $row['id_icono'];}?>">
+						<input <?php if ($edit == 1) {echo "readonly";}?> type="text" class="form-control" autocomplete="off" required name="id_icono" id="id_icono" value="<?php if ($edit == 1) {echo $row['id_icono'];}?>">
 					</div>
 
 					<div class="col-md-6">
@@ -100,13 +100,13 @@ if ($edit == 1 && $id != "") {
 				<!-- Inicio Tipo -->
 				<div class="form-group">
 					<div class="col-md-6">
-						<label class="control-label">ID Tipo Punto Control</label>
-						<input type="text" class="form-control" autocomplete="off" id="id_tipo_punto_control" name="id_tipo_punto_control" value="<?php if ($edit == 1) {echo $row['id_tipo_punto_control'];}?>">
+						<label class="control-label">ID Tipo Punto Control <span class="text-danger">*</span></label>
+						<input <?php if ($edit == 1) {echo "readonly";}?> required type="text" class="form-control" autocomplete="off" id="id_tipo_punto_control" name="id_tipo_punto_control" value="<?php if ($edit == 1) {echo $row['id_tipo_punto_control'];}?>">
 					</div>
 
 					<div class="col-md-6">
-						<label class="control-label">Tipo Punto Control</label>
-						<input type="text" class="form-control" autocomplete="off" id="tipo_punto_control" name="tipo_punto_control" value="<?php if ($edit == 1) {echo $row['tipo_punto_control'];}?>">
+						<label class="control-label">Tipo Punto Control <span class="text-danger">*</span></label>
+						<input type="text" class="form-control" required autocomplete="off" id="tipo_punto_control" name="tipo_punto_control" value="<?php if ($edit == 1) {echo $row['tipo_punto_control'];}?>">
 					</div>
 				</div> <!-- form-group -->
 

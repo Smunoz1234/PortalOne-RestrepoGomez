@@ -123,6 +123,15 @@ if ($type != 0) {
     // Mostrar mensajes AJAX.
     exit();
 }
+
+// SMM, 02/03/2023
+$SQL_Validacion = Seleccionar("uvw_tbl_SociosNegocios_Zonas", "COUNT(*) AS num_errors", "[id_socio_negocio]='$CardCodeID' AND [error] = 'Y'");
+$row_Validacion = sqlsrv_fetch_array($SQL_Validacion);
+
+$error_validacion = false;
+if ($row_Validacion["num_errors"] > 0) {
+    $error_validacion = true;
+}
 ?>
 
 <!doctype html>
@@ -310,28 +319,13 @@ if ($type != 0) {
 <div class="row">
 	<div class="form-group">
 		<div class="col-lg-2">
-			<div class="btn-group">
-				<button data-toggle="dropdown" class="btn btn-info dropdown-toggle"><i class="fa fa-download"></i> Descargar formato <i class="fa fa-caret-down"></i></button>
-				<ul class="dropdown-menu">
-					<li>
-						<a class="dropdown-item alkin" href="sapdownload.php?type=<?php echo base64_encode('2'); ?>&id=<?php echo base64_encode('19'); ?>&IdCliente=<?php echo $_GET['Cliente']; ?>&IdPeriodo=<?php echo $Anno; ?>&IdSucursal=<?php echo $_GET['Sucursal'] ?? '-1'; ?>&TipoExp=1" target="_blank">PDF</a>
-					</li>
-					<li>
-						<a class="dropdown-item alkin" href="sapdownload.php?type=<?php echo base64_encode('2'); ?>&id=<?php echo base64_encode('19'); ?>&IdCliente=<?php echo $_GET['Cliente']; ?>&IdPeriodo=<?php echo $Anno; ?>&IdSucursal=<?php echo $_GET['Sucursal'] ?? '-1'; ?>&TipoExp=2" target="_blank">Excel</a>
-					</li>
-				</ul>
-			</div> <!-- btn-group-->
-		</div>
-
-		<div class="col-lg-4">
-			<button class="btn btn-warning" id="ActualizarCronograma"><i class="fa fa-refresh"></i> Actualizar cronograma basado en LMT</button>
-
-			<button style="margin-left: 5px;" type="button" class="btn btn-sm btn-circle" data-toggle="tooltip" data-html="true"
-			title="Actualiza de manera masiva los campos de Áreas, Servicios, Método de aplicación de las LMT hacia el Cronograma de Servicios."><i class="fa fa-info"></i></button>
-		</div>
-
-		<div class="col-lg-1">
 			<button type="button" id="btnNuevo" class="btn btn-success" onclick="MostrarModal();"><i class="fa fa-plus-circle"></i> Adicionar zonas</button>
+		</div>
+		<div class="col-lg-4" style="<?php if (!$error_validacion) {echo "display: none;";}?>">
+			<button type="button" id="btnCorregir" class="btn btn-warning" onclick="CorregirDatos();"><i class="fa fa-gavel"></i> Corregir datos</button>
+
+			<button style="margin-left: 5px;" type="button" class="btn btn-sm btn-circle" data-toggle="tooltip" data-placement="bottom" data-html="true"
+			title="Se encontraron inconsistencias en los datos de la tabla, pulse el botón para corregir."><i class="fa fa-info"></i></button>
 		</div>
 	</div> <!-- form-group -->
 
@@ -413,6 +407,31 @@ if ($type != 0) {
 </div> <!-- row m-t-md -->
 
 <script>
+	// SMM, 02/03/2023
+	function CorregirDatos() {
+		Swal.fire({
+			title: 'Corregir Datos de la Tabla',
+			text: "¿Está seguro que desea continuar?",
+			icon: 'warning',
+			showCancelButton: true,
+			confirmButtonText: 'Si, continuar',
+			cancelButtonText: 'No'
+		}).then((result) => {
+			if (result.isConfirmed) {
+				$.ajax({
+					type: 'GET',
+					url: 'includes/procedimientos.php?type=53&id_socio_negocio=<?php echo $CardCodeID; ?>',
+					success: function(response) {
+						location.reload();
+					},
+					error: function(error) {
+						console.error('430->', error.responseText);
+					}
+				});
+			}
+		});
+	}
+
 	// SMM, 24/02/2023
 	function OperacionModal(ID = "") {
 		$.ajax({
@@ -499,7 +518,9 @@ if ($type != 0) {
 		}); // Swal.fire
 	});
 
-	$(document).ready(function(){
+	$(document).ready(function() {
+		$('[data-toggle="tooltip"]').tooltip();
+
 		$(".select2").select2();
 
 		$(".alkin").on('click', function(){

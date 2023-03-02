@@ -293,8 +293,8 @@ if (isset($sw_error) && ($sw_error == 1)) {
 																<td><?php echo $row_Familia['usuario_actualizacion']; ?></td>
 
 																<td>
-																	<button type="button" id="btnEdit<?php echo $row_Familia['ID']; ?>" class="btn btn-success btn-xs" onClick="EditarCampo('<?php echo $row_Familia['ID']; ?>','Familia');"><i class="fa fa-pencil"></i> Editar</button>
-																	<button type="button" id="btnDelete<?php echo $row_Familia['ID']; ?>" class="btn btn-danger btn-xs" onClick="EliminarCampo('<?php echo $row_Familia['ID']; ?>','Familia');"><i class="fa fa-trash"></i> Eliminar</button>
+																	<button type="button" id="btnEdit<?php echo $row_Familia['id_familia_plaga']; ?>" class="btn btn-success btn-xs" onClick="EditarCampo('<?php echo $row_Familia['id_familia_plaga']; ?>','Familia');"><i class="fa fa-pencil"></i> Editar</button>
+																	<button type="button" id="btnDelete<?php echo $row_Familia['id_familia_plaga']; ?>" class="btn btn-danger btn-xs" onClick="EliminarCampo('<?php echo $row_Familia['id_familia_plaga']; ?>','Familia');"><i class="fa fa-trash"></i> Eliminar</button>
 																</td>
 															</tr>
 															 <?php }?>
@@ -344,8 +344,8 @@ if (isset($sw_error) && ($sw_error == 1)) {
 																<td><?php echo $row_Icono['usuario_actualizacion']; ?></td>
 
 																<td>
-																	<button type="button" id="btnEdit<?php echo $row_Icono['ID']; ?>" class="btn btn-success btn-xs" onClick="EditarCampo('<?php echo $row_Icono['ID']; ?>','Icono');"><i class="fa fa-pencil"></i> Editar</button>
-																	<button type="button" id="btnDelete<?php echo $row_Icono['ID']; ?>" class="btn btn-danger btn-xs" onClick="EliminarCampo('<?php echo $row_Icono['ID']; ?>','Icono');"><i class="fa fa-trash"></i> Eliminar</button>
+																	<button type="button" id="btnEdit<?php echo $row_Icono['id_icono']; ?>" class="btn btn-success btn-xs" onClick="EditarCampo('<?php echo $row_Icono['id_icono']; ?>','Icono');"><i class="fa fa-pencil"></i> Editar</button>
+																	<button type="button" id="btnDelete<?php echo $row_Icono['id_icono']; ?>" class="btn btn-danger btn-xs" onClick="EliminarCampo('<?php echo $row_Icono['id_icono']; ?>','Icono');"><i class="fa fa-trash"></i> Eliminar</button>
 																</td>
 															</tr>
 															 <?php }?>
@@ -380,14 +380,12 @@ if (isset($sw_error) && ($sw_error == 1)) {
 															<tr>
 																<th>ID Tipo Punto Control</th>
 																<th>Tipo Punto Control</th>
-																<th>ID Familia Plaga</th>
 																<th>Familia Plaga</th>
 																<th>Descripción</th>
 																<th>Estado</th>
-																<th>ID Icono</th>
+																<th>Icono</th>
 																<th>ID Color</th>
 																<th>ID Clase Control</th>
-																<th>Clase Control</th>
 																<th>Código Prefijo</th>
 																<th>Fecha Actualizacion</th>
 																<th>Usuario Actualizacion</th>
@@ -399,7 +397,6 @@ if (isset($sw_error) && ($sw_error == 1)) {
 															<tr>
 																<td><?php echo $row_Tipo['id_tipo_punto_control']; ?></td>
 																<td><?php echo $row_Tipo['tipo_punto_control']; ?></td>
-																<td><?php echo $row_Tipo['id_familia_plaga']; ?></td>
 																<td><?php echo $row_Tipo['familia_plaga']; ?></td>
 																<td><?php echo $row_Tipo['descripcion']; ?></td>
 
@@ -409,18 +406,17 @@ if (isset($sw_error) && ($sw_error == 1)) {
 																	</span>
 																</td>
 
-																<td><?php echo $row_Tipo['id_icono']; ?></td>
+																<td><?php echo $row_Tipo['icono']; ?></td>
 																<td><?php echo $row_Tipo['id_color']; ?></td>
 																<td><?php echo $row_Tipo['id_clase_control']; ?></td>
-																<td><?php echo $row_Tipo['clase_control']; ?></td>
 																<td><?php echo $row_Tipo['codigo_prefijo']; ?></td>
 
 																<td><?php echo isset($row_Tipo['fecha_actualizacion']) ? date_format($row_Tipo['fecha_actualizacion'], 'Y-m-d H:i:s') : ""; ?></td>
 																<td><?php echo $row_Tipo['usuario_actualizacion']; ?></td>
 
 																<td>
-																	<button type="button" id="btnEdit<?php echo $row_Tipo['ID']; ?>" class="btn btn-success btn-xs" onClick="EditarCampo('<?php echo $row_Tipo['ID']; ?>','Tipo');"><i class="fa fa-pencil"></i> Editar</button>
-																	<button type="button" id="btnDelete<?php echo $row_Tipo['ID']; ?>" class="btn btn-danger btn-xs" onClick="EliminarCampo('<?php echo $row_Tipo['ID']; ?>','Tipo');"><i class="fa fa-trash"></i> Eliminar</button>
+																	<button type="button" id="btnEdit<?php echo $row_Tipo['id_tipo_punto_control']; ?>" class="btn btn-success btn-xs" onClick="EditarCampo('<?php echo $row_Tipo['id_tipo_punto_control']; ?>','Tipo');"><i class="fa fa-pencil"></i> Editar</button>
+																	<button type="button" id="btnDelete<?php echo $row_Tipo['id_tipo_punto_control']; ?>" class="btn btn-danger btn-xs" onClick="EliminarCampo('<?php echo $row_Tipo['id_tipo_punto_control']; ?>','Tipo');"><i class="fa fa-trash"></i> Eliminar</button>
 																</td>
 															</tr>
 															 <?php }?>
@@ -498,8 +494,9 @@ function CrearCampo(doc){
 		data:{
 			doc:doc
 		},
-		success: function(response){
+		success: function(response) {
 			$('.ibox-content').toggleClass('sk-loading',false);
+
 			$('#ContenidoModal').html(response);
 			$('#myModal').modal("show");
 		}
@@ -513,12 +510,13 @@ function EditarCampo(id, doc){
 		type: "POST",
 		url: "md_punto_control_tipos.php",
 		data:{
-			doc:doc,
-			id:id,
-			edit:1
+			doc: doc,
+			id: id,
+			edit: 1
 		},
-		success: function(response){
+		success: function(response) {
 			$('.ibox-content').toggleClass('sk-loading',false);
+
 			$('#ContenidoModal').html(response);
 			$('#myModal').modal("show");
 		}
@@ -534,15 +532,16 @@ function EliminarCampo(id, doc){
 		cancelButtonText: "No"
 	}).then((result) => {
 		if (result.isConfirmed) {
-			// $('.ibox-content').toggleClass('sk-loading',true);
-
 			$.ajax({
 				type: "post",
 				url: "punto_control_tipos.php",
-				data: { TipoDoc: doc, ID: id, Metodo: 3 },
+				data: {
+					TipoDoc: doc,
+					ID: id,
+					Metodo: 3
+				},
 				async: false,
-				success: function(data){
-					// console.log(data);
+				success: function(data) {
 					location.href = `punto_control_tipos.php?doc=${doc}&a=<?php echo base64_encode("OK_PRDel"); ?>`;
 				},
 				error: function(error) {
