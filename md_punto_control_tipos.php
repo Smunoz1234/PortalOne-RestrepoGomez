@@ -32,6 +32,9 @@ if ($edit == 1 && $id != "") {
         $Title = "Editar Tipo de Punto de Control";
     }
 }
+
+// SMM, 03/03/2023
+$ruta_Iconos = ObtenerVariable("CarpetaTmp") . "/pc_iconos/" . $_SESSION['CodUser'] . "/";
 ?>
 
 <style>
@@ -116,7 +119,7 @@ if ($edit == 1 && $id != "") {
 
 						<div class="col-md-6">
 							<img id="viewImg" style="max-width: 100%; height: 100px;" src="">
-							<input type="text" name="icono" id="icono">
+							<input type="hidden" name="icono" id="icono">
 						</div>
 					</div>
 				</div>
@@ -149,18 +152,39 @@ if ($edit == 1 && $id != "") {
 							<?php }?>
 						</select>
 					</div>
+				</div> <!-- form-group -->
 
+				<br><br><br><br>
+				<div class="form-group">
 					<div class="col-md-6">
 						<label class="control-label">ID Icono</label>
 						<select id="id_icono" name="id_icono" class="form-control">
 							<option value="" <?php if ($edit == 0) {echo "disabled selected";}?>>Seleccione...</option>
 
 							<?php while ($row_Icono = sqlsrv_fetch_array($SQL_IconosModal)) {?>
-								<option value="<?php echo $row_Icono['id_icono']; ?>" <?php if (isset($row['id_icono']) && ($row['id_icono'] == $row_Icono['id_icono'])) {echo "selected";}?>><?php echo $row_Icono['id_icono'] . " - " . $row_Icono['icono']; ?></option>
+								<option value="<?php echo $row_Icono['id_icono']; ?>" <?php if (isset($row['id_icono']) && ($row['id_icono'] == $row_Icono['id_icono'])) {echo "selected";}?> data-image="<?php echo $ruta_Iconos . $row_Icono['icono']; ?>"><?php echo $row_Icono['id_icono']; ?></option>
 							<?php }?>
 						</select>
 					</div>
+
+					<div class="col-md-6">
+						<img id="iconView" src="#" alt="Previsualización de icono" style="display:none; max-width: 50px;">
+					</div>
 				</div> <!-- form-group -->
+
+				<script>
+					// Obtener el selector y la imagen previsualización
+					var selector = document.getElementById("id_icono");
+					var imagen = document.getElementById("iconView");
+					// Agregar un listener para el cambio del selector
+					selector.addEventListener("change", function() {
+						// Obtener la opción seleccionada
+						var opcion = selector.options[selector.selectedIndex];
+						// Cambiar la fuente de la imagen previsualización
+						imagen.src = opcion.getAttribute("data-image");
+						imagen.style.display = "block";
+					});
+				</script>
 
 				<br><br><br><br>
 				<div class="form-group">
@@ -349,7 +373,7 @@ function uploadImage(refImage) {
 		} else {
 			// Inicio, AJAX
 			$.ajax({
-				url: 'upload_image.php?persistent=recepcion_vehiculos',
+				url: 'upload_image.php?persistent=pc_iconos',
 				type: 'post',
 				data: formData,
 				contentType: false,

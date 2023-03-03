@@ -8,7 +8,7 @@ if (isset($_POST['Metodo']) && ($_POST['Metodo'] == 3)) {
     try {
         $Param = array(
             $_POST['Metodo'], // 3 - Eliminar
-            isset($_POST['ID']) ? $_POST['ID'] : "NULL",
+            isset($_POST['ID']) ? ("'" . $_POST['ID'] . "'") : "NULL",
         );
 
         if ($_POST['TipoDoc'] == "Familia") {
@@ -130,6 +130,9 @@ if ((isset($_POST['frmType']) && ($_POST['frmType'] != "")) || (isset($_POST['Me
 $SQL_Familias = Seleccionar("uvw_tbl_Plagas_Familias", "*");
 $SQL_Iconos = Seleccionar("uvw_tbl_PuntoControl_Iconos", "*");
 $SQL_Tipos = Seleccionar("uvw_tbl_PuntoControl_Tipos", "*");
+
+// SMM, 03/03/2023
+$ruta_Iconos = ObtenerVariable("CarpetaTmp") . "/pc_iconos/" . $_SESSION['CodUser'] . "/";
 ?>
 
 <!DOCTYPE html>
@@ -346,6 +349,7 @@ if (isset($sw_error) && ($sw_error == 1)) {
 																<td>
 																	<button type="button" id="btnEdit<?php echo $row_Icono['id_icono']; ?>" class="btn btn-success btn-xs" onClick="EditarCampo('<?php echo $row_Icono['id_icono']; ?>','Icono');"><i class="fa fa-pencil"></i> Editar</button>
 																	<button type="button" id="btnDelete<?php echo $row_Icono['id_icono']; ?>" class="btn btn-danger btn-xs" onClick="EliminarCampo('<?php echo $row_Icono['id_icono']; ?>','Icono');"><i class="fa fa-trash"></i> Eliminar</button>
+																	<button type="button" id="btnView<?php echo $row_Icono['id_icono']; ?>" class="btn btn-info btn-xs" onClick="VerImagen('<?php echo $ruta_Iconos . $row_Icono['icono']; ?>');"><i class="fa fa-eye"></i> Previsualizar</button>
 																</td>
 															</tr>
 															 <?php }?>
@@ -485,6 +489,17 @@ if (isset($sw_error) && ($sw_error == 1)) {
 </script>
 
 <script>
+// SMM, 03/03/2023
+function VerImagen(rutaImagen) {
+	let imagen = new Image();
+	imagen.onload = function() {
+		let ventana = window.open("", "", "width=" + (imagen.width + 20) + ",height=" + (imagen.height + 20) + ",top=" + (screen.height/2 - imagen.height/2) + ",left=" + (screen.width/2 - imagen.width/2));
+		ventana.document.write("<html><head><title>Previsualización</title></head><body><img src='" + imagen.src + "'></body></html>");
+		ventana.document.close();
+	};
+	imagen.src = rutaImagen;
+}
+
 function CrearCampo(doc){
 	$('.ibox-content').toggleClass('sk-loading',true);
 
