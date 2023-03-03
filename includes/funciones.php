@@ -947,6 +947,16 @@ function NormalizarNombreArchivo($NombreArchivo)
     return utf8_encode($NombreArchivo);
 }
 
+// SMM, 02/03/2023
+function NormalizarNombreImagen($IdImagen, $NombreImagen, $ExtImagen)
+{
+    $NombreImagen = str_replace(" ", "_", $NombreImagen);
+    $NombreImagen = str_replace(".", "_", $NombreImagen);
+    $NombreImagen = str_replace("-", "_", $NombreImagen);
+    $NombreImagen = NormalizarNombreArchivo($NombreImagen);
+    return $IdImagen . "_" . "$NombreImagen.$ExtImagen";
+}
+
 function ValidarEstadoArchivoCargue($NombreCliente, $NombreCategoria, $Sucursal, $Archivo)
 { //Validar la información de cargue
     global $conexion;

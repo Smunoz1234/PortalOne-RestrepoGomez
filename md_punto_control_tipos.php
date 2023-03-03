@@ -80,19 +80,46 @@ if ($edit == 1 && $id != "") {
 			<?php } elseif ($doc == "Icono") {?>
 
 				<!-- Inicio Icono -->
-				<div class="form-group">
-					<div class="col-md-6">
+				<div class="form-horizontal">
+					<div class="form-group">
 						<label class="control-label">ID Icono <span class="text-danger">*</span></label>
-						<input <?php if ($edit == 1) {echo "readonly";}?> type="text" class="form-control" autocomplete="off" required name="id_icono" id="id_icono" value="<?php if ($edit == 1) {echo $row['id_icono'];}?>">
+						<br>
+						<div class="col-md-5 form-group">
+							<input <?php if ($edit == 1) {echo "readonly";}?> type="text" class="form-control" autocomplete="off" required name="id_icono" id="id_icono" value="<?php if ($edit == 1) {echo $row['id_icono'];}?>">
+						</div>
 					</div>
 
-					<div class="col-md-6">
+					<div class="form-group">
 						<label class="control-label">Icono <span class="text-danger">*</span></label>
-						<input type="text" class="form-control" autocomplete="off" required name="icono" id="icono" value="<?php if ($edit == 1) {echo $row['icono'];}?>">
+						<br>
+						<div class="col-md-6">
+							<div class="form-group">
+								<div class="fileinput fileinput-new input-group" data-provides="fileinput">
+									<div class="form-control" data-trigger="fileinput">
+										<i class="glyphicon glyphicon-file fileinput-exists"></i>
+										<span class="fileinput-filename"></span>
+									</div>
+									<span class="input-group-addon btn btn-default btn-file">
+										<span class="fileinput-new">Seleccionar</span>
+										<span class="fileinput-exists">Cambiar</span>
+										<input name="Img" type="file" id="Img" onchange="uploadImage('Img'); document.getElementById('icono').value = document.getElementById('Img').value;" required="required"/>
+									</span>
+									<a href="#" class="input-group-addon btn btn-default fileinput-exists" data-dismiss="fileinput">Quitar</a>
+								</div>
+								<div class="row">
+									<div id="msgImg" style="display:none" class="alert alert-info">
+										<i class="fa fa-info-circle"></i> <span>Imagen cargada éxitosamente.<span>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div class="col-md-6">
+							<img id="viewImg" style="max-width: 100%; height: 100px;" src="">
+							<input type="text" name="icono" id="icono">
+						</div>
 					</div>
 				</div>
-
-				<br><br>
 				<!-- Fin Icono -->
 
 			<?php } elseif ($doc == "Tipo") {?>
@@ -296,4 +323,129 @@ $(document).ready(function() {
 		$('#TipoCampo').trigger('change');
 	<?php }?>
  });
+</script>
+
+<script>
+var photos = []; // SMM, 11/02/2022
+
+// Stiven Muñoz Murillo, 11/01/2022
+function uploadImage(refImage) {
+	$('.ibox-content').toggleClass('sk-loading', true); // Carga iniciada.
+
+	var formData = new FormData();
+	var file = $(`#${refImage}`)[0].files[0];
+
+	console.log("Line 1073, uploadImage", file);
+	formData.append('image', file);
+
+	if(typeof file !== 'undefined'){
+		fileSize = returnFileSize(file.size)
+
+		if(fileSize.heavy) {
+			console.error("Heavy");
+
+			mostrarAlerta(`msg${refImage}`, 'danger', `La imagen no puede superar los 2MB, actualmente pesa ${fileSize.size}`);
+			$('.ibox-content').toggleClass('sk-loading', false); // Carga terminada.
+		} else {
+			// Inicio, AJAX
+			$.ajax({
+				url: 'upload_image.php?persistent=recepcion_vehiculos',
+				type: 'post',
+				data: formData,
+				contentType: false,
+				processData: false,
+				success: function(response) {
+					console.log(response);
+					json_response = JSON.parse(response);
+
+					photo_name = json_response.nombre;
+					photo_route = json_response.directorio + photo_name;
+
+					testImage(photo_route).then(success => {
+						console.log(success);
+						console.log("Line 1100, testImage", photo_route);
+
+						$("#icono").val(photo_name); // guarda el nombre del archivo en el input "icono"
+						photos[refImage] = photo_name; // SMM, 11/02/2022
+
+						$(`#view${refImage}`).attr("src", photo_route);
+						mostrarAlerta(`msg${refImage}`, 'info', `Imagen cargada éxitosamente con un peso de ${fileSize.size}`);
+					})
+					.catch(error => {
+						console.error(error);
+						console.error(response);
+
+						mostrarAlerta(`msg${refImage}`, 'danger', 'Error al cargar la imagen.');
+					});
+
+					$('.ibox-content').toggleClass('sk-loading', false); // Carga terminada.
+				},
+				error: function(response) {
+					console.error("server error")
+					console.error(response);
+
+					mostrarAlerta(`msg${refImage}`, 'danger', 'Error al cargar la imagen en el servidor.');
+					$('.ibox-content').toggleClass('sk-loading', false); // Carga terminada.
+				}
+			});
+			// Fin, AJAX
+		}
+	} else {
+		console.log("Ninguna imagen seleccionada");
+
+		$(`#msg${refImage}`).css("display", "none");
+		$(`#view${refImage}`).attr("src", "");
+
+		$('.ibox-content').toggleClass('sk-loading', false); // Carga terminada.
+	}
+	return false;
+}
+
+// Stiven Muñoz Murillo, 13/01/2022
+function mostrarAlerta(id, tipo, mensaje) {
+	$(`#${id}`).attr("class", `alert alert-${tipo}`);
+	$(`#${id} span`).text(mensaje);
+	$(`#${id}`).css("display", "inherit");
+}
+
+function returnFileSize(number) {
+	if (number < 1024) {
+        return { heavy: false, size: (number + 'bytes') };
+    } else if (number >= 1024 && number < 1048576) {
+		number = (number / 1024).toFixed(1);
+        return { heavy: false, size: (number + 'KB') };
+    } else if (number >= 1048576) {
+		number = (number / 1048576).toFixed(1);
+		if(number > 2) {
+			return { heavy: true, size: (number + 'MB') };
+		} else {
+			return { heavy: false, size: (number + 'MB') };
+		}
+    } else {
+		return { heavy: true, size: Infinity }
+	}
+}
+
+// Reference, https://stackoverflow.com/questions/9714525/javascript-image-url-verify
+function testImage(url, timeoutT) {
+    return new Promise(function (resolve, reject) {
+        var timeout = timeoutT || 5000;
+        var timer, img = new Image();
+        img.onerror = img.onabort = function () {
+            clearTimeout(timer);
+            reject("error loading image");
+        };
+        img.onload = function () {
+            clearTimeout(timer);
+            resolve("image loaded successfully");
+        };
+        timer = setTimeout(function () {
+            // reset .src to invalid URL so it stops previous
+            // loading, but doesn't trigger new load
+            img.src = "//!!!!/test.jpg";
+            reject("timeout");
+        }, timeout);
+        img.src = url;
+    });
+}
 </script>
