@@ -10,6 +10,7 @@ $id = isset($_POST['id']) ? $_POST['id'] : "";
 
 $SQL_FamiliasModal = Seleccionar('tbl_Plagas_Familias', '*');
 $SQL_IconosModal = Seleccionar('tbl_PuntoControl_Iconos', '*');
+$SQL_ClasesModal = Seleccionar('tbl_PuntoControl_Clases', '*');
 $SQL_SNZonasModal = Seleccionar('tbl_SociosNegocios_Zonas', '*');
 
 if ($edit == 1 && $id != "") {
@@ -46,6 +47,10 @@ $ruta_Iconos = ObtenerVariable("CarpetaTmp") . "/pc_iconos/" . $_SESSION['CodUse
 	}
 	.select2-search__field:placeholder-shown {
 		width: 100% !important;
+	}
+
+	.dd-container img {
+		max-height: 30px;
 	}
 </style>
 
@@ -87,7 +92,7 @@ $ruta_Iconos = ObtenerVariable("CarpetaTmp") . "/pc_iconos/" . $_SESSION['CodUse
 					<div class="form-group">
 						<label class="control-label">ID Icono <span class="text-danger">*</span></label>
 						<br>
-						<div class="col-md-5 form-group">
+						<div class="col-md-6 form-group">
 							<input <?php if ($edit == 1) {echo "readonly";}?> type="text" class="form-control" autocomplete="off" required name="id_icono" id="id_icono" value="<?php if ($edit == 1) {echo $row['id_icono'];}?>">
 						</div>
 					</div>
@@ -95,7 +100,7 @@ $ruta_Iconos = ObtenerVariable("CarpetaTmp") . "/pc_iconos/" . $_SESSION['CodUse
 					<div class="form-group">
 						<label class="control-label">Icono <span class="text-danger">*</span></label>
 						<br>
-						<div class="col-md-6">
+						<div class="col-md-9">
 							<div class="form-group">
 								<div class="fileinput fileinput-new input-group" data-provides="fileinput">
 									<div class="form-control" data-trigger="fileinput">
@@ -117,8 +122,8 @@ $ruta_Iconos = ObtenerVariable("CarpetaTmp") . "/pc_iconos/" . $_SESSION['CodUse
 							</div>
 						</div>
 
-						<div class="col-md-6">
-							<img id="viewImg" style="max-width: 100%; height: 100px;" src="">
+						<div class="col-md-3">
+							<img id="viewImg" style="max-width: 100%; max-height: 50px;" src="">
 							<input type="hidden" name="icono" id="icono">
 						</div>
 					</div>
@@ -128,6 +133,22 @@ $ruta_Iconos = ObtenerVariable("CarpetaTmp") . "/pc_iconos/" . $_SESSION['CodUse
 			<?php } elseif ($doc == "Tipo") {?>
 
 				<!-- Inicio Tipo -->
+				<div class="form-group">
+					<div class="col-md-9">
+						<label class="control-label">ID Icono</label>
+						<select id="iconList" name="iconList">
+							<?php while ($row_Icono = sqlsrv_fetch_array($SQL_IconosModal)) {?>
+								<option value="<?php echo $row_Icono['id_icono']; ?>" data-imagesrc="<?php echo $ruta_Iconos . $row_Icono['icono']; ?>" data-description="<?php echo $row_Icono['icono']; ?>"><?php echo $row_Icono['id_icono']; ?></option>
+							<?php }?>
+						</select>
+					</div>
+
+					<div class="col-md-3">
+						<input type="hidden" name="id_icono" id="id_icono" class="form-control">
+					</div>
+				</div> <!-- form-group -->
+
+				<br><br><br><br><br><br>
 				<div class="form-group">
 					<div class="col-md-6">
 						<label class="control-label">ID Tipo Punto Control <span class="text-danger">*</span></label>
@@ -152,46 +173,21 @@ $ruta_Iconos = ObtenerVariable("CarpetaTmp") . "/pc_iconos/" . $_SESSION['CodUse
 							<?php }?>
 						</select>
 					</div>
-				</div> <!-- form-group -->
 
-				<br><br><br><br>
-				<div class="form-group">
 					<div class="col-md-6">
-						<label class="control-label">ID Icono</label>
-						<select id="id_icono" name="id_icono" class="form-control">
+						<label class="control-label">ID Clase Control</label>
+						<select id="id_clase_control" name="id_clase_control" class="form-control">
 							<option value="" <?php if ($edit == 0) {echo "disabled selected";}?>>Seleccione...</option>
 
-							<?php while ($row_Icono = sqlsrv_fetch_array($SQL_IconosModal)) {?>
-								<option value="<?php echo $row_Icono['id_icono']; ?>" <?php if (isset($row['id_icono']) && ($row['id_icono'] == $row_Icono['id_icono'])) {echo "selected";}?> data-image="<?php echo $ruta_Iconos . $row_Icono['icono']; ?>"><?php echo $row_Icono['id_icono']; ?></option>
+							<?php while ($row_Clase = sqlsrv_fetch_array($SQL_ClasesModal)) {?>
+								<option value="<?php echo $row_Clase['id_clase_control']; ?>" <?php if (isset($row['id_clase_control']) && ($row['id_clase_control'] == $row_Clase['id_clase_control'])) {echo "selected";}?>><?php echo $row_Clase['id_clase_control'] . " - " . $row_Clase['clase_control']; ?></option>
 							<?php }?>
 						</select>
 					</div>
-
-					<div class="col-md-6">
-						<img id="iconView" src="#" alt="Previsualización de icono" style="display:none; max-width: 50px;">
-					</div>
 				</div> <!-- form-group -->
-
-				<script>
-					// Obtener el selector y la imagen previsualización
-					var selector = document.getElementById("id_icono");
-					var imagen = document.getElementById("iconView");
-					// Agregar un listener para el cambio del selector
-					selector.addEventListener("change", function() {
-						// Obtener la opción seleccionada
-						var opcion = selector.options[selector.selectedIndex];
-						// Cambiar la fuente de la imagen previsualización
-						imagen.src = opcion.getAttribute("data-image");
-						imagen.style.display = "block";
-					});
-				</script>
 
 				<br><br><br><br>
 				<div class="form-group">
-					<div class="col-md-6">
-						<label class="control-label">ID Clase Control</label>
-						<input type="number" class="form-control" autocomplete="off" id="id_clase_control" name="id_clase_control" value="<?php if ($edit == 1) {echo $row['id_clase_control'];}?>">
-					</div>
 
 					<div class="col-md-6">
 						<label class="control-label">Código Prefijo</label>
@@ -258,6 +254,23 @@ $ruta_Iconos = ObtenerVariable("CarpetaTmp") . "/pc_iconos/" . $_SESSION['CodUse
 
 <script>
 $(document).ready(function() {
+	// SMM, 06/03/2023
+	$('#iconList').ddslick({
+		width: "100%",
+		background: "#FFFFFF",
+		selectText: "Seleccione...",
+		onSelected: function (data) {
+			console.log(data);
+			$("#id_icono").val(data.selectedData.text);
+		}
+	});
+
+	<?php if ($edit == 1) {?>
+		// Basado en, https://github.com/prashantchaudhary/ddslick/blob/master/jquery.ddslick.js
+		let iconIndex = $('#iconList').find(".dd-option-value[value= '<?php echo $row["id_icono"] ?? ""; ?>']").parents("li").prevAll().length;
+		$('#iconList').ddslick('select', {index: iconIndex});
+	<?php }?>
+
 	// Activación del componente "tagsinput"
 	$('input[data-role=tagsinput]').tagsinput({
 		confirmKeys: [32, 44] // Espacio y coma.
@@ -292,60 +305,6 @@ $(document).ready(function() {
 
 	$('.chosen-select').chosen({width: "100%"});
 	$(".select2").select2();
-
-	$("#TipoCampo").on("change", function() {
-		if($(this).val() == "Sucursal" || $(this).val() == "Lista") {
-			$("#Multiple").prop("disabled", false);
-		} else {
-			$("#Multiple").prop("disabled", true);
-		}
-
-		if($(this).val() == "Lista") {
-			$("#CamposVista").css("display", "block");
-		} else {
-			$("#CamposVista").css("display", "none");
-		}
-	});
-
-	// Cargar lista de campos dependiendo de la vista.
-	$("#VistaLista").on("change", function() {
-		$.ajax({
-			type: "POST",
-			url: `ajx_cbo_select.php?type=12&id=${$(this).val()}&obligatorio=1`,
-			success: function(response){
-				$('#EtiquetaLista').html(response).fadeIn();
-				$('#ValorLista').html(response).fadeIn();
-
-				<?php if (($edit == 1) && ($id != "")) {?>
-					$('#EtiquetaLista').val("<?php echo $row['EtiquetaLista'] ?? ""; ?>");
-					$('#ValorLista').val("<?php echo $row['ValorLista'] ?? ""; ?>");
-				<?php }?>
-
-				$('#EtiquetaLista').trigger('change');
-				$('#ValorLista').trigger('change');
-			}
-		});
-	});
-
-	// Cargar Tipos dependiendo de la Icono.
-	$("#ID_Icono").on("change", function() {
-		$.ajax({
-			type: "POST",
-			url: `ajx_cbo_select.php?type=44&id=${$(this).val()}&input=<?php echo $row['ParametroTipo'] ?? ""; ?>`,
-			success: function(response){
-				$('#ParametroTipo').html(response).fadeIn();
-				$('#ParametroTipo').trigger('change');
-			}
-		});
-	});
-
-
-	<?php if (($edit == 1) && ($id != "")) {?>
-		$('#VistaLista').trigger('change');
-
-		$('#ID_Icono').trigger('change');
-		$('#TipoCampo').trigger('change');
-	<?php }?>
  });
 </script>
 

@@ -341,7 +341,7 @@ if (isset($sw_error) && ($sw_error == 1)) {
 															 <?php while ($row_Icono = sqlsrv_fetch_array($SQL_Iconos)) {?>
 															<tr>
 																<td><?php echo $row_Icono['id_icono']; ?></td>
-																<td><img src="<?php echo $ruta_Iconos . $row_Icono['icono']; ?>" alt="img-thumbnail"  style="max-height: 50px;"></td>
+																<td><img src="<?php echo $ruta_Iconos . $row_Icono['icono']; ?>" alt="img-thumbnail"  style="max-height: 30px;"></td>
 
 																<td><?php echo isset($row_Icono['fecha_actualizacion']) ? date_format($row_Icono['fecha_actualizacion'], 'Y-m-d H:i:s') : ""; ?></td>
 																<td><?php echo $row_Icono['usuario_actualizacion']; ?></td>
@@ -388,7 +388,7 @@ if (isset($sw_error) && ($sw_error == 1)) {
 																<th>Estado</th>
 																<th>Icono</th>
 																<th>ID Color</th>
-																<th>ID Clase Control</th>
+																<th>Clase Control</th>
 																<th>Código Prefijo</th>
 																<th>Fecha Actualizacion</th>
 																<th>Usuario Actualizacion</th>
@@ -409,9 +409,11 @@ if (isset($sw_error) && ($sw_error == 1)) {
 																	</span>
 																</td>
 
-																<td><?php echo $row_Tipo['icono']; ?></td>
+																<td><img src="<?php echo $ruta_Iconos . $row_Tipo['icono']; ?>" alt="img-thumbnail"  style="max-height: 30px;"></td>
+
 																<td><?php echo $row_Tipo['id_color']; ?></td>
-																<td><?php echo $row_Tipo['id_clase_control']; ?></td>
+
+																<td><?php echo $row_Tipo['clase_control']; ?></td>
 																<td><?php echo $row_Tipo['codigo_prefijo']; ?></td>
 
 																<td><?php echo isset($row_Tipo['fecha_actualizacion']) ? date_format($row_Tipo['fecha_actualizacion'], 'Y-m-d H:i:s') : ""; ?></td>
