@@ -325,7 +325,7 @@ if ($row_Validacion["num_errors"] > 0) {
 			<button type="button" id="btnCorregir" class="btn btn-warning" onclick="CorregirDatos();"><i class="fa fa-gavel"></i> Corregir datos</button>
 
 			<button style="margin-left: 5px;" type="button" class="btn btn-sm btn-circle" data-toggle="tooltip" data-placement="bottom" data-html="true"
-			title="Se encontraron inconsistencias en los datos de la tabla, pulse el botón para corregir."><i class="fa fa-info"></i></button>
+			title="Se encontraron inconsistencias en algunos de los nombres de los socios de negocios y sucursales asociadas, pulse el botón para corregir."><i class="fa fa-info"></i></button>
 		</div>
 	</div> <!-- form-group -->
 
@@ -353,7 +353,7 @@ if ($row_Validacion["num_errors"] > 0) {
 										<button type="button" id="btnBorrarLineas" title="Borrar lineas" class="btn btn-danger btn-xs" disabled onclick="BorrarLineas();"><i class="fa fa-trash"></i></button>
 									</th>
 
-									<th>&nbsp;</th>
+									<th>Acciones</th>
 									<th>ID Zona</th>
 									<th>Zona</th>
 									<th>Socio Negocio</th>
