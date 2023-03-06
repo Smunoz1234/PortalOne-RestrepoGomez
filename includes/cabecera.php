@@ -43,7 +43,7 @@
 
 <!-- Date range picker -->
 <link href="css/plugins/daterangepicker/daterangepicker-bs3.css" rel="stylesheet">
- 
+
 <!-- Data picker -->
 <link href="css/plugins/datapicker/datepicker3.css" rel="stylesheet">
 
@@ -58,7 +58,7 @@
 
 <!-- Checkbox -->
 <link href="css/plugins/awesome-bootstrap-checkbox/awesome-bootstrap-checkbox.css" rel="stylesheet">
- 
+
 <!-- Switchery -->
 <link href="css/plugins/switchery/switchery.css" rel="stylesheet">
 
@@ -141,7 +141,7 @@
 
  <!-- Tinycon -->
 <script src="js/plugins/tinycon/tinycon.min.js"></script>
- 
+
  <!-- jsTree -->
 <script src="js/plugins/jsTree/jstree.min.js"></script>
 
@@ -172,7 +172,7 @@
 
 <!-- Dual Listbox -->
 <script src="js/plugins/dualListbox/jquery.bootstrap-duallistbox.js"></script>
-	
+
 <!-- Touch Punch - Touch Event Support for jQuery UI -->
 <script src="js/plugins/touchpunch/jquery.ui.touch-punch.min.js"></script>
 
@@ -204,7 +204,7 @@
 
 <!-- Jasny -->
 <script src="js/plugins/jasny/jasny-bootstrap.min.js"></script>
-    
+
 <!-- DROPZONE -->
 <script src="js/plugins/dropzone/dropzone.js"></script>
 
@@ -283,3 +283,7 @@
 	PNotify.prototype.options.styling = "fontawesome";
 	//document.oncontextmenu = function(){return false;}
 </script>
+
+<!-- SMM, 06/03/2023 -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/themes/base/jquery-ui.min.css" integrity="sha512-ELV+xyi8IhEApPS/pSj66+Jiw+sOT1Mqkzlh8ExXihe4zfqbWkxPRi8wptXIO9g73FSlhmquFlUOuMSoXz5IRw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js" integrity="sha256-lSjKY0/srUM9BE3dPm+c4fBo1dky2v27Gdjm2uoZaL0=" crossorigin="anonymous"></script>

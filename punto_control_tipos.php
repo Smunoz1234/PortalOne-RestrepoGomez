@@ -341,7 +341,7 @@ if (isset($sw_error) && ($sw_error == 1)) {
 															 <?php while ($row_Icono = sqlsrv_fetch_array($SQL_Iconos)) {?>
 															<tr>
 																<td><?php echo $row_Icono['id_icono']; ?></td>
-																<td><?php echo $row_Icono['icono']; ?></td>
+																<td><img src="<?php echo $ruta_Iconos . $row_Icono['icono']; ?>" alt="img-thumbnail"  style="max-height: 50px;"></td>
 
 																<td><?php echo isset($row_Icono['fecha_actualizacion']) ? date_format($row_Icono['fecha_actualizacion'], 'Y-m-d H:i:s') : ""; ?></td>
 																<td><?php echo $row_Icono['usuario_actualizacion']; ?></td>
@@ -349,7 +349,6 @@ if (isset($sw_error) && ($sw_error == 1)) {
 																<td>
 																	<button type="button" id="btnEdit<?php echo $row_Icono['id_icono']; ?>" class="btn btn-success btn-xs" onClick="EditarCampo('<?php echo $row_Icono['id_icono']; ?>','Icono');"><i class="fa fa-pencil"></i> Editar</button>
 																	<button type="button" id="btnDelete<?php echo $row_Icono['id_icono']; ?>" class="btn btn-danger btn-xs" onClick="EliminarCampo('<?php echo $row_Icono['id_icono']; ?>','Icono');"><i class="fa fa-trash"></i> Eliminar</button>
-																	<button type="button" id="btnView<?php echo $row_Icono['id_icono']; ?>" class="btn btn-info btn-xs" onClick="VerImagen('<?php echo $ruta_Iconos . $row_Icono['icono']; ?>');"><i class="fa fa-eye"></i> Previsualizar</button>
 																</td>
 															</tr>
 															 <?php }?>
