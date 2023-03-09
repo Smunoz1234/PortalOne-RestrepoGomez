@@ -129,7 +129,13 @@ if($sw==1){
 		"'".$SeriesOT."'",
 		"'".$_SESSION['CodUser']."'"
 	);
-	$SQL_Res=EjecutarSP('sp_ConsultarDespachoRutas_Resumen',$ParamRes);
+	
+	// Stiven Muñoz Murillo, 26/01/2022
+    $NomSP_Resumen = (isset($_GET['TipoDespacho']) && ($_GET['TipoDespacho'] == "2"))
+    ? "sp_ConsultarDespachoRutasOT_Resumen" : "sp_ConsultarDespachoRutas_Resumen";
+    $SQL_Res = EjecutarSP($NomSP_Resumen, $ParamRes);
+	
+	//$SQL_Res=EjecutarSP('sp_ConsultarDespachoRutas_Resumen',$ParamRes);
 }
 ?>
 <!DOCTYPE html>

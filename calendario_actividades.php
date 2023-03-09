@@ -95,7 +95,7 @@ if($Cliente!=""){
 							<label class="col-lg-1 control-label">Cliente <span class="text-danger">*</span></label>
 							<div class="col-lg-3">
 								<input name="Cliente" type="hidden" id="Cliente" value="<?php if(isset($_GET['Cliente'])&&($_GET['Cliente']!="")){ echo $_GET['Cliente'];}?>">
-								<input name="NombreCliente" type="text" class="form-control" id="NombreCliente" placeholder="Ingrese para buscar..." value="<?php if(isset($_GET['NombreCliente'])&&($_GET['NombreCliente']!="")){ echo $_GET['NombreCliente'];}?>">
+								<input name="NombreCliente" type="text" class="form-control" id="NombreCliente" placeholder="Ingrese para buscar..." value="<?php if(isset($_GET['NombreCliente'])&&($_GET['NombreCliente']!="")){ echo $_GET['NombreCliente'];}?>" required>
 							</div>
 							<label class="col-lg-1 control-label">Sucursal</label>
 							<div class="col-lg-3">

@@ -148,7 +148,7 @@ if($Step==3){
 			   <?php }elseif($Step==3){?>
 			   <form action="registro.php" method="post" class="form-horizontal" id="AgregarDatos">
               	<div class="form-group">
-					<label class="col-xs-12"><h3 class="bg-success p-xs b-r-sm"><i class="fa fa-info-circle"></i> Ingresar información de los archivos</h3></label>
+					<label class="col-lg-12"><h3 class="bg-success p-xs b-r-sm"><i class="fa fa-info-circle"></i> Ingresar información de los archivos</h3></label>
 				</div>
                <?php /*?>	<div class="form-group">
 				  <p class="col-lg-12 text-primary">Cliente:<br><strong><?php echo $NombreCliente;?></strong></p>
@@ -211,7 +211,7 @@ if($Step==3){
 									$SQL_Menu=sqlsrv_query($conexion,$Cons_Menu,array(),array( "Scrollable" => 'static' ));
 									$Num_Menu=sqlsrv_num_rows($SQL_Menu);
 									?>
-									<select required name="Categoria<?php echo $i;?>" class="form-control" id="Categoria<?php echo $i;?>">
+									<select required name="Categoria<?php echo $i;?>" class="form-control m-b" id="Categoria<?php echo $i;?>">
 									   <option value="" selected="selected">Seleccione...</option>
 									   <?php 
 										while($row_Menu=sqlsrv_fetch_array($SQL_Menu)){
@@ -311,12 +311,7 @@ if($Step==3){
 </script>
 <script>	
 	 $(document).ready(function(){		
-		  $("#AgregarDatos").validate({
-			 submitHandler: function(form){
-				 $('.ibox-content').toggleClass('sk-loading');
-				 form.submit();
-				}
-			});
+		  $("#AgregarDatos").validate();
 		 
 		  $(".truncate").dotdotdot({
             watch: 'window'
@@ -342,6 +337,12 @@ if($Step==3){
 		  $('.file-box').each(function() {
                 animationHover(this, 'pulse');
             });
+	});
+	
+	$(function(){
+		$('#toggleSpinners').on('click', function(){
+			$('.ibox-content').toggleClass('sk-loading');
+		})
 	});
 </script>
 <!-- InstanceEndEditable -->

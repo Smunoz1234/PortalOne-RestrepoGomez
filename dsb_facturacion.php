@@ -92,7 +92,7 @@ $(document).ready(function(){
 		var Cliente=document.getElementById("Cliente");
 		$.ajax({
 			type: "POST",
-			url: "ajx_cbo_sucursales_clientes_simple.php?CardCode="+Cliente.value,
+			url: "ajx_cbo_sucursales_clientes_simple.php?CardCode="+Cliente.value+"&todos=1",
 			success: function(response){
 				$('#Sucursal').html(response);
 				$('#Sucursal').trigger('change');
@@ -162,7 +162,7 @@ $(document).ready(function(){
 							<label class="col-lg-1 control-label">Sucursal</label>
 							<div class="col-lg-3">
 								 <select id="Sucursal" name="Sucursal" class="form-control select2">
-									<option value="">Seleccione...</option>
+									<option value="">(Todos)</option>
 									<?php 
 									 if(isset($_GET['Cliente'])&&($_GET['Cliente']!="")){//Cuando se ha seleccionado una opción
 										 if(PermitirFuncion(205)){
@@ -212,7 +212,7 @@ $(document).ready(function(){
             <div class="col-lg-3">
               <div class="ibox ">
                 <div class="ibox-title text-danger"></span>
-                  <h5>Servicios sin factura</h5>
+                  <h5>OT sin factura</h5>
                 </div>
                 <div class="ibox-content">
                   <h1 class="no-margins"><?php echo $row_Cont['CantServiciosSinFactura'];?></h1>
@@ -242,7 +242,7 @@ $(document).ready(function(){
 								<th>#</th>
 								<th>Código cliente</th>
 								<th>Nombre cliente</th>
-								<th>Cant. sin facturar</th>
+								<th>Cant. artículos sin facturar</th>
 								<th>Servicio más antiguo</th>
 								<th>Total ($)</th>
 							</tr>
@@ -360,11 +360,11 @@ $(document).ready(function(){
 		 
 	$('.dataTables tbody').on('click', 'td.drill', function (ev) {
 
-        var tbid = $(this).closest('table').attr('id');
-        var tr = $(this).closest('tr');
-        var row = table.row( tr );
+        let tbid = $(this).closest('table').attr('id');
+        let tr = $(this).closest('tr');
+        let row = table.row( tr );
         
-        var cardcode = $(this).data('cardcode');
+        let cardcode = $(this).data('cardcode');
  
 		//Busco el div col-* mas arriba para obtener la clase de bootstrap que tiene
         //var column = $(this).closest('table').parent().parent().parent();
@@ -384,7 +384,7 @@ $(document).ready(function(){
             // Open this row
 			$('.ibox-content').toggleClass('sk-loading',true);
             $.get( 
-				'dsb_facturacion_detalle.php',
+				'dsb_facturacion_detalle_nivel1.php',
 				{
 					id:cardcode,
 					finicial:'<?php echo FormatoFecha($FechaInicial);?>',

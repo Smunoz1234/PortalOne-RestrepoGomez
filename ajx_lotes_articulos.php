@@ -277,7 +277,7 @@ function CalcularTotal(idlote, sysnumber, fechavenc, idfila=''){
 								<tr>
 									<td><?php echo $row['IdLote'];?></td>
 									<td><?php echo $row['UndMedida'];?></td>
-									<td><?php echo $row['FechaVenc'];?></td>
+									<td><?php echo $row['FechaVenc'];?></td> <!-- FechaVenciLote -->
 									<td><?php echo $row['IdSysNumber'];?></td>
 									<td><?php echo number_format($row['Cantidad']);?></td>
 								</tr>
@@ -287,7 +287,7 @@ function CalcularTotal(idlote, sysnumber, fechavenc, idfila=''){
 								<tr>
 									<td><?php echo $row['IdLote'];?></td>
 									<td><?php echo $row['UndMedida'];?></td>
-									<td><?php echo $row['FechaVenc'];?></td>
+									<td><?php echo $row['FechaVenc'];?></td> <!-- FechaVenciLote -->
 									<td><?php echo $row['IdSysNumber'];?></td>
 									<td><?php echo number_format($row['Cantidad']);?></td>
 								</tr>
