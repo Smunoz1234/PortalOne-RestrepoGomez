@@ -17,9 +17,9 @@ function LSiqmlObs($cad){
 	$replace="";
 	$cad_clear=str_ireplace($search,$replace,$cad);
 	$originales = 'ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõöøùúûýýþÿŔŕ';
-    $modificada = 'AAAAAAACEEEEIIIIDNOOOOOOUUUUYbsaaaaaaaceeeeiiiidnoooooouuuyybyRr';
+    $modificadas = 'AAAAAAACEEEEIIIIDNOOOOOOUUUUYbsaaaaaaaceeeeiiiidnoooooouuuyybyRr';
     //$cad_clear = utf8_decode($cad_clear);
-    $cad_clear = strtr($cad_clear, $originales, $modificada);
+    //$cad_clear = strtr($cad_clear, $originales, $modificadas);
 	//$cad_clear=str_replace("Ñ",'N',$cad_clear);
 	//$cad_clear=str_replace("ñ",'n',$cad_clear);
 	//$cad_clear = preg_replace("/[\r\n|\n|\r]+/", " ", $cad_clear);

@@ -11,6 +11,9 @@ $PrcntGanancia=0;
 //Empleado de ventas
 $SQL_EmpleadosVentas=Seleccionar('uvw_Sap_tbl_EmpleadosVentas','*','','DE_EmpVentas');
 
+//Clientes
+$SQL_Clientes=Seleccionar('uvw_Sap_tbl_Clientes','CodigoCliente, NombreCliente','','NombreCliente');
+
 //Fechas
 if(isset($_GET['FechaInicial'])&&$_GET['FechaInicial']!=""){
 	$FechaInicial=$_GET['FechaInicial'];
@@ -30,7 +33,7 @@ if(isset($_GET['FechaFinal'])&&$_GET['FechaFinal']!=""){
 
 //Filtros
 
-$Cliente= isset($_GET['Cliente']) ? $_GET['Cliente'] : "";
+$Cliente= isset($_GET['Cliente']) ? implode(",",$_GET['Cliente']) : "";
 $Empleado= isset($_GET['EmpleadoVentas']) ? implode(",",$_GET['EmpleadoVentas']) : "";
 $Articulo= isset($_GET['Articulo']) ? $_GET['Articulo'] : "";
 $TipoInforme= isset($_GET['TipoInforme']) ? $_GET['TipoInforme'] : 0;
@@ -163,9 +166,19 @@ if($sw==1){
 					  	<div class="form-group">	
 							<label class="col-lg-1 control-label">Cliente</label>
 							<div class="col-lg-3">
-								<input name="Cliente" type="hidden" id="Cliente" value="<?php if(isset($_GET['Cliente'])&&($_GET['Cliente']!="")){ echo $_GET['Cliente'];}?>">
-								<input name="NombreCliente" type="text" class="form-control" id="NombreCliente" placeholder="Ingrese para buscar..." value="<?php if(isset($_GET['NombreCliente'])&&($_GET['NombreCliente']!="")){ echo $_GET['NombreCliente'];}?>">
+								<select data-placeholder="(Todos)" name="Cliente[]" class="form-control select2" id="Cliente" multiple>
+								  <?php $j=0;
+									while($row_Clientes=sqlsrv_fetch_array($SQL_Clientes)){?>
+										<option value="<?php echo $row_Clientes['CodigoCliente'];?>" <?php if((isset($_GET['Cliente'][$j]))&&(strcmp($row_Clientes['CodigoCliente'],$_GET['Cliente'][$j])==0)){ echo "selected=\"selected\"";$j++;}?>><?php echo $row_Clientes['NombreCliente'];?></option>
+								  <?php }?>
+								</select>
 							</div>
+<!--
+							<div class="col-lg-3">
+								<input name="Cliente" type="hidden" id="Cliente" value="<?php //if(isset($_GET['Cliente'])&&($_GET['Cliente']!="")){ echo $_GET['Cliente'];}?>">
+								<input name="NombreCliente" type="text" class="form-control" id="NombreCliente" placeholder="Ingrese para buscar..." value="<?php //if(isset($_GET['NombreCliente'])&&($_GET['NombreCliente']!="")){ echo $_GET['NombreCliente'];}?>">
+							</div>
+-->
 							<label class="col-lg-1 control-label">Empleado de ventas</label>
 							<div class="col-lg-3">
 								<select data-placeholder="(Todos)" name="EmpleadoVentas[]" class="form-control select2" id="EmpleadoVentas" multiple>
@@ -425,23 +438,23 @@ if($sw==1){
 				todayHighlight: true,
             }); 
 			
-			var options = {
-				url: function(phrase) {
-					return "ajx_buscar_datos_json.php?type=7&id="+phrase;
-				},
-
-				getValue: "NombreBuscarCliente",
-				requestDelay: 400,
-				list: {
-					match: {
-						enabled: true
-					},
-					onClickEvent: function() {
-						var value = $("#NombreCliente").getSelectedItemData().CodigoCliente;
-						$("#Cliente").val(value);
-					}
-				}
-			};
+//			var options = {
+//				url: function(phrase) {
+//					return "ajx_buscar_datos_json.php?type=7&id="+phrase;
+//				},
+//
+//				getValue: "NombreBuscarCliente",
+//				requestDelay: 400,
+//				list: {
+//					match: {
+//						enabled: true
+//					},
+//					onClickEvent: function() {
+//						var value = $("#NombreCliente").getSelectedItemData().CodigoCliente;
+//						$("#Cliente").val(value);
+//					}
+//				}
+//			};
 		
 			var options_Art = {
 				url: function(phrase) {
@@ -461,7 +474,7 @@ if($sw==1){
 				}
 			};
 
-			$("#NombreCliente").easyAutocomplete(options);
+			//$("#NombreCliente").easyAutocomplete(options);
 			$("#NombreArticulo").easyAutocomplete(options_Art);
 			
             $('.dataTables-example').DataTable({

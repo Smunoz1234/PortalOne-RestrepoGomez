@@ -55,7 +55,7 @@ $SQL=EjecutarSP('usp_InformeVentas',$ParamCons);
 								<?php 
 									while($row=sqlsrv_fetch_array($SQL)){ ?>
 										<tr id="tr_Det<?php echo $row['DocEntry'];?>" class="trDetalle">
-											<td><a href="<?php echo ($row['DocType']==13) ? 'factura_venta' : 'nota_credito'; ?>.php?id=<?php echo base64_encode($row['DocEntry']);?>&tl=1" target="_blank"><?php echo ($row['DocType']==13) ? 'FV '.$row['DocNum'] : 'NC '.$row['DocNum'];?></a></td>
+											<td><a href="<?php echo ($row['DocType']==13) ? 'factura_venta' : 'nota_credito'; ?>.php?id=<?php echo base64_encode($row['DocEntry']);?>&tl=1" target="_blank"><?php echo ($row['DocType']==13) ? ($row['DocSubType']=='DN') ? 'ND '.$row['DocNum'] : 'FV '.$row['DocNum'] : 'NC '.$row['DocNum'];?></a></td>
 											<td><?php echo $row['DocDate']->format('Y-m-d');?></td>
 											<td><?php echo $row['CardName'];?></td>
 											<td><?php echo $row['SucursalCliente'];?></td>

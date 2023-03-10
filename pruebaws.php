@@ -13,15 +13,31 @@ require_once("includes/conexion.php");
 //);
 //$result=EnviarWebServiceSAP($Metodo,$Parametros,true,true);
 
-$IdEntradaCompra='97';
-$IdEvento='5404';
+/*$Parametros=array(
+	'pIdEvento' => '139',
+	'pPeriodo' => '2020',
+	'pFechaInicial' => '2020-08-29',
+	'pFechaFinal'=> '2020-09-13',
+	'pSucursal' => '301',
+	'pIdCliente' => 'CN-890107487',
+	'pLogin' => 'aordonez',
+	'pIdSerieOT' => '132',
+	'pIdSerieOV' => '133'
+);
 
+$Metodo="AppPortal_CrearProgramaOrdenServicio";*/
 
-$Metodo="EntradasCompras";
+$Parametros=array(
+	'usuario' => "jgeronimog",
+	'password' => "1234",
+	'app' => "ServiceOne",
+	'version_app' => "2.0"
+);
+$Metodo="Login";
 
-$result=EnviarWebServiceSAP($Metodo,$Cabecera,true,true,"PUT");
+//$result=EnviarWebServiceSAP($Metodo,$Parametros,true,true);
 
-//$result=AuthJWT("jgeronimog","1234");
+$result=AuthJWT("jgeronimog","1234");
 //$result=AuthJWT("aordonez","123");
 
 echo "<pre>";		

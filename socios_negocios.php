@@ -402,7 +402,7 @@ if($edit==1&&$sw_error==0){
 //	}
 
 	//Cliente
-	$SQL=Seleccionar("uvw_Sap_tbl_SociosNegocios","*","[CodigoCliente]='".$CodCliente."'");
+	$SQL=Seleccionar("uvw_Sap_tbl_Clientes","*","[CodigoCliente]='".$CodCliente."'");
 	$row=sql_fetch_array($SQL);
 	
 	//Direcciones
@@ -629,14 +629,26 @@ if(isset($sw_error)&&($sw_error==1)){
 			var AliasName=document.getElementById('AliasName');
 			
 			if(TipoEntidad==1){//Natural
-				HabilitarCampos(TipoEntidad)
+				//Quitar
+				Nombres.removeAttribute("readonly");
+				Apellido1.removeAttribute("readonly");
+				Apellido2.removeAttribute("readonly");
 				
+				//Poner
+				Nombres.setAttribute("required","required");
+				Apellido1.setAttribute("required","required");				
+				CardName.setAttribute("readonly","readonly");
+				AliasName.setAttribute("readonly","readonly");
 				<?php if($edit==0&&$sw_error==0){?>
 				CardName.value="";
 				AliasName.value="";
 				<?php }?>
 			}else{//Juridica
-				HabilitarCampos(TipoEntidad)
+				//Quitar
+				CardName.removeAttribute("readonly");
+				AliasName.removeAttribute("readonly");
+				Nombres.removeAttribute("required");
+				Apellido1.removeAttribute("required");
 				
 				//Poner
 				CardName.value="";
@@ -644,49 +656,19 @@ if(isset($sw_error)&&($sw_error==1)){
 				Nombres.value="";
 				Apellido1.value="";
 				Apellido2.value="";
+				Nombres.setAttribute("readonly","readonly");
+				Apellido1.setAttribute("readonly","readonly");
+				Apellido2.setAttribute("readonly","readonly");
 			}
 		});
 		//NomDir('1');
 		<?php if($edit==0||$Metod==4){?>
 		$('#TipoEntidad').trigger('change');
-		<?php }else{?>
-		HabilitarCampos(<?php echo isset($row['U_HBT_TipEnt']) ? $row['U_HBT_TipEnt'] : "";?>);
 		<?php }?>
 		CapturarGPS();
 	});
 </script>
 <script>
-function HabilitarCampos(TipoEntidad){
-	var Nombres=document.getElementById('PNNombres');
-	var Apellido1=document.getElementById('PNApellido1');
-	var Apellido2=document.getElementById('PNApellido2');
-	var CardName=document.getElementById('CardName');
-	var AliasName=document.getElementById('AliasName');
-	if(TipoEntidad==1){//Natural
-		//Quitar
-		Nombres.removeAttribute("readonly");
-		Apellido1.removeAttribute("readonly");
-		Apellido2.removeAttribute("readonly");
-
-		//Poner
-		Nombres.setAttribute("required","required");
-		Apellido1.setAttribute("required","required");				
-		CardName.setAttribute("readonly","readonly");
-		AliasName.setAttribute("readonly","readonly");
-	}else{//Juridica
-		//Quitar
-		CardName.removeAttribute("readonly");
-		AliasName.removeAttribute("readonly");
-		Nombres.removeAttribute("required");
-		Apellido1.removeAttribute("required");
-
-		//Poner
-		Nombres.setAttribute("readonly","readonly");
-		Apellido1.setAttribute("readonly","readonly");
-		Apellido2.setAttribute("readonly","readonly");
-	}
-}
-
 function CapturarGPS(){
 	var Latitud=document.getElementById("Latitud");
 	var Longitud=document.getElementById("Longitud");
@@ -1152,7 +1134,6 @@ function NomDir(id){
 										<label class="col-lg-1 control-label">Industria <span class="text-danger">*</span></label>
 										<div class="col-lg-3">
 											<select name="Industria" class="form-control" id="Industria" required>
-												<option value="">Seleccione...</option>
 											<?php
 												while($row_Industria=sqlsrv_fetch_array($SQL_Industria)){?>
 													<option value="<?php echo $row_Industria['IdIndustria'];?>" <?php if(($edit==1||$sw_error==1)&&(isset($row['IdIndustria']))&&(strcmp($row_Industria['IdIndustria'],$row['IdIndustria'])==0)){ echo "selected=\"selected\"";}elseif((isset($row_ValorDefault['IdIndustria']))&&(strcmp($row_Industria['IdIndustria'],$row_ValorDefault['IdIndustria'])==0)){ echo "selected=\"selected\"";}?>><?php echo $row_Industria['DeIndustria'];?></option>

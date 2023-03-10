@@ -3,7 +3,7 @@
 		var Res=0;
 		$.ajax({
 				url:"ajx_buscar_datos_json.php",
-				data:{type:9,user:},
+				data:{type:9,user:<?php echo $_SESSION['CodigoSAP'];?>},
 				dataType:'json',
 				success: function(data){
 					if(data.ID!=""){

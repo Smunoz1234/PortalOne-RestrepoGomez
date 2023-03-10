@@ -12,13 +12,20 @@ if($preCostos==0){
 	);
 	$SQL=EjecutarSP('usp_InformeVentas_DetalleArticulos',$ParamCons);
 	
-}else{//Previsualizar costos en asistente de facturacion
+}elseif($preCostos==1){//Previsualizar costos en asistente de facturacion
 	
 	$ParamCons=array(
 		"'".$_POST['CardCode']."'",
 		"'".$_SESSION['CodUser']."'"
 	);
 	$SQL=EjecutarSP('sp_ConsultarFacturacionOT_Costos',$ParamCons);
+
+}elseif($preCostos==2){//Previsualizar costos de una llamada de servicio
+	
+	$ParamCons=array(
+		"'".$_POST['DocEntry']."'"
+	);
+	$SQL=EjecutarSP('sp_ConsultarCostosOT',$ParamCons);
 }
 
 ?>
@@ -78,7 +85,7 @@ if($preCostos==0){
 					<td><?php echo $row['Unidad'];?></td>
 					<td><?php echo number_format($row['Cantidad'],2);?></td>
 					<td><?php echo "$".number_format($row['Precio'],2);?></td>
-					<td class="text-navy"><?php echo "$".number_format($row['LineTotal'],2);?></td>
+					<td class="<?php if($row['LineTotal']<0){echo "text-danger";}else{echo "text-navy";}?>"><?php echo "$".number_format($row['LineTotal'],2);?></td>
 					<td><?php echo $row['DE_ItemType'];?></td>
 					<td><?php echo $row['ItmsGrpNam'];?></td>
 				</tr>
