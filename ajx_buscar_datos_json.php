@@ -9,7 +9,7 @@ if ((isset($_GET['type']) && ($_GET['type'] != "")) || (isset($_POST['type']) &&
     }
 
     if ($type == 1) { //Buscar direccion y barrio dependiendo de la sucursal
-        $Consulta = "Select * From uvw_Sap_tbl_Clientes_Sucursales Where CodigoCliente='" . $_GET['CardCode'] . "' and NombreSucursal='" . $_GET['Sucursal'] . "'";
+        $Consulta = "Select * From uvw_Sap_tbl_Clientes_Sucursales Where TipoDireccion='S' And CodigoCliente='" . $_GET['CardCode'] . "' and NombreSucursal='" . $_GET['Sucursal'] . "'";
         //echo $Consulta;
         $SQL = sqlsrv_query($conexion, $Consulta);
         $records = array();
@@ -19,19 +19,10 @@ if ((isset($_GET['type']) && ($_GET['type'] != "")) || (isset($_POST['type']) &&
             'Ciudad' => $row['Ciudad'],
             'Barrio' => $row['Barrio'],
             'NombreContacto' => $row['NombreContacto'],
-            'TelefonoContacto' => $row['TelefonoContacto'],
+            'TelefonoContacto' => PermitirFuncion(512) ? $row['CelularCliente'] : $row['TelefonoContacto'], // SMM, 23/03/2022
             'CargoContacto' => $row['CargoContacto'],
             'CorreoContacto' => $row['CorreoContacto'],
         );
-//        $records=array(
-        //            'Direccion' => $row['Direccion'],
-        //            'Ciudad' => $row['Ciudad'],
-        //            'Barrio' => $row['Barrio']
-        //            //'NombreContacto' => $row['NombreContacto'],
-        //            //'TelefonoContacto' => $row['TelefonoContacto'],
-        //            //'CargoContacto' => $row['CargoContacto'],
-        //            //'CorreoContacto' => $row['CorreoContacto']
-        //        );
         echo json_encode($records);
     } elseif ($type == 2) { //Buscar datos internos cuando la actividad es de tipo Interna
         $Consulta = "Select Top 1 * From uvw_Sap_tbl_Clientes_Sucursales Where CodigoCliente='" . NIT_EMPRESA . "'";
@@ -84,7 +75,7 @@ if ((isset($_GET['type']) && ($_GET['type'] != "")) || (isset($_POST['type']) &&
         $records = array();
         $row = sqlsrv_fetch_array($SQL);
         $records = array(
-            'Telefono' => $row['Telefono1'],
+            'Telefono' => PermitirFuncion(512) ? $row['TelefonoCelular'] : $row['Telefono1'], // SMM, 23/03/2022
             'Correo' => $row['CorreoElectronico'],
         );
         echo json_encode($records);
@@ -195,21 +186,28 @@ if ((isset($_GET['type']) && ($_GET['type'] != "")) || (isset($_POST['type']) &&
         $TipoDoc = isset($_GET['tipodoc']) ? $_GET['tipodoc'] : 1;
         $SoloStock = isset($_GET['solostock']) ? $_GET['solostock'] : 1;
         $TodosArticulos = isset($_GET['todosart']) ? $_GET['todosart'] : 0;
+        $IdListaPrecio = isset($_GET['idlistaprecio']) ? $_GET['idlistaprecio'] : ""; // NEDUGA, 24/02/2022
 
         $Param = array(
-            "'" . $Dato . "'",
-            "'" . $Almacen . "'",
+            "'" . $Dato . "'", // @DatoBuscar
+            "'" . $Almacen . "'", // @WhsCode
             "'" . $TipoDoc . "'",
             "'" . $SoloStock . "'",
             "'" . $TodosArticulos . "'",
+            "'" . $IdListaPrecio . "'", // @PriceList. NEDUGA, 24/02/2022
         );
         //$Param=array("'".$_GET['data']."'","'".$_GET['whscode']."'","'".$_GET['tipodoc']."'");
-        $SQL = EjecutarSP('sp_ConsultarArticulos', $Param);
+
+        // $SQL=EjecutarSP('sp_ConsultarArticulos',$Param); // Anterior
+        $SQL = EjecutarSP('sp_ConsultarArticulos_ListaPrecios', $Param); // Nuevo
+
         $records = array();
         $j = 0;
         while ($row = sqlsrv_fetch_array($SQL)) {
             $records[$j] = array(
                 'IdArticulo' => $row['IdArticulo'],
+                'CodArticuloProveedor' => $row['CodArticuloProveedor'], // NEDUGA, 24/02/2022
+                'IdListaPrecio' => $row['IdListaPrecio'], // SMM, 24/02/2022
                 'DescripcionArticulo' => $row['DescripcionArticulo'],
                 'NombreBuscarArticulo' => $row['NombreBuscarArticulo'],
                 'UndMedida' => $row['UndMedida'],
@@ -285,27 +283,26 @@ if ((isset($_GET['type']) && ($_GET['type'] != "")) || (isset($_POST['type']) &&
     } elseif ($type == 19) { //Consultar si todos los items con seriales ya fueron seleccionados
         $Param = array("'" . $_GET['cardcode'] . "'", "'" . $_GET['whscode'] . "'", "'" . $_GET['objtype'] . "'", "'" . $_SESSION['CodUser'] . "'");
         $SQL = EjecutarSP('sp_ConsultarSerialesVerificarSeleccion', $Param);
-
         $Valid = 1;
-        $records = array();
 
         $CantSolicitada = 0;
         $CantTotalSalida = 0;
 
+        $records = array();
         while ($row = sqlsrv_fetch_array($SQL)) {
             if ($row['CantSolicitada'] != $row['CantTotalSalida']) {
                 $Valid = 2;
+
+                // SMM, 12/10/2022
                 $CantSolicitada = $row['CantSolicitada'];
                 $CantTotalSalida = $row['CantTotalSalida'];
             }
         }
-
         $records = array(
             'Result' => $Valid,
             'CantSolicitada' => $CantSolicitada,
             'CantTotalSalida' => $CantTotalSalida,
         );
-
         echo json_encode($records);
     } elseif ($type == 20) { //Buscar seriales para seleccionarlos
         $Parametros = array(
@@ -380,6 +377,9 @@ if ((isset($_GET['type']) && ($_GET['type'] != "")) || (isset($_POST['type']) &&
             'Cedula' => $row['Cedula'],
             'Telefono' => $row['Celular'],
             'Email' => $row['CorreoElectronico'],
+            // SMM, 07/03/2023
+            'Sucursal' => ($row['NombreSucursal'] ?? "N/A"),
+            'Departamento' => ($row['NombreDepartamento'] ?? "N/A"),
         );
         echo json_encode($records);
     } elseif ($type == 26) { //Obtener nuevo ID de la secuencia de la actividad para el calendario ruta
@@ -565,11 +565,19 @@ if ((isset($_GET['type']) && ($_GET['type'] != "")) || (isset($_POST['type']) &&
         );
         echo json_encode($records);
     } elseif ($type == 40) { //Consultar datos del cliente
-        $SQL = Seleccionar("uvw_Sap_tbl_Clientes", "Telefono", "CodigoCliente='" . $_GET['id'] . "'");
+        $SQL = Seleccionar("uvw_Sap_tbl_Clientes", "*", "CodigoCliente='" . $_GET['id'] . "'");
         $records = array();
         $row = sqlsrv_fetch_array($SQL);
         $records = array(
-            'Telefono' => $row['Telefono'],
+            'CodigoCliente' => $_GET['id'] ?? '',
+            'Telefono' => $row['Telefono'] ?? '',
+            // Cargando información en pestaña 'Dirección'
+            'DirDestino' => $row['DirDestino'] ?? '',
+            'CodPostalDestino' => $row['CodPostalDestino'] ?? '',
+            'Ciudad' => $row['CiudadDestino'] ?? '',
+            'CodDepartamentoDestino' => $row['CodDepartamentoDestino'] ?? '',
+            'DepartamentoDestino' => $row['DepartamentoDestino'] ?? '',
+            'PaisDestino' => $row['PaisDestino'] ?? '',
         );
         echo json_encode($records);
     } elseif ($type == 41) { //Consultar porcentaje de etapa oportunidad
@@ -605,7 +613,152 @@ if ((isset($_GET['type']) && ($_GET['type'] != "")) || (isset($_POST['type']) &&
             );
         }
         echo json_encode($records);
-    } elseif ($type == 44) { // Consultar linea del cronograma de ordenes de servicio. SMM, 14/01/2023
+    }
+
+    // Stiven Muñoz Murillo, 22/12/2021
+    elseif ($type == 44) { // Consultar tarjetas de equipo en la llamada de servicio
+        $SerialInterno = "'" . $_GET['id'] . "'";
+
+        if ($SerialInterno == "''") {
+            $ID_LlamadaServicio = "'" . $_GET['ot'] . "'";
+
+            $SQL = Seleccionar("uvw_Sap_tbl_LlamadasServicios", "IdNumeroSerie", "ID_LlamadaServicio=" . $ID_LlamadaServicio);
+            $row = sqlsrv_fetch_array($SQL);
+
+            if (isset($row['IdNumeroSerie'])) {
+                $SerialInterno = $row['IdNumeroSerie'];
+                $SerialInterno = "'" . $SerialInterno . "'";
+            }
+        }
+
+        if (isset($ID_LlamadaServicio)) {
+            $SQL = Seleccionar("uvw_Sap_tbl_LlamadasServicios", "*", "ID_LlamadaServicio=" . $ID_LlamadaServicio);
+            $row = sqlsrv_fetch_array($SQL);
+
+            $NombreContacto = $row['CDU_NombreContacto'] ?? "";
+            $TelefonoContacto = $row['CDU_TelefonoContacto'] ?? "";
+            $CorreoContacto = $row['CDU_CorreoContacto'] ?? "";
+
+            // SMM, 02/03/2022
+            $Kilometros = $row['CDU_Kilometros'] ?? "";
+        }
+
+        if ($SerialInterno != "''") {
+            $cliente = isset($_GET['clt']) ? "'" . $_GET['clt'] . "'" : "";
+
+            if (isset($_GET['si']) && ($_GET['si'] == 0)) {
+                // Ruta nueva, SMM 19/05/2022
+                $IdTarjetaEquipo = $SerialInterno;
+                if ($cliente == "") {
+                    $SQL = Seleccionar("uvw_Sap_tbl_TarjetasEquipos", "*", "IdTarjetaEquipo=$IdTarjetaEquipo");
+                } else {
+                    $SQL = Seleccionar("uvw_Sap_tbl_TarjetasEquipos", "*", "IdTarjetaEquipo=$IdTarjetaEquipo AND CardCode=$cliente");
+                }
+            } else {
+                // Ruta normal
+                if ($cliente == "") {
+                    $SQL = Seleccionar("uvw_Sap_tbl_TarjetasEquipos", "*", "SerialInterno=$SerialInterno");
+                } else {
+                    $SQL = Seleccionar("uvw_Sap_tbl_TarjetasEquipos", "*", "SerialInterno=$SerialInterno AND CardCode=$cliente");
+                }
+            }
+
+            $row = sqlsrv_fetch_array($SQL);
+            $records = array(
+                'SerialInterno' => $row['SerialInterno'],
+                'SerialFabricante' => $row['SerialFabricante'],
+                'No_Motor' => $row['CDU_No_Motor'],
+                'IdArticuloLlamada' => $row['ItemCode'], // SMM, 24/01/2022
+                'DeArticuloLlamada' => $row['ItemCode'] . " - " . $row['ItemName'], // SMM, 24/01/2022
+                'CDU_IdMarca' => $row['CDU_IdMarca'],
+                'CDU_Marca' => $row['CDU_Marca'],
+                'CDU_IdLinea' => $row['CDU_IdLinea'],
+                'CDU_Linea' => $row['CDU_Linea'],
+                'CDU_Ano' => $row['CDU_Ano'],
+                'CDU_Color' => $row['CDU_Color'], // SMM, 24/01/2022
+                'CDU_Concesionario' => $row['CDU_Concesionario'],
+                'CDU_TipoServicio' => $row['CDU_TipoServicio'],
+                'CDU_NombreContacto' => $NombreContacto ?? "", // SMM, 15/02/2022
+                'CDU_TelefonoContacto' => $TelefonoContacto ?? "", // SMM, 22/02/2022
+                'CDU_CorreoContacto' => $CorreoContacto ?? "", // SMM, 22/02/2022
+                'CDU_Kilometros' => $Kilometros ?? "", // SMM, 02/03/2022
+            );
+            echo json_encode($records);
+        } else {
+            $records = array(
+                'SerialInterno' => null,
+                'SerialFabricante' => null,
+                'No_Motor' => null,
+                'IdArticuloLlamada' => null,
+                'DeArticuloLlamada' => null,
+                'CDU_IdMarca' => null,
+                'CDU_Marca' => null,
+                'CDU_IdLinea' => null,
+                'CDU_Linea' => null,
+                'CDU_Ano' => null,
+                'CDU_Color' => null,
+                'CDU_Concesionario' => null,
+                'CDU_TipoServicio' => null,
+                'CDU_NombreContacto' => null,
+                'CDU_TelefonoContacto' => null,
+                'CDU_CorreoContacto' => null,
+                'CDU_Kilometros' => null,
+            );
+            echo json_encode($records);
+        }
+    }
+
+    // Stiven Muñoz Murillo, 20/01/2022
+    elseif ($_GET['type'] == 45) { // Datos del cliente por CodigoCliente
+        $CardCode = "'" . $_GET['id'] . "'";
+        $SQL = Seleccionar("uvw_Sap_tbl_SociosNegocios", "*", "CodigoCliente=" . $CardCode);
+        $row = sqlsrv_fetch_array($SQL);
+        $records = array(
+            'Direccion' => $row['Address'],
+            'Ciudad' => $row['City'],
+            'Celular' => $row['Celular'],
+            'Telefono' => $row['Telefono'],
+            'Correo' => $row['Email'],
+            'IdListaPrecio' => $row['IdListaPrecio'], // SMM, 24/02/2022
+            'SujetoImpuesto' => $row['SujetoImpuesto'], // SMM, 23/04/2022
+        );
+        echo json_encode($records);
+    }
+
+    // Stiven Muñoz Murillo, 24/01/22
+    elseif ($type == 46) { // Buscar articulos en la llamada por código o descripción
+        $Consulta = "SELECT TOP(10) ItemCode, ItemName FROM uvw_Sap_tbl_ArticulosLlamadas WHERE ItemCode LIKE '%" . $_GET['id'] . "%' OR ItemName LIKE '%" . $_GET['id'] . "%'";
+        $SQL = sqlsrv_query($conexion, $Consulta);
+
+        $j = 0;
+        $records = array();
+        while ($row = sqlsrv_fetch_array($SQL)) {
+            $records[$j] = array(
+                'IdArticuloLlamada' => $row['ItemCode'],
+                'DeArticuloLlamada' => $row['ItemCode'] . " - " . $row['ItemName'],
+                /*
+            'DeArticuloLlamada' => $row['ItemCode'] . " - " . $row['ItemName'] .
+            " (SERV: " . substr($row['Servicios'], 0, 20) . " - ÁREA: " . substr($row['Areas'], 0, 20) . ")"
+             */
+            );
+            $j++;
+        }
+        echo json_encode($records);
+    }
+
+    // Stiven Muñoz Murillo, 07/02/2022
+    elseif ($_GET['type'] == 47) { // Lista de Materiales por ItemCode
+        $id = "'" . $_GET['id'] . "'";
+        $SQL = Seleccionar("uvw_Sap_tbl_ListaMateriales", "*", "ItemCode=" . $id);
+        $row = sqlsrv_fetch_array($SQL);
+        $records = array(
+            'tiempoTarea' => $row['CDU_TiempoTarea'],
+        );
+        echo json_encode($records);
+    }
+
+    // SMM, 10/03/2023
+    elseif ($type == 48) { // Consultar linea del cronograma de ordenes de servicio. SMM, 14/01/2023
         $SQL = Seleccionar("uvw_tbl_ProgramacionOrdenesServicio", "*", "ID='" . $_GET['id'] . "'");
         $records = array();
         $row = sqlsrv_fetch_array($SQL);
@@ -620,7 +773,10 @@ if ((isset($_GET['type']) && ($_GET['type'] != "")) || (isset($_POST['type']) &&
             "Observaciones" => $row["Observaciones"],
         );
         echo json_encode($records);
-    } elseif ($type == 45) { // Consultar una zona de socio de negocio en particular. SMM, 25/02/2023
+    }
+
+    // SMM, 10/03/2023
+    elseif ($type == 49) { // Consultar una zona de socio de negocio en particular. SMM, 25/02/2023
         $SQL = Seleccionar("uvw_tbl_SociosNegocios_Zonas", "*", "[id_zona_sn]='" . $_GET['id'] . "'");
         $records = array();
         $row = sqlsrv_fetch_array($SQL);
@@ -635,5 +791,7 @@ if ((isset($_GET['type']) && ($_GET['type'] != "")) || (isset($_POST['type']) &&
         echo json_encode($records);
     }
 
+    // Después de los condicionales
+    // Se cierra la conexión a la BD
     sqlsrv_close($conexion);
 }
