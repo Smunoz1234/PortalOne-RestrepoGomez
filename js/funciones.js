@@ -64,9 +64,9 @@ function justNumbers(e, cad) {//Permitir solo numeros y puntos
 
 //Funciones para permitir solo 2 decimales
 var textoAnterior = '';
-function cumpleReglas(simpleTexto) {
+function cumpleReglas(simpleTexto, round = 2) {
 	//la pasamos por una poderosa expresión regular
-	var expresion = new RegExp("^(|([0-9]{1,8}(\\.([0-9]{1,2})?)?))$");
+	var expresion = new RegExp(`^(|([0-9]{1,8}(\\.([0-9]{1,${round}})?)?))$`);
 
 	//si pasa la prueba, es válida
 	if (expresion.test(simpleTexto))
@@ -75,13 +75,15 @@ function cumpleReglas(simpleTexto) {
 }//end function checaReglas
 
 //ESTA FUNCIÓN REVISA QUE TODO LO QUE SE ESCRIBA ESTÉ EN ORDEN
-function revisaCadena(textItem) {
+function revisaCadena(textItem, round = 2) {
+	// console.log(`revisaCadena(${textItem}, ${round})`);
+
 	//si comienza con un punto, le agregamos un cero
 	if (textItem.value.substring(0, 1) == '.')
 		textItem.value = '0' + textItem.value;
 
 	//si no cumples las reglas, no te dejo escribir
-	if (!cumpleReglas(textItem.value)) {
+	if (!cumpleReglas(textItem.value, round)) {
 		textItem.value = textoAnterior;
 	} else { //todo en orden
 		textoAnterior = textItem.value;
@@ -119,7 +121,7 @@ function SoloNumeros(evt) {//Otro metodo para no permitir el ingreso de letras, 
 	}
 }
 
-function number_format(amount, decimals) {
+function number_format(amount, decimals, sD = ".", sM = ",") {
 
 	amount += ''; // por si pasan un numero en vez de un string
 	amount = parseFloat(amount.replace(/[^0-9\.]/g, '')); // elimino cualquier cosa que no sea numero o punto
@@ -137,9 +139,9 @@ function number_format(amount, decimals) {
 		regexp = /(\d+)(\d{3})/;
 
 	while (regexp.test(amount_parts[0]))
-		amount_parts[0] = amount_parts[0].replace(regexp, '$1' + ',' + '$2');
+		amount_parts[0] = amount_parts[0].replace(regexp, '$1' + sM + '$2');
 
-	return amount_parts.join('.');
+	return amount_parts.join(sD);
 }
 
 function esFecha(cadena) {//Validar que el campo sea una fecha valida
