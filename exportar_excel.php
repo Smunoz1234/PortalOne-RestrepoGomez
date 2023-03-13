@@ -1119,25 +1119,31 @@ if (isset($_GET['exp']) && $_GET['exp'] != "" && $_GET['Cons'] != "") {
             $columnas = count($rawdata[0]) / 2;
             $filas = count($rawdata);
 
+            // Inicio - Modificado, SMM 03/03/2022
             $j = 0;
-            $letra = 65; //A
-            $segLetra = 65; //A
+            $letra = 65; // A
 
             //Llenar array de las letras del abecedario
             for ($j = 0; $j < $columnas; $j++) {
-                if ($j <= 25) {
-                    $Titulo = chr($letra);
-                    $letra++;
-                } else {
-                    $letra = 65;
-                    $Titulo = chr($letra) . chr($segLetra);
-                    $segLetra++;
+                if ($j % 26 == 0) {
+                    $restador = $j;
+                    $sumador = ($restador / 26) - 1;
                 }
+
+                if ($restador == 0) {
+                    $Titulo = chr($letra + $j);
+                } else {
+                    $Titulo = chr(65 + $sumador) . chr($letra + ($j - $restador));
+                }
+
                 $abc[$j] = $Titulo;
             }
 
-            for ($j = 0; $j < $columnas; $j++) {
+            // print("<pre>" . print_r($rawdata, true) . "</pre>");
+            // exit();
+            // Fin - Modificado, SMM 03/03/2022
 
+            for ($j = 0; $j < $columnas; $j++) {
                 //Colocar estilos
                 $objExcel->getActiveSheet()->getStyle($abc[$j] . '1')->applyFromArray($EstiloTitulo);
 
@@ -2068,6 +2074,7 @@ if (isset($_GET['exp']) && $_GET['exp'] != "" && $_GET['Cons'] != "") {
         $SQL = EjecutarSP(base64_decode($_GET['sp']), $ParamCons);
         $SQL_Actividades = EjecutarSP(base64_decode($_GET['sp']) . "Actividades", $ParamCons);
         $SQL_DocMarketing = EjecutarSP(base64_decode($_GET['sp']) . "DocMarketing", $ParamCons);
+        $SQL_Personalizado = EjecutarSP(base64_decode($_GET['sp']) . "Personalizado", $ParamCons);
 
         //$Num=sqlsrv_has_rows($SQL);
         //echo $Cons;
@@ -2081,6 +2088,7 @@ if (isset($_GET['exp']) && $_GET['exp'] != "" && $_GET['Cons'] != "") {
             $objExcel = new PHPExcel();
             $objExcel->createSheet(1);
             $objExcel->createSheet(2);
+            $objExcel->createSheet(3);
             $objSheet = $objExcel->setActiveSheetIndex(0);
             $objExcel->
                 getProperties()
@@ -2319,6 +2327,83 @@ if (isset($_GET['exp']) && $_GET['exp'] != "" && $_GET['Cons'] != "") {
                 $letra++;
             }
 
+            //HOJA PERSONALIZADA
+            $rawdata = array();
+            $abc = array();
+            $i = 0;
+            $objSheet4 = $objExcel->setActiveSheetIndex(3);
+            $objExcel->getActiveSheet()->setTitle('AgendaLlamadas');
+
+            while ($row = sql_fetch_array($SQL_Personalizado)) {
+                $rawdata[$i] = $row;
+                $i++;
+            }
+
+            $columnas = count($rawdata[0]) / 2;
+            $filas = count($rawdata);
+
+            $j = 0;
+            $letra = 65; //A
+            $segLetra = 65; //A
+
+            //Llenar array de las letras del abecedario
+            for ($j = 0; $j < $columnas; $j++) {
+                if ($j <= 25) {
+                    $Titulo = chr($letra);
+                    $letra++;
+                } else {
+                    $letra = 65;
+                    $Titulo = chr($letra) . chr($segLetra);
+                    $segLetra++;
+                }
+                $abc[$j] = $Titulo;
+            }
+
+            for ($j = 0; $j < $columnas; $j++) {
+
+                //Colocar estilos
+                $objExcel->getActiveSheet()->getStyle($abc[$j] . '1')->applyFromArray($EstiloTitulo);
+
+                //Ancho automatico
+                $objExcel->getActiveSheet()->getColumnDimension($abc[$j])->setAutoSize(true);
+            }
+
+            //Titulos de las columnas
+            $j = 0;
+            for ($i = 1; $i < count($rawdata[0]); $i = $i + 2) {
+                next($rawdata[0]);
+                $objSheet4->setCellValue($abc[$j] . '1', key($rawdata[0]));
+                next($rawdata[0]);
+                $j++;
+            }
+
+            //Valores de las filas
+            $f = 2; //Posicion de la fila
+            $letra = 65;
+//            echo "Filas: ".$filas;
+            //            echo "<br>";
+            //            echo "Columnas: ".$columnas;
+            //            echo "<br>";
+            for ($i = 0; $i < $filas; $i++) {
+                for ($j = 0; $j < $columnas; $j++) {
+                    if (isset($rawdata[$i][$j])) {
+//                        echo $rawdata[$i][$j];
+                        //                        echo "<br>";
+                        if (is_object($rawdata[$i][$j])) {
+                            if (($rawdata[$i][$j]->format('H')) != "00") {
+                                $objSheet4->setCellValue($abc[$j] . $f, $rawdata[$i][$j]->format('Y-m-d H:i:s'));
+                            } else {
+                                $objSheet4->setCellValue($abc[$j] . $f, $rawdata[$i][$j]->format('Y-m-d'));
+                            }
+                        } else {
+                            $objSheet4->setCellValue($abc[$j] . $f, $rawdata[$i][$j]);
+                        }
+                    }
+                }
+                $f++;
+                $letra++;
+            }
+
             $objExcel->setActiveSheetIndex(0);
 //            exit();
         }
@@ -2331,5 +2416,464 @@ if (isset($_GET['exp']) && $_GET['exp'] != "" && $_GET['Cons'] != "") {
         exit;
     }
 
+    //Exportar datos del consulta de operaciones de reindustrias
+    if ($_GET['exp'] == 19) {
+        $Cons = base64_decode($_GET['Cons']);
+        $ParamCons = explode(",", $Cons);
+        array_push($ParamCons, "'1'");
+
+        if (isset($_GET['TipoInforme']) && ($_GET['TipoInforme'] != "")) {
+            if ($_GET['TipoInforme'] == 1) {
+                $titulo = "Actividades";
+                $SQL = EjecutarSP(base64_decode($_GET['sp']) . "Actividades", $ParamCons);
+            } elseif ($_GET['TipoInforme'] == 2) {
+                $titulo = "DocumentosRelacionados";
+                $SQL = EjecutarSP(base64_decode($_GET['sp']) . "DocMarketing", $ParamCons);
+            } elseif ($_GET['TipoInforme'] == 3) {
+                $titulo = "AgendaLlamadas";
+                $SQL = EjecutarSP(base64_decode($_GET['sp']) . "AgendaLlamadas", $ParamCons);
+            } else {
+                echo "TipoInforme, not found.";
+                exit();
+            }
+        } else {
+            $titulo = "ReporteOperaciones";
+            $SQL = EjecutarSP(base64_decode($_GET['sp']), $ParamCons);
+        }
+
+        // SMM, 30/08/2022
+        $Num = sqlsrv_has_rows($SQL);
+        // echo $Cons;
+        // echo $Num;
+        // exit();
+
+        // Modificado, 30/08/2022
+        $rawdata = array();
+        $abc = array();
+        $i = 0;
+        if ($SQL && $Num) {
+            require_once 'Classes/PHPExcel.php';
+            $objExcel = new PHPExcel();
+
+            /*
+            $objExcel->createSheet(1);
+            $objExcel->createSheet(2);
+            $objExcel->createSheet(3);
+             */
+
+            // Se esta trabajando sólo con una hoja, 30/08/2022
+            $objSheet = $objExcel->setActiveSheetIndex(0);
+
+            $objExcel->
+                getProperties()
+                ->setCreator(NOMBRE_PORTAL);
+
+            //Titulo de la hoja
+            $objExcel->getActiveSheet()->setTitle($titulo);
+
+            $EstiloTitulo = array(
+                'font' => array(
+                    'bold' => true,
+                ),
+            );
+
+            while ($row = sql_fetch_array($SQL)) {
+                $rawdata[$i] = $row;
+                $i++;
+            }
+
+            $columnas = count($rawdata[0]) / 2;
+            $filas = count($rawdata);
+
+            // Inicio - Modificado, SMM 29/04/2022
+            $j = 0;
+            $letra = 65; // A
+
+            //Llenar array de las letras del abecedario
+            for ($j = 0; $j < $columnas; $j++) {
+                if ($j % 26 == 0) {
+                    $restador = $j;
+                    $sumador = ($restador / 26) - 1;
+                }
+
+                if ($restador == 0) {
+                    $Titulo = chr($letra + $j);
+                } else {
+                    $Titulo = chr(65 + $sumador) . chr($letra + ($j - $restador));
+                }
+
+                $abc[$j] = $Titulo;
+            }
+
+            // print("<pre>" . print_r($rawdata, true) . "</pre>");
+            // exit();
+            // Fin - Modificado, SMM 29/04/2022
+
+            for ($j = 0; $j < $columnas; $j++) {
+
+                //Colocar estilos
+                $objExcel->getActiveSheet()->getStyle($abc[$j] . '1')->applyFromArray($EstiloTitulo);
+
+                //Ancho automatico
+                $objExcel->getActiveSheet()->getColumnDimension($abc[$j])->setAutoSize(true);
+            }
+
+            //Titulos de las columnas
+            $j = 0;
+            for ($i = 1; $i < count($rawdata[0]); $i = $i + 2) {
+                next($rawdata[0]);
+                $objSheet->setCellValue($abc[$j] . '1', key($rawdata[0]));
+                next($rawdata[0]);
+                $j++;
+            }
+
+            //Valores de las filas
+            $f = 2; //Posicion de la fila
+            $letra = 65;
+//            echo "Filas: ".$filas;
+            //            echo "<br>";
+            //            echo "Columnas: ".$columnas;
+            //            echo "<br>";
+            for ($i = 0; $i < $filas; $i++) {
+                for ($j = 0; $j < $columnas; $j++) {
+                    if (isset($rawdata[$i][$j])) {
+//                        echo $rawdata[$i][$j];
+                        //                        echo "<br>";
+                        if (is_object($rawdata[$i][$j])) {
+                            if (($rawdata[$i][$j]->format('H')) != "00") {
+                                $objSheet->setCellValue($abc[$j] . $f, $rawdata[$i][$j]->format('Y-m-d H:i:s'));
+                            } else {
+                                $objSheet->setCellValue($abc[$j] . $f, $rawdata[$i][$j]->format('Y-m-d'));
+                            }
+                        } else {
+                            $objSheet->setCellValue($abc[$j] . $f, $rawdata[$i][$j]);
+                        }
+                    }
+                }
+                $f++;
+                $letra++;
+            }
+            // Modificado, hasta aquí
+
+            $objExcel->setActiveSheetIndex(0);
+//            exit();
+        }
+
+        // SMM, 30/08/2022
+        if ($Num) {
+            $objWriter = PHPExcel_IOFactory::createWriter($objExcel, 'Excel2007');
+            ob_start();
+            $objWriter->save("php://output");
+            $xlsData = ob_get_contents();
+            ob_end_clean();
+
+            $response = array(
+                'op' => 'ok',
+                'file' => "data:application/vnd.ms-excel;base64," . base64_encode($xlsData),
+                'filename' => "Reporte" . date('Ymd') . ".xlsx",
+            );
+        } else {
+            $response = array(
+                'op' => 'nothing',
+            );
+        }
+
+        die(json_encode($response));
+        // Hasta aquí, 30/08/2022
+    }
+
+    // Exportar datos desde una Consulta
+    if ($_GET['exp'] == 20) {
+        $Cons = base64_decode($_GET['Cons']);
+
+        if (isset($_GET['cookie_cardcode']) && ($_GET['cookie_cardcode'] == 1)) {
+            $CardCode = $_COOKIE['cardcode'];
+            $Cons .= "AND CardCode='$CardCode'";
+            // echo $Cons;
+            // exit();
+        }
+
+        if (isset($_GET['b64']) && ($_GET['b64'] == 0)) {
+            $Cons = $_GET['Cons'];
+            // echo $Cons;
+            // exit();
+        }
+
+        $SQL = sqlsrv_query($conexion, $Cons);
+
+        // $Num = sqlsrv_has_rows($SQL);
+        // echo $Cons;
+        // echo "<br>" . $Num;
+        // exit();
+
+        $rawdata = array();
+        $abc = array();
+        $i = 0;
+        if ($SQL) {
+            require_once 'Classes/PHPExcel.php';
+            $objExcel = new PHPExcel();
+            $objSheet = $objExcel->setActiveSheetIndex(0);
+            $objExcel->
+                getProperties()
+                ->setCreator(NOMBRE_PORTAL);
+
+            //Titulo de la hoja
+            $objExcel->getActiveSheet()->setTitle('Reporte');
+
+            $EstiloTitulo = array(
+                'font' => array(
+                    'bold' => true,
+                ),
+            );
+
+            if (isset($_GET['hn']) && ($_GET['hn'] == 1)) {
+                //while($row=sql_fetch_array($SQL,2)){
+                while (odbc_fetch_into($SQL, $rawdata[$i])) {
+                    //odbc_fetch_into($SQL, $rawdata[$i]);
+                    //$rawdata[$i] = $row;
+                    //print_r($rawdata);
+                    //echo "<br><br>";
+                    //exit();
+                    $i++;
+                }
+                //exit();
+            } else {
+                while ($row = sql_fetch_array($SQL)) {
+                    $rawdata[$i] = $row;
+                    $i++;
+                }
+            }
+
+            $columnas = count($rawdata[0]) / 2;
+            $filas = count($rawdata);
+
+            // Inicio - Modificado, SMM 03/03/2022
+            $j = 0;
+            $letra = 65; // A
+
+            //Llenar array de las letras del abecedario
+            for ($j = 0; $j < $columnas; $j++) {
+                if ($j % 26 == 0) {
+                    $restador = $j;
+                    $sumador = ($restador / 26) - 1;
+                }
+
+                if ($restador == 0) {
+                    $Titulo = chr($letra + $j);
+                } else {
+                    $Titulo = chr(65 + $sumador) . chr($letra + ($j - $restador));
+                }
+
+                $abc[$j] = $Titulo;
+            }
+
+            // print("<pre>" . print_r($rawdata, true) . "</pre>");
+            // exit();
+            // Fin - Modificado, SMM 03/03/2022
+
+            for ($j = 0; $j < $columnas; $j++) {
+                //Colocar estilos
+                $objExcel->getActiveSheet()->getStyle($abc[$j] . '1')->applyFromArray($EstiloTitulo);
+
+                //Ancho automatico
+                $objExcel->getActiveSheet()->getColumnDimension($abc[$j])->setAutoSize(true);
+            }
+
+            //Titulos de las columnas
+            $j = 0;
+            for ($i = 1; $i < count($rawdata[0]); $i = $i + 2) {
+                next($rawdata[0]);
+                $objSheet->setCellValue($abc[$j] . '1', key($rawdata[0]));
+                next($rawdata[0]);
+                $j++;
+            }
+
+            //Valores de las filas
+            $f = 2; //Posicion de la fila
+            $letra = 65;
+//            echo "Filas: ".$filas;
+            //            echo "<br>";
+            //            echo "Columnas: ".$columnas;
+            //            echo "<br>";
+            for ($i = 0; $i < $filas; $i++) {
+                for ($j = 0; $j < $columnas; $j++) {
+                    if (isset($rawdata[$i][$j])) {
+//                        echo $rawdata[$i][$j];
+                        //                        echo "<br>";
+                        if (is_object($rawdata[$i][$j])) {
+                            if (($rawdata[$i][$j]->format('H')) != "00") {
+                                $objSheet->setCellValue($abc[$j] . $f, $rawdata[$i][$j]->format('Y-m-d H:i:s'));
+                            } else {
+                                $objSheet->setCellValue($abc[$j] . $f, $rawdata[$i][$j]->format('Y-m-d'));
+                            }
+                        } else {
+                            $objSheet->setCellValue($abc[$j] . $f, $rawdata[$i][$j]);
+                        }
+                    }
+
+                }
+                $f++;
+                $letra++;
+            }
+//            exit();
+        }
+        header('Content-Type: application/vnd.ms-excel');
+        header('Content-Disposition: attachment;filename="Reporte' . date('Ymd') . '.xlsx"');
+        header('Cache-Control: max-age=0');
+
+        $objWriter = PHPExcel_IOFactory::createWriter($objExcel, 'Excel2007');
+        $objWriter->save('php://output');
+        exit;
+    }
+
+    // SMM, 07/03/2023. Exportar datos desde un SP asincronamente y pasando el nombre del archivo como parámetro.
+    if ($_GET['exp'] == 21) {
+        $Cons = base64_decode($_GET['Cons']);
+        $ParamCons = explode(",", $Cons);
+        if (isset($_GET['hn']) && ($_GET['hn'] == 1)) {
+            $SQL = EjecutarSP(base64_decode($_GET['sp']), $ParamCons, 0, 2);
+        } else {
+            $SQL = EjecutarSP(base64_decode($_GET['sp']), $ParamCons);
+        }
+
+        $Num = sqlsrv_has_rows($SQL);
+        // echo $Cons;
+        // echo $Num;
+        // exit();
+
+        $rawdata = array();
+        $abc = array();
+        $i = 0;
+        if ($SQL && $Num) {
+            require_once 'Classes/PHPExcel.php';
+            $objExcel = new PHPExcel();
+            $objSheet = $objExcel->setActiveSheetIndex(0);
+            $objExcel->
+                getProperties()
+                ->setCreator(NOMBRE_PORTAL);
+
+            //Titulo de la hoja
+            $objExcel->getActiveSheet()->setTitle('Reporte');
+
+            $EstiloTitulo = array(
+                'font' => array(
+                    'bold' => true,
+                ),
+            );
+
+            if (isset($_GET['hn']) && ($_GET['hn'] == 1)) {
+                //while($row=sql_fetch_array($SQL,2)){
+                while (odbc_fetch_into($SQL, $rawdata[$i])) {
+                    //odbc_fetch_into($SQL, $rawdata[$i]);
+                    //$rawdata[$i] = $row;
+                    //print_r($rawdata);
+                    //echo "<br><br>";
+                    //exit();
+                    $i++;
+                }
+                //exit();
+            } else {
+                while ($row = sql_fetch_array($SQL)) {
+                    $rawdata[$i] = $row;
+                    $i++;
+                }
+            }
+
+            $columnas = count($rawdata[0]) / 2;
+            $filas = count($rawdata);
+
+            // Inicio - Modificado, SMM 03/03/2022
+            $j = 0;
+            $letra = 65; // A
+
+            //Llenar array de las letras del abecedario
+            for ($j = 0; $j < $columnas; $j++) {
+                if ($j % 26 == 0) {
+                    $restador = $j;
+                    $sumador = ($restador / 26) - 1;
+                }
+
+                if ($restador == 0) {
+                    $Titulo = chr($letra + $j);
+                } else {
+                    $Titulo = chr(65 + $sumador) . chr($letra + ($j - $restador));
+                }
+
+                $abc[$j] = $Titulo;
+            }
+
+            // print("<pre>" . print_r($rawdata, true) . "</pre>");
+            // exit();
+            // Fin - Modificado, SMM 03/03/2022
+
+            for ($j = 0; $j < $columnas; $j++) {
+                //Colocar estilos
+                $objExcel->getActiveSheet()->getStyle($abc[$j] . '1')->applyFromArray($EstiloTitulo);
+
+                //Ancho automatico
+                $objExcel->getActiveSheet()->getColumnDimension($abc[$j])->setAutoSize(true);
+            }
+
+            //Titulos de las columnas
+            $j = 0;
+            for ($i = 1; $i < count($rawdata[0]); $i = $i + 2) {
+                next($rawdata[0]);
+                $objSheet->setCellValue($abc[$j] . '1', key($rawdata[0]));
+                next($rawdata[0]);
+                $j++;
+            }
+
+            //Valores de las filas
+            $f = 2; //Posicion de la fila
+            $letra = 65;
+//            echo "Filas: ".$filas;
+            //            echo "<br>";
+            //            echo "Columnas: ".$columnas;
+            //            echo "<br>";
+            for ($i = 0; $i < $filas; $i++) {
+                for ($j = 0; $j < $columnas; $j++) {
+                    if (isset($rawdata[$i][$j])) {
+//                        echo $rawdata[$i][$j];
+                        //                        echo "<br>";
+                        if (is_object($rawdata[$i][$j])) {
+                            if (($rawdata[$i][$j]->format('H')) != "00") {
+                                $objSheet->setCellValue($abc[$j] . $f, $rawdata[$i][$j]->format('Y-m-d H:i:s'));
+                            } else {
+                                $objSheet->setCellValue($abc[$j] . $f, $rawdata[$i][$j]->format('Y-m-d'));
+                            }
+                        } else {
+                            $objSheet->setCellValue($abc[$j] . $f, $rawdata[$i][$j]);
+                        }
+                    }
+
+                }
+                $f++;
+                $letra++;
+            }
+//            exit();
+        }
+
+        if ($Num) {
+            $objWriter = PHPExcel_IOFactory::createWriter($objExcel, 'Excel2007');
+            ob_start();
+            $objWriter->save("php://output");
+            $xlsData = ob_get_contents();
+            ob_end_clean();
+
+            $response = array(
+                'op' => 'ok',
+                'file' => "data:application/vnd.ms-excel;base64," . base64_encode($xlsData),
+                'filename' => ($_GET['filename'] ?? "Reporte") . "_" . date('YmdHis') . ".xlsx",
+            );
+        } else {
+            $response = array(
+                'op' => 'nothing',
+            );
+        }
+
+        die(json_encode($response));
+    }
+
+    // Cerrar la conexión a la BD.
     sqlsrv_close($conexion);
 }

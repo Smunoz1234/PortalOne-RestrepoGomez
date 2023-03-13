@@ -312,6 +312,7 @@ function SeleccionarTodos(){
                 </div>
             </div>
          <div class="wrapper wrapper-content">
+			 <!-- Inicio, myModal -->
 			<div class="modal inmodal fade" id="myModal" tabindex="-1" role="dialog" aria-hidden="true">
 				<div class="modal-dialog modal-lg">
 					<div class="modal-content">
@@ -325,11 +326,13 @@ function SeleccionarTodos(){
 					</div>
 				</div>
 			</div>
+			<!-- Fin, myModal -->
+			
              <div class="row">
 				<div class="col-lg-12">
-			    <div class="ibox-content">
-					 <?php include("includes/spinner.php"); ?>
-				  <form action="facturacion_orden_servicio.php" method="get" id="formBuscar" class="form-horizontal">
+			     <div class="ibox-content">
+				   <?php include("includes/spinner.php"); ?>
+				   <form action="facturacion_orden_servicio.php" method="get" id="formBuscar" class="form-horizontal">
 						<div class="form-group">
 							<label class="col-xs-12"><h3 class="bg-success p-xs b-r-sm"><i class="fa fa-filter"></i> Datos para filtrar</h3></label>
 					    </div>
@@ -436,168 +439,168 @@ function SeleccionarTodos(){
 								<button type="submit" class="btn btn-outline btn-success pull-right"><i class="fa fa-search"></i> Buscar</button>
 							</div>		
 						</div>
-				 </form>
-			</div>
-			</div>
-		  </div>
-		<?php if($sw==1){?>
-        <br>
-        <div class="row">
-           <div class="col-lg-12">
-			    <div class="ibox-content">
-					 <?php include("includes/spinner.php"); ?>
-				<div class="form-group">
-					<label class="col-xs-12"><h3 class="bg-success p-xs b-r-sm"><i class="fa fa-check-square"></i> Datos para seleccionar</h3></label>
-				 </div>
-				<div class="row p-md">
+				   </form>
+			     </div>
+			    </div>
+		     </div>
+		     <?php if($sw==1){?>
+			<br>
+			<div class="row">
+			   <div class="col-lg-12">
+				  <div class="ibox-content">
+				    <?php include("includes/spinner.php"); ?>
 					<div class="form-group">
-						<div class="col-lg-3">
-							<label class="control-label">VTA opcional</label>
-							<select name="VTAOpcional" class="form-control select2" id="VTAOpcional">
-									<option value="">Seleccione...</option>
-							  <?php while($row_VTAOpcional=sqlsrv_fetch_array($SQL_VTAOpcional)){?>
-									<option value="<?php echo $row_VTAOpcional['ItemCode'];?>"><?php echo $row_VTAOpcional['ItemCode'].": ".$row_VTAOpcional['ItemName'];?></option>
-							  <?php }?>
-							</select>
-						</div>		
-						<div class="col-lg-7">
-							<label class="control-label">Facturar a nombre de</label>
-							<input name="CodClienteFactura" type="hidden" id="CodClienteFactura" value="">							
-							<input name="NombreClienteFactura" type="text" class="form-control" id="NombreClienteFactura" placeholder="Digite para buscar..." value="">
-						</div>
-					</div>
-				</div>
-				<div class="row p-sm">
-					<div class="table-responsive">
-						<table class="table table-bordered dataTables-example">
-						<thead>
-						<tr>
-							<th>Llamada servicio</th>
-							<th>Serie</th>
-							<th>Lista de materiales</th>
-							<th>VTA para factura</th>
-							<th>Tipo llamada</th>
-							<th>Sucursal</th>   
-							<th>Servicio</th>   
-							<th>Cant Valor Art.</th>
-							<th>Fecha creación</th>
-							<th>Fecha cierre</th>
-							<th>Fecha Últ. Act</th>
-							<th>Estado</th>
-							<th>Estado de servicio</th>
-							<th>Facturado</th>
-							<th>Anexo OT</th>
-							<th>Seleccionar <div class="checkbox checkbox-success"><input type="checkbox" id="chkAll" value="" onChange="SeleccionarTodos();" title="Seleccionar todos"><label></label></div></th>
-						</tr>
-						</thead>
-						<tbody>
-						<?php $i=0;
-							 while($row=sql_fetch_array($SQL)){ 
-								$Icon=IconAttach($row['ExtAnexoLlamada']);?>
-							 <tr id="tr_<?php echo $i;?>">
-								<td><a href="llamada_servicio.php?id=<?php echo base64_encode($row['ID_LlamadaServicio']);?>&return=<?php echo base64_encode($_SERVER['QUERY_STRING']);?>&pag=<?php echo base64_encode('facturacion_orden_servicio.php');?>&tl=1" target="_blank"><?php echo $row['DocNum'];?></a></td>	
-								<td><?php echo $row['SeriesName'];?></td>
-								<td><a href="articulos.php?id=<?php echo base64_encode($row['IdArticuloLlamada']);?>&return=<?php echo base64_encode($_SERVER['QUERY_STRING']);?>&pag=<?php echo base64_encode('facturacion_orden_servicio.php');?>&tl=1" target="_blank" title="<?php echo $row['DeArticuloLlamada'];?>"><?php echo $row['IdArticuloLlamada'];?></a></td>
-								<td><a href="articulos.php?id=<?php echo base64_encode($row['IdVTAFactura']);?>&return=<?php echo base64_encode($_SERVER['QUERY_STRING']);?>&pag=<?php echo base64_encode('facturacion_orden_servicio.php');?>&tl=1" target="_blank" title="<?php echo $row['DeVTAFactura'];?>"><?php echo $row['IdVTAFactura'];?></a></td>
-								<td><?php echo $row['DeTipoLlamada'];?></td>
-								<td><?php echo $row['NombreSucursal'];?></td>
-								<td><?php echo $row['CDU_Servicios'];?></td>
-								<td><?php echo 'Cant:'.number_format($row['CDU_CantArticulo'],0).' - Valor:'.number_format($row['CDU_PrecioArticulo'],0);?></td>
-								<td><?php echo $row['FechaCreacionLLamada'];?></td>
-								<td><?php echo $row['FechaCierreLLamada'];?></td>
-								<td><?php echo $row['FechaInicioActividad'];?></td>
-								<td><span <?php if($row['IdEstadoLlamada']=='-3'){echo "class='label label-info'";}elseif($row['IdEstadoLlamada']=='-2'){echo "class='label label-warning'";}else{echo "class='label label-danger'";}?>><?php echo $row['DeEstadoLlamada'];?></span></td>	
-								<td><span <?php if($row['CDU_EstadoServicio']=='0'){echo "class='label label-warning'";}elseif($row['CDU_EstadoServicio']=='1'){echo "class='label label-primary'";}else{echo "class='label label-danger'";}?>><?php echo $row['DeEstadoServicio'];?></span></td>
-								<td><?php if($row['Facturado']=="SI"){?><a href="factura_venta.php?id=<?php echo base64_encode($row['DocEntryFactura']);?>&id_portal=<?php echo base64_encode($row['DocPortalFactura']);?>&tl=1" target="_blank"><?php echo $row['DocNumFactura'];?></a><?php }else{ echo "NO";}?></td>
-								<td><?php if($row['DeAnexoLlamada']!=""){?><a href="attachdownload.php?file=<?php echo base64_encode($row['IdAnexoLlamada']);?>&line=<?php echo base64_encode($row['LineNumAnexoLlamada']);?>" target="_blank" title="Descargar archivo" class="btn-link btn-xs"><i class="<?php echo $Icon;?>"></i> <?php echo $row['DeAnexoLlamada'];?></a><?php }?></td>
-								<td>
-									<?php if(($row['TipoLlamadaFacturable']=="SI")&&($row['EstadoServicioFacturable']=="SI")&&($row['Facturado']=="NO")){if(($row['IdTipoLlamada']=="1")&&($row['IdVTAFactura']=="")){}else{?>
-										<div class="checkbox checkbox-success">
-											<input type="checkbox" class="chkSelOT" id="chkSelOT<?php echo $row['DocNum'];?>" value="" onChange="SeleccionarOT('<?php echo $row['DocNum'];?>','<?php echo $i;?>','<?php echo $row['IdVTAFactura'];?>');SeleccionarZIP('<?php echo $row['DocNum'];?>','<?php echo $row['IdAnexoLlamada'];?>','<?php echo $row['LineNumAnexoLlamada'];?>');" aria-label="Single checkbox One"><label></label>
-										</div>
-									<?php }}?>
-								</td>
-							</tr>
-						<?php $i++;}?>
-						</tbody>
-						</table>
-              		</div>
-				</div>
-				<div class="row p-md">
-					<div class="col-lg-4">
-						<input type="hidden" id="OTSel" name="OTSel" value="" />
-						<input type="hidden" id="DVtr" name="DVtr" value="" />
-					</div>
-					<div class="col-lg-4">
-						<button type="submit" class="btn btn-primary disabled" id="btnZIP" name="btnZIP" form="frmDownload"><i class="fa fa-file-zip-o"></i> Exportar en ZIP</button>
-						<div class="btn-group">
-							<button data-toggle="dropdown" type="button" disabled="" class="btn btn-success dropdown-toggle" id="btnInd" name="btnInd"><i class="fa fa-angle-down"></i> Individual</button>
-							<ul class="dropdown-menu">
-								<li><a class="dropdown-item" href="#" id="btnIndGrpSuc" title="Agrupar las sucursales del cliente y suma la cantidad de OT y valores del VTA en la misma fila">Agrupar por sucursal</a></li>
-								<li><a class="dropdown-item" href="#" id="btnIndBySuc" title="No agrupa las sucursales, sino que agrupa por los VTA, si estos se repiten, y suma la cantidad de OT y valores del VTA en la misma fila"><strong>NO</strong> Agrupar por sucursal</a></li>
-							</ul>
-						</div>	
-						<div class="btn-group">
-							<button data-toggle="dropdown" type="button" disabled="" class="btn btn-success dropdown-toggle" id="btnGrp" name="btnGrp"><i class="fa fa-angle-double-down"></i> Agrupado</button>
-							<ul class="dropdown-menu">
-								<li><a class="dropdown-item" href="#" id="btnGrpGrpSuc" title="Agrupar las sucursales del cliente en un mismo VTA y pone en la cantidad 1 y el valor único del VTA en la misma fila">Agrupar por sucursal</a></li>
-								<li><a class="dropdown-item" href="#" id="btnGrpBySuc" title="No agrupa las sucursales, sino que coloca todos los OT agrupadas, con la cantidad 1 y el valor único del VTA en la misma fila"><strong>NO</strong> Agrupar por sucursal</a></li>
-							</ul>
-						</div>						
-					</div>
-					<div class="col-lg-4">
-					<form id="frmDownload" name="frmDownload" action="attachdownload.php" method="post" target="_blank">
-						<input type="hidden" id="file" name="file" value="" />
-						<input type="hidden" id="zip" name="zip" value="<?php echo base64_encode('1'); ?>" />
-					</form>		
-				</div>
-				</div>
-			</div>
-			 </div> 
-          </div>
-		<br>
-		<div class="row">
-           <div class="col-lg-12">
-			    <div class="ibox-content">
-					 <?php include("includes/spinner.php"); ?>
-					 <div class="form-group">
-						<label class="col-xs-12"><h3 class="bg-success p-xs b-r-sm"><i class="fa fa-list"></i> Detalle de factura</h3></label>
-					 </div>
-					 <div class="row m-b-md">
-						<div class="col-lg-12">
-							<button class="pull-right btn btn-primary" id="btnPreCostos" name="btnPreCostos" onClick="MostrarCostos('<?php echo $Cliente; ?>');"><i class="fa fa-money"></i> Previsualizar costos</button>			
-						</div>
-					</div>
-					<div class="tabs-container">  
-						<ul class="nav nav-tabs">
-							<li class="active"><a data-toggle="tab" href="#tab-1"><i class="fa fa-list"></i> Contenido</a></li>		
-							<li><span class="TimeAct"><div id="TimeAct">&nbsp;</div></span></li>
-							<span class="TotalItems"><strong>Total Items:</strong>&nbsp;<input type="text" name="TotalItems" id="TotalItems" class="txtLimpio" value="0" size="1" readonly></span>
-						</ul>
-						<div class="tab-content">
-							<div id="tab-1" class="tab-pane active">
-								<iframe id="DataGrid" name="DataGrid" style="border: 0;" width="100%" height="300" src="detalle_facturacion_orden_servicio.php?id=0&type=1&usr=<?php echo $_SESSION['CodUser'];?>&cardcode=<?php echo $_GET['Cliente'];?>"></iframe>
-							</div>						
-						</div>					
+						<label class="col-xs-12"><h3 class="bg-success p-xs b-r-sm"><i class="fa fa-check-square"></i> Datos para seleccionar</h3></label>
 					</div>
 					<div class="row p-md">
-						<div class="col-lg-12">
-							<div class="btn-group pull-right">
-								<button data-toggle="dropdown" class="btn btn-success dropdown-toggle"><i class="fa fa-mail-forward"></i> Copiar a <i class="fa fa-caret-down"></i></button>
-								<ul class="dropdown-menu">
-									<li><a class="alkin dropdown-item" href="#" onClick="CopiarToFactura(1);">Factura de venta (copiar adjuntos)</a></li>
-									<li><a class="alkin dropdown-item" href="#" onClick="CopiarToFactura(0);">Factura de venta (<strong>NO</strong> copiar adjuntos)</a></li>
-									<li class="dropdown-divider"></li>
-									<li><a class="alkin dropdown-item" href="#" onClick="CopiarToFactura(1,2);">Orden de venta (copiar adjuntos)</a></li>
-									<li><a class="alkin dropdown-item" href="#" onClick="CopiarToFactura(0,2);">Orden de venta (<strong>NO</strong> copiar adjuntos)</a></li>
-								</ul>
+						<div class="form-group">
+							<div class="col-lg-3">
+								<label class="control-label">VTA opcional</label>
+								<select name="VTAOpcional" class="form-control select2" id="VTAOpcional">
+										<option value="">Seleccione...</option>
+								<?php while($row_VTAOpcional=sqlsrv_fetch_array($SQL_VTAOpcional)){?>
+										<option value="<?php echo $row_VTAOpcional['ItemCode'];?>"><?php echo $row_VTAOpcional['ItemCode'].": ".$row_VTAOpcional['ItemName'];?></option>
+								<?php }?>
+								</select>
+							</div>		
+							<div class="col-lg-7">
+								<label class="control-label">Facturar a nombre de</label>
+								<input name="CodClienteFactura" type="hidden" id="CodClienteFactura" value="">							
+								<input name="NombreClienteFactura" type="text" class="form-control" id="NombreClienteFactura" placeholder="Digite para buscar..." value="">
 							</div>
-						</div>			
+						</div>
+					</div>
+					<div class="row p-sm">
+						<div class="table-responsive">
+							<table class="table table-bordered dataTables-example">
+							<thead>
+							<tr>
+								<th>Llamada servicio</th>
+								<th>Serie</th>
+								<th>Lista de materiales</th>
+								<th>VTA para factura</th>
+								<th>Tipo llamada</th>
+								<th>Sucursal</th>   
+								<th>Servicio</th>   
+								<th>Cant Valor Art.</th>
+								<th>Fecha creación</th>
+								<th>Fecha cierre</th>
+								<th>Fecha Últ. Act</th>
+								<th>Estado</th>
+								<th>Estado de servicio</th>
+								<th>Facturado</th>
+								<th>Anexo OT</th>
+								<th>Seleccionar <div class="checkbox checkbox-success"><input type="checkbox" id="chkAll" value="" onChange="SeleccionarTodos();" title="Seleccionar todos"><label></label></div></th>
+							</tr>
+							</thead>
+							<tbody>
+							<?php $i=0;
+								while($row=sql_fetch_array($SQL)){ 
+									$Icon=IconAttach($row['ExtAnexoLlamada']);?>
+								<tr id="tr_<?php echo $i;?>">
+									<td><a href="llamada_servicio.php?id=<?php echo base64_encode($row['ID_LlamadaServicio']);?>&return=<?php echo base64_encode($_SERVER['QUERY_STRING']);?>&pag=<?php echo base64_encode('facturacion_orden_servicio.php');?>&tl=1" target="_blank"><?php echo $row['DocNum'];?></a></td>	
+									<td><?php echo $row['SeriesName'];?></td>
+									<td><a href="articulos.php?id=<?php echo base64_encode($row['IdArticuloLlamada']);?>&return=<?php echo base64_encode($_SERVER['QUERY_STRING']);?>&pag=<?php echo base64_encode('facturacion_orden_servicio.php');?>&tl=1" target="_blank" title="<?php echo $row['DeArticuloLlamada'];?>"><?php echo $row['IdArticuloLlamada'];?></a></td>
+									<td><a href="articulos.php?id=<?php echo base64_encode($row['IdVTAFactura']);?>&return=<?php echo base64_encode($_SERVER['QUERY_STRING']);?>&pag=<?php echo base64_encode('facturacion_orden_servicio.php');?>&tl=1" target="_blank" title="<?php echo $row['DeVTAFactura'];?>"><?php echo $row['IdVTAFactura'];?></a></td>
+									<td><?php echo $row['DeTipoLlamada'];?></td>
+									<td><?php echo $row['NombreSucursal'];?></td>
+									<td><?php echo $row['CDU_Servicios'];?></td>
+									<td><?php echo 'Cant:'.number_format($row['CDU_CantArticulo'],0).' - Valor:'.number_format($row['CDU_PrecioArticulo'],0);?></td>
+									<td><?php echo $row['FechaCreacionLLamada'];?></td>
+									<td><?php echo $row['FechaCierreLLamada'];?></td>
+									<td><?php echo $row['FechaInicioActividad'];?></td>
+									<td><span <?php if($row['IdEstadoLlamada']=='-3'){echo "class='label label-info'";}elseif($row['IdEstadoLlamada']=='-2'){echo "class='label label-warning'";}else{echo "class='label label-danger'";}?>><?php echo $row['DeEstadoLlamada'];?></span></td>	
+									<td><span <?php if($row['CDU_EstadoServicio']=='0'){echo "class='label label-warning'";}elseif($row['CDU_EstadoServicio']=='1'){echo "class='label label-primary'";}else{echo "class='label label-danger'";}?>><?php echo $row['DeEstadoServicio'];?></span></td>
+									<td><?php if($row['Facturado']=="SI"){?><a href="factura_venta.php?id=<?php echo base64_encode($row['DocEntryFactura']);?>&id_portal=<?php echo base64_encode($row['DocPortalFactura']);?>&tl=1" target="_blank"><?php echo $row['DocNumFactura'];?></a><?php }else{ echo "NO";}?></td>
+									<td><?php if($row['DeAnexoLlamada']!=""){?><a href="attachdownload.php?file=<?php echo base64_encode($row['IdAnexoLlamada']);?>&line=<?php echo base64_encode($row['LineNumAnexoLlamada']);?>" target="_blank" title="Descargar archivo" class="btn-link btn-xs"><i class="<?php echo $Icon;?>"></i> <?php echo $row['DeAnexoLlamada'];?></a><?php }?></td>
+									<td>
+										<?php if(($row['TipoLlamadaFacturable']=="SI")&&($row['EstadoServicioFacturable']=="SI")&&($row['Facturado']=="NO")){if(($row['IdTipoLlamada']=="1")&&($row['IdVTAFactura']=="")){}else{?>
+											<div class="checkbox checkbox-success">
+												<input type="checkbox" class="chkSelOT" id="chkSelOT<?php echo $row['DocNum'];?>" value="" onChange="SeleccionarOT('<?php echo $row['DocNum'];?>','<?php echo $i;?>','<?php echo $row['IdVTAFactura'];?>');SeleccionarZIP('<?php echo $row['DocNum'];?>','<?php echo $row['IdAnexoLlamada'];?>','<?php echo $row['LineNumAnexoLlamada'];?>');" aria-label="Single checkbox One"><label></label>
+											</div>
+										<?php }}?>
+									</td>
+								</tr>
+							<?php $i++;}?>
+							</tbody>
+							</table>
+						</div>
+					</div>
+					<div class="row p-md">
+						<div class="col-lg-4">
+							<input type="hidden" id="OTSel" name="OTSel" value="" />
+							<input type="hidden" id="DVtr" name="DVtr" value="" />
+						</div>
+						<div class="col-lg-4">
+							<button type="submit" class="btn btn-primary disabled" id="btnZIP" name="btnZIP" form="frmDownload"><i class="fa fa-file-zip-o"></i> Exportar en ZIP</button>
+							<div class="btn-group">
+								<button data-toggle="dropdown" type="button" disabled="" class="btn btn-success dropdown-toggle" id="btnInd" name="btnInd"><i class="fa fa-angle-down"></i> Individual</button>
+								<ul class="dropdown-menu">
+									<li><a class="dropdown-item" href="#" id="btnIndGrpSuc" title="Agrupar las sucursales del cliente y suma la cantidad de OT y valores del VTA en la misma fila">Agrupar por sucursal</a></li>
+									<li><a class="dropdown-item" href="#" id="btnIndBySuc" title="No agrupa las sucursales, sino que agrupa por los VTA, si estos se repiten, y suma la cantidad de OT y valores del VTA en la misma fila"><strong>NO</strong> Agrupar por sucursal</a></li>
+								</ul>
+							</div>	
+							<div class="btn-group">
+								<button data-toggle="dropdown" type="button" disabled="" class="btn btn-success dropdown-toggle" id="btnGrp" name="btnGrp"><i class="fa fa-angle-double-down"></i> Agrupado</button>
+								<ul class="dropdown-menu">
+									<li><a class="dropdown-item" href="#" id="btnGrpGrpSuc" title="Agrupar las sucursales del cliente en un mismo VTA y pone en la cantidad 1 y el valor único del VTA en la misma fila">Agrupar por sucursal</a></li>
+									<li><a class="dropdown-item" href="#" id="btnGrpBySuc" title="No agrupa las sucursales, sino que coloca todos los OT agrupadas, con la cantidad 1 y el valor único del VTA en la misma fila"><strong>NO</strong> Agrupar por sucursal</a></li>
+								</ul>
+							</div>						
+						</div>
+						<div class="col-lg-4">
+						<form id="frmDownload" name="frmDownload" action="attachdownload.php" method="post" target="_blank">
+							<input type="hidden" id="file" name="file" value="" />
+							<input type="hidden" id="zip" name="zip" value="<?php echo base64_encode('1'); ?>" />
+						</form>		
+					</div>
 					</div>
 				</div>
-			</div>			
-          </div>		 
-		<?php }?>
+				</div> 
+			</div>
+			<br>
+			<div class="row">
+			<div class="col-lg-12">
+					<div class="ibox-content">
+						<?php include("includes/spinner.php"); ?>
+						<div class="form-group">
+							<label class="col-xs-12"><h3 class="bg-success p-xs b-r-sm"><i class="fa fa-list"></i> Detalle de factura</h3></label>
+						</div>
+						<div class="row m-b-md">
+							<div class="col-lg-12">
+								<button class="pull-right btn btn-primary" id="btnPreCostos" name="btnPreCostos" onClick="MostrarCostos('<?php echo $Cliente; ?>');"><i class="fa fa-money"></i> Previsualizar costos</button>			
+							</div>
+						</div>
+						<div class="tabs-container">  
+							<ul class="nav nav-tabs">
+								<li class="active"><a data-toggle="tab" href="#tab-1"><i class="fa fa-list"></i> Contenido</a></li>		
+								<li><span class="TimeAct"><div id="TimeAct">&nbsp;</div></span></li>
+								<span class="TotalItems"><strong>Total Items:</strong>&nbsp;<input type="text" name="TotalItems" id="TotalItems" class="txtLimpio" value="0" size="1" readonly></span>
+							</ul>
+							<div class="tab-content">
+								<div id="tab-1" class="tab-pane active">
+									<iframe id="DataGrid" name="DataGrid" style="border: 0;" width="100%" height="300" src="detalle_facturacion_orden_servicio.php?id=0&type=1&usr=<?php echo $_SESSION['CodUser'];?>&cardcode=<?php echo $_GET['Cliente'];?>"></iframe>
+								</div>						
+							</div>					
+						</div>
+						<div class="row p-md">
+							<div class="col-lg-12">
+								<div class="btn-group pull-right">
+									<button data-toggle="dropdown" class="btn btn-success dropdown-toggle"><i class="fa fa-mail-forward"></i> Copiar a <i class="fa fa-caret-down"></i></button>
+									<ul class="dropdown-menu">
+										<li><a class="alkin dropdown-item" href="#" onClick="CopiarToFactura(1);">Factura de venta (copiar adjuntos)</a></li>
+										<li><a class="alkin dropdown-item" href="#" onClick="CopiarToFactura(0);">Factura de venta (<strong>NO</strong> copiar adjuntos)</a></li>
+										<li class="dropdown-divider"></li>
+										<li><a class="alkin dropdown-item" href="#" onClick="CopiarToFactura(1,2);">Orden de venta (copiar adjuntos)</a></li>
+										<li><a class="alkin dropdown-item" href="#" onClick="CopiarToFactura(0,2);">Orden de venta (<strong>NO</strong> copiar adjuntos)</a></li>
+									</ul>
+								</div>
+							</div>			
+						</div>
+					</div>
+				</div>			
+			</div>		 
+			<?php }?>
         </div>
         <!-- InstanceEndEditable -->
         <?php include_once("includes/footer.php"); ?>
