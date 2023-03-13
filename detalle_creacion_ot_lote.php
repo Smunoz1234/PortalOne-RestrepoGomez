@@ -1,36 +1,36 @@
-<?php 
-require_once("includes/conexion.php");
+<?php
+require_once "includes/conexion.php";
 PermitirAcceso(311);
-$sw=0;
+$sw = 0;
 //$Proyecto="";
 //$Almacen="";
-$CardCode="";
-$type=1;
-$Estado=1;//Abierto
+$CardCode = "";
+$type = 1;
+$Estado = 1; //Abierto
 
-$SQL=Seleccionar("tbl_CreacionProgramaOrdenesServicio","*","Usuario='".strtolower($_SESSION['User'])."'","DeCliente, SucursalCliente");
-if($SQL){
-	$sw=1;
+$SQL = Seleccionar("tbl_CreacionProgramaOrdenesServicio", "*", "Usuario='" . strtolower($_SESSION['User']) . "'", "DeCliente, SucursalCliente");
+if ($SQL) {
+    $sw = 1;
 }
 
-if(isset($_GET['id'])&&($_GET['id']!="")){
-	if($_GET['type']==1){
-		$type=1;
-	}else{
-		$type=$_GET['type'];
-	}
-	if($type==1){//Creando Orden de Venta
-		
-	}
+if (isset($_GET['id']) && ($_GET['id'] != "")) {
+    if ($_GET['type'] == 1) {
+        $type = 1;
+    } else {
+        $type = $_GET['type'];
+    }
+    if ($type == 1) { //Creando Orden de Venta
+
+    }
 }
 ?>
 <!doctype html>
 <html>
 <head>
-<?php include_once("includes/cabecera.php"); ?>
+<?php include_once "includes/cabecera.php";?>
 <style>
 	.ibox-content{
-		padding: 0px !important;	
+		padding: 0px !important;
 	}
 	body{
 		background-color: #ffffff;
@@ -39,7 +39,7 @@ if(isset($_GET['id'])&&($_GET['id']!="")){
 	.form-control{
 		width: auto;
 		height: 28px;
-	}	
+	}
 </style>
 <script>
 var json=[];
@@ -49,13 +49,13 @@ function BorrarLinea(){
 	if(confirm(String.fromCharCode(191)+'Est'+String.fromCharCode(225)+' seguro que desea eliminar este item? Este proceso no se puede revertir.')){
 		$.ajax({
 			type: "GET",
-			url: "includes/procedimientos.php?type=26&linenum="+json,		
+			url: "includes/procedimientos.php?type=26&linenum="+json,
 			success: function(response){
-				window.location.href="detalle_creacion_ot_lote.php?<?php echo $_SERVER['QUERY_STRING'];?>";
+				window.location.href="detalle_creacion_ot_lote.php?<?php echo $_SERVER['QUERY_STRING']; ?>";
 				window.parent.ConsultarCant();
 			}
 		});
-	}	
+	}
 }
 
 function ActualizarDatos(name,id,line){//Actualizar datos asincronicamente
@@ -80,9 +80,9 @@ function Seleccionar(ID){
 		if(json[index]==ID){
 			sw=index;
 		}
-		
+
 	});
-	
+
 	if(sw>=0){
 		json.splice(sw, 1);
 		cant--;
@@ -95,7 +95,7 @@ function Seleccionar(ID){
 	}else{
 		$("#btnBorrarLineas").addClass("disabled");
 	}
-	
+
 	//console.log(json);
 }
 
@@ -109,7 +109,7 @@ function SeleccionarTodos(){
 	$(".chkSel").prop("checked", Check);
 	if(Check){
 		$(".chkSel").trigger('change');
-	}		
+	}
 }
 
 </script>
@@ -128,41 +128,41 @@ function SeleccionarTodos(){
 				<th>Lista de materiales</th>
 				<th>Nombre de lista de materiales</th>
 				<th>Periodo</th>
-				<th>Sucursal</th>	
+				<th>Sucursal</th>
 				<th>Núm de OT</th>
-				<th>Núm de OV</th>		
+				<th>Núm de OV</th>
 				<th>Validación</th>
 				<th>Ejecución</th>
 			</tr>
 		</thead>
 		<tbody>
-		<?php 
-		if($sw==1){
-			$i=1;
-			while($row=sqlsrv_fetch_array($SQL)){
-		?>
+		<?php
+if ($sw == 1) {
+    $i = 1;
+    while ($row = sqlsrv_fetch_array($SQL)) {
+        ?>
 		<tr>
-			<td class="text-center"><?php echo $i;?></td>
+			<td class="text-center"><?php echo $i; ?></td>
 			<td class="text-center">
 				<div class="checkbox checkbox-success no-margins">
-					<input type="checkbox" class="chkSel" id="chkSel<?php echo $row['ID'];?>" value="" onChange="Seleccionar('<?php echo $row['ID'];?>');" aria-label="Single checkbox One"><label></label>
+					<input type="checkbox" class="chkSel" id="chkSel<?php echo $row['ID']; ?>" value="" onChange="Seleccionar('<?php echo $row['ID']; ?>');" aria-label="Single checkbox One"><label></label>
 				</div>
 			</td>
-			<td><?php echo $row['DeCliente'];?></td>
-			<td><?php echo $row['SucursalCliente'];?></td>
-			<td><a href="articulos.php?id=<?php echo base64_encode($row['IdArticuloLMT']);?>&tl=1" target="_blank"><?php echo $row['IdArticuloLMT'];?></a></td>
-			<td><?php echo $row['NombreArticuloLMT'];?></td>			
-			<td><?php if(is_object($row['Periodo'])&&($row['Periodo']!="")){echo $row['Periodo']->format('Y-m-d');}else{echo $row['Periodo'];}?></td>			
-			<td><?php echo $row['Sucursal'];?></td>
-			<td><?php if($row['ID_LLamadaServicio']!=0){?><a href="llamada_servicio.php?id=<?php echo base64_encode($row['DocEntryLlamada']);?>&tl=1" target="_blank"><?php echo $row['ID_LLamadaServicio'];?></a><?php }else{echo $row['ID_LLamadaServicio'];}?></td>
-			<td><?php if($row['ID_OrdenVenta']!=0){?><a href="orden_venta.php?id=<?php echo base64_encode($row['DocEntryOV']);?>&tl=1" target="_blank"><?php echo $row['ID_OrdenVenta'];?></a><?php }else{echo $row['ID_OrdenVenta'];}?></td>
-			<td><span class="<?php if(strstr($row['Validacion'],"OK")){echo "badge badge-primary";}else{echo "badge badge-danger";}?>"><?php echo $row['Validacion'];?></span></td>
-			<td class="<?php if($row['Integracion']==0){ echo "bg-warning";}elseif($row['Integracion']==2){echo "bg-danger";}else{echo "bg-primary";}?>"><?php echo $row['Ejecucion'];?></td>
+			<td><?php echo $row['DeCliente']; ?></td>
+			<td><?php echo $row['SucursalCliente']; ?></td>
+			<td><a href="articulos.php?id=<?php echo base64_encode($row['IdArticuloLMT']); ?>&tl=1" target="_blank"><?php echo $row['IdArticuloLMT']; ?></a></td>
+			<td><?php echo $row['NombreArticuloLMT']; ?></td>
+			<td><?php if (is_object($row['Periodo']) && ($row['Periodo'] != "")) {echo $row['Periodo']->format('Y-m-d');} else {echo $row['Periodo'];}?></td>
+			<td><?php echo $row['Sucursal']; ?></td>
+			<td><?php if ($row['ID_LLamadaServicio'] != 0) {?><a href="llamada_servicio.php?id=<?php echo base64_encode($row['DocEntryLlamada']); ?>&tl=1" target="_blank"><?php echo $row['ID_LLamadaServicio']; ?></a><?php } else {echo $row['ID_LLamadaServicio'];}?></td>
+			<td><?php if ($row['ID_OrdenVenta'] != 0) {?><a href="orden_venta.php?id=<?php echo base64_encode($row['DocEntryOV']); ?>&tl=1" target="_blank"><?php echo $row['ID_OrdenVenta']; ?></a><?php } else {echo $row['ID_OrdenVenta'];}?></td>
+			<td><span class="<?php if (strstr($row['Validacion'], "OK")) {echo "badge badge-primary";} else {echo "badge badge-danger";}?>"><?php echo $row['Validacion']; ?></span></td>
+			<td class="<?php if ($row['Integracion'] == 0) {echo "bg-warning";} elseif ($row['Integracion'] == 2) {echo "bg-danger";} else {echo "bg-primary";}?>"><?php echo $row['Ejecucion']; ?></td>
 		</tr>
-		<?php 
-			$i++;}
-		}
-		?>
+		<?php
+$i++;}
+}
+?>
 		</tbody>
 	</table>
 	</div>
@@ -171,9 +171,9 @@ function SeleccionarTodos(){
 	 $(document).ready(function(){
 		 $(".alkin").on('click', function(){
 				 $('.ibox-content').toggleClass('sk-loading');
-			}); 
+			});
 		  $(".select2").select2();
-		 
+
 		$('.dataTables-example').DataTable({
 			searching: false,
 			paging: false,
@@ -187,6 +187,5 @@ function SeleccionarTodos(){
 </script>
 </body>
 </html>
-<?php 
-	sqlsrv_close($conexion);
-?>
+
+<?php sqlsrv_close($conexion);?>

@@ -1,38 +1,38 @@
-<?php 
-require_once("includes/conexion.php");
+<?php
+require_once "includes/conexion.php";
 PermitirAcceso(317);
-$sw=0;
+$sw = 0;
 //$Proyecto="";
 //$Almacen="";
-$CardCode="";
-$type=1;
-$Estado=1;//Abierto
-$Num=0;
+$CardCode = "";
+$type = 1;
+$Estado = 1; //Abierto
+$Num = 0;
 
-$SQL=Seleccionar("tbl_CambioProductoOrdenVenta","*","Usuario='".strtolower($_SESSION['CodUser'])."'");
-if($SQL){
-	$Num=sqlsrv_num_rows($SQL);
-	$sw=1;
+$SQL = Seleccionar("tbl_CambioProductoOrdenVenta", "*", "Usuario='" . strtolower($_SESSION['CodUser']) . "'");
+if ($SQL) {
+    $Num = sqlsrv_num_rows($SQL);
+    $sw = 1;
 }
 
-if(isset($_GET['id'])&&($_GET['id']!="")){
-	if($_GET['type']==1){
-		$type=1;
-	}else{
-		$type=$_GET['type'];
-	}
-	if($type==1){//Creando Orden de Venta
-		
-	}
+if (isset($_GET['id']) && ($_GET['id'] != "")) {
+    if ($_GET['type'] == 1) {
+        $type = 1;
+    } else {
+        $type = $_GET['type'];
+    }
+    if ($type == 1) { //Creando Orden de Venta
+
+    }
 }
 ?>
 <!doctype html>
 <html>
 <head>
-<?php include_once("includes/cabecera.php"); ?>
+<?php include_once "includes/cabecera.php";?>
 <style>
 	.ibox-content{
-		padding: 0px !important;	
+		padding: 0px !important;
 	}
 	body{
 		background-color: #ffffff;
@@ -41,23 +41,23 @@ if(isset($_GET['id'])&&($_GET['id']!="")){
 	.form-control{
 		width: auto;
 		height: 28px;
-	}	
+	}
 </style>
 <script>
 var json=[];
 var cant=0;
-	
+
 function BorrarLinea(LineNum){
 	if(confirm(String.fromCharCode(191)+'Est'+String.fromCharCode(225)+' seguro que desea eliminar este item? Este proceso no se puede revertir.')){
 		$.ajax({
 			type: "GET",
-			url: "includes/procedimientos.php?type=28&linenum="+json,		
+			url: "includes/procedimientos.php?type=28&linenum="+json,
 			success: function(response){
-				window.location.href="detalle_cambio_producto_ot.php?<?php echo $_SERVER['QUERY_STRING'];?>";
+				window.location.href="detalle_cambio_producto_ot.php?<?php echo $_SERVER['QUERY_STRING']; ?>";
 				window.parent.ConsultarCant();
 			}
 		});
-	}	
+	}
 }
 
 function ActualizarDatos(name,id,line){//Actualizar datos asincronicamente
@@ -82,9 +82,9 @@ function Seleccionar(ID){
 		if(json[index]==ID){
 			sw=index;
 		}
-		
+
 	});
-	
+
 	if(sw>=0){
 		json.splice(sw, 1);
 		cant--;
@@ -97,7 +97,7 @@ function Seleccionar(ID){
 	}else{
 		$("#btnBorrarLineas").addClass("disabled");
 	}
-	
+
 	//console.log(json);
 }
 
@@ -111,7 +111,7 @@ function SeleccionarTodos(){
 	$(".chkSel").prop("checked", Check);
 	if(Check){
 		$(".chkSel").trigger('change');
-	}		
+	}
 }
 </script>
 </head>
@@ -129,9 +129,9 @@ function SeleccionarTodos(){
 				<th>Estado OT</th>
 				<th>Tipo llamada</th>
 				<th>Nombre cliente</th>
-				<th>Sucursal cliente</th>	
+				<th>Sucursal cliente</th>
 				<th>ID Orden venta</th>
-				<th>Fecha servicio OV</th>		
+				<th>Fecha servicio OV</th>
 				<th>Estado OV</th>
 				<th>Linea OV</th>
 				<th>Articulo origen</th>
@@ -143,7 +143,7 @@ function SeleccionarTodos(){
 				<th>Cant destino</th>
 				<th>Und medida destino</th>
 				<th>Cant litros</th>
-				<th>Dosificación</th>				
+				<th>Dosificación</th>
 				<th>Servicio llamada</th>
 				<th>Metodo aplicación</th>
 				<th>Validación</th>
@@ -151,47 +151,47 @@ function SeleccionarTodos(){
 			</tr>
 		</thead>
 		<tbody>
-		<?php 
-		if($sw==1){
-			$i=1;
-			while($row=sqlsrv_fetch_array($SQL)){
-		?>
+		<?php
+if ($sw == 1) {
+    $i = 1;
+    while ($row = sqlsrv_fetch_array($SQL)) {
+        ?>
 		<tr>
-			<td class="text-center"><?php echo $i;?></td>
+			<td class="text-center"><?php echo $i; ?></td>
 			<td class="text-center">
 				<div class="checkbox checkbox-success no-margins">
-					<input type="checkbox" class="chkSel" id="chkSel<?php echo $row['ID'];?>" value="" onChange="Seleccionar('<?php echo $row['ID'];?>');" aria-label="Single checkbox One"><label></label>
+					<input type="checkbox" class="chkSel" id="chkSel<?php echo $row['ID']; ?>" value="" onChange="Seleccionar('<?php echo $row['ID']; ?>');" aria-label="Single checkbox One"><label></label>
 				</div>
 			</td>
-			<td><?php echo $row['SerieOT'];?></td>
-			<td><a href="llamada_servicio.php?id=<?php echo base64_encode($row['ID_Llamada']);?>&tl=1" target="_blank"><?php echo $row['ID_OrdenServicio'];?></a></td>
-			<td><span <?php if($row['EstadoOrdenServicio']=='Abierto'){echo "class='label label-info'";}else{echo "class='label label-danger'";}?>><?php echo $row['EstadoOrdenServicio'];?></span></td>
-			<td><?php echo $row['TipoLlamada'];?></td>
-			<td><?php echo $row['DeCliente'];?></td>
-			<td><?php echo $row['IdSucursalCliente'];?></td>
-			<td><a href="orden_venta.php?id=<?php echo base64_encode($row['DocEntryOV']);?>&tl=1" target="_blank"><?php echo $row['ID_OV'];?></a></td>
-			<td><?php if(is_object($row['FechaServicioOV'])&&($row['FechaServicioOV']!="")){echo $row['FechaServicioOV']->format('Y-m-d');}else{echo $row['FechaServicioOV'];}?></td>
-			<td><span <?php if($row['EstadoOV']=='Abierto'){echo "class='label label-info'";}else{echo "class='label label-danger'";}?>><?php echo $row['EstadoOV'];?></span></td>			
-			<td><?php echo $row['NoLineaOV'];?></td>
-			<td><?php echo $row['IdArticuloOV'];?></td>
-			<td><?php echo $row['DeArticuloOV'];?></td>
-			<td><span class="badge badge-success"><?php echo number_format($row['CantArticuloOV'],2);?></span></td>
-			<td><?php echo $row['UndMedArtOV'];?></td>
-			<td><?php echo $row['IdArticuloAcambiar'];?></td>
-			<td><?php echo $row['DeArticuloAcambiar'];?></td>
-			<td><span class="badge badge-success"><?php echo number_format($row['FormulaArticuloOV'],2);?></span></td>
-			<td><?php echo $row['UndMedArtACambiar'];?></td>			
-			<td><?php echo number_format($row['CantLitrosArticuloOV'],2);?></td>
-			<td><?php echo number_format($row['DosifiArticuloOV'],2);?></td>			
-			<td><?php echo $row['ServicioLlamada'];?></td>
-			<td><?php echo $row['MetodoAplica'];?></td>
-			<td><span class="<?php if($row['Validacion']=="OK"){echo "badge badge-primary";}else{echo "badge badge-danger";}?>"><?php echo $row['Validacion'];?></span></td>
-			<td class="<?php if($row['Integracion']==0){ echo "bg-warning";}elseif($row['Integracion']==2){echo "bg-danger";}else{echo "bg-primary";}?>"><?php echo $row['Ejecucion'];?></td>
+			<td><?php echo $row['SerieOT']; ?></td>
+			<td><a href="llamada_servicio.php?id=<?php echo base64_encode($row['ID_Llamada']); ?>&tl=1" target="_blank"><?php echo $row['ID_OrdenServicio']; ?></a></td>
+			<td><span <?php if ($row['EstadoOrdenServicio'] == 'Abierto') {echo "class='label label-info'";} else {echo "class='label label-danger'";}?>><?php echo $row['EstadoOrdenServicio']; ?></span></td>
+			<td><?php echo $row['TipoLlamada']; ?></td>
+			<td><?php echo $row['DeCliente']; ?></td>
+			<td><?php echo $row['IdSucursalCliente']; ?></td>
+			<td><a href="orden_venta.php?id=<?php echo base64_encode($row['DocEntryOV']); ?>&tl=1" target="_blank"><?php echo $row['ID_OV']; ?></a></td>
+			<td><?php if (is_object($row['FechaServicioOV']) && ($row['FechaServicioOV'] != "")) {echo $row['FechaServicioOV']->format('Y-m-d');} else {echo $row['FechaServicioOV'];}?></td>
+			<td><span <?php if ($row['EstadoOV'] == 'Abierto') {echo "class='label label-info'";} else {echo "class='label label-danger'";}?>><?php echo $row['EstadoOV']; ?></span></td>
+			<td><?php echo $row['NoLineaOV']; ?></td>
+			<td><?php echo $row['IdArticuloOV']; ?></td>
+			<td><?php echo $row['DeArticuloOV']; ?></td>
+			<td><span class="badge badge-success"><?php echo number_format($row['CantArticuloOV'], 2); ?></span></td>
+			<td><?php echo $row['UndMedArtOV']; ?></td>
+			<td><?php echo $row['IdArticuloAcambiar']; ?></td>
+			<td><?php echo $row['DeArticuloAcambiar']; ?></td>
+			<td><span class="badge badge-success"><?php echo number_format($row['FormulaArticuloOV'], 2); ?></span></td>
+			<td><?php echo $row['UndMedArtACambiar']; ?></td>
+			<td><?php echo number_format($row['CantLitrosArticuloOV'], 2); ?></td>
+			<td><?php echo number_format($row['DosifiArticuloOV'], 2); ?></td>
+			<td><?php echo $row['ServicioLlamada']; ?></td>
+			<td><?php echo $row['MetodoAplica']; ?></td>
+			<td><span class="<?php if ($row['Validacion'] == "OK") {echo "badge badge-primary";} else {echo "badge badge-danger";}?>"><?php echo $row['Validacion']; ?></span></td>
+			<td class="<?php if ($row['Integracion'] == 0) {echo "bg-warning";} elseif ($row['Integracion'] == 2) {echo "bg-danger";} else {echo "bg-primary";}?>"><?php echo $row['Ejecucion']; ?></td>
 		</tr>
-		<?php 
-			$i++;}
-		}
-		?>
+		<?php
+$i++;}
+}
+?>
 		</tbody>
 	</table>
 	</div>
@@ -200,7 +200,7 @@ function SeleccionarTodos(){
 	 $(document).ready(function(){
 		 $(".alkin").on('click', function(){
 				 $('.ibox-content').toggleClass('sk-loading');
-			}); 
+			});
 		  $(".select2").select2();
 		 $('.dataTables-example').DataTable({
 			searching: false,
@@ -210,13 +210,13 @@ function SeleccionarTodos(){
 				dataSrc: 6
 			}
 		});
-		<?php if($Num>0){?>
+		<?php if ($Num > 0) {?>
 		 	window.parent.document.getElementById('Ejecutar').disabled=false;
 	 	<?php }?>
 	});
 </script>
 </body>
 </html>
-<?php 
-	sqlsrv_close($conexion);
+<?php
+sqlsrv_close($conexion);
 ?>

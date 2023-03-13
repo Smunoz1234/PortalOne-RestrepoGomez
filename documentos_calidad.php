@@ -1,47 +1,50 @@
-<?php 
-if(isset($_GET['id'])&&$_GET['id']!=""){
-	require_once("includes/conexion.php");
-	PermitirAcceso(104);
-if(!is_numeric(base64_decode($_GET['id']))){
-	$_GET['id']=base64_encode(1);
-}
-//Categoria
-$Where="ID_Categoria = '".base64_decode($_GET['id'])."'";
-$SQL_Cat=Seleccionar("uvw_tbl_Categorias","ID_Categoria, NombreCategoria",$Where);
-$row_Cat=sqlsrv_fetch_array($SQL_Cat);
+<?php
+require_once "includes/conexion.php";
 
-//Fechas
-if(isset($_GET['FechaInicial'])&&$_GET['FechaInicial']!=""){
-	$FechaInicial=$_GET['FechaInicial'];
-}else{
-	//Restar 7 dias a la fecha actual
-	$fecha = date('d/m/Y');
-	$nuevafecha = strtotime ('-'.ObtenerVariable("DiasRangoFechasDoc").' day');
-	$nuevafecha = date ( 'd/m/Y' , $nuevafecha );
-	$FechaInicial=$nuevafecha;
-}
-if(isset($_GET['FechaFinal'])&&$_GET['FechaFinal']!=""){
-	$FechaFinal=$_GET['FechaFinal'];
-}else{
-	$FechaFinal=date('d/m/Y');
-}
+if (isset($_GET['id']) && $_GET['id'] != "") {
+    //Categoria
+    $Where = "ID_Categoria = '" . base64_decode($_GET['id']) . "'";
+    $SQL_Cat = Seleccionar("uvw_tbl_Categorias", "ID_Categoria, NombreCategoria, ID_Permiso", $Where);
+    $row_Cat = sqlsrv_fetch_array($SQL_Cat);
 
-if(isset($_GET['_nw'])&&$_GET['_nw']==base64_encode("NeW")){//Mostrar solo los archivos que no se han descargado
-	$Cons="Select * From uvw_tbl_archivos Where ID_Categoria='".base64_decode($_GET['id'])."' and ID_Archivo NOT IN (Select ID_Archivo From uvw_tbl_DescargaArchivos Where ID_Usuario=".$_SESSION['CodUser'].") Order by Fecha DESC";
-}else{
-	$Cons="Select * From uvw_tbl_archivos Where (Fecha Between '$FechaInicial' and '$FechaFinal') and ID_Categoria='".base64_decode($_GET['id'])."' Order by Fecha DESC";
-}
+    PermitirAcceso($row_Cat['ID_Permiso'] ?? 104); // SMM, 27/09/2022
+
+    if (!is_numeric(base64_decode($_GET['id']))) {
+        $_GET['id'] = base64_encode(1);
+    }
+
+	//Fechas
+    if (isset($_GET['FechaInicial']) && $_GET['FechaInicial'] != "") {
+        $FechaInicial = $_GET['FechaInicial'];
+    } else {
+        //Restar 7 dias a la fecha actual
+        $fecha = date('d/m/Y');
+        $nuevafecha = strtotime('-' . ObtenerVariable("DiasRangoFechasDoc") . ' day');
+        $nuevafecha = date('d/m/Y', $nuevafecha);
+        $FechaInicial = $nuevafecha;
+    }
+    if (isset($_GET['FechaFinal']) && $_GET['FechaFinal'] != "") {
+        $FechaFinal = $_GET['FechaFinal'];
+    } else {
+        $FechaFinal = date('d/m/Y');
+    }
+
+    if (isset($_GET['_nw']) && $_GET['_nw'] == base64_encode("NeW")) { //Mostrar solo los archivos que no se han descargado
+        $Cons = "Select * From uvw_tbl_archivos Where ID_Categoria='" . base64_decode($_GET['id']) . "' and ID_Archivo NOT IN (Select ID_Archivo From uvw_tbl_DescargaArchivos Where ID_Usuario=" . $_SESSION['CodUser'] . ") Order by Fecha DESC";
+    } else {
+        $Cons = "Select * From uvw_tbl_archivos Where (Fecha Between '$FechaInicial' and '$FechaFinal') and ID_Categoria='" . base64_decode($_GET['id']) . "' Order by Fecha DESC";
+    }
 //echo $Cons;
-$SQL=sqlsrv_query($conexion,$Cons);
+    $SQL = sqlsrv_query($conexion, $Cons);
 
-?>
+    ?>
 <!DOCTYPE html>
 <html><!-- InstanceBegin template="/Templates/PlantillaPrincipal.dwt.php" codeOutsideHTMLIsLocked="false" -->
 
 <head>
-<?php include_once("includes/cabecera.php"); ?>
+<?php include_once "includes/cabecera.php";?>
 <!-- InstanceBeginEditable name="doctitle" -->
-<title><?php echo NOMBRE_PORTAL;?> | <?php echo $row_Cat['NombreCategoria'];?></title>
+<title><?php echo NOMBRE_PORTAL; ?> | <?php echo $row_Cat['NombreCategoria']; ?></title>
 <!-- InstanceEndEditable -->
 <!-- InstanceBeginEditable name="head" -->
 
@@ -52,44 +55,44 @@ $SQL=sqlsrv_query($conexion,$Cons);
 
 <div id="wrapper">
 
-    <?php include_once("includes/menu.php"); ?>
+    <?php include_once "includes/menu.php";?>
 
     <div id="page-wrapper" class="gray-bg">
-        <?php include_once("includes/menu_superior.php"); ?>
+        <?php include_once "includes/menu_superior.php";?>
         <!-- InstanceBeginEditable name="Contenido" -->
         <div class="row wrapper border-bottom white-bg page-heading">
                 <div class="col-sm-8">
-                    <h2><?php echo $row_Cat['NombreCategoria'];?></h2>
+                    <h2><?php echo $row_Cat['NombreCategoria']; ?></h2>
                     <ol class="breadcrumb">
                         <li>
                             <a href="index1.php">Inicio</a>
                         </li>
                         <li class="active">
-                            <strong><?php echo $row_Cat['NombreCategoria'];?></strong>
+                            <strong><?php echo $row_Cat['NombreCategoria']; ?></strong>
                         </li>
                     </ol>
                 </div>
             </div>
-            <?php  //echo $Cons;?>
+            <?php //echo $Cons;?>
          <div class="wrapper wrapper-content">
          <div class="row">
 			 <div class="col-lg-12">
 			    <div class="ibox-content">
-					<?php include("includes/spinner.php"); ?>
+					<?php include "includes/spinner.php";?>
 				  <form action="documentos_calidad.php" method="get" id="formBuscar" class="form-horizontal">
 					  <div class="form-group">
 						<label class="col-lg-1 control-label">Fechas</label>
 						<div class="col-lg-3">
 							<div class="input-daterange input-group" id="datepicker">
-								<input name="FechaInicial" type="text" class="input-sm form-control" id="FechaInicial" placeholder="Fecha inicial" value="<?php echo $FechaInicial;?>"/>
+								<input name="FechaInicial" type="text" class="input-sm form-control" id="FechaInicial" placeholder="Fecha inicial" value="<?php echo $FechaInicial; ?>"/>
 								<span class="input-group-addon">hasta</span>
-								<input name="FechaFinal" type="text" class="input-sm form-control" id="FechaFinal" placeholder="Fecha final" value="<?php echo $FechaFinal;?>" />
+								<input name="FechaFinal" type="text" class="input-sm form-control" id="FechaFinal" placeholder="Fecha final" value="<?php echo $FechaFinal; ?>" />
 							</div>
-						</div>		  
+						</div>
 						<div class="col-lg-1">
 							<button type="submit" name="submit" class="btn btn-outline btn-primary"><i class="fa fa-search"></i> Buscar</button>
 						</div>
-					   <input type="hidden" name="id" id="id" value="<?php echo $_GET['id'];?>">
+					   <input type="hidden" name="id" id="id" value="<?php echo $_GET['id']; ?>">
 					  </div>
 				 </form>
 		  		</div>
@@ -99,7 +102,7 @@ $SQL=sqlsrv_query($conexion,$Cons);
           <div class="row">
            <div class="col-lg-12">
 			    <div class="ibox-content">
-					<?php include("includes/spinner.php"); ?>
+					<?php include "includes/spinner.php";?>
 			<div class="table-responsive">
                     <table class="table table-striped table-bordered table-hover dataTables-example" >
                     <thead>
@@ -112,13 +115,13 @@ $SQL=sqlsrv_query($conexion,$Cons);
                     </tr>
                     </thead>
                      <tbody>
-                    <?php while($row=sqlsrv_fetch_array($SQL)){ ?>
+                    <?php while ($row = sqlsrv_fetch_array($SQL)) {?>
 						 <tr class="gradeX">
-							<td><?php echo FormatoNombreArchivo($row['Archivo']);?></td>
-							<td><?php echo $row['Comentarios'];?></td>
-							<td><?php if($row['Fecha']!=""){ echo $row['Fecha']->format('Y-m-d');}else{?><p class="text-muted">--</p><?php }?></td>
-							<td><?php echo $row['NombreUsuario'];?></td>
-							<td><?php if($row['Archivo']!=""){?><a href="filedownload.php?file=<?php echo base64_encode($row['ID_Archivo']);?>&dtype=<?php echo base64_encode("1");?>" target="_blank" class="btn btn-link btn-xs"><i class="fa fa-download"></i> Descargar</a><?php }else{?><p class="text-muted">Ninguno</p><?php }?></td>
+							<td><?php echo FormatoNombreArchivo($row['Archivo']); ?></td>
+							<td><?php echo $row['Comentarios']; ?></td>
+							<td><?php if ($row['Fecha'] != "") {echo $row['Fecha']->format('Y-m-d');} else {?><p class="text-muted">--</p><?php }?></td>
+							<td><?php echo $row['NombreUsuario']; ?></td>
+							<td><?php if ($row['Archivo'] != "") {?><a href="filedownload.php?file=<?php echo base64_encode($row['ID_Archivo']); ?>&dtype=<?php echo base64_encode("1"); ?>" target="_blank" class="btn btn-link btn-xs"><i class="fa fa-download"></i> Descargar</a><?php } else {?><p class="text-muted">Ninguno</p><?php }?></td>
 						</tr>
 					<?php }?>
                     </tbody>
@@ -129,11 +132,11 @@ $SQL=sqlsrv_query($conexion,$Cons);
           </div>
         </div>
         <!-- InstanceEndEditable -->
-        <?php include_once("includes/footer.php"); ?>
+        <?php include_once "includes/footer.php";?>
 
     </div>
 </div>
-<?php include_once("includes/pie.php"); ?>
+<?php include_once "includes/pie.php";?>
 <!-- InstanceBeginEditable name="EditRegion4" -->
  <script>
         $(document).ready(function(){
@@ -145,7 +148,7 @@ $SQL=sqlsrv_query($conexion,$Cons);
 				});
 			$(".alkin").on('click', function(){
 				 $('.ibox-content').toggleClass('sk-loading');
-			});	
+			});
 			 $('#FechaInicial').datepicker({
                 todayBtn: "linked",
                 keyboardNavigation: false,
@@ -161,10 +164,10 @@ $SQL=sqlsrv_query($conexion,$Cons);
                 calendarWeeks: true,
                 autoclose: true,
 				format: 'dd/mm/yyyy'
-            }); 
-			
+            });
+
 			$('.chosen-select').chosen({width: "100%"});
-			
+
             $('.dataTables-example').DataTable({
                 pageLength: 25,
                 responsive: true,
