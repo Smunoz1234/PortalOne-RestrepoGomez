@@ -1,135 +1,190 @@
-<?php require_once("includes/conexion.php");
+<?php require_once "includes/conexion.php";
 PermitirAcceso(1601);
 
-$sw=0;
+$sw = 0;
 
 //Clientes
 /*if(PermitirFuncion(205)){
-	$SQL_Cliente=Seleccionar("uvw_Sap_tbl_Clientes","CodigoCliente, NombreCliente","",'NombreCliente');	
+$SQL_Cliente=Seleccionar("uvw_Sap_tbl_Clientes","CodigoCliente, NombreCliente","",'NombreCliente');
 }else{
-	$Where="ID_Usuario = ".$_SESSION['CodUser'];
-	$SQL_Cliente=Seleccionar("uvw_tbl_ClienteUsuario","CodigoCliente, NombreCliente",$Where);	
+$Where="ID_Usuario = ".$_SESSION['CodUser'];
+$SQL_Cliente=Seleccionar("uvw_tbl_ClienteUsuario","CodigoCliente, NombreCliente",$Where);
 }*/
 
 //Empleados
-$SQL_EmpleadoActividad=Seleccionar('uvw_Sap_tbl_Empleados','*','','NombreEmpleado');
+$SQL_EmpleadoActividad = Seleccionar('uvw_Sap_tbl_Empleados', '*', '', 'NombreEmpleado');
 
 //Usuarios
-$SQL_UsuariosActividad=Seleccionar('uvw_Sap_tbl_Actividades','DISTINCT IdAsignadoPor, DeAsignadoPor','','DeAsignadoPor');
+$SQL_UsuariosActividad = Seleccionar('uvw_Sap_tbl_Actividades', 'DISTINCT IdAsignadoPor, DeAsignadoPor', '', 'DeAsignadoPor');
 
 //Estado actividad
-$SQL_EstadoActividad=Seleccionar('uvw_tbl_EstadoActividad','*');
+$SQL_EstadoActividad = Seleccionar('uvw_tbl_EstadoActividad', '*');
 
 //Tipos de actividad
-$SQL_TipoActividad=Seleccionar('uvw_Sap_tbl_TiposActividad','*','','DE_TipoActividad');
+$SQL_TipoActividad = Seleccionar('uvw_Sap_tbl_TiposActividad', '*', '', 'DE_TipoActividad');
 
 //Fechas
-if(isset($_GET['FechaInicial'])&&$_GET['FechaInicial']!=""){
-	$FechaInicial=$_GET['FechaInicial'];
-	$sw=1;
-}else{
-	//Restar 7 dias a la fecha actual
-	$fecha = date('Y-m-d');
-	$nuevafecha = strtotime ('-'.ObtenerVariable("DiasRangoFechasDocSAP").' day');
-	$nuevafecha = date ( 'Y-m-d' , $nuevafecha);
-	$FechaInicial=$nuevafecha;
+if (isset($_GET['FechaInicial']) && $_GET['FechaInicial'] != "") {
+    $FechaInicial = $_GET['FechaInicial'];
+    $sw = 1;
+} else {
+    //Restar 7 dias a la fecha actual
+    $fecha = date('Y-m-d');
+    $nuevafecha = strtotime('-' . ObtenerVariable("DiasRangoFechasDocSAP") . ' day');
+    $nuevafecha = date('Y-m-d', $nuevafecha);
+    $FechaInicial = $nuevafecha;
 }
-if(isset($_GET['FechaFinal'])&&$_GET['FechaFinal']!=""){
-	$FechaFinal=$_GET['FechaFinal'];
-	$sw=1;
-}else{
-	$FechaFinal=date('Y-m-d');
+if (isset($_GET['FechaFinal']) && $_GET['FechaFinal'] != "") {
+    $FechaFinal = $_GET['FechaFinal'];
+    $sw = 1;
+} else {
+    $FechaFinal = date('Y-m-d');
 }
 
 //Filtros
-$Filtro="TipoEquipo <> ''";
-if(isset($_GET['TipoEquipo'])&&$_GET['TipoEquipo']!=""){
-	$Filtro.=" and TipoEquipo='".$_GET['TipoEquipo']."'";
-	$sw=1;
+$Filtro = "TipoEquipo <> ''";
+if (isset($_GET['TipoEquipo']) && $_GET['TipoEquipo'] != "") {
+    $Filtro .= " and TipoEquipo='" . $_GET['TipoEquipo'] . "'";
+    $sw = 1;
 }
-if (isset($_GET['SerialEquipo'])&&$_GET['SerialEquipo']!=""){
-	$Filtro.=" and (SerialFabricante LIKE '%".$_GET['SerialEquipo']."%' OR SerialInterno LIKE '%".$_GET['SerialEquipo']."%')";
-	$sw=1;
+if (isset($_GET['SerialEquipo']) && $_GET['SerialEquipo'] != "") {
+    $Filtro .= " and (SerialFabricante LIKE '%" . $_GET['SerialEquipo'] . "%' OR SerialInterno LIKE '%" . $_GET['SerialEquipo'] . "%')";
+    $sw = 1;
 }
-if(isset($_GET['EstadoEquipo'])&&$_GET['EstadoEquipo']!=""){
-	$Filtro.=" and CodEstado='".$_GET['EstadoEquipo']."'";
-	$sw=1;
+if (isset($_GET['EstadoEquipo']) && $_GET['EstadoEquipo'] != "") {
+    $Filtro .= " and CodEstado='" . $_GET['EstadoEquipo'] . "'";
+    $sw = 1;
 }
-if(isset($_GET['ClienteEquipo'])){
-	if($_GET['ClienteEquipo']!=""){//Si se selecciono el cliente
-		$Filtro.=" and CardCode='".$_GET['ClienteEquipo']."'";
-		$sw=1;	
-	}else{
-		if(!PermitirFuncion(205)){
-			$Where="ID_Usuario = ".$_SESSION['CodUser'];
-			$SQL_Cliente=Seleccionar("uvw_tbl_ClienteUsuario","CodigoCliente, NombreCliente",$Where);
-			$k=0;
-			$FiltroCliente="";
-			while($row_Cliente=sqlsrv_fetch_array($SQL_Cliente)){
-				//Clientes
-				$WhereCliente[$k]="ID_CodigoCliente='".$row_Cliente['CodigoCliente']."'";
-				$FiltroCliente=implode(" OR ",$WhereCliente);
-				
-				$k++;
-			}
-			if($FiltroCliente!=""){
-				$Filtro.=" and (".$FiltroCliente.")";
-			}/*else{
-				$Filtro.=" and (ID_CodigoCliente='".$FiltroCliente."')";
-			}*/
-			
-			$Where="ID_Usuario = ".$_SESSION['CodUser'];
-			$SQL_Cliente=Seleccionar("uvw_tbl_ClienteUsuario","CodigoCliente, NombreCliente",$Where);
-		}
-	}
-}else{//Si no se selecciono el cliente
-	if(!PermitirFuncion(205)){
-		$Where="ID_Usuario = ".$_SESSION['CodUser'];
-		$SQL_Cliente=Seleccionar("uvw_tbl_ClienteUsuario","CodigoCliente, NombreCliente",$Where);
-		$k=0;
-		$FiltroCliente="";
-		while($row_Cliente=sqlsrv_fetch_array($SQL_Cliente)){
-			//Clientes
-			$WhereCliente[$k]="ID_CodigoCliente='".$row_Cliente['CodigoCliente']."'";
-			$FiltroCliente=implode(" OR ",$WhereCliente);
-			//$FiltroSuc=implode(" OR ",$WhereSuc);		
-			$k++;
-		}
-		if($FiltroCliente!=""){
-			$Filtro.=" and (".$FiltroCliente.")";
-		}/*else{
-			$Filtro.=" and (ID_CodigoCliente='".$FiltroCliente."')";
-		}*/
-		
-		//Recargar consultas para los combos
-		$Where="ID_Usuario = ".$_SESSION['CodUser'];
-		$SQL_Cliente=Seleccionar("uvw_tbl_ClienteUsuario","CodigoCliente, NombreCliente",$Where);
-		
-	}
+if (isset($_GET['ClienteEquipo'])) {
+    if ($_GET['ClienteEquipo'] != "") { //Si se selecciono el cliente
+        $Filtro .= " and CardCode='" . $_GET['ClienteEquipo'] . "'";
+        $sw = 1;
+    } else {
+        if (!PermitirFuncion(205)) {
+            $Where = "ID_Usuario = " . $_SESSION['CodUser'];
+            $SQL_Cliente = Seleccionar("uvw_tbl_ClienteUsuario", "CodigoCliente, NombreCliente", $Where);
+            $k = 0;
+            $FiltroCliente = "";
+            while ($row_Cliente = sqlsrv_fetch_array($SQL_Cliente)) {
+                //Clientes
+                $WhereCliente[$k] = "ID_CodigoCliente='" . $row_Cliente['CodigoCliente'] . "'";
+                $FiltroCliente = implode(" OR ", $WhereCliente);
+
+                $k++;
+            }
+            if ($FiltroCliente != "") {
+                $Filtro .= " and (" . $FiltroCliente . ")";
+            } /*else{
+            $Filtro.=" and (ID_CodigoCliente='".$FiltroCliente."')";
+            }*/
+
+            $Where = "ID_Usuario = " . $_SESSION['CodUser'];
+            $SQL_Cliente = Seleccionar("uvw_tbl_ClienteUsuario", "CodigoCliente, NombreCliente", $Where);
+        }
+    }
+} else { //Si no se selecciono el cliente
+    if (!PermitirFuncion(205)) {
+        $Where = "ID_Usuario = " . $_SESSION['CodUser'];
+        $SQL_Cliente = Seleccionar("uvw_tbl_ClienteUsuario", "CodigoCliente, NombreCliente", $Where);
+        $k = 0;
+        $FiltroCliente = "";
+        while ($row_Cliente = sqlsrv_fetch_array($SQL_Cliente)) {
+            //Clientes
+            $WhereCliente[$k] = "ID_CodigoCliente='" . $row_Cliente['CodigoCliente'] . "'";
+            $FiltroCliente = implode(" OR ", $WhereCliente);
+            //$FiltroSuc=implode(" OR ",$WhereSuc);
+            $k++;
+        }
+        if ($FiltroCliente != "") {
+            $Filtro .= " and (" . $FiltroCliente . ")";
+        } /*else{
+        $Filtro.=" and (ID_CodigoCliente='".$FiltroCliente."')";
+        }*/
+
+        //Recargar consultas para los combos
+        $Where = "ID_Usuario = " . $_SESSION['CodUser'];
+        $SQL_Cliente = Seleccionar("uvw_tbl_ClienteUsuario", "CodigoCliente, NombreCliente", $Where);
+
+    }
 }
 
-if(isset($_GET['BuscarDato'])&&$_GET['BuscarDato']!=""){
-	$Filtro.=" and (Calle LIKE '%".$_GET['BuscarDato']."%' OR CodigoPostal LIKE '%".$_GET['BuscarDato']."%' OR Barrio LIKE '%".$_GET['BuscarDato']."%' OR Ciudad LIKE '%".$_GET['BuscarDato']."%' OR Distrito LIKE '%".$_GET['BuscarDato']."%')";
-	$sw=1;
+if (isset($_GET['BuscarDato']) && $_GET['BuscarDato'] != "") {
+    $Filtro .= " and (Calle LIKE '%" . $_GET['BuscarDato'] . "%' OR CodigoPostal LIKE '%" . $_GET['BuscarDato'] . "%' OR Barrio LIKE '%" . $_GET['BuscarDato'] . "%' OR Ciudad LIKE '%" . $_GET['BuscarDato'] . "%' OR Distrito LIKE '%" . $_GET['BuscarDato'] . "%')";
+    $sw = 1;
 }
 
-if($sw==1){
-	$Cons="Select * From uvw_Sap_tbl_TarjetasEquipos Where $Filtro ORDER BY IdTarjetaEquipo DESC";
-	$SQL=sqlsrv_query($conexion,$Cons);
-}else{
-	$Cons="Select TOP 100 * From uvw_Sap_tbl_TarjetasEquipos Where $Filtro ORDER BY IdTarjetaEquipo DESC";
-	$SQL=sqlsrv_query($conexion,$Cons);
+$Campos = "
+	   [IdTarjetaEquipo]
+      ,[CardCode]
+      ,[CardName]
+      ,[TelefonoCliente]
+      ,[EmailCliente]
+      ,[SerialFabricante]
+      ,[SerialInterno]
+      ,[ItemCode]
+      ,[ItemName]
+      ,[CardCodeCompras]
+      ,[CardNameCompras]
+      ,[DocNumEntrega]
+      ,[DocNumFactura]
+      ,[Calle]
+      ,[CodigoPostal]
+      ,[Barrio]
+      ,[Ciudad]
+      ,[Distrito]
+      ,[Pais]
+      ,[CDU_Marca]
+      ,[CDU_Linea]
+      ,[CDU_DeAno]
+      ,[CDU_Concesionario]
+      ,[CDU_Color]
+      ,[CDU_Cilindraje]
+      ,[CDU_FechaUlt_CambAceite]
+      ,[CDU_FechaProx_CambAceite]
+      ,[CDU_FechaUlt_Mant]
+      ,[CDU_FechaProx_Mant]
+      ,[CDU_FechaMatricula]
+      ,[CDU_FechaUlt_CambLlantas]
+      ,[CDU_FechaProx_CambLlantas]
+      ,[CDU_Fecha_SOAT]
+      ,[CDU_Fecha_Tecno]
+      ,[CDU_FechaUlt_AlinBalan]
+      ,[CDU_FechaProx_AlinBalan]
+      ,[CDU_TipoServicio]
+      ,[CDU_FechaFactura]
+      ,[CDU_Novedad]
+      ,[CDU_FechaAgenda]
+      ,[CDU_SedeVenta]
+      ,[UsuarioCreacion]
+      ,[FechaCreacion]
+      ,[HoraCreacion]
+      ,[UsuarioActualizacion]
+      ,[FechaActualizacion]
+      ,[HoraActualizacion]
+";
+
+if ($sw == 1) {
+    $Cons = "Select $Campos,[TipoEquipo],[CodEstado] From uvw_Sap_tbl_TarjetasEquipos Where $Filtro ORDER BY IdTarjetaEquipo DESC";
+    $SQL = sqlsrv_query($conexion, $Cons);
+
+} else {
+    $Cons = "Select TOP 100 $Campos,[TipoEquipo],[CodEstado] From uvw_Sap_tbl_TarjetasEquipos Where $Filtro ORDER BY IdTarjetaEquipo DESC";
+    $SQL = sqlsrv_query($conexion, $Cons);
 }
+
 //echo $Cons;
 
+// SMM, 03/09/2022
+$Cons2 = "SELECT $Campos FROM uvw_Sap_tbl_TarjetasEquipos WHERE $Filtro ORDER BY IdTarjetaEquipo DESC";
 ?>
+
 <!DOCTYPE html>
 <html><!-- InstanceBegin template="/Templates/PlantillaPrincipal.dwt.php" codeOutsideHTMLIsLocked="false" -->
 
 <head>
-<?php include("includes/cabecera.php"); ?>
+<?php include "includes/cabecera.php";?>
 <!-- InstanceBeginEditable name="doctitle" -->
-<title>Tarjetas de equipos | <?php echo NOMBRE_PORTAL;?></title>
+<title>Tarjetas de equipos | <?php echo NOMBRE_PORTAL; ?></title>
 <!-- InstanceEndEditable -->
 <!-- InstanceBeginEditable name="head" -->
 <script type="text/javascript">
@@ -139,7 +194,7 @@ if($sw==1){
 			var Cliente=document.getElementById("ClienteEquipo");
 			if(NomCliente.value==""){
 				Cliente.value="";
-			}	
+			}
 		});
 	});
 </script>
@@ -150,10 +205,10 @@ if($sw==1){
 
 <div id="wrapper">
 
-    <?php include("includes/menu.php"); ?>
+    <?php include "includes/menu.php";?>
 
     <div id="page-wrapper" class="gray-bg">
-        <?php include("includes/menu_superior.php"); ?>
+        <?php include "includes/menu_superior.php";?>
         <!-- InstanceBeginEditable name="Contenido" -->
         <div class="row wrapper border-bottom white-bg page-heading">
                 <div class="col-sm-8">
@@ -167,21 +222,21 @@ if($sw==1){
                         </li>
                     </ol>
                 </div>
-			<?php if(PermitirFuncion(304)){?>
+			<?php if (PermitirFuncion(1602)) {?>
                 <div class="col-sm-4">
                     <div class="title-action">
                         <a href="tarjeta_equipo.php" class="alkin btn btn-primary"><i class="fa fa-plus-circle"></i> Crear nueva tarjeta de equipo</a>
                     </div>
                 </div>
 			<?php }?>
-               <?php  //echo $Cons;?>
+               <?php //echo $Cons;?>
             </div>
          <div class="wrapper wrapper-content">
              <div class="row">
 				<div class="col-lg-12">
 			    <div class="ibox-content">
-					 <?php include("includes/spinner.php"); ?>
-				  <form action="consulta_tarjeta_equipo.php" method="get" id="formBuscar" class="form-horizontal">
+					 <?php include "includes/spinner.php";?>
+				  <form action="consultar_tarjeta_equipo.php" method="get" id="formBuscar" class="form-horizontal">
 					   <div class="form-group">
 							<label class="col-xs-12"><h3 class="bg-success p-xs b-r-sm"><i class="fa fa-filter"></i> Datos para filtrar</h3></label>
 						</div>
@@ -190,38 +245,46 @@ if($sw==1){
 							<div class="col-lg-3">
 								<select name="TipoEquipo" class="form-control" id="TipoEquipo">
 									<option value="">(Todos)</option>
-									<option value="P" <?php if((isset($_GET['TipoEquipo']))&&(strcmp("P",$_GET['TipoEquipo'])==0)){ echo "selected=\"selected\"";}?>>Compras</option>
-									<option value="R" <?php if((isset($_GET['TipoEquipo']))&&(strcmp("R",$_GET['TipoEquipo'])==0)){ echo "selected=\"selected\"";}?>>Ventas</option>
+									<option value="P" <?php if ((isset($_GET['TipoEquipo'])) && (strcmp("P", $_GET['TipoEquipo']) == 0)) {echo "selected=\"selected\"";}?>>Compras</option>
+									<option value="R" <?php if ((isset($_GET['TipoEquipo'])) && (strcmp("R", $_GET['TipoEquipo']) == 0)) {echo "selected=\"selected\"";}?>>Ventas</option>
 								</select>
                	  			</div>
 							<label class="col-lg-1 control-label">Serial</label>
 							<div class="col-lg-3">
-								<input name="SerialEquipo" type="text" class="form-control" id="SerialEquipo" maxlength="100" value="<?php if(isset($_GET['SerialEquipo'])&&($_GET['SerialEquipo']!="")){ echo $_GET['SerialEquipo'];}?>" placeholder="Serial fabricante o interno">
+								<input name="SerialEquipo" type="text" class="form-control" id="SerialEquipo" maxlength="100" value="<?php if (isset($_GET['SerialEquipo']) && ($_GET['SerialEquipo'] != "")) {echo $_GET['SerialEquipo'];}?>" placeholder="Serial fabricante o interno">
 							</div>
 							<label class="col-lg-1 control-label">Estado de equipo</label>
 							<div class="col-lg-3">
 								<select name="EstadoEquipo" class="form-control" id="EstadoEquipo">
 									<option value="">(Todos)</option>
-									<option value="A" <?php if((isset($_GET['EstadoEquipo']))&&(strcmp("A",$_GET['EstadoEquipo'])==0)){ echo "selected=\"selected\"";}?>>Activo</option>
-									<option value="R" <?php if((isset($_GET['EstadoEquipo']))&&(strcmp("R",$_GET['EstadoEquipo'])==0)){ echo "selected=\"selected\"";}?>>Devuelto</option>
-									<option value="T" <?php if((isset($_GET['EstadoEquipo']))&&(strcmp("T",$_GET['EstadoEquipo'])==0)){ echo "selected=\"selected\"";}?>>Finalizado</option>
-									<option value="L" <?php if((isset($_GET['EstadoEquipo']))&&(strcmp("L",$_GET['EstadoEquipo'])==0)){ echo "selected=\"selected\"";}?>>Concedido en prestamo</option>
-									<option value="I" <?php if((isset($_GET['EstadoEquipo']))&&(strcmp("I",$_GET['EstadoEquipo'])==0)){ echo "selected=\"selected\"";}?>>En laboratorio de reparación</option>
+									<option value="A" <?php if ((isset($_GET['EstadoEquipo'])) && (strcmp("A", $_GET['EstadoEquipo']) == 0)) {echo "selected=\"selected\"";}?>>Activo</option>
+									<option value="R" <?php if ((isset($_GET['EstadoEquipo'])) && (strcmp("R", $_GET['EstadoEquipo']) == 0)) {echo "selected=\"selected\"";}?>>Devuelto</option>
+									<option value="T" <?php if ((isset($_GET['EstadoEquipo'])) && (strcmp("T", $_GET['EstadoEquipo']) == 0)) {echo "selected=\"selected\"";}?>>Finalizado</option>
+									<option value="L" <?php if ((isset($_GET['EstadoEquipo'])) && (strcmp("L", $_GET['EstadoEquipo']) == 0)) {echo "selected=\"selected\"";}?>>Concedido en prestamo</option>
+									<option value="I" <?php if ((isset($_GET['EstadoEquipo'])) && (strcmp("I", $_GET['EstadoEquipo']) == 0)) {echo "selected=\"selected\"";}?>>En laboratorio de reparación</option>
 								</select>
 							</div>
 						</div>
 					  	<div class="form-group">
 							<label class="col-lg-1 control-label">Cliente</label>
 							<div class="col-lg-3">
-								<input name="ClienteEquipo" type="hidden" id="ClienteEquipo" value="<?php if(isset($_GET['ClienteEquipo'])&&($_GET['ClienteEquipo']!="")){ echo $_GET['ClienteEquipo'];}?>">
-								<input name="NombreClienteEquipo" type="text" class="form-control" id="NombreClienteEquipo" placeholder="Para TODOS, dejar vacio..." value="<?php if(isset($_GET['NombreClienteEquipo'])&&($_GET['NombreClienteEquipo']!="")){ echo $_GET['NombreClienteEquipo'];}?>">
+								<input name="ClienteEquipo" type="hidden" id="ClienteEquipo" value="<?php if (isset($_GET['ClienteEquipo']) && ($_GET['ClienteEquipo'] != "")) {echo $_GET['ClienteEquipo'];}?>">
+								<input name="NombreClienteEquipo" type="text" class="form-control" id="NombreClienteEquipo" placeholder="Para TODOS, dejar vacio..." value="<?php if (isset($_GET['NombreClienteEquipo']) && ($_GET['NombreClienteEquipo'] != "")) {echo $_GET['NombreClienteEquipo'];}?>">
 							</div>
 							<label class="col-lg-1 control-label">Buscar dato</label>
 							<div class="col-lg-3">
-								<input name="BuscarDato" type="text" class="form-control" id="BuscarDato" maxlength="100" value="<?php if(isset($_GET['BuscarDato'])&&($_GET['BuscarDato']!="")){ echo $_GET['BuscarDato'];}?>">
+								<input name="BuscarDato" type="text" class="form-control" id="BuscarDato" maxlength="100" value="<?php if (isset($_GET['BuscarDato']) && ($_GET['BuscarDato'] != "")) {echo $_GET['BuscarDato'];}?>">
 							</div>
 							<div class="col-lg-4">
 								<button type="submit" class="btn btn-outline btn-success pull-right"><i class="fa fa-search"></i> Buscar</button>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<div class="col-lg-10">
+								<a href="exportar_excel.php?exp=20&b64=0&Cons=<?php echo $Cons2; ?>" target="_blank">
+									<img src="css/exp_excel.png" width="50" height="30" alt="Exportar a Excel" title="Exportar a Excel"/>
+								</a>
 							</div>
 						</div>
 				 </form>
@@ -229,11 +292,11 @@ if($sw==1){
 			</div>
 		  </div>
          <br>
-			 <?php //echo $Cons;?>
+			 <?php //echo $Cons2;?>
           <div class="row">
            <div class="col-lg-12">
 			    <div class="ibox-content">
-					 <?php include("includes/spinner.php"); ?>
+					 <?php include "includes/spinner.php";?>
 			<div class="table-responsive">
                     <table class="table table-striped table-bordered table-hover dataTables-example" >
                     <thead>
@@ -241,7 +304,7 @@ if($sw==1){
 						<th>Núm.</th>
 						<th>Código cliente</th>
 						<th>Cliente</th>
-						<th>Serial fabricante</th>                                         
+						<th>Serial fabricante</th>
                         <th>Serial interno</th>
                         <th>Código de artículo</th>
 						<th>Artículo</th>
@@ -251,47 +314,47 @@ if($sw==1){
                     </tr>
                     </thead>
                     <tbody>
-                    <?php while($row=sqlsrv_fetch_array($SQL)){?>
+                    <?php while ($row = sqlsrv_fetch_array($SQL)) {?>
 						 <tr class="gradeX tooltip-demo">
-							<td><?php echo $row['IdTarjetaEquipo'];?></td>
-							<td><?php echo $row['CardCode'];?></td>
-							<td><?php echo $row['CardName'];?></td>
-							<td><?php echo $row['SerialFabricante'];?></td>
-							<td><?php echo $row['SerialInterno'];?></td>
-							<td><?php echo $row['ItemCode'];?></td>
-							<td><?php echo $row['ItemName'];?></td>
+							<td><?php echo $row['IdTarjetaEquipo']; ?></td>
+							<td><?php echo $row['CardCode']; ?></td>
+							<td><?php echo $row['CardName']; ?></td>
+							<td><?php echo $row['SerialFabricante']; ?></td>
+							<td><?php echo $row['SerialInterno']; ?></td>
+							<td><?php echo $row['ItemCode']; ?></td>
+							<td><?php echo $row['ItemName']; ?></td>
 							<td>
-								<?php if($row['TipoEquipo'] === 'P') { echo 'Compras'; } elseif($row['TipoEquipo'] === 'R') { echo 'Ventas'; } ?>
+								<?php if ($row['TipoEquipo'] === 'P') {echo 'Compras';} elseif ($row['TipoEquipo'] === 'R') {echo 'Ventas';}?>
 							</td>
 							<td>
-								<?php if($row['CodEstado']=='A') { ?>
+								<?php if ($row['CodEstado'] == 'A') {?>
 									<span  class='label label-info'>Activo</span>
-								<?php } elseif ($row['CodEstado']=='R') { ?>
+								<?php } elseif ($row['CodEstado'] == 'R') {?>
 									<span  class='label label-danger'>Devuelto</span>
-								<?php } elseif ($row['CodEstado']=='T') { ?>
+								<?php } elseif ($row['CodEstado'] == 'T') {?>
 									<span  class='label label-success'>Finalizado</span>
-								<?php } elseif ($row['CodEstado']=='L') { ?>
+								<?php } elseif ($row['CodEstado'] == 'L') {?>
 									<span  class='label label-secondary'>Concedido en préstamo</span>
-								<?php } elseif ($row['CodEstado']=='I') { ?>
+								<?php } elseif ($row['CodEstado'] == 'I') {?>
 									<span  class='label label-warning'>En laboratorio de reparación</span>
-								<?php } ?>
+								<?php }?>
 							</td>
-							<td><a href="tarjeta_equipo.php?id=<?php echo base64_encode($row['IdTarjetaEquipo']);?>&return=<?php echo base64_encode($_SERVER['QUERY_STRING']);?>&pag=<?php echo base64_encode('consulta_tarjeta_equipo.php');?>&tl=1" class="alkin btn btn-success btn-xs"><i class="fa fa-folder-open-o"></i> Abrir</a></td>
+							<td><a href="tarjeta_equipo.php?id=<?php echo base64_encode($row['IdTarjetaEquipo']); ?>&return=<?php echo base64_encode($_SERVER['QUERY_STRING']); ?>&pag=<?php echo base64_encode('consultar_tarjeta_equipo.php'); ?>&tl=1" class="alkin btn btn-success btn-xs"><i class="fa fa-folder-open-o"></i> Abrir</a></td>
 						</tr>
 					<?php }?>
                     </tbody>
                     </table>
               </div>
 			</div>
-			 </div> 
+			 </div>
           </div>
         </div>
         <!-- InstanceEndEditable -->
-        <?php include("includes/footer.php"); ?>
+        <?php include "includes/footer.php";?>
 
     </div>
 </div>
-<?php include("includes/pie.php"); ?>
+<?php include "includes/pie.php";?>
 <!-- InstanceBeginEditable name="EditRegion4" -->
  <script>
         $(document).ready(function(){
@@ -321,10 +384,10 @@ if($sw==1){
                 autoclose: true,
 				todayHighlight: true,
 				format: 'yyyy-mm-dd'
-            }); 
-			
+            });
+
 			$('.chosen-select').chosen({width: "100%"});
-			
+
 			var options = {
 				url: function(phrase) {
 					return "ajx_buscar_datos_json.php?type=7&id="+phrase;
@@ -348,7 +411,7 @@ if($sw==1){
 			};
 
 			$("#NombreClienteEquipo").easyAutocomplete(options);
-			
+
             $('.dataTables-example').DataTable({
                 pageLength: 25,
                 dom: '<"html5buttons"B>lTfgitp',

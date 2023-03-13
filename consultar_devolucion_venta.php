@@ -88,8 +88,27 @@ if (isset($_GET['IDTicket']) && $_GET['IDTicket'] != "") {
     $Cons = "Select * From uvw_Sap_tbl_DevolucionesVentas Where $Where";
 }
 
-$SQL = sqlsrv_query($conexion, $Cons);
+// SMM, 22/07/2022
+if (isset($_GET['DocNum']) && $_GET['DocNum'] != "") {
+    $Where = "DocNum LIKE '%" . trim($_GET['DocNum']) . "%'";
 
+    $FilSerie = "";
+    $i = 0;
+    while ($row_Series = sqlsrv_fetch_array($SQL_Series)) {
+        if ($i == 0) {
+            $FilSerie .= "'" . $row_Series['IdSeries'] . "'";
+        } else {
+            $FilSerie .= ",'" . $row_Series['IdSeries'] . "'";
+        }
+        $i++;
+    }
+    $Where .= " and [IdSeries] IN (" . $FilSerie . ")";
+    $SQL_Series = EjecutarSP('sp_ConsultarSeriesDocumentos', $ParamSerie);
+
+    $Cons = "Select * From uvw_Sap_tbl_DevolucionesVentas Where $Where";
+}
+
+$SQL = sqlsrv_query($conexion, $Cons);
 //echo $Cons;
 ?>
 <!DOCTYPE html>
@@ -180,9 +199,9 @@ if (isset($_GET['a']) && ($_GET['a'] == base64_encode("OK_DVenUpd"))) {
 							<label class="col-lg-1 control-label">Fechas</label>
 							<div class="col-lg-3">
 								<div class="input-daterange input-group" id="datepicker">
-									<input name="FechaInicial" type="text" class="input-sm form-control" id="FechaInicial" placeholder="Fecha inicial" value="<?php echo $FechaInicial; ?>"/>
+									<input name="FechaInicial" autocomplete="off" type="text" class="input-sm form-control" id="FechaInicial" placeholder="Fecha inicial" value="<?php echo $FechaInicial; ?>"/>
 									<span class="input-group-addon">hasta</span>
-									<input name="FechaFinal" type="text" class="input-sm form-control" id="FechaFinal" placeholder="Fecha final" value="<?php echo $FechaFinal; ?>" />
+									<input name="FechaFinal" autocomplete="off" type="text" class="input-sm form-control" id="FechaFinal" placeholder="Fecha final" value="<?php echo $FechaFinal; ?>" />
 								</div>
 							</div>
 							<label class="col-lg-1 control-label">Estado</label>
@@ -195,7 +214,7 @@ if (isset($_GET['a']) && ($_GET['a'] == base64_encode("OK_DVenUpd"))) {
 								</select>
 							</div>
 							<label class="col-lg-1 control-label">Serie</label>
-							<div class="col-lg-2">
+							<div class="col-lg-3">
 								<select name="Series" class="form-control" id="Series">
 										<option value="">(Todos)</option>
 								  <?php while ($row_Series = sqlsrv_fetch_array($SQL_Series)) {?>
@@ -215,7 +234,7 @@ if (isset($_GET['a']) && ($_GET['a'] == base64_encode("OK_DVenUpd"))) {
 								<input name="BuscarDato" type="text" class="form-control" id="BuscarDato" maxlength="100" value="<?php if (isset($_GET['BuscarDato']) && ($_GET['BuscarDato'] != "")) {echo $_GET['BuscarDato'];}?>">
 							</div>
 							<label class="col-lg-1 control-label">Autorización</label>
-							<div class="col-lg-2">
+							<div class="col-lg-3">
 								<select name="Autorizacion" class="form-control" id="Autorizacion">
 										<option value="">(Todos)</option>
 								   <?php while ($row_EstadoAuth = sqlsrv_fetch_array($SQL_EstadoAuth)) {?>
@@ -229,7 +248,15 @@ if (isset($_GET['a']) && ($_GET['a'] == base64_encode("OK_DVenUpd"))) {
 							<div class="col-lg-3">
 								<input name="IDTicket" type="text" class="form-control" id="IDTicket" maxlength="50" placeholder="Digite un número completo, o una parte del mismo..." value="<?php if (isset($_GET['IDTicket']) && ($_GET['IDTicket'] != "")) {echo $_GET['IDTicket'];}?>">
 							</div>
-							<div class="col-lg-8">
+
+							<!-- Número de documento -->
+							<label class="col-lg-1 control-label">Número documento</label>
+							<div class="col-lg-3">
+								<input name="DocNum" type="text" class="form-control" id="DocNum" maxlength="50" placeholder="Digite un número completo, o una parte del mismo..." value="<?php if (isset($_GET['DocNum']) && ($_GET['DocNum'] != "")) {echo $_GET['DocNum'];}?>">
+							</div>
+							<!-- SMM, 22/07/2022 -->
+
+							<div class="col-lg-4">
 								<button type="submit" class="btn btn-outline btn-success pull-right"><i class="fa fa-search"></i> Buscar</button>
 							</div>
 						</div>
@@ -251,6 +278,7 @@ if (isset($_GET['a']) && ($_GET['a'] == base64_encode("OK_DVenUpd"))) {
 						<th>Serie</th>
 						<th>Fecha orden</th>
 						<th>Socio de negocio</th>
+						<th>Comentarios</th>
 						<th>Empleado de venta</th>
 						<th>Autorización</th>
 						<th>Usuario Autoriza</th>
@@ -270,6 +298,7 @@ if ($sw == 1) {
 							<td><?php echo $row['DeSeries']; ?></td>
 							<td><?php echo $row['DocDate']; ?></td>
 							<td><?php echo $row['NombreCliente']; ?></td>
+							<td><?php echo $row['Comentarios']; ?></td>
 							<td><?php echo $row['NombreEmpleadoVentas']; ?></td>
 							<td><?php echo $row['DeAuthPortal']; ?></td>
 							<td><?php echo $row['UsuarioAutoriza']; ?></td>

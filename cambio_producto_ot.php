@@ -3,7 +3,6 @@ PermitirAcceso(317);
 
 $sw=0;
 
-
 //Sucursal
 $ParamSucursal=array(
 	"'".$_SESSION['CodUser']."'"
@@ -215,7 +214,7 @@ function ConsultarCant(){
 									<input name="FechaFinal" type="text" class="input-sm form-control" id="FechaFinal" placeholder="Fecha final" value="<?php echo $FechaFinal;?>" autocomplete="off" />
 								</div>
 							</div>
-							<label class="col-lg-1 control-label">Sucursal</label>
+							<label class="col-lg-1 control-label">Sede</label>
 							<div class="col-lg-3">
 								<select name="Sucursal" class="form-control" id="Sucursal" required>
 									<option value="">Seleccione...</option>

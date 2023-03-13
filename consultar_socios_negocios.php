@@ -98,7 +98,9 @@ function CrearLead(){
                 </div>
 				<div class="col-sm-4">
                     <div class="title-action">
+					<?php if(PermitirFuncion(508)) {?>
                        <button type="button" onClick="CrearLead();" class="btn btn-primary"><i class="fa fa-user-circle"></i> Crear Prospecto</button>
+					<?php }?>
                     </div>
                 </div>
             </div>
