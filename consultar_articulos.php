@@ -5,7 +5,8 @@ $sw=0;//Para saber si ya se selecciono un cliente y mostrar la información
 //Filtros
 $Filtro="";//Filtro
 if(isset($_GET['BuscarDatoArt'])&&$_GET['BuscarDatoArt']!=""){
-	$Filtro="Where (ItemCode LIKE '%".$_GET['BuscarDatoArt']."%' OR ItemName LIKE '%".$_GET['BuscarDatoArt']."%' OR FrgnName LIKE '%".$_GET['BuscarDatoArt']."%')";
+	$BuscarDatosArt = trim($_GET['BuscarDatoArt']);
+	$Filtro="Where (ItemCode LIKE '%".$BuscarDatosArt."%' OR ItemName LIKE '%".$BuscarDatosArt."%' OR FrgnName LIKE '%".$BuscarDatosArt."%' OR SuppCatNum LIKE '%".$BuscarDatosArt."%')";
 	
 	$Cons="Select * From uvw_Sap_tbl_ArticulosTodos $Filtro";
 	//echo $Cons;
@@ -110,6 +111,8 @@ if(isset($_GET['a'])&&($_GET['a']==base64_encode("OK_ArtUpd"))){
                     <thead>
                     <tr>
 						<th>Código artículo</th>
+						<th>Código art proveedor</th> <!-- // NEDUGA, 24/02/2022 -->
+						<!--th>Lista de precios</th--> <!-- // SMM, 24/02/2022 -->
 						<th>Nombre articulo</th>
 						<th>Grupo de articulo</th>
 						<th>Stock</th>
@@ -121,7 +124,9 @@ if(isset($_GET['a'])&&($_GET['a']==base64_encode("OK_ArtUpd"))){
                     <?php while($row=sqlsrv_fetch_array($SQL)){ ?>
 						 <tr class="gradeX">
 								<td><?php echo $row['ItemCode'];?></td>
-								<td><?php echo $row['ItemName'];?></td>						
+								<td><?php echo $row['SuppCatNum'];?></td> <!-- // NEDUGA, 24/02/2022 -->
+								<!--td><?php //echo $row['PriceList'];?></td--> <!-- // SMM, 24/02/2022 -->
+								<td><?php echo $row['ItemName'];?></td>				
 								<td><?php echo $row['ItmsGrpNam'];?></td>
 								<td><?php echo number_format($row['Stock'],2);?></td>
 								<td><span <?php if($row['Estado']=='Y'){echo "class='label label-info'";}else{echo "class='label label-danger'";}?>><?php echo $row['NombreEstado'];?></span></td>	

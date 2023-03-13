@@ -222,9 +222,9 @@ if($sw==1){
 							<label class="col-lg-1 control-label">Fechas</label>
 							<div class="col-lg-3">
 								<div class="input-daterange input-group" id="datepicker">
-									<input name="FechaInicial" type="text" class="input-sm form-control" id="FechaInicial" placeholder="Fecha inicial" value="<?php echo $FechaInicial;?>"/>
+									<input name="FechaInicial" type="text" autocomplete="off" class="input-sm form-control" id="FechaInicial" placeholder="Fecha inicial" value="<?php echo $FechaInicial;?>"/>
 									<span class="input-group-addon">hasta</span>
-									<input name="FechaFinal" type="text" class="input-sm form-control" id="FechaFinal" placeholder="Fecha final" value="<?php echo $FechaFinal;?>" />
+									<input name="FechaFinal" type="text" autocomplete="off" class="input-sm form-control" id="FechaFinal" placeholder="Fecha final" value="<?php echo $FechaFinal;?>" />
 								</div>
 							</div>
 							<label class="col-lg-1 control-label">Cliente</label>
@@ -352,7 +352,14 @@ if($sw==1){
 							<th>Serie</th>
 							<th>Tipo llamada</th>
 							<th>Cliente</th>
-							<th>Sucursal</th> 
+							<th>Sucursal</th>
+							
+							<th>Articulo</th>
+							<th>Serial Interno</th>
+							<th>Nombre Contacto</th>
+							<th>Telefono Contacto</th>
+							<th>Correo Contacto</th>
+							
 							<th>Facturado</th>
 							<th>Servicio</th>  
 							<th>Metodo aplicación</th>
@@ -383,6 +390,13 @@ if($sw==1){
 								<td><?php echo $row['DeTipoLlamada'];?></td>
 								<td><?php echo $row['NombreCliente'];?></td>
 								<td><?php echo $row['NombreSucursalCliente'];?></td>
+								
+								<td><?php echo $row['DeArticuloLlamada'];?></td>
+								<td><?php echo $row['SerialArticuloLlamada'];?></td>
+								<td><?php echo $row['NombreContactoLlamada'];?></td>
+								<td><?php echo $row['TelefonoContactoLlamada'];?></td>
+								<td><?php echo $row['CorreoContactoLlamada'];?></td>
+								
 								<td><?php echo $row['Facturado'];?></td>
 								<td><?php echo $row['ServiciosLlamadas'];?></td>
 								<td><?php echo $row['MetodoAplicaLlamadas'];?></td>

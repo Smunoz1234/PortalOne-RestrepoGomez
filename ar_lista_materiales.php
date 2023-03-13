@@ -18,16 +18,16 @@ if(isset($_GET['id'])&&$_GET['id']!=""){
 		<table class="footable table table-stripped toggle-arrow-tiny">
 			<thead>
 			<tr>
-				<th data-toggle="true">Código</th>
+				<th>Código</th>
 				<th>Descripción</th>
 				<th>Unidad</th>
 				<th>Cantidad</th>
 				<th>Cant. Litros</th>
 				<th>Almacén</th>
-				<th data-hide="all">Servicio</th>
-				<th data-hide="all">Metodo aplic</th>
-				<th data-hide="all">Tipo plaga</th>
-				<th data-hide="all">Áreas Ctrl</th>
+				<th data-breakpoints="all">Servicio</th>
+				<th data-breakpoints="all">Metodo aplic</th>
+				<th data-breakpoints="all">Tipo plaga</th>
+				<th data-breakpoints="all">Áreas Ctrl</th>
 			</tr>
 			</thead>
 			<tbody>
