@@ -49,7 +49,9 @@ $SQL_Actividades=Seleccionar('uvw_Sap_tbl_Actividades','
 	  ,[IdEstadoActividad]
       ,[DeEstadoActividad]
 	  ,[IdAsignadoPor]
-      ,[DeAsignadoPor]',$Where,"[ID_Actividad]","DESC");
+      ,[DeAsignadoPor]
+	  ,[DeTipoEstadoActividad]'
+	  ,$Where,"[ID_Actividad]","DESC");
 
 ?>
 <div class="form-group">
@@ -68,6 +70,7 @@ $SQL_Actividades=Seleccionar('uvw_Sap_tbl_Actividades','
 				<th>Fecha fin actividad</th>
 				<th>Dias venc.</th>
 				<th>Orden servicio</th>
+				<th>Estado servicio Actividad</th>
 				<th>Estado</th>
 				<th>Acciones</th>
 			</tr>
@@ -87,6 +90,7 @@ $SQL_Actividades=Seleccionar('uvw_Sap_tbl_Actividades','
 					<td><?php if($row_Actividades['FechaHoraFinActividad']!=""){ echo $row_Actividades['FechaHoraFinActividad']->format('Y-m-d');}else{?><p class="text-muted">--</p><?php }?></td>
 					<td><p class='<?php echo $DVenc[0];?>'><?php echo $DVenc[1];?></p></td>
 					<td><?php if($row_Actividades['ID_OrdenServicioActividad']!=0){?><a href="llamada_servicio.php?id=<?php echo base64_encode($row_Actividades['ID_LlamadaServicio']);?>&tl=1&return=<?php echo base64_encode($_SERVER['QUERY_STRING']);?>&pag=<?php echo base64_encode('socios_negocios.php');?>"><?php echo $row_Actividades['ID_OrdenServicioActividad'];?></a><?php }else{echo "--";}?></td>							
+					<td><?php echo $row_Actividades['DeTipoEstadoActividad'];?></td>
 					<td><span <?php if($row_Actividades['IdEstadoActividad']=='N'){echo "class='label label-info'";}else{echo "class='label label-danger'";}?>><?php echo $row_Actividades['DeEstadoActividad'];?></span></td>	
 					<td><a href="actividad.php?id=<?php echo base64_encode($row_Actividades['ID_Actividad']);?>&return=<?php echo base64_encode($_SERVER['QUERY_STRING']);?>&pag=<?php echo base64_encode('socios_negocios.php');?>&tl=1" class="btn btn-success btn-xs" target="_blank"><i class="fa fa-folder-open-o"></i> Abrir</a></td>
 				</tr>

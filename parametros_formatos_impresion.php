@@ -1,73 +1,81 @@
-<?php 
-require_once("includes/conexion.php");
+<?php
+require_once "includes/conexion.php";
 PermitirAcceso(219);
+error_reporting(E_ALL ^ E_WARNING);
 
-$sw_error=0;
-$msg_error="";
+$sw_error = 0;
+$msg_error = "";
+$existeRuta = 0;
 
-$dirRuta=CrearObtenerDirRuta(ObtenerVariable("RutaFormatosImpresion"));
-//Crear nuevo parametro
-if(isset($_POST['MM_Insert'])&&($_POST['MM_Insert']!="")){
-	
-	if($_FILES['FileNombreArchivo']['tmp_name']!=""){
-		if(is_uploaded_file($_FILES['FileNombreArchivo']['tmp_name'])){
-			$Nombre_Archivo=$_FILES['FileNombreArchivo']['name'];
-			$NuevoNombre=FormatoNombreAnexo($Nombre_Archivo,false);
-			if(!move_uploaded_file($_FILES['FileNombreArchivo']['tmp_name'],$dirRuta.$NuevoNombre[0])){
-				$sw_error=1;
-				$msg_error="No se pudo mover el anexo a la carpeta de anexos local";
-			}
-		}else{
-			$sw_error=1;
-			$msg_error="No se pudo cargar el anexo";
-		}
-	}else{
-		$NuevoNombre[1]=$_POST['NombreArchivo'];
-	}
-	
-	if($_POST['TipoDoc']=="OTRO"){
-		$IdObjeto=$_POST['IDDocumento'];
-		$DeObjeto=$_POST['NombreDocumento'];
-		$IdFormato=$_POST['IDFormato'];
-	}else{
-		$Obj=explode("__",$_POST['TipoDoc']);
-		$IdObjeto=$Obj[0];
-		$DeObjeto=$Obj[1];
-		$IdFormato=($_POST['SerieDoc']=="OTRO") ? $_POST['IDFormato'] : $_POST['SerieDoc'];
-	}
-	
-	$Param=array(
-		"'".$_POST['id']."'",
-		"'".$IdObjeto."'",
-		"'".$DeObjeto."'",
-		"'".$IdFormato."'",
-		"'".$NuevoNombre[1]."'",
-		"'".$_POST['NombreVisualizar']."'",
-		"'".$_POST['VerDocumento']."'",
-		"'".$_POST['Comentarios']."'",
-		"'".$_SESSION['CodUser']."'",
-		"'".$_POST['type']."'"
-	);
-	$SQL=EjecutarSP('sp_tbl_FormatosSAP',$Param);
-	if($SQL){
-		$a=($_POST['type']==1) ? "OK_NewParam" : "OK_UpdParam";
-		header('Location:parametros_formatos_impresion.php?a='.base64_encode($a));
-	}else{
-		$sw_error=1;
-		$msg_error="No se pudo insertar el nuevo registro";
-	}
+$dirRuta = CrearObtenerDirRuta(ObtenerVariable("RutaFormatosImpresion"));
+
+if (!$dirRuta) {
+    $existeRuta = 1;
 }
 
-$SQL=Seleccionar("uvw_tbl_FormatosSAP","*","","DE_Objeto");
+//Crear nuevo parametro
+if (isset($_POST['MM_Insert']) && ($_POST['MM_Insert'] != "")) {
+
+    if ($_FILES['FileNombreArchivo']['tmp_name'] != "") {
+        if (is_uploaded_file($_FILES['FileNombreArchivo']['tmp_name'])) {
+            $Nombre_Archivo = $_FILES['FileNombreArchivo']['name'];
+            $NuevoNombre = FormatoNombreAnexo($Nombre_Archivo, false);
+            if (!move_uploaded_file($_FILES['FileNombreArchivo']['tmp_name'], $dirRuta . $NuevoNombre[0])) {
+                $sw_error = 1;
+                $msg_error = "No se pudo mover el anexo a la carpeta de anexos local";
+            }
+        } else {
+            $sw_error = 1;
+            $msg_error = "No se pudo cargar el anexo";
+        }
+    } else {
+        $NuevoNombre[1] = $_POST['NombreArchivo'];
+    }
+
+    if ($_POST['TipoDoc'] == "OTRO") {
+        $IdObjeto = $_POST['IDDocumento'];
+        $DeObjeto = $_POST['NombreDocumento'];
+        $IdFormato = $_POST['IDFormato'];
+    } else {
+        $Obj = explode("__", $_POST['TipoDoc']);
+        $IdObjeto = $Obj[0];
+        $DeObjeto = $Obj[1];
+        $IdFormato = ($_POST['SerieDoc'] == "OTRO") ? $_POST['IDFormato'] : $_POST['SerieDoc'];
+    }
+
+    $Param = array(
+        "'" . $_POST['id'] . "'",
+        "'" . $IdObjeto . "'",
+        "'" . $DeObjeto . "'",
+        "'" . $IdFormato . "'",
+        "'" . $NuevoNombre[1] . "'",
+        "'" . $_POST['NombreVisualizar'] . "'",
+        "'" . $_POST['VerDocumento'] . "'",
+        "'" . $_POST['Comentarios'] . "'",
+        "'" . $_SESSION['CodUser'] . "'",
+        "'" . $_POST['type'] . "'",
+        "'" . $_POST['EsBorrador'] . "'", // SMM, 05/10/2022
+    );
+    $SQL = EjecutarSP('sp_tbl_FormatosSAP', $Param);
+    if ($SQL) {
+        $a = ($_POST['type'] == 1) ? "OK_NewParam" : "OK_UpdParam";
+        header('Location:parametros_formatos_impresion.php?a=' . base64_encode($a));
+    } else {
+        $sw_error = 1;
+        $msg_error = "No se pudo insertar el nuevo registro";
+    }
+}
+
+$SQL = Seleccionar("uvw_tbl_FormatosSAP", "*", "", "DE_Objeto");
 
 ?>
 <!DOCTYPE html>
 <html><!-- InstanceBegin template="/Templates/PlantillaPrincipal.dwt.php" codeOutsideHTMLIsLocked="false" -->
 
 <head>
-<?php include_once("includes/cabecera.php"); ?>
+<?php include_once "includes/cabecera.php";?>
 <!-- InstanceBeginEditable name="doctitle" -->
-<title>Parámetros formatos de impresión | <?php echo NOMBRE_PORTAL;?></title>
+<title>Parámetros formatos de impresión | <?php echo NOMBRE_PORTAL; ?></title>
 <!-- InstanceEndEditable -->
 <!-- InstanceBeginEditable name="head" -->
 <style>
@@ -78,38 +86,38 @@ $SQL=Seleccionar("uvw_tbl_FormatosSAP","*","","DE_Objeto");
 		 width: 100% !important
 	}
 </style>
-<?php 
-if(isset($_GET['a'])&&($_GET['a']==base64_encode("OK_NewParam"))){
-	echo "<script>
+<?php
+if (isset($_GET['a']) && ($_GET['a'] == base64_encode("OK_NewParam"))) {
+    echo "<script>
 		$(document).ready(function() {
 			Swal.fire({
                 title: '¡Listo!',
                 text: 'El nuevo registro ha sido agregado exitosamente.',
                 icon: 'success'
             });
-		});		
+		});
 		</script>";
 }
-if(isset($_GET['a'])&&($_GET['a']==base64_encode("OK_UpdParam"))){
-	echo "<script>
+if (isset($_GET['a']) && ($_GET['a'] == base64_encode("OK_UpdParam"))) {
+    echo "<script>
 		$(document).ready(function() {
 			Swal.fire({
                 title: '¡Listo!',
                 text: 'Datos actualizados exitosamente.',
                 icon: 'success'
             });
-		});		
+		});
 		</script>";
 }
-if(isset($sw_error)&&($sw_error==1)){
-	echo "<script>
+if (isset($sw_error) && ($sw_error == 1)) {
+    echo "<script>
 		$(document).ready(function() {
 			Swal.fire({
                 title: '¡Ha ocurrido un error!',
-                text: '".LSiqmlObs($msg_error)."',
+                text: '" . LSiqmlObs($msg_error) . "',
                 icon: 'warning'
             });
-		});		
+		});
 		</script>";
 }
 ?>
@@ -120,10 +128,10 @@ if(isset($sw_error)&&($sw_error==1)){
 
 <div id="wrapper">
 
-    <?php include_once("includes/menu.php"); ?>
+    <?php include_once "includes/menu.php";?>
 
     <div id="page-wrapper" class="gray-bg">
-        <?php include_once("includes/menu_superior.php"); ?>
+        <?php include_once "includes/menu_superior.php";?>
         <!-- InstanceBeginEditable name="Contenido" -->
         <div class="row wrapper border-bottom white-bg page-heading">
                 <div class="col-sm-8">
@@ -144,26 +152,31 @@ if(isset($sw_error)&&($sw_error==1)){
                     </ol>
                 </div>
             </div>
-            <?php  //echo $Cons;?>
+            <?php //echo $Cons;?>
          <div class="wrapper wrapper-content">
 			 <div class="modal inmodal fade" id="myModal" tabindex="1" role="dialog" aria-hidden="true">
 				<div class="modal-dialog modal-lg">
 					<div class="modal-content" id="ContenidoModal">
-						
+
 					</div>
 				</div>
 			 </div>
-			 <form action="" method="post" id="frmParam" class="form-horizontal">			 
+			 <form action="" method="post" id="frmParam" class="form-horizontal">
 			 <div class="row">
-				<div class="col-lg-12">   		
+				<div class="col-lg-12">
 					<div class="ibox-content">
-						<?php include("includes/spinner.php"); ?>
+						<?php include "includes/spinner.php";?>
 						<div class="form-group">
 							<label class="col-xs-12"><h3 class="bg-success p-xs b-r-sm"><i class="fa fa-plus-square"></i> Acciones</h3></label>
 						</div>
 						<div class="form-group">
 							<div class="col-lg-6">
-								<button class="btn btn-primary" type="button" id="NewParam" onClick="CrearCampo();"><i class="fa fa-plus-circle"></i> Crear nuevo registro</button>  
+							<?php if ($existeRuta == 1) {?>
+									<div class="alert alert-danger">
+										La ruta <b><?php echo ObtenerVariable("RutaFormatosImpresion"); ?></b> no existe. Por favor verifique en los Parámetros generales.
+									</div>
+							<?php }?>
+							<button class="btn btn-primary" type="button" id="NewParam" onClick="CrearCampo();"><i class="fa fa-plus-circle"></i> Crear nuevo registro</button>
 							</div>
 						</div>
 					  	<input type="hidden" id="P" name="P" value="frmParam" />
@@ -172,9 +185,9 @@ if(isset($sw_error)&&($sw_error==1)){
 			 </div>
 			 <br>
 			 <div class="row">
-			 	<div class="col-lg-12">   		
+			 	<div class="col-lg-12">
 					<div class="ibox-content">
-						<?php include("includes/spinner.php"); ?>
+						<?php include "includes/spinner.php";?>
 						<div class="form-group">
 							<label class="col-xs-12"><h3 class="bg-success p-xs b-r-sm"><i class="fa fa-check-square-o"></i> Lista de formatos</h3></label>
 						</div>
@@ -189,6 +202,7 @@ if(isset($sw_error)&&($sw_error==1)){
 								<th>Serie documento</th>
 								<th>Nombre archivo</th>
 								<th>Nombre a mostrar</th>
+								<th>Es borrador</th>
 								<th>Ver en documento</th>
 								<th>Comentarios</th>
 								<th>Fecha actualización</th>
@@ -197,23 +211,24 @@ if(isset($sw_error)&&($sw_error==1)){
 							</tr>
 							</thead>
 							<tbody>
-							<?php $i=1;
-								while($row=sqlsrv_fetch_array($SQL)){ ?>
+							<?php $i = 1;
+while ($row = sqlsrv_fetch_array($SQL)) {?>
 									<tr class="gradeX">
-										<td><?php echo $i;?></td>
-										<td><?php echo $row['ID_Objeto'];?></td>						
-										<td><?php echo $row['DE_Objeto'];?></td>
-										<td><?php echo $row['IdFormato'];?></td>										
-										<td><?php echo $row['DeSeries'];?></td>						
-										<td><?php echo $row['DeFormato'];?></td>
-										<td><?php echo $row['NombreVisualizar'];?></td>
-										<td><?php echo ($row['VerEnDocumento']=='N') ? "NO" : "SI";?></td>
-										<td><?php echo $row['Comentarios'];?></td>
-										<td><?php echo ($row['FechaActualizacion']!="") ? $row['FechaActualizacion']->format('Y-m-d H:i') : "";?></td>
-										<td><?php echo $row['NombreUsuarioActualizacion'];?></td>
+										<td><?php echo $i; ?></td>
+										<td><?php echo $row['ID_Objeto']; ?></td>
+										<td><?php echo $row['DE_Objeto']; ?></td>
+										<td><?php echo $row['IdFormato']; ?></td>
+										<td><?php echo $row['DeSeries']; ?></td>
+										<td><?php echo $row['DeFormato']; ?></td>
+										<td><?php echo $row['NombreVisualizar']; ?></td>
+										<td><?php echo ($row['EsBorrador'] == 'Y') ? "SI" : "NO"; ?></td>
+										<td><?php echo ($row['VerEnDocumento'] == 'N') ? "NO" : "SI"; ?></td>
+										<td><?php echo $row['Comentarios']; ?></td>
+										<td><?php echo ($row['FechaActualizacion'] != "") ? $row['FechaActualizacion']->format('Y-m-d H:i') : ""; ?></td>
+										<td><?php echo $row['NombreUsuarioActualizacion']; ?></td>
 										<td>
-											<button type="button" id="btnEdit<?php echo $row['ID'];?>" class="btn btn-success btn-xs" onClick="EditarCampo('<?php echo $row['ID'];?>');"><i class="fa fa-pencil"></i> Editar</button>
-											<button type="button" id="btnDel<?php echo $row['ID'];?>" class="btn btn-danger btn-xs" onClick="BorrarLinea('<?php echo $row['ID'];?>');"><i class="fa fa-trash"></i> Eliminar</button>
+											<button type="button" id="btnEdit<?php echo $row['ID']; ?>" class="btn btn-success btn-xs" onClick="EditarCampo('<?php echo $row['ID']; ?>');"><i class="fa fa-pencil"></i> Editar</button>
+											<button type="button" id="btnDel<?php echo $row['ID']; ?>" class="btn btn-danger btn-xs" onClick="BorrarLinea('<?php echo $row['ID']; ?>');"><i class="fa fa-trash"></i> Eliminar</button>
 										</td>
 									</tr>
 							<?php $i++;}?>
@@ -223,14 +238,14 @@ if(isset($sw_error)&&($sw_error==1)){
 					</div>
           		</div>
 			 </div>
-		</form>	 
+		</form>
         </div>
         <!-- InstanceEndEditable -->
-        <?php include_once("includes/footer.php"); ?>
+        <?php include_once "includes/footer.php";?>
 
     </div>
 </div>
-<?php include_once("includes/pie.php"); ?>
+<?php include_once "includes/pie.php";?>
 <!-- InstanceBeginEditable name="EditRegion4" -->
  <script>
 	$(document).ready(function(){
@@ -256,11 +271,11 @@ if(isset($sw_error)&&($sw_error==1)){
 			 checkboxClass: 'icheckbox_square-green',
 			 radioClass: 'iradio_square-green',
 		  });
-		
-		<?php if(isset($_GET['doc'])){?>
+
+		<?php if (isset($_GET['doc'])) {?>
 		$("#TipoDocumento").trigger('change');
 		<?php }?>
-		
+
 		 $('.dataTables-example').DataTable({
 			pageLength: 25,
 			dom: '<"html5buttons"B>lTfgitp',
@@ -299,7 +314,7 @@ if(isset($sw_error)&&($sw_error==1)){
 <script>
 function CrearCampo(){
 	$('.ibox-content').toggleClass('sk-loading',true);
-	
+
 	$.ajax({
 		type: "POST",
 		url: "md_crear_formatos_impresion.php",
@@ -309,10 +324,10 @@ function CrearCampo(){
 			$('#myModal').modal("show");
 		}
 	});
-}	
+}
 function EditarCampo(id){
 	$('.ibox-content').toggleClass('sk-loading',true);
-	
+
 	$.ajax({
 		type: "POST",
 		url: "md_crear_formatos_impresion.php",
@@ -326,7 +341,7 @@ function EditarCampo(id){
 			$('#myModal').modal("show");
 		}
 	});
-}	
+}
 function BorrarLinea(id){
 	Swal.fire({
 		title: "¿Está seguro que desea eliminar este registro?",
@@ -339,7 +354,7 @@ function BorrarLinea(id){
 		if (result.isConfirmed) {
 			$.ajax({
 				type: "GET",
-				url: "includes/procedimientos.php?type=46&linenum="+id,		
+				url: "includes/procedimientos.php?type=46&linenum="+id,
 				success: function(response){
 					$("#btnDel"+id).parents("tr").remove();
 				}

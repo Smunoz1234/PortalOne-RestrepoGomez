@@ -23,7 +23,7 @@ $SQL_Actividades = Seleccionar('uvw_tbl_Actividades_Rutas', '*', $Where);
 $row = sql_fetch_array($SQL_Actividades);
 
 //Asunto actividad
-$SQL_AsuntoActividad = Seleccionar('uvw_Sap_tbl_AsuntosActividad', '*', "Id_TipoActividad=3", 'DE_AsuntoActividad');
+$SQL_AsuntoActividad = Seleccionar('uvw_Sap_tbl_AsuntosActividad', '*', "Id_TipoActividad=2", 'DE_AsuntoActividad');
 
 //Empleados
 $SQL_EmpleadoActividad = Seleccionar('uvw_Sap_tbl_Empleados', '*', "IdUsuarioSAP=0", 'NombreEmpleado');
@@ -58,9 +58,28 @@ if ($type_act == 1) {
     $SQL_AnexoActividad = Seleccionar('uvw_Sap_tbl_DocumentosSAP_Anexos', '*', "AbsEntry='" . $row['IdAnexoActividad'] . "'");
 }
 
+// Grupos de Empleados, SMM 19/05/2022
+$SQL_GruposUsuario = Seleccionar("uvw_tbl_UsuariosGruposEmpleados", "*", "[ID_Usuario]='" . $_SESSION['CodUser'] . "'", 'DeCargo');
+
+$ids_grupos = array();
+while ($row_GruposUsuario = sqlsrv_fetch_array($SQL_GruposUsuario)) {
+    $ids_grupos[] = $row_GruposUsuario['IdCargo'];
+}
+
 $disabled = "";
+if (isset($row['ID_EmpleadoActividad']) && (count($ids_grupos) > 0)) {
+    $ID_Empleado = "'" . $row['ID_EmpleadoActividad'] . "'";
+    $SQL_Empleado = Seleccionar('uvw_Sap_tbl_Empleados', '*', "ID_Empleado = $ID_Empleado");
+    $row_Empleado = sql_fetch_array($SQL_Empleado);
+
+    if (isset($row_Empleado['IdCargo']) && (!in_array($row_Empleado['IdCargo'], $ids_grupos))) {
+        $disabled = "disabled";
+    }
+}
+
+// SMM, 07/03/2023
 if (isset($row['IdTipoEstadoActividad']) && (strcmp("05", $row['IdTipoEstadoActividad']) == 0)) {
-    $disabled = "disabled";
+	$disabled = "disabled";
 }
 ?>
 
@@ -240,12 +259,6 @@ if (isset($row['IdTipoEstadoActividad']) && (strcmp("05", $row['IdTipoEstadoActi
 				<div class="col-lg-4">
 					<label class="col-form-label">Áreas</label>
 					<p><?php echo $row['CDU_Areas']; ?></p>
-				</div>
-			</div>
-			<div class="form-group row">
-				<div class="col-lg-4">
-					<label class="col-form-label">Método Aplicación</label>
-					<p><?php echo $row['MetodoAplicaLlamadas'] ?? ""; ?></p>
 				</div>
 			</div>
 		</div>

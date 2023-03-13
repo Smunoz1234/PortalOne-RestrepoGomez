@@ -1,29 +1,47 @@
 <?php
-require_once("includes/conexion.php");
+require_once "includes/conexion.php";
 PermitirAcceso(312);
 
-$sw=0;
+$sw = 0;
 
 $IdEvento = isset($_POST['idEvento']) ? base64_decode($_POST['idEvento']) : 0;
 $SedeLote = isset($_GET['SedeLote']) ? $_GET['SedeLote'] : "";
 
-$ParamSucursal=array(
-	"'".$_SESSION['CodUser']."'"
+$ParamSucursal = array(
+    "'" . $_SESSION['CodUser'] . "'",
 );
-$SQL_Suc=EjecutarSP('sp_ConsultarSucursalesUsuario',$ParamSucursal);
+$SQL_Suc = EjecutarSP('sp_ConsultarSucursalesUsuario', $ParamSucursal);
 
 //Lista de recursos (Tecnicos)
-$ParamRec=array(
-	"'".$_SESSION['CodUser']."'",
-	"'".$SedeLote."'"	
+$ParamRec = array(
+    "'" . $_SESSION['CodUser'] . "'",
+    "'" . $SedeLote . "'",
 );
 
-$SQL_Recursos=EjecutarSP("sp_ConsultarTecnicos",$ParamRec);
+$SQL_Recursos = EjecutarSP("sp_ConsultarTecnicos", $ParamRec);
 
-$FechaInicial= date('Y-m-d');
-$FechaFinal= date('Y-m-d');
+// $FechaInicial= date('Y-m-d');
+// $FechaFinal= date('Y-m-d');
 
+$fecha = date('Y-m-d');
+$nuevafecha = strtotime('-' . ObtenerVariable("DiasRangoFechasDocSAP") . ' day');
+$nuevafecha = date('Y-m-d', $nuevafecha);
+$FechaInicial = $nuevafecha;
+
+$fecha = date('Y-m-d');
+$nuevafecha = strtotime('+' . ObtenerVariable("DiasRangoFechasDocSAP") . ' day');
+$nuevafecha = date('Y-m-d', $nuevafecha);
+$FechaFinal = $nuevafecha;
+
+// Grupos de Empleados, SMM 19/05/2022
+$SQL_GruposUsuario = Seleccionar("uvw_tbl_UsuariosGruposEmpleados", "*", "[ID_Usuario]='" . $_SESSION['CodUser'] . "'", 'DeCargo');
+
+$ids_grupos = array();
+while ($row_GruposUsuario = sqlsrv_fetch_array($SQL_GruposUsuario)) {
+    $ids_grupos[] = $row_GruposUsuario['IdCargo'];
+}
 ?>
+
 <script type="text/javascript">
 	$(document).ready(function() {//Cargar los almacenes dependiendo del proyecto
 		$("#NombreClienteLote").change(function(){
@@ -47,7 +65,7 @@ $FechaFinal= date('Y-m-d');
 		$("#SedeLote").change(function(){
 			$.ajax({
 				type: "POST",
-				url: "ajx_cbo_select.php?type=27&id="+document.getElementById('SedeLote').value+"&todos=1",
+				url: "ajx_cbo_select.php?type=27&id="+document.getElementById('SedeLote').value+"&todos=1&bloquear=<?php echo PermitirFuncion(321) ? 0 : 1; ?>",
 				success: function(response){
 					$('#RecursosLote').html(response);
 					$("#RecursosLote").trigger("change");
@@ -61,45 +79,45 @@ $FechaFinal= date('Y-m-d');
     <h5 class="modal-title">Mover actividades en lote</h5>
     <button type="button" class="close" aria-label="Close" onClick="CerrarModal();">×</button>
   </div>
-  <div class="modal-body">	
+  <div class="modal-body">
 	  <div class="pt-3 pr-3 pl-3 pb-1 mb-2 bg-primary text-white"><h5><i class="fas fa-filter"></i> Filtros de busqueda</h5></div>
 	  <form method="post" class="form-horizontal" id="frmActividadesLote">
 		<div class="form-row">
 			<div class="form-group col-lg-2">
 				<label class="form-label">Fecha inicial <span class="text-danger">*</span></label>
 				<div class="input-group">
-					<input name="FechaInicialMovLote" type="text" class="form-control" id="FechaInicialMovLote" value="<?php echo $FechaInicial;?>" placeholder="YYYY-MM-DD" autocomplete="off" required>
+					<input name="FechaInicialMovLote" type="text" class="form-control" id="FechaInicialMovLote" value="<?php echo $FechaInicial; ?>" placeholder="YYYY-MM-DD" autocomplete="off" required>
 				</div>
 			</div>
 			<div class="form-group col-lg-2">
 				<label class="form-label">Fecha final <span class="text-danger">*</span></label>
 				<div class="input-group">
-					<input name="FechaFinalMovLote" type="text" class="form-control" id="FechaFinalMovLote" value="<?php echo $FechaFinal;?>" placeholder="YYYY-MM-DD" autocomplete="off" required>
+					<input name="FechaFinalMovLote" type="text" class="form-control" id="FechaFinalMovLote" value="<?php echo $FechaFinal; ?>" placeholder="YYYY-MM-DD" autocomplete="off" required>
 				</div>
-			</div>  
+			</div>
 			<div class="form-group col-lg-4">
 				<label class="form-label">Cliente</label>
-				<input name="ClienteLote" type="hidden" id="ClienteLote" value="<?php if(isset($_GET['ClienteLote'])&&($_GET['ClienteLote']!="")){ echo $_GET['ClienteLote'];}?>">
-				<input name="NombreClienteLote" type="text" class="form-control" id="NombreClienteLote" placeholder="Ingrese para buscar..." value="<?php if(isset($_GET['NombreClienteLote'])&&($_GET['NombreClienteLote']!="")){ echo $_GET['NombreClienteLote'];}?>">
+				<input name="ClienteLote" type="hidden" id="ClienteLote" value="<?php if (isset($_GET['ClienteLote']) && ($_GET['ClienteLote'] != "")) {echo $_GET['ClienteLote'];}?>">
+				<input name="NombreClienteLote" type="text" class="form-control" id="NombreClienteLote" placeholder="Ingrese para buscar..." value="<?php if (isset($_GET['NombreClienteLote']) && ($_GET['NombreClienteLote'] != "")) {echo $_GET['NombreClienteLote'];}?>">
 			</div>
 			<div class="form-group col-lg-4">
 				<label class="form-label">Sucursal</label>
 				<div class="select2-success">
 				  <select name="Sucursal" id="Sucursal" class="select2OTLote form-control" style="width: 100%">
 					 <option value="">(TODOS)</option>
-					 <?php 
-					 if(isset($_GET['Sucursal'])){//Cuando se ha seleccionado una opción
-						 if(PermitirFuncion(205)){
-							$Where="CodigoCliente='".$_GET['Cliente']."'";
-							$SQL_Sucursal=Seleccionar("uvw_Sap_tbl_Clientes_Sucursales","NombreSucursal",$Where);
-						 }else{
-							$Where="CodigoCliente='".$_GET['Cliente']."' and ID_Usuario = ".$_SESSION['CodUser'];
-							$SQL_Sucursal=Seleccionar("uvw_tbl_SucursalesClienteUsuario","NombreSucursal",$Where);	
-						 }
-						 while($row_Sucursal=sqlsrv_fetch_array($SQL_Sucursal)){?>
-							<option value="<?php echo $row_Sucursal['NombreSucursal'];?>" <?php if(strcmp($row_Sucursal['NombreSucursal'],$_GET['Sucursal'])==0){ echo "selected=\"selected\"";}?>><?php echo $row_Sucursal['NombreSucursal'];?></option>
+					 <?php
+if (isset($_GET['Sucursal'])) { //Cuando se ha seleccionado una opción
+    if (PermitirFuncion(205)) {
+        $Where = "CodigoCliente='" . $_GET['Cliente'] . "'";
+        $SQL_Sucursal = Seleccionar("uvw_Sap_tbl_Clientes_Sucursales", "NombreSucursal", $Where);
+    } else {
+        $Where = "CodigoCliente='" . $_GET['Cliente'] . "' and ID_Usuario = " . $_SESSION['CodUser'];
+        $SQL_Sucursal = Seleccionar("uvw_tbl_SucursalesClienteUsuario", "NombreSucursal", $Where);
+    }
+    while ($row_Sucursal = sqlsrv_fetch_array($SQL_Sucursal)) {?>
+							<option value="<?php echo $row_Sucursal['NombreSucursal']; ?>" <?php if (strcmp($row_Sucursal['NombreSucursal'], $_GET['Sucursal']) == 0) {echo "selected=\"selected\"";}?>><?php echo $row_Sucursal['NombreSucursal']; ?></option>
 					 <?php }
-					 }?>
+}?>
 				  </select>
 				</div>
 			</div>
@@ -111,8 +129,8 @@ $FechaFinal= date('Y-m-d');
 				  <select name="SedeLote" id="SedeLote" class="select2OTLote form-control" style="width: 100%">
 					  <option value="">(Todos)</option>
 					   <?php
-					   while($row_Suc=sqlsrv_fetch_array($SQL_Suc)){?>
-							<option value="<?php echo $row_Suc['IdSucursal'];?>" <?php if((isset($_GET['SedeLote'])&&($_GET['SedeLote']!=""))&&(strcmp($row_Suc['IdSucursal'],$_GET['SedeLote'])==0)){ echo "selected=\"selected\"";}?>><?php echo $row_Suc['DeSucursal'];?></option>
+while ($row_Suc = sqlsrv_fetch_array($SQL_Suc)) {?>
+							<option value="<?php echo $row_Suc['IdSucursal']; ?>" <?php if ((isset($_GET['SedeLote']) && ($_GET['SedeLote'] != "")) && (strcmp($row_Suc['IdSucursal'], $_GET['SedeLote']) == 0)) {echo "selected=\"selected\"";}?>><?php echo $row_Suc['DeSucursal']; ?></option>
 					  <?php }?>
 				  </select>
 				</div>
@@ -123,8 +141,9 @@ $FechaFinal= date('Y-m-d');
 				  <select name="RecursosLote" id="RecursosLote" class="select2OTLote form-control" style="width: 100%">
 					   <option value="">(Todos)</option>
 					   <?php
-					   while($row_Recursos=sqlsrv_fetch_array($SQL_Recursos)){?>
-							<option value="<?php echo $row_Recursos['ID_Empleado'];?>" <?php if((isset($_GET['RecursosLote'])&&($_GET['RecursosLote']!=""))&&(strcmp($row_Recursos['ID_Empleado'],$_GET['RecursosLote'])==0)){ echo "selected=\"selected\"";}?>><?php echo $row_Recursos['NombreEmpleado'];?></option>
+while ($row_Recursos = sqlsrv_fetch_array($SQL_Recursos)) {?>
+							<option value="<?php echo $row_Recursos['ID_Empleado']; ?>" <?php if ((isset($_GET['RecursosLote']) && ($_GET['RecursosLote'] != "")) && (strcmp($row_Recursos['ID_Empleado'], $_GET['RecursosLote']) == 0)) {echo "selected=\"selected\"";}?>
+							<?php if ((!PermitirFuncion(321)) && (count($ids_grupos) > 0) && (!in_array($row_Recursos['IdCargo'], $ids_grupos))) {echo "disabled=\"disabled\"";}?>><?php echo $row_Recursos['NombreEmpleado']; ?></option>
 					  <?php }?>
 				  </select>
 				</div>
@@ -144,7 +163,7 @@ $FechaFinal= date('Y-m-d');
   </div>
   <div class="modal-footer">
 	  <button type="button" id="btnGenerarAct" class="btn btn-primary md-btn-flat" disabled onClick="MoverActividades();"><i class="fas fa-check-circle"></i> Mover actividades</button>
-	  <button type="button" class="btn btn-secondary md-btn-flat" onClick="CerrarModal();"><i class="fas fa-window-close"></i> Cerrar</button>	
+	  <button type="button" class="btn btn-secondary md-btn-flat" onClick="CerrarModal();"><i class="fas fa-window-close"></i> Cerrar</button>
   </div>
 </div>
 
@@ -158,7 +177,7 @@ $(document).ready(function() {
 			preFiltrarDatos();
 		}
 	});
-	
+
 	$(".select2OTLote").select2({
         dropdownParent: $('#ModalAct')
     });
@@ -197,7 +216,7 @@ $(document).ready(function() {
 	$(".easy-autocomplete").removeAttr("style");
 
 });
-	
+
 function preFiltrarDatos(){
 	if(filter==true){
 		Swal.fire({
@@ -216,7 +235,7 @@ function preFiltrarDatos(){
 	}else{
 		FiltrarDatos()
 		filter=true
-	}	
+	}
 }
 
 function FiltrarDatos(type=1){
@@ -229,11 +248,11 @@ function FiltrarDatos(type=1){
 	var RecursosLote=$("#RecursosLote").val();
 	var LlamadaServicioLote=$("#LlamadaServicioLote").val();
 	var Sede=$("#Sede").val();
-	
+
 	$.ajax({
 		type: "POST",
 		data:{
-			idEvento:'<?php echo $_POST['idEvento'];?>',
+			idEvento:'<?php echo $_POST['idEvento']; ?>',
 			SucursalCliente:btoa(SucursalCliente),
 			FechaInicio:FechaInicioOT,
 			FechaFinal:FechaFinalOT,
@@ -251,8 +270,8 @@ function FiltrarDatos(type=1){
 		}
 	});
 }
-	
-function MoverActividades(){	
+
+function MoverActividades(){
 	Swal.fire({
 		title: "¿Está seguro que desea continuar?",
 		text: "Se moverán las actividades en el calendario",
@@ -265,7 +284,7 @@ function MoverActividades(){
 			blockUI();
 			$.ajax({
 				type: "GET",
-				url: "includes/procedimientos.php?type=49&&id_evento=<?php echo base64_decode($_POST['idEvento']);?>",		
+				url: "includes/procedimientos.php?type=49&&id_evento=<?php echo base64_decode($_POST['idEvento']); ?>",
 				success: function(response){
 					if(response=="OK"){
 						blockUI(false);
@@ -280,15 +299,15 @@ function MoverActividades(){
 						RefresarCalendario()
 						FiltrarOT()
 					}
-				}						
+				}
 			});
 		}else{
 			blockUI(false);
 		}
-	});	
+	});
 }
-	
-function CerrarModal(){	
+
+function CerrarModal(){
 	Swal.fire({
 		title: "¿Está seguro que desea cerrar?",
 		text: "Se perderán los cambios que ha realizado",
@@ -300,6 +319,6 @@ function CerrarModal(){
 		if (result.isConfirmed) {
 			$('#ModalAct').modal("hide");
 		}
-	});	
+	});
 }
 </script>

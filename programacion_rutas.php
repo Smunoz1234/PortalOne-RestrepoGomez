@@ -40,12 +40,13 @@ if (isset($_GET['FechaFinal']) && $_GET['FechaFinal'] != "") {
 
 $Sede = isset($_GET['Sede']) ? $_GET['Sede'] : "";
 $Grupo = isset($_GET['Grupo']) ? $_GET['Grupo'] : "";
-$Recurso = isset($_GET['Recursos']) ? implode(',', $_GET['Recursos']) : "";
+$Recurso = isset($_GET['Recursos']) ? implode(',', $_GET['Recursos']) : ""; // SMM
+
 $Cliente = isset($_GET['Cliente']) ? $_GET['Cliente'] : "";
 $NomSucursal = isset($_GET['Sucursal']) ? $_GET['Sucursal'] : "";
 
 //Lista de cargos de recursos (Tecnicos)
-$SQL_CargosRecursos = Seleccionar('uvw_Sap_tbl_Recursos', 'DISTINCT IdCargo, DeCargo', "CentroCosto3='" . $Sede . "'");
+$SQL_CargosRecursos = Seleccionar('uvw_Sap_tbl_Recursos', 'DISTINCT IdCargo, DeCargo', "CentroCosto2='" . $Sede . "'");
 
 //Lista de recursos (Tecnicos)
 $ParamRec = array(
@@ -63,9 +64,19 @@ if (isset($_GET['Recursos']) && $_GET['Recursos'] != "") {
 
 //Consultar actividades
 if ($sw == 1) {
+    // Recursos, 22/01/2022
+    $all_resources = array();
+    $sql_resources = EjecutarSP("sp_ConsultarTecnicos", $ParamRec);
+    while ($row_resources = sqlsrv_fetch_array($sql_resources)) {
+        array_push($all_resources, $row_resources['ID_Empleado']);
+    }
+    $resource = implode(',', $all_resources);
+    // Sin uso actualmente, contiene todos los técnicos.
+    // Stiven Muñoz Murillo
+
     $ParamEvento = array(
         "'" . $Sede . "'",
-        //"'".$Recurso."'",
+        // "'".$Recurso."'",
         "'" . $Cliente . "'",
         "'" . $NomSucursal . "'",
         "'" . FormatoFecha($FechaInicial) . "'",
@@ -79,7 +90,7 @@ if ($sw == 1) {
     $row_Evento = sqlsrv_fetch_array($SQL_Evento);
 
     $ParamCons = array(
-        "'" . $Recurso . "'",
+        "'" . $Recurso . "'", // SMM, 14/02/2022
         "'" . $Grupo . "'",
         "'" . $row_Evento['IdEvento'] . "'",
         "'" . $_SESSION['CodUser'] . "'",
@@ -105,6 +116,7 @@ if ($sw == 1) {
         $FiltrarActividades, // SMM, 02/09/2022
     );
 
+    // Procedimiento modificado, SMM 07/02/2022
     $SQL_OT = EjecutarSP("sp_ConsultarDatosCalendarioRutasOT", $ParamOT);
     $Num_OT = sqlsrv_num_rows($SQL_OT);
 
@@ -112,6 +124,9 @@ if ($sw == 1) {
 
     //Llamada de servicio
     $SQL_LlamadaServicio = Seleccionar("tbl_LlamadasServicios_Rutas", "DISTINCT DocNum", "Usuario='" . $_SESSION['CodUser'] . "' and IdEvento='" . $row_Evento['IdEvento'] . "'", "DocNum");
+
+    //Placas
+    $SQL_Placas = Seleccionar("tbl_LlamadasServicios_Rutas", "DISTINCT SerialArticuloLlamada", "Usuario='" . $_SESSION['CodUser'] . "' and IdEvento='" . $row_Evento['IdEvento'] . "'", "SerialArticuloLlamada");
 
     //Series
     $SQL_Series = Seleccionar("tbl_LlamadasServicios_Rutas", "DISTINCT IdSeries, DeSeries", "Usuario='" . $_SESSION['CodUser'] . "' and IdEvento='" . $row_Evento['IdEvento'] . "'", "DeSeries");
@@ -136,7 +151,6 @@ if ($sw == 1) {
 
     //Ciudad
     $SQL_Ciudad = Seleccionar("tbl_LlamadasServicios_Rutas", "DISTINCT CiudadLlamada", "Usuario='" . $_SESSION['CodUser'] . "' and IdEvento='" . $row_Evento['IdEvento'] . "'", "CiudadLlamada");
-
 }
 
 ?>
@@ -202,7 +216,7 @@ if ($sw == 1) {
 
 			$.ajax({
 				type: "POST",
-				url: "ajx_cbo_select.php?type=27&id="+document.getElementById('Sede').value,
+				url: "ajx_cbo_select.php?type=27&bloquear=<?php echo PermitirFuncion(321) ? 0 : 1; ?>&id="+document.getElementById('Sede').value,
 				success: function(response){
 					$('#Recursos').html(response);
 					$("#Recursos").trigger("change");
@@ -224,7 +238,7 @@ if ($sw == 1) {
 			}else{
 				$.ajax({
 					type: "POST",
-					url: "ajx_cbo_select.php?type=27&id="+document.getElementById('Sede').value,
+					url: "ajx_cbo_select.php?type=27&bloquear=<?php echo PermitirFuncion(321) ? 0 : 1; ?>&id="+document.getElementById('Sede').value,
 					success: function(response){
 						$('#Recursos').html(response);
 						$("#Recursos").trigger("change");
@@ -256,6 +270,7 @@ if ($sw == 1) {
 					</a>
 				</div>
 				<div id="accordionTitle-1" class="collapse show" data-parent="#accordionTitle">
+					<!-- Inicio del Formulario -->
 					<form action="programacion_rutas.php" method="get" class="form-horizontal" id="frmProgramacion">
 						<div class="form-row">
 							<div class="form-group col-lg-3">
@@ -396,6 +411,7 @@ while ($row_TiposEstadoServ = sqlsrv_fetch_array($SQL_TiposEstadoServ)) {?>
 						</div>
 						<input type="hidden" id="IdEvento" name="IdEvento" value="<?php if ($sw == 1) {echo $row_Evento['IdEvento'];}?>" />
 					</form>
+					<!-- Fin del Formulario -->
 				</div>
 			</div>
 		</div>
@@ -433,6 +449,21 @@ $j = 0;
     while ($row_LlamadaServicio = sqlsrv_fetch_array($SQL_LlamadaServicio)) {?>
 														<option value="<?php echo $row_LlamadaServicio['DocNum']; ?>" <?php if ((isset($_GET['LlamadaServicio'][$j]) && ($_GET['LlamadaServicio'][$j] != "")) && (strcmp($row_LlamadaServicio['DocNum'], $_GET['LlamadaServicio'][$j]) == 0)) {echo "selected=\"selected\"";
         $j++;}?>><?php echo $row_LlamadaServicio['DocNum']; ?></option>
+												  <?php }?>
+											  </select>
+											</div>
+										</div>
+									</div>
+									<div class="form-row">
+										<div class="form-group col-12">
+											<label class="form-label">Serial Interno</label>
+											 <div class="select2-success">
+											  <select name="Placa[]" id="Placa" class="select2OT form-control" multiple style="width: 100%" data-placeholder="(TODOS)">
+												   <?php
+$j = 0;
+    while ($row_Placa = sqlsrv_fetch_array($SQL_Placas)) {?>
+														<option value="<?php echo $row_Placa['SerialArticuloLlamada']; ?>" <?php if ((isset($_GET['Placa'][$j]) && ($_GET['Placa'][$j] != "")) && (strcmp($row_Placa['SerialArticuloLlamada'], $_GET['Placa'][$j]) == 0)) {echo "selected=\"selected\"";
+        $j++;}?>><?php echo $row_Placa['SerialArticuloLlamada']; ?></option>
 												  <?php }?>
 											  </select>
 											</div>
@@ -575,17 +606,21 @@ $j = 0;
 				<div id="dvResult">
 				<?php if ($sw == 1) {
     while ($row_OT = sqlsrv_fetch_array($SQL_OT)) {?>
-					<div class="card card-body mt-lg-3 bg-light border-primary <?php if ($row_OT['Validacion'] == "OK") {echo "item-drag";}?>" style="min-height: 14rem;" data-title="<?php echo $row_OT['Etiqueta']; ?>" data-docnum="<?php echo $row_OT['DocNum']; ?>" data-estado="<?php echo $row_OT['IdEstadoLlamada']; ?>" data-info="<?php echo $row_OT['DeTipoLlamada']; ?>" data-validacion="<?php echo $row_OT['Validacion']; ?>">
+					<div class="card card-body mt-lg-3 bg-light border-primary <?php if ($row_OT['Validacion'] == "OK") {echo "item-drag";}?>" style="min-height: 14rem;" data-title="<?php echo $row_OT['Etiqueta']; ?>" data-docnum="<?php echo $row_OT['DocNum']; ?>" data-estado="<?php echo $row_OT['IdEstadoLlamada']; ?>" data-info="<?php echo $row_OT['DeTipoLlamada']; ?>" data-validacion="<?php echo $row_OT['Validacion']; ?>"
+					data-tiempo="<?php echo $row_OT['CDU_TiempoTarea']; ?>" data-comentario="<?php echo $row_OT['ComentarioLlamada']; ?>"> <!-- SMM, 03/05/2022 -->
+
 						<h5 class="card-title"><a href="llamada_servicio.php?id=<?php echo base64_encode($row_OT['ID_LlamadaServicio']); ?>&tl=1" target="_blank" title="Consultar Llamada de servicio" class="btn-xs btn-success fas fa-search"></a> <?php echo $row_OT['DocNum']; ?></h5>
 						<h6 class="card-subtitle mb-2 text-muted"><?php echo $row_OT['DeTipoLlamada']; ?></h6>
 						<p class="card-text mb-0 small text-primary"><?php echo $row_OT['DeArticuloLlamada']; ?></p>
 						<p class="card-text mb-0 small"><strong><?php echo $row_OT['NombreClienteLlamada']; ?></strong></p>
+						<p class="card-text mb-0 small"><span class="font-weight-bold">Serial Interno:</span> <?php echo $row_OT['SerialArticuloLlamada']; ?></p>
+						<p class="card-text mb-0 small"><span class="font-weight-bold">Marca:</span> <?php echo $row_OT['CDU_Marca']; ?></p>
+						<p class="card-text mb-0 small"><span class="font-weight-bold">Linea:</span> <?php echo $row_OT['CDU_Linea']; ?></p>
 						<p class="card-text mb-0 small"><span class="font-weight-bold">Sucursal:</span> <?php echo $row_OT['NombreSucursal']; ?></p>
 						<p class="card-text mb-0 small"><span class="font-weight-bold">Ciudad:</span> <?php echo $row_OT['CiudadLlamada']; ?></p>
 						<p class="card-text mb-0 small"><span class="font-weight-bold">Fecha:</span> <?php echo $row_OT['FechaLlamada']->format('Y-m-d'); ?></p>
 						<p class="card-text mb-0 small"><span class="font-weight-bold">Servicios:</span> <?php echo $row_OT['Servicios']; ?></p>
 						<p class="card-text mb-0 small"><span class="font-weight-bold">Áreas:</span> <?php echo substr($row_OT['Areas'], 0, 150); ?></p>
-						<p class="card-text mb-0 small"><span class="font-weight-bold">Método Aplicación:</span> <?php echo substr($row_OT['MetodoAplicaLlamadas'] ?? "", 0, 150); ?></p>
 						<p class="card-text mb-0 small"><span class="font-weight-bold">Validación:</span> <span class="<?php if ($row_OT['Validacion'] != "OK") {echo "text-danger";} else {echo "text-success";}?>"><?php echo $row_OT['Validacion']; ?></span></p>
 					</div>
 				<?php }
@@ -599,7 +634,7 @@ $j = 0;
 						<button id="btnExpandir" type="button" class="btn icon-btn btn-sm btn-success fa-pull-right" title="Expandir calendario" onClick="Expandir();"><span id="iconBtnExpandir" class="fas fa-expand-arrows-alt"></span></button>
 					</div>
 				</div>
-				<div id="dv_calendar"><?php require_once 'programacion_rutas_calendario.php';?></div>
+				<div id="dv_calendar"><?php require_once "programacion_rutas_calendario.php";?></div>
 			</div>
 		</div>
     </div>
@@ -615,7 +650,6 @@ $(document).ready(function() {
 	<?php if ($sw == 0) {?>
 		ExpandirListaOT();
 	<?php }?>
-
 
 	$("#frmProgramacion").validate({
 		submitHandler: function(form){
@@ -781,7 +815,7 @@ function Validar(){
 }
 
 function EjecutarProceso(){
-	blockUI();
+	blockUI(); // Cargando.
 	var Evento=document.getElementById("IdEvento").value;
 	$.ajax({
 		url:"ajx_ejecutar_json.php",
@@ -822,6 +856,11 @@ function EjecutarProceso(){
 //					$('#ModalAct').modal("show");
 //				}
 //			});
+		},
+		// Stiven Muñoz Murillo, 01/02/2022
+		error: function(error) {
+			blockUI(false); // Quita el cargando.
+			console.error(error.responseText);
 		}
 	});
 }
@@ -848,6 +887,7 @@ function FiltrarOT(){
 	$("#accordion1-1").collapse('hide');
 	var Evento=document.getElementById("IdEvento").value;
 	var LlamadaServicio=$("#LlamadaServicio").val();
+	var Placa=$("#Placa").val();
 	var Series=$("#Series").val();
 	var Cliente=$("#ClienteLlamada").val();
 	var SucursalCliente=$("#SucursalCliente").val();
@@ -858,11 +898,10 @@ function FiltrarOT(){
 	var Ciudad=$("#Ciudad").val();
 	var FechaInicioOT=$("#FechaInicioOT").val();
 	var FechaFinalOT=$("#FechaFinalOT").val();
-//	var Cliente=document.getElementById("Cliente").value;
 
 	$.ajax({
 		type: "POST",
-		url: "programacion_rutas_OT.php?idEvento="+Evento+"&DocNum="+LlamadaServicio+"&Series="+Series+"&SucursalCliente="+btoa(SucursalCliente)+"&Servicios="+Servicios+"&Areas="+Areas+"&Articulo="+ArticuloLlamada+"&TipoLlamada="+TipoLlamada+"&Ciudad="+Ciudad+"&FechaInicio="+FechaInicioOT+"&FechaFinal="+FechaFinalOT+"&Cliente="+Cliente,
+		url: "programacion_rutas_OT.php?idEvento="+Evento+"&DocNum="+LlamadaServicio+"&Placa="+Placa+"&Series="+Series+"&SucursalCliente="+btoa(SucursalCliente)+"&Servicios="+Servicios+"&Areas="+Areas+"&Articulo="+ArticuloLlamada+"&TipoLlamada="+TipoLlamada+"&Ciudad="+Ciudad+"&FechaInicio="+FechaInicioOT+"&FechaFinal="+FechaFinalOT+"&Cliente="+Cliente,
 		success: function(response){
 			$('#dvResult').html(response);
 			$("#dvOT").scrollTop(0);
@@ -923,6 +962,7 @@ function Expandir(show=false){
 		$("#btnExpandir").attr("onClick","Expandir(true);");
 
 	}
+
 }
 
 // SMM, 21/09/2022
@@ -933,4 +973,5 @@ function ExpandirListaOT() {
 </script>
 
 </html>
+
 <?php sqlsrv_close($conexion);?>

@@ -1,18 +1,20 @@
-<?php require_once("includes/conexion.php");
+<?php require_once "includes/conexion.php";
 PermitirAcceso(601);
-function PrimerDiaMes(){
-  $month = date('m');
-  $year = date('Y');
-  return date('Y-m-d', mktime(0,0,0, $month, 1, $year));
+
+function PrimerDiaMesRetenciones()
+{
+    $month = date('m');
+    $year = date('Y');
+    return date('Y-m-d', mktime(0, 0, 0, $month, 1, $year));
 }
 ?>
 <!DOCTYPE html>
 <html><!-- InstanceBegin template="/Templates/PlantillaPrincipal.dwt.php" codeOutsideHTMLIsLocked="false" -->
 
 <head>
-<?php include_once("includes/cabecera.php"); ?>
+<?php include_once "includes/cabecera.php";?>
 <!-- InstanceBeginEditable name="doctitle" -->
-<title>Certificado de retenciones | <?php echo NOMBRE_PORTAL;?></title>
+<title>Certificado de retenciones | <?php echo NOMBRE_PORTAL; ?></title>
 <!-- InstanceEndEditable -->
 <!-- InstanceBeginEditable name="head" -->
 <!-- InstanceEndEditable -->
@@ -22,10 +24,10 @@ function PrimerDiaMes(){
 
 <div id="wrapper">
 
-    <?php include_once("includes/menu.php"); ?>
+    <?php include_once "includes/menu.php";?>
 
     <div id="page-wrapper" class="gray-bg">
-        <?php include_once("includes/menu_superior.php"); ?>
+        <?php include_once "includes/menu_superior.php";?>
         <!-- InstanceBeginEditable name="Contenido" -->
         <div class="row wrapper border-bottom white-bg page-heading">
                 <div class="col-sm-8">
@@ -59,9 +61,9 @@ function PrimerDiaMes(){
 						  	<label class="col-lg-1 control-label">Período</label>
 							<div class="col-lg-3" id="data_5">
                                 <div class="input-daterange input-group" id="datepicker">
-                                    <input type="text" class="form-control-sm form-control" name="FechaInicial" id="FechaInicial" value="<?php echo PrimerDiaMes();?>" />
+                                    <input type="text" class="form-control-sm form-control" name="FechaInicial" id="FechaInicial" value="<?php echo PrimerDiaMesRetenciones(); ?>" autocomplete="off" />
                                     <span class="input-group-addon">hasta</span>
-                                    <input type="text" class="form-control-sm form-control" name="FechaFinal" id="FechaFinal" value="<?php echo date('Y-m-d');?>" />
+                                    <input type="text" class="form-control-sm form-control" name="FechaFinal" id="FechaFinal" value="<?php echo date('Y-m-d'); ?>" autocomplete="off" />
                                 </div>
                             </div>
 						</div>
@@ -76,8 +78,9 @@ function PrimerDiaMes(){
 										<option value="2020">2020</option>
 										<option value="2021" selected>2021</option>
 										<option value="2022">2022</option>
+                                        <option value="2023">2023</option>
 									</select>
-								</div>						  
+								</div>
 						</div>
 						<div class="form-group">
 							<label class="col-lg-1 control-label">Comentarios</label>
@@ -96,15 +99,15 @@ function PrimerDiaMes(){
 		  </div>
 		</div>
         <!-- InstanceEndEditable -->
-        <?php include_once("includes/footer.php"); ?>
+        <?php include_once "includes/footer.php";?>
 
     </div>
 </div>
-<?php include_once("includes/pie.php"); ?>
+<?php include_once "includes/pie.php";?>
 <!-- InstanceBeginEditable name="EditRegion4" -->
  <script>
         $(document).ready(function(){
-			 
+
 			$('#FechaInicio').datepicker({
                 todayBtn: "linked",
                 keyboardNavigation: false,
@@ -122,8 +125,8 @@ function PrimerDiaMes(){
                 autoclose: true,
 				todayHighlight: true,
 				format: 'yyyy-mm-dd'
-            }); 
-			
+            });
+
 			$('#data_5 .input-daterange').datepicker({
                 keyboardNavigation: false,
                 forceParse: false,

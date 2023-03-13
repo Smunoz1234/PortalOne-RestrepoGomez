@@ -1,3 +1,9 @@
+<style>
+/* SMM, 14/05/2022 */
+.fc-highlight {
+	background-color: lightblue !important;
+}
+</style>
 
 <?php
 require_once "includes/conexion.php";
@@ -32,6 +38,10 @@ if (isset($_GET['pGrupo'])) {
     $Grupo = $_GET['pGrupo'];
 }
 
+// Stiven Muñoz Murillo, 14/02/2022
+$cadena = $Recurso ?? "";
+// echo "<script> console.log('programacion_rutas_calendario.php 37', '$cadena'); </script>";
+
 if ($type == 1) { //Si estoy refrescando datos ya cargados
 
     //Tecnicos para seleccionar
@@ -56,9 +66,22 @@ if ($type == 1) { //Si estoy refrescando datos ya cargados
 } elseif ($type == 0 && $sw == 1) {
     array_push($ParamRec, "'" . $FilRec . "'");
     $SQL_Recursos = EjecutarSP("sp_ConsultarTecnicos", $ParamRec);
+
+    // Descomentar, para válidar los parámetros del SP.
+    // var_dump($ParamRec);
 }
 
+// Grupos de Empleados, SMM 16/05/2022
+$SQL_GruposUsuario = Seleccionar("uvw_tbl_UsuariosGruposEmpleados", "*", "[ID_Usuario]='" . $_SESSION['CodUser'] . "'", 'DeCargo');
+
+$ids_grupos = array();
+while ($row_GruposUsuario = sqlsrv_fetch_array($SQL_GruposUsuario)) {
+    $ids_grupos[] = $row_GruposUsuario['IdCargo'];
+}
+
+$ids_recursos = array();
 ?>
+
 <div id="calendario"></div>
 <script>
 
@@ -99,7 +122,16 @@ if ($type == 1) { //Si estoy refrescando datos ya cargados
 			new Draggable(containerEl, {
 				itemSelector: '.item-drag',
 				eventData: function(eventEl) {
-//					console.log(eventEl)
+					// console.log("eventData.dataset", eventEl.dataset);
+					// console.log("eventData.dataset.comentario", eventEl.dataset.comentario);
+
+					// Stiven Muñoz Murillo, 07/02/2022
+					let minutos = eventEl.dataset.tiempo;
+					var m = minutos % 60;
+					var h = (minutos-m)/60;
+					var tiempo = h.toString() + ":" + (m<10?"0":"") + m.toString();
+					// console.log(tiempo);
+
 					var new_id=0;
 					$.ajax({
 						url:"ajx_buscar_datos_json.php",
@@ -113,7 +145,8 @@ if ($type == 1) { //Si estoy refrescando datos ya cargados
 					return {
 						id: new_id,
 						title: eventEl.dataset.title,
-						duration: '02:00'
+						comentario: eventEl.dataset.comentario, // SMM, 03/05/2022
+						duration: (minutos=="") ?'02:00':tiempo // SMM, 07/02/2022
 					};
 				}
 			});
@@ -168,45 +201,93 @@ if ($type == 1) { //Si estoy refrescando datos ya cargados
 					type: 'resourceTimeGrid',
 					duration: { days: 4 },
 					buttonText: '4 dias'
+				  },
+				  // SMM, 14/05/2022
+				  dayGridMonth: {
+					selectable: true
 				  }
 				},
 			    resources: [
-					<?php
-if ($sw == 1) {
-    while ($row_Recursos = sqlsrv_fetch_array($SQL_Recursos)) {
-        //$newColor=GenerarColor();
-        ?>
-				 			{
-								id: '<?php echo $row_Recursos['ID_Empleado']; ?>',
-								title: '<?php echo $row_Recursos['NombreEmpleado']; ?>'
-							},
-					<?php }
-}?>
+					<?php if ($sw == 1) {?>
+						<?php while ($row_Recursos = sqlsrv_fetch_array($SQL_Recursos)) {?>
+							<?php if ((count($ids_grupos) == 0) || in_array($row_Recursos['IdCargo'], $ids_grupos)) {?>
+								<?php $ids_recursos[] = $row_Recursos['ID_Empleado'];?>
+								{
+									id: '<?php echo $row_Recursos['ID_Empleado']; ?>',
+									title: '<?php echo $row_Recursos['NombreEmpleado'] . ' (' . $row_Recursos['DeCargo'] . ')'; ?>'
+								},
+							<?php } elseif (PermitirFuncion(321)) {?>
+								{
+									id: '<?php echo $row_Recursos['ID_Empleado']; ?>',
+									title: '<?php echo $row_Recursos['NombreEmpleado'] . ' [BLOQUEADO]'; ?>'
+								},
+							<?php }?>
+						<?php }?>
+					<?php }?>
 			    ],
+				// SMM, 17/05/2022
+				eventConstraint: {
+					resourceIds: [ <?php echo implode(",", $ids_recursos); ?> ]
+				},
 				resourceOrder: 'title',
+				// Evento de CLICK en una fecha con la tecla ALT. SMM, 14/05/2022
+				dateClick: function(info) {
+					if(info.jsEvent.altKey && (info.view.type === "dayGridMonth")) {
+						calendar.changeView('resourceTimeGridDay', info.dateStr);
+					} else {
+						console.log("info.view.type", info.view.type);
+					}
+				},
+				// Seleccionar solamente un día del mes. SMM, 14/05/2022
+				selectAllow: function (e) {
+					console.log("selectAllow");
+					if (e.end.getTime() / 1000 - e.start.getTime() / 1000 <= 86400) {
+						return true;
+					}
+				},
+				eventWillUnmount: function(info) {
+					console.log('Se ejecuto eventWillUnmount en el calendario');
+					$('.tooltip').remove();
+				},
 				eventDidMount: function(info){
-//					console.log('Se ejecuto eventDidMount')
-//					$(info.el).tooltip({ title: info.event.extendedProps.informacionAdicional })
-//					console.log(info.event)
+					// console.log("info.event", info.event)
+					console.log('Se ejecuto eventDidMount en el calendario');
+
+					// SMM, 10/03/2022
+					$(info.el).tooltip({
+						title: `${info.event.title} "${info.event.extendedProps.comentario}"` // SMM, 03/05/2022
+						, animation: false
+						, placement: "right"
+					});
+
 					if(info.view.type!='dayGridMonth' && info.view.type!='listWeek'){
 						let cont = info.el.getElementsByClassName('fc-event-time')//fc-event-title-container
 
-						//-3 Abierto, -2 Pendiente, -1 Cerrado
-						if(info.event.extendedProps.estadoLlamadaServ=='-3'){
-							cont[0].insertAdjacentHTML('beforeend','<i class="fas fa-door-open pull-right" title="Llamada de servicio abierta"></i>')
-						}else if(info.event.extendedProps.estadoLlamadaServ=='-2'){
-							cont[0].insertAdjacentHTML('beforeend','<i class="fas fa-clock pull-right" title="Llamada de servicio pendiente"></i>')
-						}else if(info.event.extendedProps.estadoLlamadaServ=='-1'){
-							cont[0].insertAdjacentHTML('beforeend','<i class="fas fa-door-closed pull-right" title="Llamada de servicio cerrada"></i>')
-						}else if(info.event.extendedProps.estadoLlamadaServ==''){//No tiene llamada de servicio
-							cont[0].insertAdjacentHTML('beforeend','<i class="fas fa-unlink pull-right" title="Actividad sin llamada de servicio asociada"></i>')
-						}else if(info.event.extendedProps.estadoLlamadaServ===undefined){//Cuando se agrega por primera vez haciendo drop
-							cont[0].insertAdjacentHTML('beforeend','<i class="fas fa-door-open pull-right" title="Llamada de servicio abierta"></i>')
-						}
+						// console.log(info.event.extendedProps.estadoLlamadaServ);
+						// console.log(cont[0]);
 
-						//Si tiene llamada de servicio
-						if(info.event.extendedProps.llamadaServicio===undefined || info.event.extendedProps.llamadaServicio!=='0'){//Cuando se agrega por primera vez haciendo drop
-							cont[0].insertAdjacentHTML('beforeend','<i class="fas fa-phone-square-alt mr-1 pull-right" title="Tiene asociada una llamada de servicio"></i>')
+						if(cont[0]!==undefined) {
+
+							//-3 Abierto, -2 Pendiente, -1 Cerrado
+							if(info.event.extendedProps.estadoLlamadaServ===undefined){//Cuando se agrega por primera vez haciendo drop
+								cont[0].insertAdjacentHTML('beforeend','<i class="fas fa-door-open pull-right" title="Llamada de servicio abierta"></i>')
+							}else if(info.event.extendedProps.estadoLlamadaServ=='-3'){
+								cont[0].insertAdjacentHTML('beforeend','<i class="fas fa-door-open pull-right" title="Llamada de servicio abierta"></i>')
+							}else if(info.event.extendedProps.estadoLlamadaServ=='-2'){
+								cont[0].insertAdjacentHTML('beforeend','<i class="fas fa-clock pull-right" title="Llamada de servicio pendiente"></i>')
+							}else if(info.event.extendedProps.estadoLlamadaServ=='-1'){
+								cont[0].insertAdjacentHTML('beforeend','<i class="fas fa-door-closed pull-right" title="Llamada de servicio cerrada"></i>')
+							}else if(info.event.extendedProps.estadoLlamadaServ==''){//No tiene llamada de servicio
+								cont[0].insertAdjacentHTML('beforeend','<i class="fas fa-unlink pull-right" title="Actividad sin llamada de servicio asociada"></i>')
+							}
+
+							//Si tiene llamada de servicio
+							if(info.event.extendedProps.llamadaServicio===undefined || info.event.extendedProps.llamadaServicio!=='0'){//Cuando se agrega por primera vez haciendo drop
+								cont[0].insertAdjacentHTML('beforeend','<i class="fas fa-phone-square-alt mr-1 pull-right" title="Tiene asociada una llamada de servicio"></i>')
+							}
+
+						} else {
+							console.error("info.el.getElementsByClassName('fc-event-time') === undefined");
 						}
 					}
 				},
@@ -230,21 +311,30 @@ if ($sw == 1) {
 						resourceId: '<?php echo $row_Actividad['ID_EmpleadoActividad']; ?>',
 						textColor: '#fff',
 						backgroundColor: '<?php echo $row_Actividad['ColorEstadoServicio']; ?>',
-						borderColor: '<?php echo $row_Actividad['ColorEstadoServicio']; ?>',
 						classNames: [<?php echo $classAdd; ?>],
 						tl:'<?php echo ($row_Actividad['IdActividadPortal'] == 0) ? 1 : 0; ?>',
 						estado:'<?php echo $row_Actividad['IdEstadoActividad']; ?>',
-						tipoEstado:'<?php echo $row_Actividad['DeTipoEstadoActividad'] ?? ""; ?>', // SMM, 10/11/2022
+						tipoEstado:'<?php echo $row_Actividad['DeTipoEstadoActividad'] ?? ""; ?>', // SMM, 07/03/2023
 						llamadaServicio: '<?php echo $row_Actividad['ID_LlamadaServicio']; ?>',
 						estadoLlamadaServ: '<?php echo $row_Actividad['IdEstadoLlamada']; ?>',
+						comentario: '<?php echo preg_replace('([^A-Za-z0-9 ])', '', $row_Actividad['ComentarioLlamada']); ?>', // SMM, 03/05/2022
 						informacionAdicional: '<?php echo $row_Actividad['InformacionAdicional']; ?>',
-						manualChange:'0'
+						manualChange:'0',
+						// SMM, 18/05/2022
+						<?php if (!in_array($row_Actividad['ID_EmpleadoActividad'], $ids_recursos)) {?>
+							startEditable: false,
+							durationEditable: false,
+							resourceEditable: false,
+						<?php }?>
+						borderColor: '<?php echo in_array($row_Actividad['ID_EmpleadoActividad'], $ids_recursos) ? $row_Actividad['ColorEstadoServicio'] : 'red'; ?>'
 					},
 					<?php }
 }?>
 				],
 				eventDrop:function(info){
-//					console.log(info)
+					console.log('Se ejecuto eventDrop en el calendario');
+					// console.log("eventDrop [CTRL]", info);
+
 					//Cuando se va a duplicar con la tecla CTRL
 					if(info.jsEvent.ctrlKey){
 						copiado=true;
@@ -265,7 +355,7 @@ if ($sw == 1) {
 							end: info.event.end,
 							resourceId: info.event.getResources()[0].id,
 							textColor: '#fff',
-							backgroundColor: "#3788D8", // [uvw_tbl_TipoEstadoServicio].[ColorEstadoServicio] "PROGRAMADA"
+							backgroundColor: info.event.backgroundColor,
 							borderColor: info.event.borderColor,
 							extendedProps: {}
 						}
@@ -300,13 +390,15 @@ if ($sw == 1) {
 							}
 						});
 					}else{//Cuando se mueve el evento a otro lado sin duplicarlo
+
 						copiado=false;
 						var ID;
 						var docentry;
 						var metodo;
 						var estado='Y'; //Cerrado
 						var manual;
-	//					console.log(info.event)
+
+						// console.log("evenDrop (copiado=false)", info.event)
 						if((!info.event.extendedProps.tl)||(info.event.extendedProps.tl==0)){
 							ID=info.event.id //info.event.extendedProps.id
 							estado=info.event.extendedProps.estado
@@ -326,14 +418,14 @@ if ($sw == 1) {
 						// console.log(estado)
 						console.log("tipoEstado", tipoEstado);
 
-						if (tipoEstado === 'INICIADA' && copiado === false) { // SMM, 10/11/2022
+						if (tipoEstado === 'INICIADA' && copiado === false) { // SMM, 07/03/2023
 							info.revert()
 							Swal.fire({
 								title: '¡Advertencia!',
 								text: 'La actividad se encuentra INICIADA. No puede ejecutar esta acción.',
 								icon: 'warning',
 							});
-						} else if(estado==='Y'&&copiado===false){
+						} else if(estado==='Y'&&copiado===false) {
 							info.revert()
 							Swal.fire({
 								title: '¡Advertencia!',
@@ -372,12 +464,15 @@ if ($sw == 1) {
 					}
 				},
 				eventResize:function(info){
+					console.log('Se ejecuto eventResize en el calendario');
+
 					var ID;
 					var docentry;
 					var metodo;
 					var estado='Y'; //Cerrado
 					var manual;
-//					console.log(info.event)
+
+					// console.log("eventResize", info.event)
 //					console.log("Copiado",copiado)
 //					console.log("tl",info.event.extendedProps.tl)
 					if((!info.event.extendedProps.tl)||(info.event.extendedProps.tl==0)){
@@ -436,15 +531,19 @@ if ($sw == 1) {
 				},
 				//eventChange: function(info){},
 				eventReceive:function(info){
-//					console.log('Se ejecuto eventReceive')
-//					console.log(info)
-//					console.log(info.event)
-//					console.log(info.event.id)
-//					console.log(info.event.startStr)
-//					console.log(info.event.endStr)
-//					console.log(info.draggedEl.dataset.docnum)
-//					console.log($("#IdEvento").val())
-//					console.log(info.event.getResources()[0].id)
+					console.log('Se ejecuto eventReceive en el calendario');
+
+					/*
+					console.log(info)
+					console.log(info.event)
+					console.log(info.event.id)
+					console.log(info.event.startStr)
+					console.log(info.event.endStr)
+					console.log(info.draggedEl.dataset.docnum)
+					console.log($("#IdEvento").val())
+					console.log(info.event.getResources()[0].id)
+					*/
+
 					if(info.draggedEl.parentNode){
 						info.draggedEl.parentNode.removeChild(info.draggedEl)
 						$.ajax({
@@ -460,12 +559,14 @@ if ($sw == 1) {
 								}else{
 									$("#btnGuardar").prop('disabled', false);
 									$("#btnPendientes").prop('disabled', false);
+
 	//								info.event.setExtendedProp('id',response)
 									info.event.setExtendedProp('estado','N')
 									info.event.setExtendedProp('llamadaServicio',info.draggedEl.dataset.docnum)
 									info.event.setExtendedProp('estadoLlamadaServ',info.draggedEl.dataset.estado)
 									info.event.setExtendedProp('informacionAdicional',info.draggedEl.dataset.info)
 									info.event.setExtendedProp('manualChange','0')
+
 									mostrarNotify('Se ha agregado una nueva actividad')
 								}
 	//							console.log(response)
@@ -478,6 +579,7 @@ if ($sw == 1) {
 				},
 				eventClick: function(info){
 					console.log('Se ejecuto eventClick en el calendario');
+					// console.log(info.event.title)
 
 					if(info.jsEvent.ctrlKey) {
 						console.log("Duplicando con CTRL + Click");
@@ -539,19 +641,18 @@ if ($sw == 1) {
 
 						// Copiado hasta aquí. SMM, 10/11/2022
 					} else {
-	//					console.log(info.event.title)
-	//					var ID;
+						// var ID;
 						var tl;
 						if((!info.event.extendedProps.tl)||(info.event.extendedProps.tl==0)){
-	//						ID=info.event.extendedProps.id
-							tl=0 //Es nuevo
+							// ID=info.event.extendedProps.id
+							tl=0 // Es nuevo
 						}else{
-	//						ID=info.event.id
+							// ID=info.event.id
 							tl=info.event.extendedProps.tl //Ya existe
 						}
-	//					console.log('ID',ID)
-	//					console.log('tl',tl)
-	//					console.log('tl:',info.event.extendedProps.tl)
+						// console.log('ID',ID)
+						// console.log('tl',tl)
+						// console.log('tl:',info.event.extendedProps.tl)
 						blockUI();
 						$.ajax({
 							type: "POST",

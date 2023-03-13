@@ -18,7 +18,7 @@ $Type = isset($_POST['type']) ? $_POST['type'] : "";
 // SMM, 02/09/2022
 $FiltrarActividades = "NULL";
 if (getCookiePHP("FiltrarActividades") == "true") {
-    $FiltrarActividades = "1";
+	$FiltrarActividades = "1";
 }
 
 //Consultamos la lista de OT pendientes
@@ -31,7 +31,7 @@ $ParamOT = array(
     "'" . $NomSucursal . "'",
     "'" . FormatoFecha($FechaInicial) . "'",
     "'" . FormatoFecha($FechaFinal) . "'",
-    $FiltrarActividades, // SMM, 02/09/2022
+	$FiltrarActividades, // SMM, 02/09/2022
     "''",
     "''",
     "''",
@@ -46,7 +46,15 @@ $ParamOT = array(
 $SQL = EjecutarSP("sp_ConsultarDatosCalendarioRutasOT", $ParamOT);
 $Cant = sqlsrv_num_rows($SQL);
 
+// Grupos de Empleados, SMM 19/05/2022
+$SQL_GruposUsuario = Seleccionar("uvw_tbl_UsuariosGruposEmpleados", "*", "[ID_Usuario]='" . $_SESSION['CodUser'] . "'", 'DeCargo');
+
+$ids_grupos = array();
+while ($row_GruposUsuario = sqlsrv_fetch_array($SQL_GruposUsuario)) {
+    $ids_grupos[] = $row_GruposUsuario['IdCargo'];
+}
 ?>
+
 <script>
 var json=[];
 var cant=0;
@@ -220,7 +228,8 @@ while ($row = sqlsrv_fetch_array($SQL)) {
 				 <select name="IdTecnico" id="IdTecnico<?php echo $i; ?>" class="select2 form-control" style="width: 100%" onChange="ActualizarDatos('IdTecnico',<?php echo $i; ?>,<?php echo $row['ID']; ?>);">
 				   <?php
 while ($row_Recursos = sqlsrv_fetch_array($SQL_Recursos)) {?>
-							<option value="<?php echo $row_Recursos['ID_Empleado']; ?>" <?php if ((isset($row['IdTecnico']) && ($row['IdTecnico'] != "")) && (strcmp($row_Recursos['ID_Empleado'], $row['IdTecnico']) == 0)) {echo "selected=\"selected\"";}?>><?php echo $row_Recursos['NombreEmpleado']; ?></option>
+							<option value="<?php echo $row_Recursos['ID_Empleado']; ?>" <?php if ((isset($row['IdTecnico']) && ($row['IdTecnico'] != "")) && (strcmp($row_Recursos['ID_Empleado'], $row['IdTecnico']) == 0)) {echo "selected=\"selected\"";}?>
+							<?php if ((count($ids_grupos) > 0) && (!in_array($row_Recursos['IdCargo'], $ids_grupos))) {echo "disabled=\"disabled\"";}?>><?php echo $row_Recursos['NombreEmpleado']; ?></option>
 					  <?php }?>
 				    </select>
 			   </td>

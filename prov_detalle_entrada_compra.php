@@ -60,7 +60,7 @@ $SQL=Seleccionar('uvw_Sap_tbl_EntradasComprasDetalle','*',"ID_EntradaCompra='".b
 				<div class="col-lg-3">
 					<div class="ibox ">
 						<div class="ibox-title">
-							<h5><span class="font-normal">Número de entrada</span></h5>
+							<h5><span class="font-normal">No. Entrada de mercancías/servicio</span></h5>
 						</div>
 						<div class="ibox-content">
 							<h3 class="no-margins"><?php echo $rowDoc['DocNum'];?></h3>
@@ -70,7 +70,7 @@ $SQL=Seleccionar('uvw_Sap_tbl_EntradasComprasDetalle','*',"ID_EntradaCompra='".b
 				<div class="col-lg-3">
 					<div class="ibox ">
 						<div class="ibox-title">
-							<h5><span class="font-normal">Orden de compra</span></h5>
+							<h5><span class="font-normal">No. Orden de compra</span></h5>
 						</div>
 						<div class="ibox-content">
 							<h3 class="no-margins"><?php echo $rowDoc['DocBaseDocNum']!="" ? $rowDoc['DocBaseDocNum'] : "&nbsp;";?></h3>
@@ -79,7 +79,19 @@ $SQL=Seleccionar('uvw_Sap_tbl_EntradasComprasDetalle','*',"ID_EntradaCompra='".b
 				</div>
 			</div>
 		  <br>
-          <div class="row">
+		  
+		  <?php if(PermitirFuncion(603)){?>
+		  	<div class="row">
+			 	<div class="col-lg-12">
+					<div class="ibox-content">	
+						<a href="sapdownload.php?id=<?php echo base64_encode('15');?>&type=<?php echo base64_encode('2');?>&DocKey=<?php echo base64_encode($rowDoc['ID_EntradaCompra']);?>&ObType=<?php echo base64_encode('20');?>&IdFrm=<?php echo base64_encode($rowDoc['IdSeries']);?>" target="_blank" class="btn btn-outline btn-success"><i class="fa fa-download"></i> Descargar formato</a>
+					</div>
+				</div>
+			</div>
+		  <br>
+		  <?php }?>
+          
+		<div class="row">
            <div class="col-lg-12">
 			    <div class="ibox-content">
 					<div class="tabs-container">  
@@ -186,7 +198,6 @@ $SQL=Seleccionar('uvw_Sap_tbl_EntradasComprasDetalle','*',"ID_EntradaCompra='".b
 						}
 					?>
 					<a href="<?php echo $return;?>" class="btn btn-outline btn-default"><i class="fa fa-arrow-circle-o-left"></i> Regresar</a>
-					<a href="sapdownload.php?id=<?php echo base64_encode('15');?>&type=<?php echo base64_encode('2');?>&DocKey=<?php echo base64_encode($rowDoc['ID_EntradaCompra']);?>&ObType=<?php echo base64_encode('20');?>&IdFrm=<?php echo base64_encode($rowDoc['IdSeries']);?>" target="_blank" class="btn btn-outline btn-success"><i class="fa fa-download"></i> Descargar formato</a>
 				</div>
 			</div>
 		  </div>

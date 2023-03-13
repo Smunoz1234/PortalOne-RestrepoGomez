@@ -110,6 +110,8 @@ $(document).ready(function() {
 
 });
 function Reload(){
+	console.log("entre, programacion_rutas_result.php");
+	
 	blockUI();
 	let RecursosList=window.sessionStorage.getItem('ResourceList')
 	let Param='';
