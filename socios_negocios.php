@@ -166,12 +166,14 @@ if (isset($_POST['P']) && ($_POST['P'] != "")) {
             "'" . $_POST['IdAnexos'] . "'",
             "'" . $_POST['Latitud'] . "'",
             "'" . $_POST['Longitud'] . "'",
-//            "'".$_POST['Genero']."'",
-            //            "'".$_POST['Sexo']."'",
-            //            "'".$_POST['OrienSexual']."'",
-            //            "'".$_POST['Etnia']."'",
-            //            "'".$_POST['Discapacidad']."'",
-            //            "'".$_POST['NivelEduca']."'",
+            //      "'".$_POST['Genero']."'",
+            //      "'".$_POST['Sexo']."'",
+            //      "'".$_POST['OrienSexual']."'",
+            //      "'".$_POST['Etnia']."'",
+            //      "'".$_POST['Discapacidad']."'",
+            //      "'".$_POST['NivelEduca']."'",
+            $_POST['IdListaPrecio'] ?? -1, // SMM, 17/02/2022
+            isset($_POST['Estado']) ? ("'" . $_POST['Estado'] . "'") : "NULL", // SMM, 15/11/2022
             $CapacidadServ,
             $VigenciaCont,
             $Metodo,
@@ -404,7 +406,7 @@ if ($edit == 1 && $sw_error == 0) {
     //    }
 
     //Cliente
-    $SQL = Seleccionar("uvw_Sap_tbl_Clientes", "*", "[CodigoCliente]='" . $CodCliente . "'");
+    $SQL = Seleccionar("uvw_Sap_tbl_SociosNegocios", "*", "[CodigoCliente]='" . $CodCliente . "'");
     $row = sql_fetch_array($SQL);
 
     //Direcciones
@@ -542,6 +544,8 @@ if (($edit == 0 || $Metod == 4) && ($EsProyecto == 1 && $row_ValorDefault['IdEst
     $SQL_Estrato = Seleccionar('tbl_EstratosSN', '*', '', 'Estrato');
 }
 
+// Lista de precios, 17/02/2022
+$SQL_ListaPrecios = Seleccionar('uvw_Sap_tbl_ListaPrecios', '*');
 ?>
 <!DOCTYPE html>
 <html><!-- InstanceBegin template="/Templates/PlantillaPrincipal.dwt.php" codeOutsideHTMLIsLocked="false" -->
@@ -630,26 +634,14 @@ if (isset($sw_error) && ($sw_error == 1)) {
 			var AliasName=document.getElementById('AliasName');
 
 			if(TipoEntidad==1){//Natural
-				//Quitar
-				Nombres.removeAttribute("readonly");
-				Apellido1.removeAttribute("readonly");
-				Apellido2.removeAttribute("readonly");
+				HabilitarCampos(TipoEntidad)
 
-				//Poner
-				Nombres.setAttribute("required","required");
-				Apellido1.setAttribute("required","required");
-				CardName.setAttribute("readonly","readonly");
-				AliasName.setAttribute("readonly","readonly");
 				<?php if ($edit == 0 && $sw_error == 0) {?>
 				CardName.value="";
 				AliasName.value="";
 				<?php }?>
 			}else{//Juridica
-				//Quitar
-				CardName.removeAttribute("readonly");
-				AliasName.removeAttribute("readonly");
-				Nombres.removeAttribute("required");
-				Apellido1.removeAttribute("required");
+				HabilitarCampos(TipoEntidad)
 
 				//Poner
 				CardName.value="";
@@ -657,19 +649,50 @@ if (isset($sw_error) && ($sw_error == 1)) {
 				Nombres.value="";
 				Apellido1.value="";
 				Apellido2.value="";
-				Nombres.setAttribute("readonly","readonly");
-				Apellido1.setAttribute("readonly","readonly");
-				Apellido2.setAttribute("readonly","readonly");
 			}
 		});
 		//NomDir('1');
 		<?php if ($edit == 0 || $Metod == 4) {?>
 		$('#TipoEntidad').trigger('change');
+		<?php } else {?>
+		HabilitarCampos(<?php echo isset($row['U_HBT_TipEnt']) ? $row['U_HBT_TipEnt'] : ""; ?>);
 		<?php }?>
 		CapturarGPS();
 	});
 </script>
+
 <script>
+function HabilitarCampos(TipoEntidad){
+	var Nombres=document.getElementById('PNNombres');
+	var Apellido1=document.getElementById('PNApellido1');
+	var Apellido2=document.getElementById('PNApellido2');
+	var CardName=document.getElementById('CardName');
+	var AliasName=document.getElementById('AliasName');
+	if(TipoEntidad==1){//Natural
+		//Quitar
+		Nombres.removeAttribute("readonly");
+		Apellido1.removeAttribute("readonly");
+		Apellido2.removeAttribute("readonly");
+
+		//Poner
+		Nombres.setAttribute("required","required");
+		Apellido1.setAttribute("required","required");
+		CardName.setAttribute("readonly","readonly");
+		AliasName.setAttribute("readonly","readonly");
+	}else{//Juridica
+		//Quitar
+		CardName.removeAttribute("readonly");
+		AliasName.removeAttribute("readonly");
+		Nombres.removeAttribute("required");
+		Apellido1.removeAttribute("required");
+
+		//Poner
+		Nombres.setAttribute("readonly","readonly");
+		Apellido1.setAttribute("readonly","readonly");
+		Apellido2.setAttribute("readonly","readonly");
+	}
+}
+
 function CapturarGPS(){
 	var Latitud=document.getElementById("Latitud");
 	var Longitud=document.getElementById("Longitud");
@@ -771,6 +794,8 @@ function SeleccionarFactura(Num, Obj, Frm){
 	}
 }
 
+
+<?php if (PermitirFuncion(510)) {?>
 function CrearNombre(){
 	var TipoEntidad=document.getElementById("TipoEntidad");
 	var Nombre=document.getElementById("PNNombres");
@@ -795,6 +820,32 @@ function CrearNombre(){
 		AliasName.value=CardName.value;
 	}
 }
+<?php } else {?>
+function CrearNombre(){
+	var TipoEntidad=document.getElementById("TipoEntidad");
+	var Nombre=document.getElementById("PNNombres");
+	var PrimerApellido=document.getElementById("PNApellido1");
+	var SegundoApellido=document.getElementById("PNApellido2");
+	var CardName=document.getElementById("CardName");
+	var AliasName=document.getElementById("AliasName");
+
+	if(TipoEntidad.value==1){//Natural
+	if(Nombre.value!=""&&PrimerApellido.value!=""){
+		CardName.value=Nombre.value + ' ' + PrimerApellido.value + ' ' + SegundoApellido.value;
+		AliasName.value=CardName.value;
+	}else{
+		CardName.value="";
+		AliasName.value=CardName.value;
+	}
+
+	<?php if ($edit == 0 || $Metod == 4) {?>
+	CopiarNombreCont();
+	<?php }?>
+	}else{//Juridica
+		AliasName.value=CardName.value;
+	}
+}
+<?php }?>
 
 <?php if ($edit == 0) {?>
 function CopiarNombreCont(){
@@ -839,6 +890,30 @@ function CopiarNombreCont(){
 
 }
 <?php }?>
+
+// Stiven Muñoz Murillo, 26/02/2022
+function mayus(e) {
+	e.value = e.value.toUpperCase();
+}
+
+// SMM, 18/02/2022
+function MostrarPlazos(no_documento){
+	$('.ibox-content').toggleClass('sk-loading',true);
+	$.ajax({
+		type: "POST",
+		async: false,
+		url: "md_facturas_pendientes_plazos.php",
+		data:{
+			NoDocumento: no_documento
+		},
+		success: function(response){
+			$('.ibox-content').toggleClass('sk-loading',false);
+			$('#ContenidoModal').html(response);
+			$('#TituloModal').html(`PLAZOS FACTURA NO. ${no_documento}`);
+			$('#myModal').modal("show");
+		}
+	});
+}
 </script>
 <?php /*?><script>
 function NomDir(id){
@@ -882,6 +957,21 @@ nombredir.value="<?php echo ObtenerVariable("DirDestino");?>";
             </div>
 
          <div class="wrapper wrapper-content">
+			<!-- Inicio, myModal -->
+			<div class="modal inmodal fade" id="myModal" tabindex="-1" role="dialog" aria-hidden="true">
+				<div class="modal-dialog modal-lg" style="width: 70% !important;">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h4 class="modal-title" id="TituloModal"></h4>
+						</div>
+						<div class="modal-body" id="ContenidoModal"></div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-success m-t-md" data-dismiss="modal"><i class="fa fa-times"></i> Cerrar</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- Fin, myModal -->
 			 <form action="socios_negocios.php" method="post" class="form-horizontal" enctype="multipart/form-data" id="EditarSN" name="EditarSN">
 			 <div class="row">
 				<div class="col-lg-12">
@@ -912,10 +1002,20 @@ if ($sw_ext == 0) {?>
 									<a href="<?php echo $return; ?>" class="alkin btn btn-outline btn-default"><i class="fa fa-arrow-circle-o-left"></i> Regresar</a>
 								<?php }?>
 							</div>
-							<div class="col-lg-6">
-								<?php if (($edit == 1) && (PermitirFuncion(302))) {?>
-									<a href="llamada_servicio.php?dt_LS=1&Cardcode=<?php echo base64_encode($row['CodigoCliente']); ?>" target="_blank" class="pull-right btn btn-primary"><i class="fa fa-plus-circle"></i> Crear llamada de servicio</a>
-								<?php }?>
+							<div class="col-lg-3 pull-right">
+								<?php if ($edit == 1 && isset($row["TipoSN"]) && ($row["TipoSN"] == "CLIENTE")) {?>
+									<div class="btn-group">
+										<button data-toggle="dropdown" class="btn btn-success dropdown-toggle"><i class="fa fa-plus-circle"></i> Agregar documento <i class="fa fa-caret-down"></i></button>
+										<ul class="dropdown-menu">
+											<li>
+												<a class="dropdown-item" href="llamada_servicio.php?dt_LS=1&Cardcode=<?php echo base64_encode($row['CodigoCliente']); ?>" target="_blank">Crear llamada de servicio</a>
+											</li>
+											<li>
+												<a class="dropdown-item" href="tarjeta_equipo.php?dt_TE=1&Cardcode=<?php echo base64_encode($row['CodigoCliente']); ?>" target="_blank">Crear tarjeta de equipo</a>
+											</li>
+										</ul>
+									</div>
+								<?php } else {echo "<script> console.log('El socio de negocio no es un cliente.') </script>";}?>
 							</div>
 						</div>
 						<div class="form-group">
@@ -948,7 +1048,10 @@ if ($sw_ext == 0) {?>
 						<?php include "includes/spinner.php";?>
 						<?php if ($edit == 1) {?>
 						 <div class="form-group">
-							<h3 class="col-xs-12 bg-primary p-xs b-r-sm"><?php echo ($row['NombreCliente']) . " [" . $row['LicTradNum'] . "]"; ?></h3>
+							<h3 class="col-xs-12 bg-primary p-xs b-r-sm">
+								<?php echo ($row['NombreCliente']) . " [" . $row['LicTradNum'] . "]"; ?>
+								<?php if (isset($row["Estado"])) {echo ($row["Estado"] == "Y") ? "(Activo)" : "(Inactivo)";}?>
+							</h3>
 						 </div>
 						 <?php }?>
 						 <div class="tabs-container">
@@ -962,7 +1065,17 @@ if ($sw_ext == 0) {?>
 							</ul>
 						   <div class="tab-content">
 							   <div id="tabSN-1" class="tab-pane active">
-								   <br>
+							   		<div class="col-lg-1">
+										<div id="spinner1" style="visibility: hidden;" class="sk-spinner sk-spinner-wave">
+											<div class="sk-rect1"></div>
+											<div class="sk-rect2"></div>
+											<div class="sk-rect3"></div>
+											<div class="sk-rect4"></div>
+											<div class="sk-rect5"></div>
+										</div>
+									</div>
+									<div id="Validar" class="col-lg-3"></div>
+
 								    <div class="form-group">
 										<label class="col-xs-12"><h3 class="bg-success p-xs b-r-sm"><i class="fa fa-info-circle"></i> Información general</h3></label>
 									</div>
@@ -974,30 +1087,29 @@ if ($sw_ext == 0) {?>
 										<label class="col-lg-1 control-label">Tipo socio de negocio</label>
 										<div class="col-lg-3">
 											<select name="CardType" class="form-control" id="CardType" required>
-											<?php
-while ($row_TipoSN = sqlsrv_fetch_array($SQL_TipoSN)) {?>
+											<?php while ($row_TipoSN = sqlsrv_fetch_array($SQL_TipoSN)) {?>
 													<option value="<?php echo $row_TipoSN['CardType']; ?>" <?php if ((isset($row['CardType'])) && (strcmp($row_TipoSN['CardType'], $row['CardType']) == 0)) {echo "selected=\"selected\"";} elseif (PermitirFuncion(504) && ($row_TipoSN['CardType'] == "L")) {echo "selected=\"selected\"";} elseif ((isset($row_ValorDefault['IdTipoSN'])) && (strcmp($row_TipoSN['CardType'], $row_ValorDefault['IdTipoSN']) == 0)) {echo "selected=\"selected\"";}?>><?php echo $row_TipoSN['DE_CardType']; ?></option>
 											<?php }?>
 											</select>
 										</div>
-										<div class="col-lg-1">
-											<div id="spinner1" style="visibility: hidden;" class="sk-spinner sk-spinner-wave">
-												<div class="sk-rect1"></div>
-												<div class="sk-rect2"></div>
-												<div class="sk-rect3"></div>
-												<div class="sk-rect4"></div>
-												<div class="sk-rect5"></div>
+
+										<!-- SMM, 15/11/2022 -->
+										<?php if (PermitirFuncion(513)) {?>
+											<label class="col-lg-1 control-label">Estado</label>
+											<div class="col-lg-3">
+												<select name="Estado" id="Estado" class="form-control">
+													<option value="Y" <?php if (($edit == 1) && ($row['Estado'] == "Y")) {echo "selected";}?>>Activo</option>
+													<option value="N" <?php if (($edit == 1) && ($row['Estado'] == "N")) {echo "selected";}?>>Inactivo</option>
+												</select>
 											</div>
-										</div>
-										<div id="Validar" class="col-lg-3"></div>
+										<?php }?>
 									</div>
 								    <div class="form-group">
 										<label class="col-lg-1 control-label">Tipo entidad <span class="text-danger">*</span></label>
 										<div class="col-lg-3">
 											<select name="TipoEntidad" class="form-control" id="TipoEntidad" required>
 												<option value="">Seleccione...</option>
-											<?php
-while ($row_TipoEntidad = sqlsrv_fetch_array($SQL_TipoEntidad)) {?>
+											<?php while ($row_TipoEntidad = sqlsrv_fetch_array($SQL_TipoEntidad)) {?>
 													<option value="<?php echo $row_TipoEntidad['ID_TipoEntidad']; ?>" <?php if (($edit == 1 || $sw_error == 1) && (isset($row['U_HBT_TipEnt'])) && (strcmp($row_TipoEntidad['ID_TipoEntidad'], $row['U_HBT_TipEnt']) == 0)) {echo "selected=\"selected\"";} elseif ((isset($row_ValorDefault['IdTipoEntidad'])) && (strcmp($row_TipoEntidad['ID_TipoEntidad'], $row_ValorDefault['IdTipoEntidad']) == 0)) {echo "selected=\"selected\"";}?>><?php echo $row_TipoEntidad['NombreEntidad']; ?></option>
 											<?php }?>
 											</select>
@@ -1006,35 +1118,34 @@ while ($row_TipoEntidad = sqlsrv_fetch_array($SQL_TipoEntidad)) {?>
 										<div class="col-lg-3">
 											<select name="TipoDocumento" class="form-control" id="TipoDocumento" required>
 												<option value="">Seleccione...</option>
-											<?php
-while ($row_TipoDoc = sqlsrv_fetch_array($SQL_TipoDoc)) {?>
+											<?php while ($row_TipoDoc = sqlsrv_fetch_array($SQL_TipoDoc)) {?>
 													<option value="<?php echo $row_TipoDoc['ID_TipoDocumento']; ?>" <?php if (($edit == 1 || $sw_error == 1) && (isset($row['U_HBT_TipDoc'])) && (strcmp($row_TipoDoc['ID_TipoDocumento'], $row['U_HBT_TipDoc']) == 0)) {echo "selected=\"selected\"";} elseif ((isset($row_ValorDefault['IdTipoDocumento'])) && (strcmp($row_TipoDoc['ID_TipoDocumento'], $row_ValorDefault['IdTipoDocumento']) == 0)) {echo "selected=\"selected\"";}?>><?php echo $row_TipoDoc['TipoDocumento']; ?></option>
 											<?php }?>
 											</select>
 										</div>
 									   	<label class="col-lg-1 control-label">Número documento <span class="text-danger">*</span></label>
-										<div class="col-lg-2">
+										<div class="col-lg-3">
 											<input name="LicTradNum" type="text" required class="form-control" id="LicTradNum" value="<?php if ($edit == 1 || $sw_error == 1) {echo $row['LicTradNum'];}?>" maxlength="15" onKeyPress="return justNumbers(event,this.value);" <?php if ($edit == 0) {?>onChange="CopiarNombreCont();ValidarSN(this.value);"<?php }?>>
 										</div>
 									</div>
 								    <div class="form-group">
 										<label class="col-lg-1 control-label">Nombres</label>
 										<div class="col-lg-3">
-											<input name="PNNombres" type="text" class="form-control" id="PNNombres" readonly="readonly" value="<?php if ($edit == 1 || $sw_error == 1) {echo ($row['U_HBT_Nombres']);}?>" onChange="CrearNombre();">
+											<input name="PNNombres" type="text" class="form-control" id="PNNombres" onkeyup="mayus(this);" readonly="readonly" value="<?php if ($edit == 1 || $sw_error == 1) {echo strtoupper($row['U_HBT_Nombres']);}?>" onChange="CrearNombre();">
 										</div>
 										<label class="col-lg-1 control-label">Primer apellido</label>
 										<div class="col-lg-3">
-											<input name="PNApellido1" type="text" class="form-control" id="PNApellido1" readonly="readonly" value="<?php if ($edit == 1 || $sw_error == 1) {echo ($row['U_HBT_Apellido1']);}?>" onChange="CrearNombre();">
+											<input name="PNApellido1" type="text" class="form-control" id="PNApellido1" onkeyup="mayus(this);" readonly="readonly" value="<?php if ($edit == 1 || $sw_error == 1) {echo strtoupper($row['U_HBT_Apellido1']);}?>" onChange="CrearNombre();">
 										</div>
 										<label class="col-lg-1 control-label">Segundo apellido</label>
 										<div class="col-lg-3">
-											<input name="PNApellido2" type="text" class="form-control" id="PNApellido2" readonly="readonly" value="<?php if ($edit == 1 || $sw_error == 1) {echo ($row['U_HBT_Apellido2']);}?>" onChange="CrearNombre();">
+											<input name="PNApellido2" type="text" class="form-control" id="PNApellido2" onkeyup="mayus(this);" readonly="readonly" value="<?php if ($edit == 1 || $sw_error == 1) {echo strtoupper($row['U_HBT_Apellido2']);}?>" onChange="CrearNombre();">
 										</div>
 									</div>
 									<div class="form-group">
 										<label class="col-lg-1 control-label">Nombre cliente/Razón social <span class="text-danger">*</span></label>
 										<div class="col-lg-3">
-											<input type="text" class="form-control" name="CardName" id="CardName" required value="<?php if ($edit == 1 || $sw_error == 1) {echo ($row['NombreCliente']);}?>" onChange="CrearNombre();">
+											<input type="text" class="form-control" name="CardName" id="CardName" onkeyup="mayus(this);" required value="<?php if ($edit == 1 || $sw_error == 1) {echo ($row['NombreCliente']);}?>" onChange="CrearNombre();">
 										</div>
 										<label class="col-lg-1 control-label">Estado servicio</label>
 										<div class="col-lg-3">
@@ -1042,17 +1153,17 @@ while ($row_TipoDoc = sqlsrv_fetch_array($SQL_TipoDoc)) {?>
 										</div>
 										<label class="col-lg-1 control-label">Correo eléctronico <span class="text-danger">*</span></label>
 										<div class="col-lg-3">
-											<input type="text" class="form-control" name="CorreoCliente" id="CorreoCliente" required value="<?php if ($edit == 1 || $sw_error == 1) {echo ($row['Email']);}?>" <?php if ($edit == 0) {?>onChange="CopiarNombreCont();"<?php }?>>
+											<input type="email" class="form-control" name="CorreoCliente" id="CorreoCliente" required value="<?php if ($edit == 1 || $sw_error == 1) {echo ($row['Email']);}?>" <?php if ($edit == 0) {?>onChange="CopiarNombreCont();"<?php }?>>
 										</div>
 									</div>
 								    <div class="form-group">
 										<label class="col-lg-1 control-label">Teléfono <span class="text-danger">*</span></label>
 										<div class="col-lg-3">
-											<input type="text" class="form-control" name="TelefonoCliente" id="TelefonoCliente" required value="<?php if ($edit == 1 || $sw_error == 1) {echo ($row['Telefono']);}?>" <?php if ($edit == 0) {?>onChange="CopiarNombreCont();"<?php }?>>
+											<input type="text" class="form-control" name="TelefonoCliente" id="TelefonoCliente" onkeyup="mayus(this);" required value="<?php if ($edit == 1 || $sw_error == 1) {echo ($row['Telefono']);}?>" <?php if ($edit == 0) {?>onChange="CopiarNombreCont();"<?php }?>>
 										</div>
 										<label class="col-lg-1 control-label">Celular <span class="text-danger">*</span></label>
 										<div class="col-lg-3">
-											<input type="text" class="form-control" name="CelularCliente" id="CelularCliente" required value="<?php if ($edit == 1 || $sw_error == 1) {echo ($row['Celular']);}?>" <?php if ($edit == 0) {?>onChange="CopiarNombreCont();"<?php }?>>
+											<input type="text" class="form-control" name="CelularCliente" id="CelularCliente" onkeyup="mayus(this);" required value="<?php if ($edit == 1 || $sw_error == 1) {echo ($row['Celular']);}?>" <?php if ($edit == 0) {?>onChange="CopiarNombreCont();"<?php }?>>
 										</div>
 										<label class="col-lg-1 control-label">Vendedor <span class="text-danger">*</span></label>
 										<div class="col-lg-3">
@@ -1075,20 +1186,18 @@ while ($row_TipoDoc = sqlsrv_fetch_array($SQL_TipoDoc)) {?>
 										<div class="col-lg-3">
 											<select name="GroupCode" class="form-control select2" id="GroupCode" required>
 												<option value="">Seleccione...</option>
-											<?php
-while ($row_GruposClientes = sqlsrv_fetch_array($SQL_GruposClientes)) {?>
+												<?php while ($row_GruposClientes = sqlsrv_fetch_array($SQL_GruposClientes)) {?>
 													<option value="<?php echo $row_GruposClientes['GroupCode']; ?>" <?php if (($edit == 1 || $sw_error == 1) && (isset($row['GrupoCliente'])) && (strcmp($row_GruposClientes['GroupCode'], $row['GrupoCliente']) == 0)) {echo "selected=\"selected\"";} elseif ((isset($row_ValorDefault['IdGrupoSN'])) && (strcmp($row_GruposClientes['GroupCode'], $row_ValorDefault['IdGrupoSN']) == 0)) {echo "selected=\"selected\"";}?>><?php echo $row_GruposClientes['GroupName']; ?></option>
-											<?php }?>
+												<?php }?>
 											</select>
 										</div>
 										<label class="col-lg-1 control-label">Proyecto</label>
 										<div class="col-lg-3">
 											<select name="Proyecto" class="form-control select2" id="Proyecto">
 												<option value="">(Ninguno)</option>
-											<?php
-while ($row_Proyecto = sqlsrv_fetch_array($SQL_Proyecto)) {?>
+												<?php while ($row_Proyecto = sqlsrv_fetch_array($SQL_Proyecto)) {?>
 													<option value="<?php echo $row_Proyecto['IdProyecto']; ?>" <?php if (($edit == 1 || $sw_error == 1) && (isset($row['IdProyecto'])) && (strcmp($row_Proyecto['IdProyecto'], $row['IdProyecto']) == 0)) {echo "selected=\"selected\"";} elseif ((isset($row_ValorDefault['IdProyecto'])) && (strcmp($row_Proyecto['IdProyecto'], $row_ValorDefault['IdProyecto']) == 0)) {echo "selected=\"selected\"";}?>><?php echo $row_Proyecto['DeProyecto']; ?></option>
-											<?php }?>
+												<?php }?>
 											</select>
 										</div>
 									</div>
@@ -1097,17 +1206,15 @@ while ($row_Proyecto = sqlsrv_fetch_array($SQL_Proyecto)) {?>
 										<div class="col-lg-3">
 											<select name="GroupNum" class="form-control" id="GroupNum" required>
 												<option value="">Seleccione...</option>
-											<?php
-while ($row_CondicionPago = sqlsrv_fetch_array($SQL_CondicionPago)) {?>
+												<?php while ($row_CondicionPago = sqlsrv_fetch_array($SQL_CondicionPago)) {?>
 													<option value="<?php echo $row_CondicionPago['IdCondicionPago']; ?>" <?php if (($edit == 1 || $sw_error == 1) && (isset($row['GroupNum'])) && (strcmp($row_CondicionPago['IdCondicionPago'], $row['GroupNum']) == 0)) {echo "selected=\"selected\"";} elseif ((isset($row_ValorDefault['IdCondiPago'])) && (strcmp($row_CondicionPago['IdCondicionPago'], $row_ValorDefault['IdCondiPago']) == 0)) {echo "selected=\"selected\"";}?>><?php echo $row_CondicionPago['NombreCondicion']; ?></option>
-											<?php }?>
+												<?php }?>
 											</select>
 										</div>
 										<label class="col-lg-1 control-label">Medio de pago <span class="text-danger">*</span></label>
 										<div class="col-lg-3">
 											<select name="MedioPago" class="form-control select2" id="MedioPago" required>
-											<?php
-while ($row_MedioPago = sqlsrv_fetch_array($SQL_MedioPago)) {?>
+											<?php while ($row_MedioPago = sqlsrv_fetch_array($SQL_MedioPago)) {?>
 													<option value="<?php echo $row_MedioPago['IdMedioPago']; ?>" <?php if (($edit == 1 || $sw_error == 1) && (isset($row['IdMedioPago'])) && (strcmp($row_MedioPago['IdMedioPago'], $row['IdMedioPago']) == 0)) {echo "selected=\"selected\"";} elseif ((isset($row_ValorDefault['IdMedioPago'])) && (strcmp($row_MedioPago['IdMedioPago'], $row_ValorDefault['IdMedioPago']) == 0)) {echo "selected=\"selected\"";}?>><?php echo $row_MedioPago['DeMedioPago']; ?></option>
 											<?php }?>
 											</select>
@@ -1115,8 +1222,7 @@ while ($row_MedioPago = sqlsrv_fetch_array($SQL_MedioPago)) {?>
 										<label class="col-lg-1 control-label">Tipo nacionalidad <span class="text-danger">*</span></label>
 										<div class="col-lg-3">
 											<select name="TipoNacionalidad" class="form-control" id="TipoNacionalidad" required>
-											<?php
-while ($row_TipoNacionalidad = sqlsrv_fetch_array($SQL_TipoNacionalidad)) {?>
+											<?php while ($row_TipoNacionalidad = sqlsrv_fetch_array($SQL_TipoNacionalidad)) {?>
 													<option value="<?php echo $row_TipoNacionalidad['IdTipoNacionalidad']; ?>" <?php if (($edit == 1 || $sw_error == 1) && (isset($row['IdTipoNacionalidad'])) && (strcmp($row_TipoNacionalidad['IdTipoNacionalidad'], $row['IdTipoNacionalidad']) == 0)) {echo "selected=\"selected\"";} elseif ((isset($row_ValorDefault['IdTipoNacionalidad'])) && (strcmp($row_TipoNacionalidad['IdTipoNacionalidad'], $row_ValorDefault['IdTipoNacionalidad']) == 0)) {echo "selected=\"selected\"";}?>><?php echo $row_TipoNacionalidad['DeTipoNacionalidad']; ?></option>
 											<?php }?>
 											</select>
@@ -1126,8 +1232,7 @@ while ($row_TipoNacionalidad = sqlsrv_fetch_array($SQL_TipoNacionalidad)) {?>
 										<label class="col-lg-1 control-label">Tipo extranjero <span class="text-danger">*</span></label>
 										<div class="col-lg-3">
 											<select name="TipoExtranjero" class="form-control" id="TipoExtranjero" required>
-											<?php
-while ($row_TipoExtranjero = sqlsrv_fetch_array($SQL_TipoExtranjero)) {?>
+											<?php while ($row_TipoExtranjero = sqlsrv_fetch_array($SQL_TipoExtranjero)) {?>
 													<option value="<?php echo $row_TipoExtranjero['IdTipoExtranjero']; ?>" <?php if (($edit == 1 || $sw_error == 1) && (isset($row['IdTipoExtranjero'])) && (strcmp($row_TipoExtranjero['IdTipoExtranjero'], $row['IdTipoExtranjero']) == 0)) {echo "selected=\"selected\"";} elseif ((isset($row_ValorDefault['IdTipoExtranjero'])) && (strcmp($row_TipoExtranjero['IdTipoExtranjero'], $row_ValorDefault['IdTipoExtranjero']) == 0)) {echo "selected=\"selected\"";}?>><?php echo $row_TipoExtranjero['DeTipoExtranjero']; ?></option>
 											<?php }?>
 											</select>
@@ -1135,8 +1240,8 @@ while ($row_TipoExtranjero = sqlsrv_fetch_array($SQL_TipoExtranjero)) {?>
 										<label class="col-lg-1 control-label">Industria <span class="text-danger">*</span></label>
 										<div class="col-lg-3">
 											<select name="Industria" class="form-control" id="Industria" required>
-											<?php
-while ($row_Industria = sqlsrv_fetch_array($SQL_Industria)) {?>
+												<option value="">Seleccione...</option>
+											<?php while ($row_Industria = sqlsrv_fetch_array($SQL_Industria)) {?>
 													<option value="<?php echo $row_Industria['IdIndustria']; ?>" <?php if (($edit == 1 || $sw_error == 1) && (isset($row['IdIndustria'])) && (strcmp($row_Industria['IdIndustria'], $row['IdIndustria']) == 0)) {echo "selected=\"selected\"";} elseif ((isset($row_ValorDefault['IdIndustria'])) && (strcmp($row_Industria['IdIndustria'], $row_ValorDefault['IdIndustria']) == 0)) {echo "selected=\"selected\"";}?>><?php echo $row_Industria['DeIndustria']; ?></option>
 											<?php }?>
 											</select>
@@ -1144,29 +1249,25 @@ while ($row_Industria = sqlsrv_fetch_array($SQL_Industria)) {?>
 										<label class="col-lg-1 control-label">Territorio <span class="text-danger">*</span></label>
 										<div class="col-lg-3">
 											<select name="Territorio" class="form-control select2" id="Territorio" required>
-											<?php
-while ($row_Territorio = sqlsrv_fetch_array($SQL_Territorio)) {?>
+											<?php while ($row_Territorio = sqlsrv_fetch_array($SQL_Territorio)) {?>
 													<option value="<?php echo $row_Territorio['IdTerritorio']; ?>" <?php if (($edit == 1 || $sw_error == 1) && (isset($row['IdTerritorio'])) && (strcmp($row_Territorio['IdTerritorio'], $row['IdTerritorio']) == 0)) {echo "selected=\"selected\"";} elseif ((isset($row_ValorDefault['IdTerritorio'])) && (strcmp($row_Territorio['IdTerritorio'], $row_ValorDefault['IdTerritorio']) == 0)) {echo "selected=\"selected\"";}?>><?php echo $row_Territorio['DeTerritorio']; ?></option>
 											<?php }?>
 											</select>
 										</div>
 									</div>
-								   <?php if ($edit == 0 || $Metod == 4) {?>
-								   <?php /*?> <div class="form-group">
-<label class="col-lg-1 control-label">Vigencia</label>
-<div class="col-lg-2">
-<select name="VigenciaCont" class="form-control" id="VigenciaCont">
-<?php
-while($row_VigenciaServ=sqlsrv_fetch_array($SQL_VigenciaServ)){?>
-<option value="<?php echo $row_VigenciaServ['IdVigenciaServ'];?>" <?php if(($edit==1||$sw_error==1)&&(isset($row_ValorDefault['IdVigServicio']))&&(strcmp($row_VigenciaServ['IdVigenciaServ'],$row_ValorDefault['IdVigServicio'])==0)){ echo "selected=\"selected\"";}?>><?php echo $row_VigenciaServ['DeVigenciaServ'];?></option>
-<?php }?>
-</select>
-</div>
-</div><?php */?>
-								   <?php }?>
-								   <?php /*?> <div class="form-group">
-<label class="col-xs-12"><h3 class="bg-success p-xs b-r-sm"><i class="fa fa-info-circle"></i> Información adicional</h3></label>
-</div><?php */?>
+									<div class="form-group">
+										<label class="col-lg-1 control-label">Lista de precios <!--span class="text-danger">*</span--></label>
+										<div class="col-lg-3">
+											<select name="IdListaPrecio" class="form-control" id="IdListaPrecio">
+											  <?php while ($row_ListaPrecio = sqlsrv_fetch_array($SQL_ListaPrecios)) {?>
+												<option value="<?php echo $row_ListaPrecio['IdListaPrecio']; ?>"
+												<?php if (isset($row['IdListaPrecio']) && (strcmp($row_ListaPrecio['IdListaPrecio'], $row['IdListaPrecio']) == 0)) {echo "selected=\"selected\"";} elseif ($edit == 0 && (ObtenerValorDefecto(2, 'IdListaPrecio') !== null) && (strcmp($row_ListaPrecio['IdListaPrecio'], ObtenerValorDefecto(2, 'IdListaPrecio')) == 0)) {echo "selected=\"selected\"";} elseif (!PermitirFuncion(511)) {echo "disabled='disabled'";}?>>
+													<?php echo $row_ListaPrecio['DeListaPrecio']; ?>
+												</option>
+											  <?php }?>
+											</select>
+										</div>
+									</div>
 
 									<div class="form-group">
 										<label class="col-xs-12"><h3 class="bg-success p-xs b-r-sm"><i class="fa fa-bank"></i> Información tributaria</h3></label>
@@ -1176,30 +1277,27 @@ while($row_VigenciaServ=sqlsrv_fetch_array($SQL_VigenciaServ)){?>
 										<div class="col-lg-3">
 											<select name="RegimenTributario" class="form-control" id="RegimenTributario" required>
 												<option value="">Seleccione...</option>
-											<?php
-while ($row_RegimenT = sqlsrv_fetch_array($SQL_RegimenT)) {?>
+												<?php while ($row_RegimenT = sqlsrv_fetch_array($SQL_RegimenT)) {?>
 													<option value="<?php echo $row_RegimenT['ID_RegimenTributario']; ?>" <?php if (($edit == 1 || $sw_error == 1) && (isset($row['U_HBT_RegTrib'])) && (strcmp($row_RegimenT['ID_RegimenTributario'], $row['U_HBT_RegTrib']) == 0)) {echo "selected=\"selected\"";} elseif ((isset($row_ValorDefault['IdRegTributario'])) && (strcmp($row_RegimenT['ID_RegimenTributario'], $row_ValorDefault['IdRegTributario']) == 0)) {echo "selected=\"selected\"";}?>><?php echo $row_RegimenT['RegimenTributario']; ?></option>
-											<?php }?>
+												<?php }?>
 											</select>
 										</div>
 										<label class="col-lg-1 control-label">Régimen fiscal <span class="text-danger">*</span></label>
 										<div class="col-lg-3">
 											<select name="RegimenFiscal" class="form-control" id="RegimenFiscal" required>
 												<option value="">Seleccione...</option>
-											<?php
-while ($row_RegimenFiscal = sqlsrv_fetch_array($SQL_RegimenFiscal)) {?>
+												<?php while ($row_RegimenFiscal = sqlsrv_fetch_array($SQL_RegimenFiscal)) {?>
 													<option value="<?php echo $row_RegimenFiscal['IdRegimenFiscal']; ?>" <?php if (($edit == 1 || $sw_error == 1) && (isset($row['IdRegimenFiscal'])) && (strcmp($row_RegimenFiscal['IdRegimenFiscal'], $row['IdRegimenFiscal']) == 0)) {echo "selected=\"selected\"";} elseif ((isset($row_ValorDefault['IdRegimenFiscal'])) && (strcmp($row_RegimenFiscal['IdRegimenFiscal'], $row_ValorDefault['IdRegimenFiscal']) == 0)) {echo "selected=\"selected\"";}?>><?php echo $row_RegimenFiscal['DeRegimenFiscal']; ?></option>
-											<?php }?>
+												<?php }?>
 											</select>
 										</div>
 										<label class="col-lg-1 control-label">Responsabilidad fiscal <span class="text-danger">*</span></label>
 										<div class="col-lg-3">
 											<select name="ResponsabilidadFiscal" class="form-control select2" id="ResponsabilidadFiscal" required>
 												<option value="">Seleccione...</option>
-											<?php
-while ($row_ResponsabilidadFiscal = sqlsrv_fetch_array($SQL_ResponsabilidadFiscal)) {?>
+												<?php while ($row_ResponsabilidadFiscal = sqlsrv_fetch_array($SQL_ResponsabilidadFiscal)) {?>
 													<option value="<?php echo $row_ResponsabilidadFiscal['IdResponsabilidadFiscal']; ?>" <?php if (($edit == 1 || $sw_error == 1) && (isset($row['IdResponsabilidadFiscal'])) && (strcmp($row_ResponsabilidadFiscal['IdResponsabilidadFiscal'], $row['IdResponsabilidadFiscal']) == 0)) {echo "selected=\"selected\"";} elseif ((isset($row_ValorDefault['IdResponsabilidadFiscal'])) && (strcmp($row_ResponsabilidadFiscal['IdResponsabilidadFiscal'], $row_ValorDefault['IdResponsabilidadFiscal']) == 0)) {echo "selected=\"selected\"";}?>><?php echo $row_ResponsabilidadFiscal['DeResponsabilidadFiscal']; ?></option>
-											<?php }?>
+												<?php }?>
 											</select>
 										</div>
 									</div>
@@ -1217,15 +1315,15 @@ while ($row_ResponsabilidadFiscal = sqlsrv_fetch_array($SQL_ResponsabilidadFisca
 									<div class="form-group">
 										<label class="col-lg-1 control-label">Saldo de cuenta</label>
 										<div class="col-lg-3">
-											<input name="Balance" type="text" class="form-control" id="Balance" value="<?php echo number_format($row['Balance'], 2); ?>" readonly="readonly">
+											<input name="Balance" type="text" class="form-control" id="Balance" value="<?php echo number_format($row['Balance'] ?? 0, 2); ?>" readonly="readonly">
 										</div>
 										<label class="col-lg-1 control-label">Limite de crédito</label>
 										<div class="col-lg-3">
-											<input name="LimiteCredito" type="text" class="form-control" id="LimiteCredito" value="<?php echo number_format($row['Balance'], 2); ?>" readonly="readonly">
+											<input name="LimiteCredito" type="text" class="form-control" id="LimiteCredito" value="<?php echo number_format($row['CreditLine'] ?? 0, 2); ?>" readonly="readonly">
 										</div>
 										<label class="col-lg-1 control-label">Crédito consumido</label>
 										<div class="col-lg-3">
-											<input name="CreditoConsumido" type="text" class="form-control" id="CreditoConsumido" value="<?php echo number_format($row['Balance'], 2); ?>" readonly="readonly">
+											<input name="CreditoConsumido" type="text" class="form-control" id="CreditoConsumido" value="<?php echo number_format($row['CreditoConsumido'] ?? 0, 2); ?>" readonly="readonly">
 										</div>
 									</div>
 								   <?php }?>
@@ -1258,10 +1356,12 @@ while ($row_ResponsabilidadFiscal = sqlsrv_fetch_array($SQL_ResponsabilidadFisca
 <div class="tabs-container">
 	<ul class="nav nav-tabs">
 		<li class="active"><a data-toggle="tab" href="#tab-1"><i class="fa fa-laptop"></i> Listas de materiales</a></li>
+		<li><a data-toggle="tab" href="#tab-7" onClick="ConsultarTab('7');"><i class="fa fa-car"></i> Tarjetas de equipo</a></li>
 		<li><a data-toggle="tab" href="#tab-2" onClick="ConsultarTab('2');"><i class="fa fa-phone"></i> Llamadas de servicios</a></li>
 		<li><a data-toggle="tab" href="#tab-3" onClick="ConsultarTab('3');"><i class="fa fa-calendar"></i> Actividades</a></li>
 		<li><a data-toggle="tab" href="#tab-4"><i class="fa fa-file-text"></i> Facturas pendientes</a></li>
 		<li><a data-toggle="tab" href="#tab-5" onClick="ConsultarTab('5');"><i class="fa fa-money"></i> Pagos realizados</a></li>
+		<li><a data-toggle="tab" href="#tab-8" onClick="ConsultarTab('8');"><i class="fa fa-money"></i> Anticipos realizados</a></li>
 		<li><a data-toggle="tab" href="#tab-6"><i class="fa fa-suitcase"></i> Historico de cartera</a></li>
 	</ul>
 	<div class="tab-content">
@@ -1299,6 +1399,16 @@ while ($row_ResponsabilidadFiscal = sqlsrv_fetch_array($SQL_ResponsabilidadFisca
 				</div>
 			</div>
 		</div>
+		<div id="tab-8" class="tab-pane">
+			<div id="dv_anticipos" class="panel-body">
+				<!-- neduga, 22/04/2022 -->
+			</div>
+		</div>
+		<div id="tab-7" class="tab-pane">
+			<div id="dv_tarjetas" class="panel-body">
+				<!-- Stiven Muñoz Murillo, 26/01/2022 -->
+			</div>
+		</div>
 		<div id="tab-2" class="tab-pane">
 			<div id="dv_llamadasrv" class="panel-body">
 
@@ -1324,6 +1434,7 @@ while ($row_ResponsabilidadFiscal = sqlsrv_fetch_array($SQL_ResponsabilidadFisca
 								<th>Abono</th>
 								<th>Dias vencidos</th>
 								<th>Saldo total</th>
+								<th>Plazos</th>
 								<th>Acciones</th>
 								<th>Seleccionar</th>
 							</tr>
@@ -1338,6 +1449,11 @@ while ($row_ResponsabilidadFiscal = sqlsrv_fetch_array($SQL_ResponsabilidadFisca
 									<td><?php echo "$" . number_format($row_FactPend['ValorPagoDocumento'], 2); ?></td>
 									<td><?php echo number_format($row_FactPend['DiasVencidos'], 0); ?></td>
 									<td><?php echo "$" . number_format($row_FactPend['SaldoDocumento'], 2); ?></td>
+
+									<td> <!-- SMM, 11/03/2022 -->
+										<a onClick="MostrarPlazos('<?php echo $row_FactPend['NoDocumento']; ?>');"><?php echo $row_FactPend['CantidadPlazo']; ?></a>
+									</td>
+
 									<td>
 										<a href="factura_venta.php?id=<?php echo base64_encode($row_FactPend['NoInterno']); ?>&id_portal=<?php echo base64_encode($row_FactPend['IdDocPortal']); ?>&tl=1" class="btn btn-success btn-xs" target="_blank"><i class="fa fa-folder-open-o"></i> Abrir</a>
 										<a href="sapdownload.php?id=<?php echo base64_encode('15'); ?>&type=<?php echo base64_encode('2'); ?>&DocKey=<?php echo base64_encode($row_FactPend['NoInterno']); ?>&ObType=<?php echo base64_encode('13'); ?>&IdFrm=<?php echo base64_encode($row_FactPend['IdSeries']); ?>" target="_blank" class="btn btn-warning btn-xs"><i class="fa fa-download"></i> Descargar</a>
@@ -1421,13 +1537,12 @@ while ($row_ResponsabilidadFiscal = sqlsrv_fetch_array($SQL_ResponsabilidadFisca
 							   <div id="tabSN-6" class="tab-pane">
 									<br>
 								   	<div id="dv_anexos" class="panel-body">
-									<?php
-if ($edit == 1) {
-    if ($row['IdAnexos'] != 0) {?>
+									   <?php if ($edit == 1) {?>
+										<?php if ($row['IdAnexos'] != 0) {?>
 											<div class="form-group">
 												<div class="col-xs-12">
-													<?php while ($row_Anexo = sqlsrv_fetch_array($SQL_Anexo)) {
-        $Icon = IconAttach($row_Anexo['FileExt']);?>
+													<?php while ($row_Anexo = sqlsrv_fetch_array($SQL_Anexo)) {?>
+														<?php $Icon = IconAttach($row_Anexo['FileExt']);?>
 														<div class="file-box">
 															<div class="file">
 																<a href="attachdownload.php?file=<?php echo base64_encode($row_Anexo['AbsEntry']); ?>&line=<?php echo base64_encode($row_Anexo['Line']); ?>" target="_blank">
@@ -1445,8 +1560,8 @@ if ($edit == 1) {
 													<?php }?>
 												</div>
 											</div>
-										<?php } else {echo "<p>Sin anexos.</p>";}
-}?>
+										<?php } else {echo "<p>Sin anexos.</p>";}?>
+									<?php }?>
 										<div class="row">
 											<form action="upload.php" class="dropzone" id="dropzoneForm" name="dropzoneForm">
 												<?php if ($sw_error == 0) {LimpiarDirTemp();}?>
@@ -1603,6 +1718,7 @@ if ($edit == 1) {
  });
 </script>
 <?php //if($edit==0||$Metod==4){?>
+
 <script>
 function Validar(){
 	var result=true;
@@ -1688,14 +1804,17 @@ function Validar(){
 		}
 	}
 
-	if(DirPrincipal==0){
-		result=false;
-		Swal.fire({
-			title: '¡Advertencia!',
-			text: 'Debe tener una dirección PRINCIPAL en la dirección de facturación',
-			icon: 'warning'
-		});
-	}
+	// Stiven Muñoz Murillo, 26/01/2022
+	<?php if (!PermitirFuncion(509)) {?>
+		if(DirPrincipal==0){
+			result=false;
+			Swal.fire({
+				title: '¡Advertencia!',
+				text: 'Debe tener una dirección PRINCIPAL en la dirección de facturación',
+				icon: 'warning'
+			});
+		}
+	<?php }?>
 
 	if(countNomDireccionLleno==0){
 		result=false;
@@ -1887,14 +2006,14 @@ function Validar(){
 		});
 	}
 
-	if(Proyecto.value==""){
-		result=false;
-		Swal.fire({
-			title: '¡Advertencia!',
-			text: 'Debe seleccionar el proyecto del cliente.',
-			icon: 'warning'
-		});
-	}
+	// if(Proyecto.value==""){
+		// result=false;
+		// Swal.fire({
+			// title: '¡Advertencia!',
+			// text: 'Debe seleccionar el proyecto del cliente.',
+			// icon: 'warning'
+		// });
+	//}
 
 //	if(VigenciaCont.value==""){
 //		result=false;
@@ -2123,7 +2242,9 @@ function Validar(){
 	return result;
 }
 </script>
+
 <?php //}?>
+
 <script>
 function addField(btn){//Clonar divDir
 	var clickID = parseInt($(btn).parent('div').attr('id').replace('div_',''));
@@ -2254,6 +2375,7 @@ function addFieldCtc(btn){//Clonar divCtc
 	//$("#"+clickID).bind("click",delRow);
 }
 </script>
+
 <script>
 	 $(document).ready(function(){
 		 $(".btn_del").each(function (el){
@@ -2304,6 +2426,8 @@ function delRow2(btn){//Eliminar div
  var tab_4=0;
  var tab_5=0;
  var tab_6=0;
+ var tab_7=0;
+ var tab_8=0;//neduga 22/04/2022
  var tab_501=0;
  var tab_601=0;
 
@@ -2441,6 +2565,37 @@ function ConsultarTab(type){
 					}
 				});
 			}
+		}
+	}
+
+	// Stiven Muñoz Murillo, 26/01/2022
+	else if(type==7){ // Tarjetas de equipo
+		if(tab_7==0){
+			$('.ibox-content').toggleClass('sk-loading',true);
+			$.ajax({
+				type: "POST",
+				url: "sn_tarjetas_equipo.php?id=<?php if ($edit == 1) {echo base64_encode($row['CodigoCliente']);}?>",
+				success: function(response){
+					$('#dv_tarjetas').html(response).fadeIn();
+					$('.ibox-content').toggleClass('sk-loading',false);
+					tab_7=1;
+				}
+			});
+		}
+	}
+		// neduga, 22/04/2022
+	else if(type==8){ // Anticipos realizados
+		if(tab_8==0){
+			$('.ibox-content').toggleClass('sk-loading',true);
+			$.ajax({
+				type: "POST",
+				url: "sn_anticipos_realizados.php?id=<?php if ($edit == 1) {echo base64_encode($row['CodigoCliente']);}?>",
+				success: function(response){
+					$('#dv_anticipos').html(response).fadeIn();
+					$('.ibox-content').toggleClass('sk-loading',false);
+					tab_8=1;
+				}
+			});
 		}
 	}
 }

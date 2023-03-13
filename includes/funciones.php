@@ -1,16 +1,31 @@
 <?php
 
-if (file_exists("includes/conect_srv.php")) {
-    require_once "includes/conect_srv.php";
+// SMM, 27/08/2022
+if (file_exists("includes/configuracion.php")) {
+    require_once "includes/configuracion.php";
 } else {
-    require_once "conect_srv.php";
+    require_once "configuracion.php";
 }
 
-//if(file_exists("includes/conect_odbc.php")){
-//    require_once("includes/conect_odbc.php");
-//}else{
-//    require_once("conect_odbc.php");
-//}
+if ($tipo_base_datos == 1) {
+    if (file_exists("includes/conect_srv.php")) {
+        require_once "includes/conect_srv.php";
+    } else {
+        require_once "conect_srv.php";
+    }
+} else {
+    if (file_exists("includes/conect_odbc.php")) {
+        require_once "includes/conect_odbc.php";
+    } else {
+        require_once "conect_odbc.php";
+    }
+}
+
+function DenegarAcceso()
+{ //Para evitar acceder a la pagina
+    $PaginaError = "404.php";
+    header("Location:" . $PaginaError);
+}
 
 function PermitirAcceso($Permiso)
 { //Para evitar acceder a la pagina
@@ -149,6 +164,11 @@ function SubComent($pComents, $Len = 100)
 
 function ReturnCons($pVista, $pCampos, $pWhere = '', $pOrderBy = '', $pOrderType = '', $pType = 1)
 { //Devolver la consulta generada
+
+    // SMM, 27/08/2022
+    global $tipo_base_datos;
+    $pType = $tipo_base_datos;
+
     if ($pType == 1) { //Consulta a SQL SERVER
         $Consulta = "EXEC sp_ConsultarTablasSAP '" . $pVista . "', '" . $pCampos . "', '" . str_replace("'", "''", $pWhere) . "', '" . $pOrderBy . "', '" . $pOrderType . "'";
         return $Consulta;
@@ -160,6 +180,11 @@ function ReturnCons($pVista, $pCampos, $pWhere = '', $pOrderBy = '', $pOrderType
 
 function Seleccionar($pVista, $pCampos, $pWhere = '', $pOrderBy = '', $pOrderType = '', $pType = 1, $pDebugMode = 0)
 { //Seleccionar datos de una tabla
+
+    // SMM, 27/08/2022
+    global $tipo_base_datos;
+    $pType = $tipo_base_datos;
+
     if ($pType == 1) { //Consulta a SQL SERVER
         global $conexion;
         $Consulta = "EXEC sp_ConsultarTablasSAP '" . $pVista . "', '" . $pCampos . "', '" . str_replace("'", "''", $pWhere) . "', '" . $pOrderBy . "', '" . $pOrderType . "'";
@@ -167,6 +192,7 @@ function Seleccionar($pVista, $pCampos, $pWhere = '', $pOrderBy = '', $pOrderTyp
             echo $Consulta . "<br>";
             exit();
         }
+        // $SQL=sqlsrv_query($conexion,$Consulta,array(),array( "Scrollable" => 'Static' ));
         $SQL = sqlsrv_query($conexion, $Consulta, array(), array("Scrollable" => 'Buffered'));
         if (!$SQL) {
             $SQL = sqlsrv_query($conexion, $Consulta);
@@ -197,6 +223,11 @@ function Seleccionar($pVista, $pCampos, $pWhere = '', $pOrderBy = '', $pOrderTyp
 
 function SeleccionarGroupBy($pVista, $pCampos, $pWhere = '', $pGroupBy = '', $pOrderBy = '', $pOrderType = '', $pType = 1, $pDebugMode = 0)
 { //Seleccionar datos de una tabla
+
+    // SMM, 27/08/2022
+    global $tipo_base_datos;
+    $pType = $tipo_base_datos;
+
     if ($pType == 1) { //Consulta a SQL SERVER
         global $conexion;
         $Consulta = "EXEC sp_ConsultarTablasSAPGroupby '" . $pVista . "', '" . $pCampos . "', '" . str_replace("'", "''", $pWhere) . "',  '" . $pGroupBy . "', '" . $pOrderBy . "', '" . $pOrderType . "'";
@@ -231,6 +262,11 @@ function SeleccionarGroupBy($pVista, $pCampos, $pWhere = '', $pGroupBy = '', $pO
 
 function Eliminar($pVista, $pWhere = '', $pIdReg = 0, $pType = 1, $pDebugMode = 0)
 { //Eliminar datos de una tabla
+
+    // SMM, 27/08/2022
+    global $tipo_base_datos;
+    $pType = $tipo_base_datos;
+
     if ($pType == 1) { //Consulta a SQL SERVER
         global $conexion;
         $Consulta = "DELETE FROM " . $pVista;
@@ -285,6 +321,11 @@ function Eliminar($pVista, $pWhere = '', $pIdReg = 0, $pType = 1, $pDebugMode = 
 
 function sql_fetch_array($pSQL, $pType = 1)
 { //fetch_array SQL or HANNA
+
+    // SMM, 27/08/2022
+    global $tipo_base_datos;
+    $pType = $tipo_base_datos;
+
     if ($pType == 1) { //Consulta a SQL SERVER
         global $conexion;
         $row = sqlsrv_fetch_array($pSQL);
@@ -299,6 +340,11 @@ function sql_fetch_array($pSQL, $pType = 1)
 
 function sql_num_rows($pSQL, $pType = 1)
 { //fetch_array SQL or HANNA
+
+    // SMM, 27/08/2022
+    global $tipo_base_datos;
+    $pType = $tipo_base_datos;
+
     if ($pType == 1) { //Consulta a SQL SERVER
         global $conexion;
         $Num = sqlsrv_num_rows($pSQL);
@@ -313,6 +359,11 @@ function sql_num_rows($pSQL, $pType = 1)
 
 function EjecutarSP($pNameSP, $pParametros = "", $pIdReg = 0, $pType = 1, $pDebugMode = 0)
 { //Ejecutar un SP en la BD
+
+    // SMM, 27/08/2022
+    global $tipo_base_datos;
+    $pType = $tipo_base_datos;
+
     if ($pType == 1) { //Consulta a SQL SERVER
         global $conexion;
         $Param = "";
@@ -397,22 +448,24 @@ function EjecutarSP($pNameSP, $pParametros = "", $pIdReg = 0, $pType = 1, $pDebu
     }
 }
 
-function ObtenerVariable($Variable)
+function ObtenerVariable($Variable, $validar = true)
 { //Obtener valor de variable global
     global $conexion;
     $SQL = Seleccionar('uvw_tbl_VariablesGlobales', 'Valor', "NombreVariable='" . $Variable . "'");
     $row = sqlsrv_fetch_array($SQL);
     //$Num=sqlsrv_num_rows($SQL);
-    return $row['Valor'];
+    if (!isset($row['Valor']) && $validar) {echo "La variable global $Variable no tiene un valor.";}
+    return $row['Valor'] ?? "";
 }
 
-function ObtenerValorDefecto($TipoObjeto, $NombreCampo)
+function ObtenerValorDefecto($TipoObjeto, $NombreCampo, $validar = true)
 { //Obtener valor por defecto configurado en el usuario dependiendo del documento
     global $conexion;
     $SQL = Seleccionar('uvw_tbl_CamposValoresDefecto_Detalle', 'ValorCampo', "TipoObjeto='" . $TipoObjeto . "' AND NombreCampo='" . $NombreCampo . "' AND ID_Usuario='" . $_SESSION['CodUser'] . "'");
     $row = sqlsrv_fetch_array($SQL);
     //$Num=sqlsrv_num_rows($SQL);
-    return $row['ValorCampo'];
+    if (!isset($row['ValorCampo']) && $validar) {echo "La variable $NombreCampo no tiene un valor por defecto.";}
+    return $row['ValorCampo'] ?? "";
 }
 
 function EliminarArchivo($pRuta)
@@ -475,9 +528,30 @@ function CrearObtenerDirRuta($pRuta)
 { //Crear y retornar la carpeta de la ruta que se pe pase
     $carp_anexos = $pRuta;
     if (!file_exists($carp_anexos)) {
-        mkdir($carp_anexos, 0777, true);
+        if (!mkdir($carp_anexos, 0777, true)) {
+            return false;
+        } else {
+            return $carp_anexos;
+        }
+    } else {
+        return $carp_anexos;
     }
-    return $carp_anexos;
+
+}
+
+// SMM, 01/10/2022
+function LimpiarDirRuta($dir)
+{
+    if (is_dir($dir)) {
+        $files = array_diff(scandir($dir), array('.', '..'));
+
+        foreach ($files as $file) {
+            unlink("$dir/$file");
+        }
+
+        rmdir($dir);
+        mkdir($dir, 0777, true);
+    }
 }
 
 function LimpiarDirTempFirma()
@@ -559,6 +633,8 @@ function ObtenerDirAttach()
 
 function EnviarWebServiceSAP($pNombreWS, $pParametros, $pJSON = false, $pAPI = false, $method = 'POST')
 {
+    // Stiven Muñoz Murillo, 01/02/2022
+    InsertarLogWS('', json_encode($pParametros), '', $method);
 
     if (!$pJSON) {
         $result = array();
@@ -598,22 +674,26 @@ function EnviarWebServiceSAP($pNombreWS, $pParametros, $pJSON = false, $pAPI = f
             }
             curl_setopt($curl, CURLOPT_POSTFIELDS, $payload);
             curl_setopt($curl, CURLOPT_ENCODING, "");
-            curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));
+
+            $encabezado = array('Content-Type:application/json');
+            curl_setopt($curl, CURLOPT_HTTPHEADER, $encabezado);
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
             //La respuesta la devuelve en JSON
             $json = curl_exec($curl);
+
+            // Stiven Muñoz Murillo, 02/02/2022
+            $detalles = json_encode(curl_getinfo($curl));
+            InsertarLogWS($json, $payload, $detalles, $method, json_encode($encabezado));
+
             //Decodifico el JSON en la variable $result
             $result = json_decode($json);
             //Como el primer atributo del JSON en el nombre del parametro mas la palabra Result, los concateno para que devuelva solo los atributos necesarios
             $Objeto = $pNombreWS . 'Result';
+
             //Meto en result solo los atributos obtenidos al sacar el atributo padre
             $result = $result->$Objeto;
             curl_close($curl);
-            //echo json_encode($json);
-            //print($json);
-            //$jsonnew=json_decode($json);
-            //echo "Success: ".$jsonnew['Success'];
-            //var_dump(json_decode($json, true));
+
             return $result;
         } else {
             //PARA CONECTARSE A UNA API QUE DEVUELVE UN OBJETO EN JSON
@@ -635,13 +715,16 @@ function EnviarWebServiceSAP($pNombreWS, $pParametros, $pJSON = false, $pAPI = f
             }
             curl_setopt($curl, CURLOPT_POSTFIELDS, $payload);
             curl_setopt($curl, CURLOPT_ENCODING, "");
-            curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type:application/json', $JWT));
+
+            $encabezado = array('Content-Type:application/json', $JWT);
+            curl_setopt($curl, CURLOPT_HTTPHEADER, $encabezado);
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+
             //La respuesta la devuelve en JSON
             $json = curl_exec($curl);
             //echo "json: ".$json;
+
             $cod_http = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-            //echo "Codigo HTTP:".$cod_http;
             if ($cod_http != 200) { //Ocurrio un error
                 $result = json_decode($json);
                 if (!isset($result->Success)) {
@@ -652,9 +735,15 @@ function EnviarWebServiceSAP($pNombreWS, $pParametros, $pJSON = false, $pAPI = f
                     $json = json_encode($json_array);
                 }
             }
+
+            // Stiven Muñoz Murillo, 02/02/2022
+            $detalles = json_encode(curl_getinfo($curl));
+            InsertarLogWS($json, $payload, $detalles, $method, json_encode($encabezado));
+
             //Decodifico el JSON en la variable $result
             $result = json_decode($json);
             curl_close($curl);
+
             return $result;
         }
 
@@ -1398,6 +1487,37 @@ function EnviarMail($email_destino, $nombre_destino = "", $tipo_email = 0, $asun
 $InsertLog="Insert Into tbl_Log Values ('".date('Y-m-d H:i:s')."','".$_SESSION['CodUser']."','Success',50,'Send Email: ".$email_destino."')";
 sqlsrv_query($conexion,$InsertLog);
 }*/
+}
+
+// Stiven Muñoz Murillo, 01/02/2022
+function InsertarLogWS($respuesta = '', $cuerpo = '', $detalles = '', $procedimiento = '', $encabezado = '')
+{
+    global $conexion;
+    $usuario = isset($_SESSION['CodUser']) ? $_SESSION['CodUser'] : 0;
+
+    $respuesta = str_replace("'", "''", $respuesta);
+    $cuerpo = str_replace("'", "''", $cuerpo);
+    $detalles = str_replace("'", "''", $detalles);
+    $procedimiento = str_replace("'", "''", $procedimiento);
+    $encabezado = str_replace("'", "''", $encabezado);
+
+    $consulta = "EXEC sp_tbl_LogWS $usuario, '$respuesta', '$cuerpo', '$detalles', '$procedimiento', , '$encabezado'";
+
+    // Hace la consulta y en caso de error vuelve a consultar utilizando
+    // el método que almacena un registro de los procedimientos ejecutados.
+    if (!sqlsrv_query($conexion, $consulta)) {
+
+        $params = array(
+            $usuario,
+            "'" . utf8_encode($respuesta) . "'",
+            "'" . utf8_encode($cuerpo) . "'",
+            "'" . utf8_encode($detalles) . "'",
+            "'" . utf8_encode($procedimiento) . "'",
+            "'" . utf8_encode($encabezado) . "'",
+        );
+
+        EjecutarSP('sp_tbl_LogWS', $params);
+    }
 }
 
 // Trabajando con cookies. SMM, 02/09/2022
