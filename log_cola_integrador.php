@@ -1,63 +1,63 @@
-<?php require_once("includes/conexion.php");
+<?php require_once "includes/conexion.php";
 PermitirAcceso(401);
-$sw=0;
+$sw = 0;
 
 //Fechas
-$FechaFinal="";
-$FechaInicial="";
-if(isset($_GET['FechaInicial'])&&$_GET['FechaInicial']!=""){
-	$FechaInicial=$_GET['FechaInicial'];
-	$sw=1;
-}else{
-	$FechaInicial=date('Y-m-d');
+$FechaFinal = "";
+$FechaInicial = "";
+if (isset($_GET['FechaInicial']) && $_GET['FechaInicial'] != "") {
+    $FechaInicial = $_GET['FechaInicial'];
+    $sw = 1;
+} else {
+    $FechaInicial = date('Y-m-d');
 }
-if(isset($_GET['FechaFinal'])&&$_GET['FechaFinal']!=""){
-	$FechaFinal=$_GET['FechaFinal'];
-}else{
-	$FechaFinal=date('Y-m-d');
+if (isset($_GET['FechaFinal']) && $_GET['FechaFinal'] != "") {
+    $FechaFinal = $_GET['FechaFinal'];
+} else {
+    $FechaFinal = date('Y-m-d');
 }
 
 // Top
-$top= "";
-if(isset($_GET['Cantidad_Visualizar'])&&$_GET['Cantidad_Visualizar']!=""){
-	$top = "TOP (".$_GET['Cantidad_Visualizar'].")";
+$top = "";
+if (isset($_GET['Cantidad_Visualizar']) && $_GET['Cantidad_Visualizar'] != "") {
+    $top = "TOP (" . $_GET['Cantidad_Visualizar'] . ")";
 } else {
     $top = "TOP (5)";
 }
 
-$Cons="Select $top * From tbl_ColaIntegrador Where (FechaEntrada Between '$FechaInicial 00:00:00' and '$FechaFinal 23:59:59') Order by ID_Cola DESC";
-$SQL=sqlsrv_query($conexion,$Cons);
+$Cons = "Select $top * From tbl_ColaIntegrador Where (FechaEntrada Between '$FechaInicial 00:00:00' and '$FechaFinal 23:59:59') Order by ID_Cola DESC";
+$SQL = sqlsrv_query($conexion, $Cons);
 ?>
 <!DOCTYPE html>
 <html><!-- InstanceBegin template="/Templates/PlantillaPrincipal.dwt.php" codeOutsideHTMLIsLocked="false" -->
 
 <head>
-<?php include_once("includes/cabecera.php"); ?>
+<?php include_once "includes/cabecera.php";?>
 <!-- InstanceBeginEditable name="doctitle" -->
-<title>Log cola integración WS | <?php echo NOMBRE_PORTAL;?></title>
+<title>Log cola integración WS | <?php echo NOMBRE_PORTAL; ?></title>
 <!-- InstanceEndEditable -->
 <!-- InstanceBeginEditable name="head" -->
-<?php 
-if(isset($_GET['a'])&&($_GET['a']==base64_encode("OK_OFertAdd"))){
-	echo "<script>
+<?php
+if (isset($_GET['a']) && ($_GET['a'] == base64_encode("OK_OFertAdd"))) {
+    echo "<script>
 		$(document).ready(function() {
 			Swal.fire({
                 title: '¡Listo!',
                 text: 'La Oferta de venta ha sido agregada exitosamente.',
                 icon: 'success'
             });
-		});		
+		});
 		</script>";
 }
-if(isset($_GET['a'])&&($_GET['a']==base64_encode("OK_OFertUpd"))){
-	echo "<script>
+if (isset($_GET['a']) && ($_GET['a'] == base64_encode("OK_OFertUpd"))) {
+    echo "<script>
 		$(document).ready(function() {
 			Swal.fire({
                 title: '¡Listo!',
                 text: 'La Oferta de venta ha sido actualizada exitosamente.',
                 icon: 'success'
             });
-		});		
+		});
 		</script>";
 }
 ?>
@@ -68,10 +68,10 @@ if(isset($_GET['a'])&&($_GET['a']==base64_encode("OK_OFertUpd"))){
 
 <div id="wrapper">
 
-    <?php include_once("includes/menu.php"); ?>
+    <?php include_once "includes/menu.php";?>
 
     <div id="page-wrapper" class="gray-bg">
-        <?php include_once("includes/menu_superior.php"); ?>
+        <?php include_once "includes/menu_superior.php";?>
         <!-- InstanceBeginEditable name="Contenido" -->
         <div class="row wrapper border-bottom white-bg page-heading">
                 <div class="col-sm-8">
@@ -93,7 +93,7 @@ if(isset($_GET['a'])&&($_GET['a']==base64_encode("OK_OFertUpd"))){
              <div class="row">
 				<div class="col-lg-12">
 			    <div class="ibox-content">
-					 <?php include("includes/spinner.php"); ?>
+					 <?php include "includes/spinner.php";?>
 				  <form action="log_cola_integrador.php" method="get" id="formBuscar" class="form-horizontal">
 					  	<div class="form-group">
 							<label class="col-xs-12"><h3 class="bg-success p-xs b-r-sm"><i class="fa fa-filter"></i> Datos para filtrar</h3></label>
@@ -102,20 +102,20 @@ if(isset($_GET['a'])&&($_GET['a']==base64_encode("OK_OFertUpd"))){
 							<label class="col-lg-1 control-label">Fechas</label>
 							<div class="col-lg-4">
 								<div class="input-daterange input-group" id="datepicker">
-									<input name="FechaInicial" type="text" class="input-sm form-control" id="FechaInicial" placeholder="Fecha inicial" value="<?php echo $FechaInicial;?>"/>
+									<input name="FechaInicial" type="text" class="input-sm form-control" id="FechaInicial" placeholder="Fecha inicial" value="<?php echo $FechaInicial; ?>"/>
 									<span class="input-group-addon">-</span>
-									<input name="FechaFinal" type="text" class="input-sm form-control" id="FechaFinal" placeholder="Fecha final" value="<?php echo $FechaFinal;?>" />
+									<input name="FechaFinal" type="text" class="input-sm form-control" id="FechaFinal" placeholder="Fecha final" value="<?php echo $FechaFinal; ?>" />
 								</div>
 							</div>
                             <label class="col-lg-1 control-label">Cantidad a visualizar</label>
 							<div class="col-lg-4">
                                 <select name="Cantidad_Visualizar" class="form-control" id="Cantidad_Visualizar">
-                                    <option value="5" <?php if((isset($_GET['Cantidad_Visualizar']))&&(strcmp("5",$_GET['Cantidad_Visualizar'])==0)){ echo "selected=\"selected\"";}?>>5</option>
-                                    <option value="10" <?php if((isset($_GET['Cantidad_Visualizar']))&&(strcmp("10",$_GET['Cantidad_Visualizar'])==0)){ echo "selected=\"selected\"";}?>>10</option>
-                                    <option value="25" <?php if((isset($_GET['Cantidad_Visualizar']))&&(strcmp("25",$_GET['Cantidad_Visualizar'])==0)){ echo "selected=\"selected\"";}?>>25</option>
-                                    <option value="50" <?php if((isset($_GET['Cantidad_Visualizar']))&&(strcmp("50",$_GET['Cantidad_Visualizar'])==0)){ echo "selected=\"selected\"";}?>>50</option>
-                                    <option value="75" <?php if((isset($_GET['Cantidad_Visualizar']))&&(strcmp("75",$_GET['Cantidad_Visualizar'])==0)){ echo "selected=\"selected\"";}?>>75</option>
-                                    <option value="100" <?php if((isset($_GET['Cantidad_Visualizar']))&&(strcmp("100",$_GET['Cantidad_Visualizar'])==0)){ echo "selected=\"selected\"";}?>>100</option>
+                                    <option value="5" <?php if ((isset($_GET['Cantidad_Visualizar'])) && (strcmp("5", $_GET['Cantidad_Visualizar']) == 0)) {echo "selected=\"selected\"";}?>>5</option>
+                                    <option value="10" <?php if ((isset($_GET['Cantidad_Visualizar'])) && (strcmp("10", $_GET['Cantidad_Visualizar']) == 0)) {echo "selected=\"selected\"";}?>>10</option>
+                                    <option value="25" <?php if ((isset($_GET['Cantidad_Visualizar'])) && (strcmp("25", $_GET['Cantidad_Visualizar']) == 0)) {echo "selected=\"selected\"";}?>>25</option>
+                                    <option value="50" <?php if ((isset($_GET['Cantidad_Visualizar'])) && (strcmp("50", $_GET['Cantidad_Visualizar']) == 0)) {echo "selected=\"selected\"";}?>>50</option>
+                                    <option value="75" <?php if ((isset($_GET['Cantidad_Visualizar'])) && (strcmp("75", $_GET['Cantidad_Visualizar']) == 0)) {echo "selected=\"selected\"";}?>>75</option>
+                                    <option value="100" <?php if ((isset($_GET['Cantidad_Visualizar'])) && (strcmp("100", $_GET['Cantidad_Visualizar']) == 0)) {echo "selected=\"selected\"";}?>>100</option>
                                 </select>
 							</div>
                             <div class="col-lg-2">
@@ -131,7 +131,7 @@ if(isset($_GET['a'])&&($_GET['a']==base64_encode("OK_OFertUpd"))){
           <div class="row">
            <div class="col-lg-12">
 			    <div class="ibox-content">
-					 <?php include("includes/spinner.php"); ?>
+					 <?php include "includes/spinner.php";?>
 					<div class="table-responsive">
 						<table class="table table-striped table-bordered table-hover dataTables-example" >
 						<thead>
@@ -146,31 +146,31 @@ if(isset($_GET['a'])&&($_GET['a']==base64_encode("OK_OFertUpd"))){
 						</thead>
 						<tbody>
 						<?php
-							if($sw==1){
-							while($row=sqlsrv_fetch_array($SQL)){ ?>
+if ($sw == 1) {
+    while ($row = sqlsrv_fetch_array($SQL)) {?>
 							 <tr class="gradeX">
-								<td><?php echo $row['ID_Cola'];?></td>
-								<td><?php echo $row['FechaEntrada']->format('Y-m-d h:m:i');?></td>
-								<td><?php echo $row['DE_Cola'];?></td>
-                                <td><?php echo $row['TipoDocumento'];?></td>
-								<td><?php echo $row['ID_Documento'];?></td>
-								<td><?php echo $row['MensajeDelProceso'];?></td>
+								<td><?php echo $row['ID_Cola']; ?></td>
+								<td><?php echo $row['FechaEntrada']->format('Y-m-d h:m:i'); ?></td>
+								<td><?php echo $row['DE_Cola']; ?></td>
+                                <td><?php echo $row['TipoDocumento']; ?></td>
+								<td><?php echo $row['ID_Documento']; ?></td>
+								<td><?php echo $row['MensajeDelProceso']; ?></td>
 							</tr>
 						<?php }
-							}?>
+}?>
 						</tbody>
 						</table>
               		</div>
 				</div>
-			 </div> 
+			 </div>
           </div>
         </div>
         <!-- InstanceEndEditable -->
-        <?php include_once("includes/footer.php"); ?>
+        <?php include_once "includes/footer.php";?>
 
     </div>
 </div>
-<?php include_once("includes/pie.php"); ?>
+<?php include_once "includes/pie.php";?>
 <!-- InstanceBeginEditable name="EditRegion4" -->
 <script>
         $(document).ready(function(){
@@ -180,10 +180,10 @@ if(isset($_GET['a'])&&($_GET['a']==base64_encode("OK_OFertUpd"))){
 				 form.submit();
 				}
 			});
-			
+
 			 $(".alkin").on('click', function(){
 					$('.ibox-content').toggleClass('sk-loading');
-				});	
+				});
 			 $('#FechaInicial').datepicker({
                 todayBtn: "linked",
                 keyboardNavigation: false,
@@ -201,10 +201,10 @@ if(isset($_GET['a'])&&($_GET['a']==base64_encode("OK_OFertUpd"))){
                 autoclose: true,
 				format: 'yyyy-mm-dd',
 				todayHighlight: true,
-            }); 
-			
+            });
+
 			$('.chosen-select').chosen({width: "100%"});
-			
+
 			var options = {
 				url: function(phrase) {
 					return "ajx_buscar_datos_json.php?type=7&id="+phrase;
@@ -226,7 +226,7 @@ if(isset($_GET['a'])&&($_GET['a']==base64_encode("OK_OFertUpd"))){
 			$("#NombreCliente").easyAutocomplete(options);
 
 			var cantidadVisualizar = <?php echo (isset($_GET['Cantidad_Visualizar'])) ? $_GET['Cantidad_Visualizar'] : 5; ?>
-			
+
             $('.dataTables-example').DataTable({
                 pageLength: cantidadVisualizar,
                 lengthMenu: getLengthMenu(cantidadVisualizar),
