@@ -82,8 +82,11 @@ class PHPExcel_Cell_DefaultValueBinder implements PHPExcel_Cell_IValueBinder
 
         } elseif ($pValue instanceof PHPExcel_RichText) {
             return PHPExcel_Cell_DataType::TYPE_INLINE;
-
-        } elseif ($pValue{0} === '=' && strlen($pValue) > 1) {
+        } 
+        
+        // SMM, 12/02/2022
+        // Reference, https://stackoverflow.com/questions/62554098/trying-to-access-array-offset-on-value-of-type-int-defaultvaluebinder-php-line
+        elseif (0 === strpos($pValue, '=') && strlen($pValue) > 1) {
             return PHPExcel_Cell_DataType::TYPE_FORMULA;
 
         } elseif (is_bool($pValue)) {

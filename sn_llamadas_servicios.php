@@ -35,6 +35,7 @@ $SQL_Llamadas=Seleccionar('uvw_Sap_tbl_LlamadasServicios','*',$Where);
 			<th>Tipo problema</th>
 			<th>SubTipo problema</th>
 			<th>Sucursal</th>
+			<th>Serial Interno</th>
 			<th>Contacto</th>                        
 			<th>Fecha creación</th>
 			<th>Estado</th>
@@ -49,6 +50,7 @@ $SQL_Llamadas=Seleccionar('uvw_Sap_tbl_LlamadasServicios','*',$Where);
 				<td><?php echo $row_Llamadas['DeTipoProblemaLlamada'];?></td>
 				<td><?php echo $row_Llamadas['DeSubTipoProblemaLlamada'];?></td>
 				<td><?php echo $row_Llamadas['NombreSucursal'];?></td>
+				<td><?php echo $row_Llamadas['IdNumeroSerie'];?></td>
 				<td><?php echo utf8_encode($row_Llamadas['NombreContactoLlamada']);?></td>							
 				<td><?php if(is_object($row_Llamadas['FechaHoraCreacionLLamada'])){echo $row_Llamadas['FechaHoraCreacionLLamada']->format('Y-m-d');}else{echo $row_Llamadas['FechaHoraCreacionLLamada'];}?></td>
 				<td><span <?php if($row_Llamadas['IdEstadoLlamada']=='-3'){echo "class='label label-info'";}elseif($row_Llamadas['IdEstadoLlamada']=='-2'){echo "class='label label-warning'";}else{echo "class='label label-danger'";}?>><?php echo $row_Llamadas['DeEstadoLlamada'];?></span></td>

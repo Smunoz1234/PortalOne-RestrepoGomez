@@ -6,12 +6,12 @@
                 <ul class="nav navbar-top-links navbar-right">
                    <li>
                         <a href="#">
-                            <i class="fa fa-user-circle"></i> <?php echo $_SESSION['User'];?>
+                            <i class="fa fa-user-circle"></i> <?php echo $_SESSION['User']; ?>
                         </a>
                     </li>
                     <li>
-                        <a href="logout.php">
-                            <i class="fa fa-sign-out"></i> Cerrar sesi&oacute;n
+                        <a href="logout.php?msg=<?php echo base64_encode("Cerrando sesión..."); ?>">
+                            <i class="fa fa-sign-out"></i> Cerrar sesión
                         </a>
                     </li>
                 </ul>

@@ -1,35 +1,35 @@
 <?php
-require_once("includes/conexion.php");
+require_once "includes/conexion.php";
 PermitirAcceso(502);
 //require_once("includes/conexion_hn.php");
 
-if(isset($_GET['id'])&&$_GET['id']!=""){
-	$id=base64_decode($_GET['id']);
-	$edit=base64_decode($_GET['edit']);
-}else{
-	$id="";
-	$edit=0;
-	$codigo_contacto=0;
+if (isset($_GET['id']) && $_GET['id'] != "") {
+    $id = base64_decode($_GET['id']);
+    $edit = base64_decode($_GET['edit']);
+} else {
+    $id = "";
+    $edit = 0;
+    $codigo_contacto = 0;
 }
 
-$codigo_contacto=isset($_GET['cod']) ? base64_decode($_GET['cod']) : $codigo_contacto=0;
+$codigo_contacto = isset($_GET['cod']) ? base64_decode($_GET['cod']) : $codigo_contacto = 0;
 
-if($edit==0){//Creando
-	
-}else{//Actualizando
-	$SQL=Seleccionar('uvw_Sap_tbl_SociosNegociosContactos','*',"[CodigoCliente]='".$id."' and [CodigoContacto]='".$codigo_contacto."'");
-	$row=sqlsrv_fetch_array($SQL);
+if ($edit == 0) { //Creando
+
+} else { //Actualizando
+    $SQL = Seleccionar('uvw_Sap_tbl_SociosNegociosContactos', '*', "[CodigoCliente]='" . $id . "' and [CodigoContacto]='" . $codigo_contacto . "'");
+    $row = sqlsrv_fetch_array($SQL);
 }
 
 //Grupo de correos
-$SQL_GrupoCorreo=Seleccionar('uvw_Sap_tbl_GrupoCorreo','*');
+$SQL_GrupoCorreo = Seleccionar('uvw_Sap_tbl_GrupoCorreo', '*');
 
 ?>
 
 <div class="form-group">
 	<label class="control-label">Nombre <span class="text-danger">*</span></label>
 	<input type="text" class="form-control" name="NombreContacto" id="NombreContacto" value="" required onChange="GuardarDatos();">
-</div>	
+</div>
 <div class="form-group">
 	<label class="control-label">Segundo nombre</label>
 	<input type="text" class="form-control" name="SegundoNombre" id="SegundoNombre" value="" onChange="GuardarDatos();">
@@ -86,10 +86,10 @@ $SQL_GrupoCorreo=Seleccionar('uvw_Sap_tbl_GrupoCorreo','*');
 	<label class="control-label">Grupo correo</label>
 	<select name="GrupoCorreo" id="GrupoCorreo" class="form-control" onChange="GuardarDatos();">
 		<option value="">(Ninguno)</option>
-	<?php 
-		$SQL_GrupoCorreo=Seleccionar('uvw_Sap_tbl_GrupoCorreo','*');
-		while($row_GrupoCorreo=sqlsrv_fetch_array($SQL_GrupoCorreo)){?>
-			<option value="<?php echo $row_GrupoCorreo['ID_GrupoCorreo'];?>"><?php echo $row_GrupoCorreo['DE_GrupoCorreo'];?></option>
+	<?php
+$SQL_GrupoCorreo = Seleccionar('uvw_Sap_tbl_GrupoCorreo', '*');
+while ($row_GrupoCorreo = sqlsrv_fetch_array($SQL_GrupoCorreo)) {?>
+			<option value="<?php echo $row_GrupoCorreo['ID_GrupoCorreo']; ?>"><?php echo $row_GrupoCorreo['DE_GrupoCorreo']; ?></option>
 	<?php }?>
 	</select>
 </div>
@@ -101,18 +101,18 @@ $SQL_GrupoCorreo=Seleccionar('uvw_Sap_tbl_GrupoCorreo','*');
 	</select>
 </div>
 
-<input id="CodigoContacto" name="CodigoContacto" type="hidden" value="<?php echo $codigo_contacto;?>" />
+<input id="CodigoContacto" name="CodigoContacto" type="hidden" value="<?php echo $codigo_contacto; ?>" />
 <script>
 	$(document).ready(function(){
 		CargarDatos();
 	});
-	
+
 function CargarDatos(){
-	let datosCliente = window.sessionStorage.getItem('<?php echo $id;?>')
+	let datosCliente = window.sessionStorage.getItem('<?php echo $id; ?>')
 	let codContacto = document.getElementById('CodigoContacto').value;
 	let json=[]
 	let sw=-1;
-	
+
 //	let primer_nombre= "";
 //	let segundo_nombre= "";
 //	let apellidos= "";
@@ -130,11 +130,11 @@ function CargarDatos(){
 		json = JSON.parse(datosCliente)
 	}else{
 		json.push({
-			cod_cliente: '<?php echo $id;?>',
+			cod_cliente: '<?php echo $id; ?>',
 			contactos:[],
 			direcciones:[]
 		})
-		window.sessionStorage.setItem('<?php echo $id;?>','')
+		window.sessionStorage.setItem('<?php echo $id; ?>','')
 	}
 
 	json[0].contactos.forEach(function(element,index){
@@ -142,7 +142,7 @@ function CargarDatos(){
 			sw=index;
 		}
 	});
-	
+
 	if(sw>=0){
 		document.getElementById('NombreContacto').value = json[0].contactos[sw].primer_nombre;
 		document.getElementById('SegundoNombre').value = json[0].contactos[sw].segundo_nombre;
@@ -157,23 +157,23 @@ function CargarDatos(){
 		document.getElementById('GrupoCorreo').value = json[0].contactos[sw].grupo_correo;
 		document.getElementById('EstadoContacto').value = json[0].contactos[sw].estado;
 	}else{
-		document.getElementById('NombreContacto').value = '<?php if($edit==1){if($row['NombreContacto']!=""){ echo $row['NombreContacto'];}else{echo $row['ID_Contacto'];}}?>';
-		document.getElementById('SegundoNombre').value = '<?php if($edit==1){ echo $row['SegundoNombre'];}?>';
-		document.getElementById('Apellidos').value = '<?php if($edit==1){ echo $row['Apellidos'];}?>';
-		document.getElementById('CedulaContacto').value = '<?php if($edit==1){ echo $row['CedulaContacto'];}?>';
-		document.getElementById('Telefono').value = '<?php if($edit==1){ echo $row['Telefono1'];}?>';
-		document.getElementById('TelefonoCelular').value = '<?php if($edit==1){ echo $row['TelefonoCelular'];}?>';
-		document.getElementById('ActEconomica').value = '<?php if($edit==1){ echo $row['ActEconomica'];}?>';
-		document.getElementById('RepLegal').value = '<?php if($edit==1){ echo $row['RepLegal'];}?>';
-		document.getElementById('Email').value = '<?php if($edit==1){ echo $row['CorreoElectronico'];}?>';
-		document.getElementById('Posicion').value = '<?php if($edit==1){ echo $row['Posicion'];}?>';
+		document.getElementById('NombreContacto').value = '<?php if ($edit == 1) {if (isset($row['NombreContacto']) && $row['NombreContacto'] != "") {echo $row['NombreContacto'];} else {echo $row['ID_Contacto'] ?? '';}}?>';
+		document.getElementById('SegundoNombre').value = '<?php if ($edit == 1) {echo $row['SegundoNombre'] ?? '';}?>';
+		document.getElementById('Apellidos').value = '<?php if ($edit == 1) {echo $row['Apellidos'] ?? '';}?>';
+		document.getElementById('CedulaContacto').value = '<?php if ($edit == 1) {echo $row['CedulaContacto'] ?? '';}?>';
+		document.getElementById('Telefono').value = '<?php if ($edit == 1) {echo $row['Telefono1'] ?? '';}?>';
+		document.getElementById('TelefonoCelular').value = '<?php if ($edit == 1) {echo $row['TelefonoCelular'] ?? '';}?>';
+		document.getElementById('ActEconomica').value = '<?php if ($edit == 1) {echo $row['ActEconomica'] ?? '';}?>';
+		document.getElementById('RepLegal').value = '<?php if ($edit == 1) {echo $row['RepLegal'] ?? '';}?>';
+		document.getElementById('Email').value = '<?php if ($edit == 1) {echo $row['CorreoElectronico'] ?? '';}?>';
+		document.getElementById('Posicion').value = '<?php if ($edit == 1) {echo $row['Posicion'] ?? '';}?>';
 		document.getElementById('GrupoCorreo').value = '';
-		document.getElementById('EstadoContacto').value = '<?php if($edit==1){ echo $row['Estado'];}?>';
-	}	
+		document.getElementById('EstadoContacto').value = '<?php if ($edit == 1) {echo $row['Estado'] ?? '';}?>';
+	}
 }
-	
+
 function GuardarDatos(){
-	let datosCliente = window.sessionStorage.getItem('<?php echo $id;?>')
+	let datosCliente = window.sessionStorage.getItem('<?php echo $id; ?>')
 	let codContacto = document.getElementById('CodigoContacto').value;
 	let json=[]
 	let sw=-1;
@@ -182,11 +182,11 @@ function GuardarDatos(){
 		json = JSON.parse(datosCliente)
 	}else{
 		json.push({
-			cod_cliente: '<?php echo $id;?>',
+			cod_cliente: '<?php echo $id; ?>',
 			contactos:[],
 			direcciones:[]
 		})
-		window.sessionStorage.setItem('<?php echo $id;?>','')
+		window.sessionStorage.setItem('<?php echo $id; ?>','')
 	}
 
 	json[0].contactos.forEach(function(element,index){
@@ -196,11 +196,11 @@ function GuardarDatos(){
 		}
 		//console.log(elemente.log(element,index);
 	});
-	
+
 	if(sw>=0){
 		json[0].contactos.splice(sw, 1);
 	}
-	
+
 	json[0].contactos.push({
 		cod_contacto: codContacto,
 		primer_nombre: document.getElementById('NombreContacto').value,
@@ -217,16 +217,16 @@ function GuardarDatos(){
 		estado: document.getElementById('EstadoContacto').value,
 		metodo: metodo
 	})
-	
+
 	let badge=' <span class="badge badge-info">Nuevo</span>';
-	
+
 	if(metodo==2){//Si estoy actualizando el contacto
-		badge=' <span class="badge badge-warning">Editado</span>';		
+		badge=' <span class="badge badge-warning">Editado</span>';
 	}
-	
+
 	let lbl_Ctc=window.frames['frameCtc'].document.getElementById('Ctc_'+codContacto);
 	let lbl_CtcTel=window.frames['frameCtc'].document.getElementById('CtcTel_'+codContacto);
-	let lbl_CtcCargo=window.frames['frameCtc'].document.getElementById('CtcCargo_'+codContacto);		
+	let lbl_CtcCargo=window.frames['frameCtc'].document.getElementById('CtcCargo_'+codContacto);
 
 	//Nombre contacto
 	lbl_Ctc.innerHTML='<i class="fa fa-user"></i> '+document.getElementById('NombreContacto').value + ' ' +document.getElementById('Apellidos').value + badge;
@@ -243,9 +243,9 @@ function GuardarDatos(){
 		lbl_CtcCargo.innerHTML='<i class="fa fa-tag"></i> '+document.getElementById('Posicion').value;
 	}else{
 		lbl_CtcCargo.innerHTML="";
-	}	
-	
-	window.sessionStorage.setItem('<?php echo $id;?>',JSON.stringify(json))
-	
+	}
+
+	window.sessionStorage.setItem('<?php echo $id; ?>',JSON.stringify(json))
+
 }
 </script>

@@ -18,7 +18,7 @@ $SQL_TipoDoc=Seleccionar("uvw_tbl_ObjetosSAP","*",'','CategoriaObjeto, DeTipoDoc
 	  <div class="form-group">
 		<label class="col-lg-1 control-label">Tipo de documento</label>
 		<div class="col-lg-3">
-			<select name="TipoDocumento" class="form-control" id="TipoDocumento" onChange="CargarDetalle();">
+			<select name="TipoDocumentoVD" class="form-control" id="TipoDocumentoVD" onChange="CargarDetalle();">
 					<option value="">Seleccione...</option>
 			  <?php $CatActual="";
 				while($row_TipoDoc=sqlsrv_fetch_array($SQL_TipoDoc)){
@@ -45,7 +45,7 @@ $SQL_TipoDoc=Seleccionar("uvw_tbl_ObjetosSAP","*",'','CategoriaObjeto, DeTipoDoc
 </div>
 <script>
 	function CargarDetalle(ID, DocNum){
-		var TipoDocumento = document.getElementById("TipoDocumento");
+		var TipoDocumento = document.getElementById("TipoDocumentoVD");
 		$('.ibox-content').toggleClass('sk-loading',true);
 		$.ajax({
 			type: "POST",

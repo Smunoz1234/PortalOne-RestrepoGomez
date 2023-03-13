@@ -20,8 +20,9 @@
 <!-- Sweet Alert -->
 <link href="css/plugins/sweetalert/sweetalert2.min.css" rel="stylesheet">
 
-<!-- FooTable -->
-<link href="css/plugins/footable/footable.core.css" rel="stylesheet">
+<!-- FooTable. SMM, 13/03/2023 -->
+<link href="plugins/footable-bootstrap/css/footable.bootstrap.min.css" rel="stylesheet">
+<!-- link href="css/plugins/footable/footable.core.css" rel="stylesheet" -->
 
 <!-- Toastr style -->
 <link href="css/plugins/toastr/toastr.min.css" rel="stylesheet">
@@ -126,8 +127,9 @@
 <script src="js/plugins/dataTables/datatables.min.js"></script>
 <script src="js/pnotify.custom.min.js" type="text/javascript"></script>
 
-<!-- FooTable -->
-<script src="js/plugins/footable/footable.all.min.js"></script>
+<!-- FooTable. SMM, 13/03/2023 -->
+<script src="plugins/footable-bootstrap/js/footable.min.js"></script>
+<!-- script src="js/plugins/footable/footable.all.min.js"></script -->
 
 <!-- Custom and plugin javascript -->
 <script src="js/inspinia.js"></script>
