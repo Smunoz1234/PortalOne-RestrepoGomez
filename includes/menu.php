@@ -543,6 +543,31 @@ if (!isset($_COOKIE["banderaMenu"])) {
 					<li><a class="alnk" href="contrato_confidencialidad.php">Acuerdo de confidencialidad</a></li>
 				</ul>
 			</li>
+
+			<!-- PortalClientes -->
+			<?php if (true) {?>
+			<li>
+				<a href="#"><i class="fa fa-suitcase"></i> <span class="nav-label">Portal Clientes</span><span class="fa arrow"></span></a>
+				<ul class="nav nav-second-level">
+					<?php if (true) {?><li><a class="alnk" href="gestionar_archivos_clientes.php">Gestionar Archivos</a></li><?php }?>
+					<?php if (true) {?><li><a class="alnk" href="parametros_portal_clientes.php">Parámetros Menú</a></li><?php }?>
+				</ul>
+			</li>
+			<?php }?>
+			<!-- SMM, 02/05/2023 -->
+
+			<!-- PortalProveedores -->
+			<?php if (true) {?>
+			<li>
+				<a href="#"><i class="fa fa-suitcase"></i> <span class="nav-label">Portal Proveedores</span><span class="fa arrow"></span></a>
+				<ul class="nav nav-second-level">
+					<?php if (true) {?><li><a class="alnk" href="gestionar_archivos_proveedores.php">Gestionar Archivos</a></li><?php }?>
+					<?php if (true) {?><li><a class="alnk" href="parametros_portal_proveedores.php">Parámetros Menú</a></li><?php }?>
+				</ul>
+			</li>
+			<?php }?>
+			<!-- SMM, 02/05/2023 -->
+
 		</ul>
 	</div> <!-- Aquí termina -->
 

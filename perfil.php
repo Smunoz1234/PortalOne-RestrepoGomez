@@ -152,16 +152,22 @@ if ($edit == 1) {
     }
 }
 
-//Lista de permisos PortalOne
-$SQL_Permisos = Seleccionar('uvw_tbl_NombresPermisosPerfiles', '*');
+// Lista de permisos PortalOne. SMM, 02/05/2023
+$SQL_Permisos = Seleccionar('uvw_tbl_NombresPermisosPerfiles', '*', "TipoPortal IS NULL");
 
-//Lista de permisos ServiceOne
+// Lista de permisos PortalOne, Clientes. SMM, 02/05/2023
+$SQL_Permisos_Clientes = Seleccionar('uvw_tbl_NombresPermisosPerfiles', '*', "TipoPortal = 'C'");
+
+// Lista de permisos PortalOne, Proveedores. SMM, 02/05/2023
+$SQL_Permisos_Proveedores = Seleccionar('uvw_tbl_NombresPermisosPerfiles', '*', "TipoPortal = 'P'");
+
+// Lista de permisos ServiceOne
 $SQL_PermisosServiceOne = Seleccionar('uvw_tbl_NombresPermisosPerfiles_ServiceOne', '*');
 
-//Lista de permisos SalesOne
+// Lista de permisos SalesOne
 $SQL_PermisosSalesOne = Seleccionar('uvw_tbl_NombresPermisosPerfiles_SalesOne', '*');
-
 ?>
+
 <!DOCTYPE html>
 <html><!-- InstanceBegin template="/Templates/PlantillaPrincipal.dwt.php" codeOutsideHTMLIsLocked="false" -->
 
@@ -250,6 +256,8 @@ if (isset($sw_error) && ($sw_error == 1)) {
 						<div class="tabs-container">
 							<ul class="nav nav-tabs">
 								<li class="active"><a data-toggle="tab" href="#tab-1"><i class="fa fa-desktop"></i> PortalOne</a></li>
+								<li><a data-toggle="tab" href="#tab-4"><i class="fa fa-desktop"></i> Clientes</a></li>
+								<li><a data-toggle="tab" href="#tab-5"><i class="fa fa-desktop"></i> Proveedores</a></li>
 								<li><a data-toggle="tab" href="#tab-2"><i class="fa fa-mobile"></i> ServiceOne</a></li>
 								<li><a data-toggle="tab" href="#tab-3"><i class="fa fa-tablet"></i> SalesOne</a></li>
 							</ul>
@@ -262,26 +270,24 @@ if (isset($sw_error) && ($sw_error == 1)) {
 												<thead>
 												<tr>
 													<th>Seleccionar</th>
-													<th>Funci&oacute;n</th>
-													<th>Descripci&oacute;n</th>
+													<th>Función</th>
+													<th>Descripción</th>
 												</tr>
 												</thead>
 												<tbody>
-											<?php while ($row_Permisos = sqlsrv_fetch_array($SQL_Permisos)) {
-    if ($row_Permisos['ID_Padre'] == 0) {?>
+											<?php while ($row_Permisos = sqlsrv_fetch_array($SQL_Permisos)) {?>
+    											<?php if ($row_Permisos['ID_Padre'] == 0) {?>
 													<tr class="warning">
 														<td colspan="3"><strong><?php echo $row_Permisos['NombreFuncion']; ?></strong></td>
 													</tr>
-											<?php
-$SQL_Padre = Seleccionar('uvw_tbl_NombresPermisosPerfiles', '*', "ID_Padre='" . $row_Permisos['ID_Permiso'] . "'");
-        while ($row_Padre = sqlsrv_fetch_array($SQL_Padre)) {
-            if (strlen($row_Padre['ID_Permiso']) == 2) {?>
+											<?php $SQL_Padre = Seleccionar('uvw_tbl_NombresPermisosPerfiles', '*', "ID_Padre='" . $row_Permisos['ID_Permiso'] . "'");?>
+        										<?php while ($row_Padre = sqlsrv_fetch_array($SQL_Padre)) {?>
+            										<?php if (strlen($row_Padre['ID_Permiso']) == 2) {?>
 															<tr class="info">
 																<td colspan="3"><strong><?php echo $row_Padre['NombreFuncion']; ?></strong></td>
 															</tr>
-											<?php
-$SQL_Hijo = Seleccionar('uvw_tbl_NombresPermisosPerfiles', '*', "ID_Padre='" . $row_Padre['ID_Permiso'] . "'");
-                while ($row_Hijo = sqlsrv_fetch_array($SQL_Hijo)) {?>
+											<?php $SQL_Hijo = Seleccionar('uvw_tbl_NombresPermisosPerfiles', '*', "ID_Padre='" . $row_Padre['ID_Permiso'] . "'");?>
+                								<?php while ($row_Hijo = sqlsrv_fetch_array($SQL_Hijo)) {?>
 																<tr>
 																	<td>
 																		<div class="switch">
@@ -297,10 +303,8 @@ $SQL_Hijo = Seleccionar('uvw_tbl_NombresPermisosPerfiles', '*', "ID_Padre='" . $
 																	<td><?php echo $row_Hijo['NombreFuncion']; ?></td>
 																	<td><?php echo $row_Hijo['Descripcion']; ?></td>
 																</tr>
-																<?php
-}
-            } else {
-                ?>
+																<?php }?>
+															<?php } else {?>
 																<tr>
 																	<td>
 																		<div class="switch">
@@ -316,18 +320,155 @@ $SQL_Hijo = Seleccionar('uvw_tbl_NombresPermisosPerfiles', '*', "ID_Padre='" . $
 																	<td><?php echo $row_Padre['NombreFuncion']; ?></td>
 																	<td><?php echo $row_Padre['Descripcion']; ?></td>
 																</tr>
-																<?php
-}
-        }
-    }
-}
-?>
+																<?php }?>
+															<?php }?>
+														<?php }?>
+													<?php }?>
 												</tbody>
 											</table>
 											</div>
 										</div>
 									  </div>
-								</div>
+								</div> <!-- tab-1 -->
+
+								<div id="tab-4" class="tab-pane active">
+									<div class="form-group">
+										<div class="col-lg-10">
+										<div class="table-responsive">
+											<table class="table table-bordered">
+												<thead>
+												<tr>
+													<th>Seleccionar</th>
+													<th>Función</th>
+													<th>Descripción</th>
+												</tr>
+												</thead>
+												<tbody>
+											<?php while ($row_Permisos = sqlsrv_fetch_array($SQL_Permisos_Clientes)) {?>
+    											<?php if ($row_Permisos['ID_Padre'] == 0) {?>
+													<tr class="warning">
+														<td colspan="3"><strong><?php echo $row_Permisos['NombreFuncion']; ?></strong></td>
+													</tr>
+											<?php $SQL_Padre = Seleccionar('uvw_tbl_NombresPermisosPerfiles', '*', "ID_Padre='" . $row_Permisos['ID_Permiso'] . "'");?>
+        										<?php while ($row_Padre = sqlsrv_fetch_array($SQL_Padre)) {?>
+            										<?php if (strlen($row_Padre['ID_Permiso']) == 2) {?>
+															<tr class="info">
+																<td colspan="3"><strong><?php echo $row_Padre['NombreFuncion']; ?></strong></td>
+															</tr>
+											<?php $SQL_Hijo = Seleccionar('uvw_tbl_NombresPermisosPerfiles', '*', "ID_Padre='" . $row_Padre['ID_Permiso'] . "'");?>
+                								<?php while ($row_Hijo = sqlsrv_fetch_array($SQL_Hijo)) {?>
+																<tr>
+																	<td>
+																		<div class="switch">
+																			<div class="onoffswitch">
+																				<input name="PermisoPortalOne[]" type="checkbox" class="onoffswitch-checkbox" id="PermisoPortalOne<?php echo $row_Hijo['ID_Permiso']; ?>" value="<?php echo $row_Hijo['ID_Permiso']; ?>" <?php if ($edit == 1) {if (in_array($row_Hijo['ID_Permiso'], $PermisosPerfil)) {echo "checked";}}?>>
+																				<label class="onoffswitch-label" for="PermisoPortalOne<?php echo $row_Hijo['ID_Permiso']; ?>">
+																					<span class="onoffswitch-inner"></span>
+																					<span class="onoffswitch-switch"></span>
+																				</label>
+																			</div>
+																		</div>
+																	</td>
+																	<td><?php echo $row_Hijo['NombreFuncion']; ?></td>
+																	<td><?php echo $row_Hijo['Descripcion']; ?></td>
+																</tr>
+																<?php }?>
+															<?php } else {?>
+																<tr>
+																	<td>
+																		<div class="switch">
+																			<div class="onoffswitch">
+																				<input name="PermisoPortalOne[]" type="checkbox" class="onoffswitch-checkbox" id="PermisoPortalOne<?php echo $row_Padre['ID_Permiso']; ?>" value="<?php echo $row_Padre['ID_Permiso']; ?>" <?php if ($edit == 1) {if (in_array($row_Padre['ID_Permiso'], $PermisosPerfil)) {echo "checked";}}?>>
+																				<label class="onoffswitch-label" for="PermisoPortalOne<?php echo $row_Padre['ID_Permiso']; ?>">
+																					<span class="onoffswitch-inner"></span>
+																					<span class="onoffswitch-switch"></span>
+																				</label>
+																			</div>
+																		</div>
+																	</td>
+																	<td><?php echo $row_Padre['NombreFuncion']; ?></td>
+																	<td><?php echo $row_Padre['Descripcion']; ?></td>
+																</tr>
+																<?php }?>
+															<?php }?>
+														<?php }?>
+													<?php }?>
+												</tbody>
+											</table>
+											</div>
+										</div>
+									  </div>
+								</div> <!-- tab-4 -->
+
+								<div id="tab-5" class="tab-pane active">
+									<div class="form-group">
+										<div class="col-lg-10">
+										<div class="table-responsive">
+											<table class="table table-bordered">
+												<thead>
+												<tr>
+													<th>Seleccionar</th>
+													<th>Función</th>
+													<th>Descripción</th>
+												</tr>
+												</thead>
+												<tbody>
+											<?php while ($row_Permisos = sqlsrv_fetch_array($SQL_Permisos_Proveedores)) {?>
+    											<?php if ($row_Permisos['ID_Padre'] == 0) {?>
+													<tr class="warning">
+														<td colspan="3"><strong><?php echo $row_Permisos['NombreFuncion']; ?></strong></td>
+													</tr>
+											<?php $SQL_Padre = Seleccionar('uvw_tbl_NombresPermisosPerfiles', '*', "ID_Padre='" . $row_Permisos['ID_Permiso'] . "'");?>
+        										<?php while ($row_Padre = sqlsrv_fetch_array($SQL_Padre)) {?>
+            										<?php if (strlen($row_Padre['ID_Permiso']) == 2) {?>
+															<tr class="info">
+																<td colspan="3"><strong><?php echo $row_Padre['NombreFuncion']; ?></strong></td>
+															</tr>
+											<?php $SQL_Hijo = Seleccionar('uvw_tbl_NombresPermisosPerfiles', '*', "ID_Padre='" . $row_Padre['ID_Permiso'] . "'");?>
+                								<?php while ($row_Hijo = sqlsrv_fetch_array($SQL_Hijo)) {?>
+																<tr>
+																	<td>
+																		<div class="switch">
+																			<div class="onoffswitch">
+																				<input name="PermisoPortalOne[]" type="checkbox" class="onoffswitch-checkbox" id="PermisoPortalOne<?php echo $row_Hijo['ID_Permiso']; ?>" value="<?php echo $row_Hijo['ID_Permiso']; ?>" <?php if ($edit == 1) {if (in_array($row_Hijo['ID_Permiso'], $PermisosPerfil)) {echo "checked";}}?>>
+																				<label class="onoffswitch-label" for="PermisoPortalOne<?php echo $row_Hijo['ID_Permiso']; ?>">
+																					<span class="onoffswitch-inner"></span>
+																					<span class="onoffswitch-switch"></span>
+																				</label>
+																			</div>
+																		</div>
+																	</td>
+																	<td><?php echo $row_Hijo['NombreFuncion']; ?></td>
+																	<td><?php echo $row_Hijo['Descripcion']; ?></td>
+																</tr>
+																<?php }?>
+															<?php } else {?>
+																<tr>
+																	<td>
+																		<div class="switch">
+																			<div class="onoffswitch">
+																				<input name="PermisoPortalOne[]" type="checkbox" class="onoffswitch-checkbox" id="PermisoPortalOne<?php echo $row_Padre['ID_Permiso']; ?>" value="<?php echo $row_Padre['ID_Permiso']; ?>" <?php if ($edit == 1) {if (in_array($row_Padre['ID_Permiso'], $PermisosPerfil)) {echo "checked";}}?>>
+																				<label class="onoffswitch-label" for="PermisoPortalOne<?php echo $row_Padre['ID_Permiso']; ?>">
+																					<span class="onoffswitch-inner"></span>
+																					<span class="onoffswitch-switch"></span>
+																				</label>
+																			</div>
+																		</div>
+																	</td>
+																	<td><?php echo $row_Padre['NombreFuncion']; ?></td>
+																	<td><?php echo $row_Padre['Descripcion']; ?></td>
+																</tr>
+																<?php }?>
+															<?php }?>
+														<?php }?>
+													<?php }?>
+												</tbody>
+											</table>
+											</div>
+										</div>
+									  </div>
+								</div> <!-- tab-5 -->
+
 								<div id="tab-2" class="tab-pane">
 									<div class="form-group">
 										<div class="col-lg-10">
