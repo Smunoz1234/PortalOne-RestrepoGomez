@@ -486,6 +486,7 @@ if (!isset($_COOKIE["banderaMenu"])) {
 				<ul class="nav nav-second-level">
 					<?php if (PermitirFuncion(1601)) {?><li><a class="alnk" href="consultar_tarjeta_equipo.php">Tarjetas de equipos</a></li><?php }?>
 					<?php if (PermitirFuncion(1601)) {?><li><a class="alnk" href="#">Base de datos de soluciones</a></li><?php }?>
+					<?php if (true) {?><li><a class="alnk" href="parametros_portal_clientes.php">Jerarquias de Equipos</a></li><?php }?>
 
 					<?php if (PermitirFuncion(1605)) {?>
 					<li>

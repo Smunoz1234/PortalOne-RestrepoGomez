@@ -12,19 +12,19 @@ if (isset($_POST['Metodo']) && ($_POST['Metodo'] == 3)) {
         );
 
         if ($_POST['TipoDoc'] == "Categoria") {
-            $SQL = EjecutarSP('sp_tbl_PortalProveedores_Categorias', $Param);
+            $SQL = EjecutarSP('sp_tbl_PortalClientes_Categorias', $Param);
             if (!$SQL) {
                 $sw_error = 1;
                 $msg_error = "No se pudo eliminar la Categoría.";
             }
         } elseif ($_POST['TipoDoc'] == "Consulta") {
-            $SQL = EjecutarSP('sp_tbl_PortalProveedores_Consultas', $Param);
+            $SQL = EjecutarSP('sp_tbl_PortalClientes_Consultas', $Param);
             if (!$SQL) {
                 $sw_error = 1;
                 $msg_error = "No se pudo eliminar la Consulta.";
             }
         } elseif ($_POST['TipoDoc'] == "Entrada") {
-            $SQL = EjecutarSP('sp_tbl_PortalProveedores_Entradas', $Param);
+            $SQL = EjecutarSP('sp_tbl_PortalClientes_Entradas', $Param);
             if (!$SQL) {
                 $sw_error = 1;
                 $msg_error = "No se pudo eliminar la Entrada.";
@@ -66,7 +66,7 @@ if ((isset($_POST['frmType']) && ($_POST['frmType'] != "")) || (isset($_POST['Me
                 ($_POST['Metodo'] == 1) ? $FechaHora : "NULL",
             );
 
-            $SQL = EjecutarSP('sp_tbl_PortalProveedores_Categorias', $Param);
+            $SQL = EjecutarSP('sp_tbl_PortalClientes_Categorias', $Param);
             if (!$SQL) {
                 $sw_error = 1;
                 $msg_error = "No se pudo insertar la nueva Categoría";
@@ -98,7 +98,7 @@ if ((isset($_POST['frmType']) && ($_POST['frmType'] != "")) || (isset($_POST['Me
                 ($_POST['Metodo'] == 1) ? $FechaHora : "NULL",
             );
 
-            $SQL = EjecutarSP('sp_tbl_PortalProveedores_Consultas', $Param);
+            $SQL = EjecutarSP('sp_tbl_PortalClientes_Consultas', $Param);
             if (!$SQL) {
                 $sw_error = 1;
                 $msg_error = "No se pudo insertar la nueva Consulta";
@@ -132,7 +132,7 @@ if ((isset($_POST['frmType']) && ($_POST['frmType'] != "")) || (isset($_POST['Me
                 ($_POST['Metodo'] == 1) ? $FechaHora : "NULL",
             );
 
-            $SQL = EjecutarSP('sp_tbl_PortalProveedores_Entradas', $Param);
+            $SQL = EjecutarSP('sp_tbl_PortalClientes_Entradas', $Param);
             $row = sqlsrv_fetch_array($SQL);
 
             if (!$SQL) {
@@ -147,7 +147,7 @@ if ((isset($_POST['frmType']) && ($_POST['frmType'] != "")) || (isset($_POST['Me
         // OK
         if ($sw_error == 0) {
             $TipoDoc = $_POST['TipoDoc'];
-            header("Location:parametros_portal_proveedores.php?doc=$TipoDoc&a=" . base64_encode("OK_PRUpd") . "#$TipoDoc");
+            header("Location:parametros_portal_Clientes.php?doc=$TipoDoc&a=" . base64_encode("OK_PRUpd") . "#$TipoDoc");
         }
 
     } catch (Exception $e) {
@@ -157,9 +157,9 @@ if ((isset($_POST['frmType']) && ($_POST['frmType'] != "")) || (isset($_POST['Me
 
 }
 
-$SQL_Categorias = Seleccionar("uvw_tbl_PortalProveedores_Categorias", "*");
-$SQL_Consultas = Seleccionar("uvw_tbl_PortalProveedores_Consultas", "*");
-$SQL_Entradas = Seleccionar("uvw_tbl_PortalProveedores_Entradas", "*");
+$SQL_Categorias = Seleccionar("uvw_tbl_PortalClientes_Categorias", "*");
+$SQL_Consultas = Seleccionar("uvw_tbl_PortalClientes_Consultas", "*");
+$SQL_Entradas = Seleccionar("uvw_tbl_PortalClientes_Entradas", "*");
 $SQL_Perfiles = Seleccionar('uvw_tbl_PerfilesUsuarios', '*');
 ?>
 
@@ -169,7 +169,7 @@ $SQL_Perfiles = Seleccionar('uvw_tbl_PerfilesUsuarios', '*');
 <head>
 <?php include_once "includes/cabecera.php";?>
 <!-- InstanceBeginEditable name="doctitle" -->
-<title>Parámetros Menú Portal Proveedores | <?php echo NOMBRE_PORTAL; ?></title>
+<title>Parámetros Menú Portal Clientes | <?php echo NOMBRE_PORTAL; ?></title>
 <!-- InstanceEndEditable -->
 <!-- InstanceBeginEditable name="head" -->
 
@@ -240,7 +240,7 @@ if (isset($sw_error) && ($sw_error == 1)) {
         <!-- InstanceBeginEditable name="Contenido" -->
         <div class="row wrapper border-bottom white-bg page-heading">
                 <div class="col-sm-8">
-                    <h2>Parámetros Menú Portal Proveedores</h2>
+                    <h2>Parámetros Menú Portal Clientes</h2>
                     <ol class="breadcrumb">
                         <li>
                             <a href="index1.php">Inicio</a>
@@ -252,7 +252,7 @@ if (isset($sw_error) && ($sw_error == 1)) {
                             <a href="#">Parámetros del sistema</a>
                         </li>
                         <li class="active">
-                            <strong>Parámetros Menú Portal Proveedores</strong>
+                            <strong>Parámetros Menú Portal Clientes</strong>
                         </li>
                     </ol>
                 </div>
@@ -499,7 +499,7 @@ function CrearCampo(doc){
 
 	$.ajax({
 		type: "POST",
-		url: "md_portal_proveedores.php",
+		url: "md_portal_Clientes.php",
 		data:{
 			doc:doc
 		},
@@ -516,7 +516,7 @@ function EditarCampo(id, doc){
 
 	$.ajax({
 		type: "POST",
-		url: "md_portal_proveedores.php",
+		url: "md_portal_Clientes.php",
 		data:{
 			doc:doc,
 			id:id,
@@ -543,12 +543,12 @@ function EliminarCampo(id, doc){
 
 			$.ajax({
 				type: "post",
-				url: "parametros_portal_proveedores.php",
+				url: "parametros_portal_Clientes.php",
 				data: { TipoDoc: doc, ID: id, Metodo: 3 },
 				async: false,
 				success: function(data){
 					// console.log(data);
-					location.href = `parametros_portal_proveedores.php?doc=${doc}&a=<?php echo base64_encode("OK_PRDel"); ?>`;
+					location.href = `parametros_portal_Clientes.php?doc=${doc}&a=<?php echo base64_encode("OK_PRDel"); ?>`;
 				},
 				error: function(error) {
 					console.error("consulta erronea");

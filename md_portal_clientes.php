@@ -8,8 +8,8 @@ $edit = isset($_POST['edit']) ? $_POST['edit'] : 0;
 $doc = isset($_POST['doc']) ? $_POST['doc'] : "";
 $id = isset($_POST['id']) ? $_POST['id'] : "";
 
-$SQL_CategoriasModal = Seleccionar('tbl_PortalProveedores_Categorias', '*');
-$SQL_ConsultasModal = Seleccionar('tbl_PortalProveedores_Consultas', '*');
+$SQL_CategoriasModal = Seleccionar('tbl_PortalClientes_Categorias', '*');
+$SQL_ConsultasModal = Seleccionar('tbl_PortalClientes_Consultas', '*');
 
 $ids_perfiles = array();
 $SQL_PerfilesUsuarios = Seleccionar('uvw_tbl_PerfilesUsuarios', '*');
@@ -19,13 +19,13 @@ if ($edit == 1 && $id != "") {
     $Metodo = 2;
 
     if ($doc == "Categoria") {
-        $SQL = Seleccionar('tbl_PortalProveedores_Categorias', '*', "ID='" . $id . "'");
+        $SQL = Seleccionar('tbl_PortalClientes_Categorias', '*', "ID='" . $id . "'");
         $row = sqlsrv_fetch_array($SQL);
     } elseif ($doc == "Consulta") {
-        $SQL = Seleccionar('tbl_PortalProveedores_Consultas', '*', "ID='" . $id . "'");
+        $SQL = Seleccionar('tbl_PortalClientes_Consultas', '*', "ID='" . $id . "'");
         $row = sqlsrv_fetch_array($SQL);
     } elseif ($doc == "Entrada") {
-        $SQL = Seleccionar('tbl_PortalProveedores_Entradas', '*', "ID='" . $id . "'");
+        $SQL = Seleccionar('tbl_PortalClientes_Entradas', '*', "ID='" . $id . "'");
         $row = sqlsrv_fetch_array($SQL);
     }
 
@@ -48,7 +48,7 @@ $SQL_Lista = sqlsrv_query($conexion, $Cons_Lista);
 	}
 </style>
 
-<form id="frm_NewParam" method="post" action="parametros_portal_proveedores.php" enctype="multipart/form-data">
+<form id="frm_NewParam" method="post" action="parametros_portal_Clientes.php" enctype="multipart/form-data">
 
 <div class="modal-header">
 	<h4 class="modal-title">
