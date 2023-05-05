@@ -278,7 +278,7 @@ if (isset($sw_error) && ($sw_error == 1)) {
 									<a data-toggle="tab" href="#tab-1"><i class="fa fa-list"></i> Categorías</a>
 								</li>
 								<li class="<?php echo (isset($_GET['doc']) && ($_GET['doc'] == "Consulta")) ? "active" : ""; ?>">
-									<a data-toggle="tab" href="#tab-2"><i class="fa fa-list"></i> Función de Menú</a>
+									<a data-toggle="tab" href="#tab-2"><i class="fa fa-list"></i> Jerarquias Equipos</a>
 								</li>
 							</ul>
 

@@ -1,5 +1,4 @@
-<?php require_once("includes/conexion.php");
-PermitirAcceso(201);
+<?php 
 //$Cons_Menu="Select * From uvw_tbl_Categorias";
 //$SQL_Menu=sqlsrv_query($conexion,$Cons_Menu);
 $SQL_Menu=Seleccionar('uvw_tbl_Categorias','*');
@@ -12,92 +11,7 @@ while($row_Menu=sqlsrv_fetch_array($SQL_Menu)){
 }
 //echo $json;
 ?>
-<!DOCTYPE html>
-<html><!-- InstanceBegin template="/Templates/PlantillaPrincipal.dwt.php" codeOutsideHTMLIsLocked="false" -->
-
-<head>
-<?php include_once("includes/cabecera.php"); ?>
-<!-- InstanceBeginEditable name="doctitle" -->
-<title>Gestionar categor&iacute;as | <?php echo NOMBRE_PORTAL;?></title>
-<!-- InstanceEndEditable -->
-<!-- InstanceBeginEditable name="head" -->
-<?php 
-if(isset($_GET['a'])&&($_GET['a']==base64_encode("OK_Cat"))){
-	echo "<script>
-		$(document).ready(function() {
-			Swal.fire({
-                title: '¡Listo!',
-                text: 'La categoría ha sido agregada exitosamente.',
-                icon: 'success'
-            });
-		});		
-		</script>";
-}
-if(isset($_GET['a'])&&($_GET['a']==base64_encode("OK_Cat_edit"))){
-	echo "<script>
-		$(document).ready(function() {
-			Swal.fire({
-                title: '¡Listo!',
-                text: 'La categoría ha sido actualizada exitosamente.',
-                icon: 'success'
-            });
-		});		
-		</script>";
-}
-if(isset($_GET['a'])&&($_GET['a']==base64_encode("OK_Cat_delete"))){
-	echo "<script>
-		$(document).ready(function() {
-			Swal.fire({
-                title: '¡Listo!',
-                text: 'La categoría ha sido eliminada exitosamente.',
-                icon: 'success'
-            });
-		});		
-		</script>";
-}
-?>
-
-<!-- InstanceEndEditable -->
-</head>
-
-<body>
-
-<div id="wrapper">
-
-    <?php include_once("includes/menu.php"); ?>
-
-    <div id="page-wrapper" class="gray-bg">
-        <?php include_once("includes/menu_superior.php"); ?>
-        <!-- InstanceBeginEditable name="Contenido" -->
-        <div class="row wrapper border-bottom white-bg page-heading">
-                <div class="col-sm-8">
-                    <h2>Gestionar categor&iacute;as</h2>
-                    <ol class="breadcrumb">
-                        <li>
-                            <a href="index1.php">Inicio</a>
-                        </li>
-                        <li>
-                            <a href="#">Administraci&oacute;n</a>
-                        </li>
-                        <li class="active">
-                            <strong>Gestionar categor&iacute;as</strong>
-                        </li>
-                    </ol>
-                </div>
-            </div>
-           
-         <div class="wrapper wrapper-content">
-         <div class="row">
-			<div class="col-lg-12">
-				<div class="ibox-content">
-					<?php include("includes/spinner.php"); ?>
-					<a href="categorias.php" class="alkin btn btn-primary"><i class="fa fa-plus-circle"></i> Agregar categor&iacute;a</a>
-					<a style="visibility: hidden;" id="a_Edit" href="#" class="alkin btn btn-success"><i class="fa fa-pencil"></i> Editar</a>
-				</div>
-			</div>
-		  </div>
-         <br>
-          <div class="row">
+    <div class="row">
            <div class="col-lg-12">
 			    <div class="ibox-content"> 
 					<?php include("includes/spinner.php"); ?>
@@ -112,14 +26,9 @@ if(isset($_GET['a'])&&($_GET['a']==base64_encode("OK_Cat_delete"))){
 			   <div id="event_result"></div>
 				</div>
 			</div>
-          </div>
-        </div>
         <!-- InstanceEndEditable -->
-        <?php include_once("includes/footer.php"); ?>
 
     </div>
-</div>
-<?php include_once("includes/pie.php"); ?>
 <!-- InstanceBeginEditable name="EditRegion4" -->
 <script>
 $(document).ready(function(){
@@ -144,13 +53,37 @@ $(document).ready(function(){
                 	'Loading ...': 'Cargando...'
             	},
 				'multiple' : false,
-				'data': [<?php echo $json;?>]
+				'data': [
+					{
+						"text" : "PLANTA VALORES",
+						"icon" : "fa fa-map-marker",
+						"children" : [
+							{
+								"text" : "UKITA 1",
+								"icon" : "fa fa-car",
+								"children" : [
+									{
+										"text" : "TORRE 1",
+										"icon" : "fa fa-car"
+									}
+								]
+							},
+							{
+								"text" : "UKITA 2",
+								"icon" : "fa fa-wrench"
+							}
+						]
+					}
+				]
             },
 			'get_selected' : true
+			, "plugins" : [ "themes", "icons" ]
         })
 		.bind('select_node.jstree', function (e, data) {
 			Editar(data.node.id);
 		});	
+		
+	console.log([<?php echo $json;?>]);
 });
 </script>
 <script>
@@ -163,7 +96,3 @@ function Editar(id){
 }
 </script>
 <!-- InstanceEndEditable -->
-</body>
-
-<!-- InstanceEnd --></html>
-<?php sqlsrv_close($conexion);?>
