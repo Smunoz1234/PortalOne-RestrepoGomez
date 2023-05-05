@@ -58,6 +58,7 @@ if ((isset($_POST['frmType']) && ($_POST['frmType'] != "")) || (isset($_POST['Me
                 $Perfiles,
                 "'" . $_POST['Comentarios'] . "'",
                 "'" . $_POST['Estado'] . "'",
+				"'" . $_POST['Tipo'] . "'",
                 $Usuario, // @id_usuario_actualizacion
                 $FechaHora, // @fecha_actualizacion
                 $FechaHora, // @hora_actualizacion
@@ -311,20 +312,21 @@ if (isset($sw_error) && ($sw_error == 1)) {
 																<th>Fecha Actualizacion</th>
 																<th>Usuario Actualizacion</th>
 																<th>Estado</th>
+																<th>Tipo</th>
 																<th>Acciones</th>
 															</tr>
 														</thead>
 														<tbody>
 															 <?php while ($row_Categoria = sqlsrv_fetch_array($SQL_Categorias)) {?>
 															<tr>
-																<td><?php echo ($row_Categoria['CategoriaPadre'] == "") ? "[Raíz]" : $row_Categoria['CategoriaPadre']; ?></td>
-																<td><?php echo $row_Categoria['NombreCategoria']; ?></td>
+																<td><?php echo ($row_Categoria['categoria_padre'] == "") ? "[Raíz]" : $row_Categoria['categoria_padre']; ?></td>
+																<td><?php echo $row_Categoria['nombre_categoria']; ?></td>
 
 																<td>
 																	<?php sqlsrv_fetch($SQL_Perfiles, SQLSRV_SCROLL_ABSOLUTE, -1);?>
-																	<?php $ids_perfiles = explode(";", $row_Categoria['Perfiles']);?>
+																	<?php $ids_perfiles = explode(";", $row_Categoria['perfiles']);?>
 
-																	<?php echo ($row_Categoria['Perfiles'] == "") ? "(Todos)" : ""; ?>
+																	<?php echo ($row_Categoria['perfiles'] == "") ? "(Todos)" : ""; ?>
 
 																	<?php while ($row_Perfil = sqlsrv_fetch_array($SQL_Perfiles)) {?>
 																		<?php if (in_array($row_Perfil['ID_PerfilUsuario'], $ids_perfiles)) {?>
@@ -335,18 +337,23 @@ if (isset($sw_error) && ($sw_error == 1)) {
 																	<?php }?>
 																</td>
 
-																<td><?php echo $row_Categoria['Comentarios']; ?></td>
+																<td><?php echo $row_Categoria['comentarios']; ?></td>
 
 																<td><?php echo isset($row_Categoria['fecha_actualizacion']) ? date_format($row_Categoria['fecha_actualizacion'], 'Y-m-d H:i:s') : ""; ?></td>
 																<td><?php echo $row_Categoria['usuario_actualizacion']; ?></td>
 																<td>
-																	<span class="label <?php echo ($row_Categoria['Estado'] == "Y") ? "label-info" : "label-danger"; ?>">
-																		<?php echo ($row_Categoria['Estado'] == "Y") ? "Activo" : "Inactivo"; ?>
+																	<span class="label <?php echo ($row_Categoria['estado'] == "Y") ? "label-info" : "label-danger"; ?>">
+																		<?php echo ($row_Categoria['estado'] == "Y") ? "Activo" : "Inactivo"; ?>
 																	</span>
 																</td>
 																<td>
-																	<button type="button" id="btnEdit<?php echo $row_Categoria['ID']; ?>" class="btn btn-success btn-xs" onClick="EditarCampo('<?php echo $row_Categoria['ID']; ?>','Categoria');"><i class="fa fa-pencil"></i> Editar</button>
-																	<button type="button" id="btnDelete<?php echo $row_Categoria['ID']; ?>" class="btn btn-danger btn-xs" onClick="EliminarCampo('<?php echo $row_Categoria['ID']; ?>','Categoria');"><i class="fa fa-trash"></i> Eliminar</button>
+																	<span class="label <?php echo ($row_Categoria['tipo'] == "A") ? "label-primary" : "label-warning"; ?>">
+																		<?php echo ($row_Categoria['tipo'] == "A") ? "Archivo" : "Ruta"; ?>
+																	</span>
+																</td>
+																<td>
+																	<button type="button" id="btnEdit<?php echo $row_Categoria['id']; ?>" class="btn btn-success btn-xs" onClick="EditarCampo('<?php echo $row_Categoria['id']; ?>','Categoria');"><i class="fa fa-pencil"></i> Editar</button>
+																	<button type="button" id="btnDelete<?php echo $row_Categoria['id']; ?>" class="btn btn-danger btn-xs" onClick="EliminarCampo('<?php echo $row_Categoria['id']; ?>','Categoria');"><i class="fa fa-trash"></i> Eliminar</button>
 																</td>
 															</tr>
 															 <?php }?>

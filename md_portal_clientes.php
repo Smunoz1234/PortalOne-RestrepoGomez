@@ -19,7 +19,7 @@ if ($edit == 1 && $id != "") {
     $Metodo = 2;
 
     if ($doc == "Categoria") {
-        $SQL = Seleccionar('tbl_PortalClientes_Categorias', '*', "ID='" . $id . "'");
+        $SQL = Seleccionar('tbl_PortalClientes_Categorias', '*', "[id]='" . $id . "'");
         $row = sqlsrv_fetch_array($SQL);
     } elseif ($doc == "Consulta") {
         $SQL = Seleccionar('tbl_PortalClientes_Consultas', '*', "ID='" . $id . "'");
@@ -29,7 +29,7 @@ if ($edit == 1 && $id != "") {
         $row = sqlsrv_fetch_array($SQL);
     }
 
-    $ids_perfiles = isset($row['Perfiles']) ? explode(";", $row['Perfiles']) : [];
+    $ids_perfiles = isset($row['perfiles']) ? explode(";", $row['perfiles']) : [];
 }
 
 $Cons_Lista = "EXEC sp_tables @table_owner = 'dbo', @table_type = \"'VIEW'\"";
@@ -67,13 +67,24 @@ $SQL_Lista = sqlsrv_query($conexion, $Cons_Lista);
 				<div class="form-group">
 					<div class="col-md-6">
 						<label class="control-label">Nombre Categoria <span class="text-danger">*</span></label>
-						<input type="text" class="form-control" autocomplete="off" required name="NombreCategoria" id="NombreCategoria" value="<?php if ($edit == 1) {echo $row['NombreCategoria'];}?>">
+						<input type="text" class="form-control" autocomplete="off" required name="NombreCategoria" id="NombreCategoria" value="<?php if ($edit == 1) {echo $row['nombre_categoria'];}?>">
 					</div>
 					<div class="col-md-6">
 						<label class="control-label">Estado <span class="text-danger">*</span></label>
 						<select class="form-control" id="Estado" name="Estado">
-							<option value="Y" <?php if (($edit == 1) && ($row['Estado'] == "Y")) {echo "selected=\"selected\"";}?>>ACTIVO</option>
-							<option value="N" <?php if (($edit == 1) && ($row['Estado'] == "N")) {echo "selected=\"selected\"";}?>>INACTIVO</option>
+							<option value="Y" <?php if (($edit == 1) && ($row['estado'] == "Y")) {echo "selected";}?>>ACTIVO</option>
+							<option value="N" <?php if (($edit == 1) && ($row['estado'] == "N")) {echo "selected";}?>>INACTIVO</option>
+						</select>
+					</div>
+				</div>
+
+				<br><br><br><br>
+				<div class="form-group">
+					<div class="col-md-12">
+						<label class="control-label">Tipo <span class="text-danger">*</span></label>
+						<select class="form-control" id="Tipo" name="Tipo">
+							<option value="A" <?php if (($edit == 1) && ($row['tipo'] == "A")) {echo "selected";}?>>Archivo</option>
+							<option value="R" <?php if (($edit == 1) && ($row['tipo'] == "R")) {echo "selected";}?>>Ruta</option>
 						</select>
 					</div>
 				</div>
@@ -85,7 +96,7 @@ $SQL_Lista = sqlsrv_query($conexion, $Cons_Lista);
 						<select name="ID_CategoriaPadre" class="form-control select2" id="ID_CategoriaPadre">
 							<option value="">[Raíz]</option>
 							<?php while ($row_CategoriaModal = sqlsrv_fetch_array($SQL_CategoriasModal)) {?>
-								<option value="<?php echo $row_CategoriaModal['ID']; ?>" <?php if ((isset($row['ID_CategoriaPadre'])) && (strcmp($row_CategoriaModal['ID'], $row['ID_CategoriaPadre']) == 0)) {echo "selected=\"selected\"";}?>><?php echo $row_CategoriaModal['NombreCategoria']; ?></option>
+								<option value="<?php echo $row_CategoriaModal['id']; ?>" <?php if ((isset($row['id_categoria_padre'])) && (strcmp($row_CategoriaModal['id'], $row['id_categoria_padre']) == 0)) {echo "selected";}?>><?php echo $row_CategoriaModal['nombre_categoria']; ?></option>
 							<?php }?>
 						</select>
 					</div>
@@ -110,7 +121,7 @@ $SQL_Lista = sqlsrv_query($conexion, $Cons_Lista);
 				<div class="form-group">
 					<div class="col-md-12">
 						<label class="control-label">Comentarios</label>
-						<textarea name="Comentarios" rows="3" maxlength="3000" class="form-control" id="Comentarios" type="text"><?php if ($edit == 1) {echo $row['Comentarios'];}?></textarea>
+						<textarea name="Comentarios" rows="3" maxlength="3000" class="form-control" id="Comentarios" type="text"><?php if ($edit == 1) {echo $row['comentarios'];}?></textarea>
 					</div>
 				</div>
 				<br><br>
