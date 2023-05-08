@@ -1,5 +1,5 @@
 <?php require_once("includes/conexion.php"); 
-PermitirAcceso(208);
+// PermitirAcceso(208);
 if(isset($_POST['step'])&&$_POST['step']!=""){
 	$Step=$_POST['step'];
 }else{
