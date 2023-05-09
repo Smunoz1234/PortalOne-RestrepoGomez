@@ -328,8 +328,9 @@ $SQL_Perfiles = Seleccionar('uvw_tbl_PerfilesUsuarios', '*');
 															class="table table-striped table-bordered table-hover dataTables-example">
 															<thead>
 																<tr>
-																	<th>Categoría Padre</th>
+																	<th>Nivel</th>
 																	<th>Nombre Categoría</th>
+																	<th>Categoría Padre</th>
 																	<th>Perfiles</th>
 																	<th>Comentarios</th>
 																	<th>Fecha Actualizacion</th>
@@ -342,13 +343,13 @@ $SQL_Perfiles = Seleccionar('uvw_tbl_PerfilesUsuarios', '*');
 															<tbody>
 																<?php while ($row_Categoria = sqlsrv_fetch_array($SQL_Categorias)) { ?>
 																	<tr>
+																		<td><?php echo $row_Categoria['nivel']; ?></td>
+																		<td><?php echo $row_Categoria['nombre_categoria']; ?></td>
+																		
 																		<td>
 																			<?php echo ($row_Categoria['categoria_padre'] == "") ? "[Raíz]" : $row_Categoria['categoria_padre']; ?>
 																		</td>
-																		<td>
-																			<?php echo $row_Categoria['nombre_categoria']; ?>
-																		</td>
-
+																		
 																		<td>
 																			<?php sqlsrv_fetch($SQL_Perfiles, SQLSRV_SCROLL_ABSOLUTE, -1); ?>
 																			<?php $ids_perfiles = explode(";", $row_Categoria['perfiles']); ?>
