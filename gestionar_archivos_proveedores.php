@@ -156,7 +156,7 @@ $SQL = sqlsrv_query($conexion, $Cons);
 <head>
     <?php include_once "includes/cabecera.php"; ?>
     <!-- InstanceBeginEditable name="doctitle" -->
-    <title>Gestionar informes |
+    <title>Gestionar Archivos - Portal Proveedores |
         <?php echo NOMBRE_PORTAL; ?>
     </title>
     <!-- InstanceEndEditable -->
@@ -230,7 +230,7 @@ $SQL = sqlsrv_query($conexion, $Cons);
             <!-- InstanceBeginEditable name="Contenido" -->
             <div class="row wrapper border-bottom white-bg page-heading">
                 <div class="col-sm-8">
-                    <h2>Gestionar informes</h2>
+                    <h2>Gestionar Archivos - Portal Proveedores</h2>
                     <ol class="breadcrumb">
                         <li>
                             <a href="index1.php">Inicio</a>
@@ -239,7 +239,7 @@ $SQL = sqlsrv_query($conexion, $Cons);
                             <a href="#">Gestión de archivos</a>
                         </li>
                         <li class="active">
-                            <strong>Gestionar informes</strong>
+                            <strong>Gestionar Archivos - Portal Proveedores</strong>
                         </li>
                     </ol>
                 </div>

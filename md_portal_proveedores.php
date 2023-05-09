@@ -8,7 +8,9 @@ $edit = isset($_POST['edit']) ? $_POST['edit'] : 0;
 $doc = isset($_POST['doc']) ? $_POST['doc'] : "";
 $id = isset($_POST['id']) ? $_POST['id'] : "";
 
-$SQL_CategoriasModal = Seleccionar('tbl_PortalProveedores_Categorias', '*');
+$SQL_CategoriasModal = Seleccionar('uvw_tbl_PortalProveedores_Categorias', '*');
+$indicadorJerarquia = "- ";
+
 $SQL_FuncionesModal = Seleccionar('tbl_PortalProveedores_Funciones', '*');
 
 $ids_perfiles = array();
@@ -96,7 +98,9 @@ $SQL_Lista = sqlsrv_query($conexion, $Cons_Lista);
 						<select name="ID_CategoriaPadre" class="form-control select2" id="ID_CategoriaPadre">
 							<option value="">[Raíz]</option>
 							<?php while ($row_CategoriaModal = sqlsrv_fetch_array($SQL_CategoriasModal)) {?>
-								<option value="<?php echo $row_CategoriaModal['id']; ?>" <?php if ((isset($row['id_categoria_padre'])) && (strcmp($row_CategoriaModal['id'], $row['id_categoria_padre']) == 0)) {echo "selected";}?>><?php echo $row_CategoriaModal['nombre_categoria']; ?></option>
+								<option value="<?php echo $row_CategoriaModal['id']; ?>" <?php if ((isset($row['id_categoria_padre'])) && (strcmp($row_CategoriaModal['id'], $row['id_categoria_padre']) == 0)) {echo "selected";}?>>
+									<?php echo str_repeat($indicadorJerarquia, ($row_CategoriaModal['nivel'] + 1)) . ' ' . $row_CategoriaModal['nombre_categoria']; ?>
+								</option>
 							<?php }?>
 						</select>
 					</div>
@@ -136,10 +140,13 @@ $SQL_Lista = sqlsrv_query($conexion, $Cons_Lista);
 						<select name="ID_Categoria" class="form-control select2" id="ID_Categoria" required>
 							<option value="" disabled selected>Seleccione...</option>
 							<?php while ($row_CategoriaModal = sqlsrv_fetch_array($SQL_CategoriasModal)) {?>
-								<option value="<?php echo $row_CategoriaModal['id']; ?>" <?php if ((isset($row['id_categoria'])) && (strcmp($row_CategoriaModal['id'], $row['id_categoria']) == 0)) {echo "selected";}?>><?php echo $row_CategoriaModal['nombre_categoria']; ?></option>
+								<option value="<?php echo $row_CategoriaModal['id']; ?>" <?php if ((isset($row['id_categoria'])) && (strcmp($row_CategoriaModal['id'], $row['id_categoria']) == 0)) {echo "selected";}?>>
+									<?php echo str_repeat($indicadorJerarquia, ($row_CategoriaModal['nivel'])) . ' ' . $row_CategoriaModal['nombre_categoria']; ?>
+								</option>
 							<?php }?>
 						</select>
 					</div>
+
 					<div class="col-md-6">
 						<label class="control-label">Estado <span class="text-danger">*</span></label>
 						<select class="form-control" id="Estado" name="Estado">
