@@ -148,7 +148,11 @@ if ($sw == 1) {
 //echo $Cons;
 $SQL = sqlsrv_query($conexion, $Cons);
 
+// SMM, 05/10/2023
+$SQL_Categorias = Seleccionar('uvw_tbl_PortalProveedores_Categorias', '*');
+$indicadorJerarquia = "&nbsp;&nbsp;&nbsp;";
 ?>
+
 <!DOCTYPE html>
 <html>
 <!-- InstanceBegin template="/Templates/PlantillaPrincipal.dwt.php" codeOutsideHTMLIsLocked="false" -->
@@ -245,8 +249,8 @@ $SQL = sqlsrv_query($conexion, $Cons);
                 </div>
                 <div class="col-sm-4">
                     <div class="title-action">
-                        <a href="informes_add.php" class="btn btn-primary"><i class="fa fa-upload"></i> Cargar
-                            informes</a>
+                        <a href="gestionar_archivos_proveedores_add.php" class="btn btn-primary"><i class="fa fa-upload"></i> Cargar
+                            archivos</a>
                     </div>
                 </div>
                 <?php //echo $Cons;?>
@@ -320,7 +324,17 @@ $SQL = sqlsrv_query($conexion, $Cons);
 
                                     <label class="col-lg-1 control-label">Categoría</label>
                                     <div class="col-lg-2">
-                                        <?php include_once "includes/select_categorias_informes.php"; ?>
+                                        <select name="ID_Categoria" class="form-control select2" id="ID_Categoria"
+                                            required>
+                                            <option value="" disabled selected>Seleccione...</option>
+                                            <?php while ($row_Categoria = sqlsrv_fetch_array($SQL_Categorias)) { ?>
+                                                <option value="<?php echo $row_Categoria['id']; ?>" <?php if ((isset($row['id_categoria'])) && (strcmp($row_Categoria['id'], $row['id_categoria']) == 0)) {
+                                                       echo "selected";
+                                                   } ?>>
+                                                    <?php echo str_repeat($indicadorJerarquia, ($row_Categoria['nivel'])) . ' ' . $row_Categoria['nombre_categoria']; ?>
+                                                </option>
+                                            <?php } ?>
+                                        </select>
                                     </div>
                                     <div class="col-lg-1 pull-right">
                                         <button type="submit" class="btn btn-outline btn-success"><i

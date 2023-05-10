@@ -9,7 +9,7 @@ $doc = isset($_POST['doc']) ? $_POST['doc'] : "";
 $id = isset($_POST['id']) ? $_POST['id'] : "";
 
 $SQL_CategoriasModal = Seleccionar('uvw_tbl_PortalProveedores_Categorias', '*');
-$indicadorJerarquia = "- ";
+$indicadorJerarquia = "&nbsp;&nbsp;&nbsp;";
 
 $SQL_FuncionesModal = Seleccionar('tbl_PortalProveedores_Funciones', '*');
 

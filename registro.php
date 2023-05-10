@@ -1555,30 +1555,26 @@ if (isset($_REQUEST['P']) && $_REQUEST['P'] != "") {
 
     }
 
-/*elseif($P==30){//Insertar notas en la actividad (deprecated)
-try{
-
-//Insertar el registro en la BD
-$Cons_InsNotaActividad="EXEC sp_tbl_Actividades '".base64_decode($_POST['ID'])."',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'".LSiqmlObs($_POST['NotasActividad'])."',NULL,NULL,NULL,NULL,3";
-$SQL_InsNotaActividad=sqlsrv_query($conexion,$Cons_InsNotaActividad);
-if($SQL_InsNotaActividad){
-InsertarLog(2, 30, $Cons_InsNotaActividad);
-sqlsrv_close($conexion);
-header('Location:actividad_edit.php?a='.base64_encode("OK_InsNotAct")."&".base64_decode($_POST['return']));
-}else{
-InsertarLog(1, 30, $Cons_InsNotaActividad);
-throw new Exception('Error al insertar las notas de la actividad');
-sqlsrv_close($conexion);
-exit();
-}
-}catch (Exception $e) {
-InsertarLog(1, 30, $Cons_InsNotaActividad);
-echo 'Excepcion capturada: ',  $e->getMessage(), "\n";
-}
-
-}*/
-
-    elseif ($P == 31) { //Actualizar el archivo de acuerdo de confidencialidad
+    /*elseif($P==30){//Insertar notas en la actividad (deprecated)
+    try{
+    //Insertar el registro en la BD
+    $Cons_InsNotaActividad="EXEC sp_tbl_Actividades '".base64_decode($_POST['ID'])."',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'".LSiqmlObs($_POST['NotasActividad'])."',NULL,NULL,NULL,NULL,3";
+    $SQL_InsNotaActividad=sqlsrv_query($conexion,$Cons_InsNotaActividad);
+    if($SQL_InsNotaActividad){
+    InsertarLog(2, 30, $Cons_InsNotaActividad);
+    sqlsrv_close($conexion);
+    header('Location:actividad_edit.php?a='.base64_encode("OK_InsNotAct")."&".base64_decode($_POST['return']));
+    }else{
+    InsertarLog(1, 30, $Cons_InsNotaActividad);
+    throw new Exception('Error al insertar las notas de la actividad');
+    sqlsrv_close($conexion);
+    exit();
+    }
+    }catch (Exception $e) {
+    InsertarLog(1, 30, $Cons_InsNotaActividad);
+    echo 'Excepcion capturada: ',  $e->getMessage(), "\n";
+    }
+    }*/elseif ($P == 31) { //Actualizar el archivo de acuerdo de confidencialidad
         try {
             $Nombre_archivo = "contrato_confidencialidad.txt";
             $Archivo = fopen($Nombre_archivo, "w+");
@@ -2110,7 +2106,8 @@ echo 'Excepcion capturada: ',  $e->getMessage(), "\n";
                     "'" . $_REQUEST['dim1'] . "'",
                     "'" . $_REQUEST['dim2'] . "'",
                     "'" . $_REQUEST['dim3'] . "'",
-                    "''", //dim4
+                    "''",
+                    //dim4
                     "''", //dim5
                     "'" . $_REQUEST['prjcode'] . "'", // SMM, 04/05/2022
                     "'" . $_REQUEST['pricelist'] . "'", // SMM, 25/02/2022
@@ -2160,7 +2157,8 @@ echo 'Excepcion capturada: ',  $e->getMessage(), "\n";
                     "'" . $_REQUEST['dim1'] . "'",
                     "'" . $_REQUEST['dim2'] . "'",
                     "'" . $_REQUEST['dim3'] . "'",
-                    "''", //dim4
+                    "''",
+                    //dim4
                     "''", //dim5
                     "'" . $_REQUEST['prjcode'] . "'", // SMM, 04/05/2022
                     "'" . $_REQUEST['pricelist'] . "'", // SMM, 25/02/2022
@@ -2201,7 +2199,8 @@ echo 'Excepcion capturada: ',  $e->getMessage(), "\n";
                     "'" . $_REQUEST['dim1'] . "'",
                     "'" . $_REQUEST['dim2'] . "'",
                     "'" . $_REQUEST['dim3'] . "'",
-                    "''", //dim4
+                    "''",
+                    //dim4
                     "''", //dim5
                     "'" . $_REQUEST['prjcode'] . "'", // SMM, 04/05/2022
                     "'" . $_REQUEST['pricelist'] . "'", // SMM, 04/05/2022
@@ -2241,7 +2240,8 @@ echo 'Excepcion capturada: ',  $e->getMessage(), "\n";
                     "'" . $_REQUEST['dim1'] . "'",
                     "'" . $_REQUEST['dim2'] . "'",
                     "'" . $_REQUEST['dim3'] . "'",
-                    "''", //dim4
+                    "''",
+                    //dim4
                     "''", //dim5
                     "'" . $_REQUEST['prjcode'] . "'", // SMM, 04/05/2022
                     "'" . $_REQUEST['pricelist'] . "'", // SMM, 04/05/2022
@@ -2272,7 +2272,8 @@ echo 'Excepcion capturada: ',  $e->getMessage(), "\n";
                     "'" . $_REQUEST['dim1'] . "'",
                     "'" . $_REQUEST['dim2'] . "'",
                     "'" . $_REQUEST['dim3'] . "'",
-                    "''", //dim4
+                    "''",
+                    //dim4
                     "''", //dim5
                     "'" . $_REQUEST['prjcode'] . "'", // SMM, 04/05/2022
                     "'" . $_REQUEST['pricelist'] . "'", // SMM, 25/02/2022
@@ -2322,7 +2323,8 @@ echo 'Excepcion capturada: ',  $e->getMessage(), "\n";
                     "'" . $_REQUEST['dim1'] . "'",
                     "'" . $_REQUEST['dim2'] . "'",
                     "'" . $_REQUEST['dim3'] . "'",
-                    "''", //dim4
+                    "''",
+                    //dim4
                     "''", //dim5
                     "'" . $_REQUEST['prjcode'] . "'", // SMM, 04/05/2022
                     "'" . $_REQUEST['pricelist'] . "'", // SMM, 25/02/2022
@@ -2363,7 +2365,8 @@ echo 'Excepcion capturada: ',  $e->getMessage(), "\n";
                     "'" . $_REQUEST['dim1'] . "'",
                     "'" . $_REQUEST['dim2'] . "'",
                     "'" . $_REQUEST['dim3'] . "'",
-                    "''", //dim4
+                    "''",
+                    //dim4
                     "''", //dim5
                     "'" . $_REQUEST['prjcode'] . "'", // SMM, 01/12/2022
                     "'" . $_REQUEST['towhscode'] . "'", // SMM, 01/12/2022
@@ -2402,8 +2405,10 @@ echo 'Excepcion capturada: ',  $e->getMessage(), "\n";
                     "'" . $_SESSION['CodUser'] . "'",
                     "'" . $_REQUEST['dim1'] . "'", // SMM, 01/12/2022
                     "'" . $_REQUEST['dim2'] . "'", // SMM, 01/12/2022
-                    "'" . $_REQUEST['dim3'] . "'", // SMM, 01/12/2022
-                    "''", //dim4
+                    "'" . $_REQUEST['dim3'] . "'",
+                    // SMM, 01/12/2022
+                    "''",
+                    //dim4
                     "''", //dim5
                     "'" . $_REQUEST['prjcode'] . "'", // SMM, 01/12/2022
                     "'" . $_REQUEST['towhscode'] . "'", // SMM, 01/12/2022
@@ -2440,8 +2445,10 @@ echo 'Excepcion capturada: ',  $e->getMessage(), "\n";
                     "'" . $_SESSION['CodUser'] . "'",
                     "'" . $_REQUEST['dim1'] . "'", // SMM, 01/12/2022
                     "'" . $_REQUEST['dim2'] . "'", // SMM, 01/12/2022
-                    "'" . $_REQUEST['dim3'] . "'", // SMM, 01/12/2022
-                    "''", //dim4
+                    "'" . $_REQUEST['dim3'] . "'",
+                    // SMM, 01/12/2022
+                    "''",
+                    //dim4
                     "''", //dim5
                     "'" . $_REQUEST['prjcode'] . "'", // SMM, 01/12/2022
                     "'" . $_REQUEST['concepto'] . "'", // SMM, 23/01/2023
@@ -2481,7 +2488,8 @@ echo 'Excepcion capturada: ',  $e->getMessage(), "\n";
                     "'" . $_REQUEST['dim1'] . "'",
                     "'" . $_REQUEST['dim2'] . "'",
                     "'" . $_REQUEST['dim3'] . "'",
-                    "''", //dim4
+                    "''",
+                    //dim4
                     "''", //dim5
                     "'" . $_REQUEST['prjcode'] . "'",
                     "'" . $_REQUEST['towhscode'] . "'",
@@ -2513,7 +2521,8 @@ echo 'Excepcion capturada: ',  $e->getMessage(), "\n";
                     "'" . $_REQUEST['dim1'] . "'",
                     "'" . $_REQUEST['dim2'] . "'",
                     "'" . $_REQUEST['dim3'] . "'",
-                    "''", //dim4
+                    "''",
+                    //dim4
                     "''", //dim5
                     "'" . $_REQUEST['prjcode'] . "'", // SMM, 01/12/2022
                     "'" . $_REQUEST['concepto'] . "'", // SMM, 23/01/2023
@@ -2553,7 +2562,8 @@ echo 'Excepcion capturada: ',  $e->getMessage(), "\n";
                     "'" . $_REQUEST['dim1'] . "'",
                     "'" . $_REQUEST['dim2'] . "'",
                     "'" . $_REQUEST['dim3'] . "'",
-                    "''", //dim4
+                    "''",
+                    //dim4
                     "''", //dim5
                     "'" . $_REQUEST['prjcode'] . "'", // SMM, 01/12/2022
                     "'" . $_REQUEST['concepto'] . "'", // SMM, 23/01/2023
@@ -2654,7 +2664,8 @@ echo 'Excepcion capturada: ',  $e->getMessage(), "\n";
                     "'" . $_REQUEST['dim1'] . "'",
                     "'" . $_REQUEST['dim2'] . "'",
                     "'" . $_REQUEST['dim3'] . "'",
-                    "''", //dim4
+                    "''",
+                    //dim4
                     "''", //dim5
                     "'" . $_REQUEST['prjcode'] . "'", // SMM, 04/05/2022
                     "'" . $_REQUEST['pricelist'] . "'", // SMM, 25/02/2022
@@ -2694,7 +2705,8 @@ echo 'Excepcion capturada: ',  $e->getMessage(), "\n";
                     "'" . $_REQUEST['dim1'] . "'",
                     "'" . $_REQUEST['dim2'] . "'",
                     "'" . $_REQUEST['dim3'] . "'",
-                    "''", //dim4
+                    "''",
+                    //dim4
                     "''", //dim5
                     "'" . $_REQUEST['prjcode'] . "'", // SMM, 04/05/2022
                     "'" . $_REQUEST['pricelist'] . "'", // SMM, 25/02/2022
@@ -2761,7 +2773,8 @@ echo 'Excepcion capturada: ',  $e->getMessage(), "\n";
                     "'" . $_REQUEST['dim1'] . "'",
                     "'" . $_REQUEST['dim2'] . "'",
                     "'" . $_REQUEST['dim3'] . "'",
-                    "''", //dim4
+                    "''",
+                    //dim4
                     "''", //dim5
                     "'" . $_REQUEST['prjcode'] . "'",
                     // "'" . $_REQUEST['pricelist'] . "'",
@@ -2801,7 +2814,8 @@ echo 'Excepcion capturada: ',  $e->getMessage(), "\n";
                     "'" . $_REQUEST['dim1'] . "'",
                     "'" . $_REQUEST['dim2'] . "'",
                     "'" . $_REQUEST['dim3'] . "'",
-                    "''", //dim4
+                    "''",
+                    //dim4
                     "''", //dim5
                     "'" . $_REQUEST['prjcode'] . "'",
                     // "'" . $_REQUEST['pricelist'] . "'",
@@ -2832,7 +2846,8 @@ echo 'Excepcion capturada: ',  $e->getMessage(), "\n";
                     "'" . $_REQUEST['dim1'] . "'",
                     "'" . $_REQUEST['dim2'] . "'",
                     "'" . $_REQUEST['dim3'] . "'",
-                    "''", //dim4
+                    "''",
+                    //dim4
                     "''", //dim5
                     "'" . $_REQUEST['prjcode'] . "'",
                     // "'" . $_REQUEST['pricelist'] . "'",
@@ -2872,7 +2887,8 @@ echo 'Excepcion capturada: ',  $e->getMessage(), "\n";
                     "'" . $_REQUEST['dim1'] . "'",
                     "'" . $_REQUEST['dim2'] . "'",
                     "'" . $_REQUEST['dim3'] . "'",
-                    "''", //dim4
+                    "''",
+                    //dim4
                     "''", //dim5
                     "'" . $_REQUEST['prjcode'] . "'",
                     // "'" . $_REQUEST['pricelist'] . "'",
@@ -2903,7 +2919,8 @@ echo 'Excepcion capturada: ',  $e->getMessage(), "\n";
                     "'" . $_REQUEST['dim1'] . "'",
                     "'" . $_REQUEST['dim2'] . "'",
                     "'" . $_REQUEST['dim3'] . "'",
-                    "''", //dim4
+                    "''",
+                    //dim4
                     "''", //dim5
                     "'" . $_REQUEST['prjcode'] . "'",
                     "'" . $_REQUEST['reqdate'] . "'", // SMM, 13/02/2023
@@ -2944,7 +2961,8 @@ echo 'Excepcion capturada: ',  $e->getMessage(), "\n";
                     "'" . $_REQUEST['dim1'] . "'",
                     "'" . $_REQUEST['dim2'] . "'",
                     "'" . $_REQUEST['dim3'] . "'",
-                    "''", //dim4
+                    "''",
+                    //dim4
                     "''", //dim5
                     "'" . $_REQUEST['reqdate'] . "'", // SMM, 13/02/2023
                     "'" . $_REQUEST['prjcode'] . "'",
@@ -2976,8 +2994,10 @@ echo 'Excepcion capturada: ',  $e->getMessage(), "\n";
                     "'" . $_REQUEST['dim1'] . "'",
                     "'" . $_REQUEST['dim2'] . "'",
                     "'" . $_REQUEST['dim3'] . "'",
-                    "''", //dim4
-                    "''", //dim5
+                    "''",
+                    //dim4
+                    "''",
+                    //dim5
                     "''", //prjcode
                 );
                 $SQL_Insert = EjecutarSP('sp_tbl_FacturaCompraDetalleCarritoInsert', $ParametrosInsert, 35);
@@ -3014,8 +3034,10 @@ echo 'Excepcion capturada: ',  $e->getMessage(), "\n";
                     "'" . $_REQUEST['dim1'] . "'",
                     "'" . $_REQUEST['dim2'] . "'",
                     "'" . $_REQUEST['dim3'] . "'",
-                    "''", //dim4
-                    "''", //dim5
+                    "''",
+                    //dim4
+                    "''",
+                    //dim5
                     "''", //prjcode
                 );
                 $SQL_Insert = EjecutarSP('sp_tbl_FacturaCompraDetalleInsert', $ParametrosInsert, 35);
@@ -3043,7 +3065,8 @@ echo 'Excepcion capturada: ',  $e->getMessage(), "\n";
                     "'" . $_REQUEST['dim1'] . "'",
                     "'" . $_REQUEST['dim2'] . "'",
                     "'" . $_REQUEST['dim3'] . "'",
-                    "''", //dim4
+                    "''",
+                    //dim4
                     "''", //dim5
                     "'" . $_REQUEST['prjcode'] . "'",
                     // "'" . $_REQUEST['pricelist'] . "'",
@@ -3083,7 +3106,8 @@ echo 'Excepcion capturada: ',  $e->getMessage(), "\n";
                     "'" . $_REQUEST['dim1'] . "'",
                     "'" . $_REQUEST['dim2'] . "'",
                     "'" . $_REQUEST['dim3'] . "'",
-                    "''", //dim4
+                    "''",
+                    //dim4
                     "''", //dim5
                     "'" . $_REQUEST['prjcode'] . "'",
                     // "'" . $_REQUEST['pricelist'] . "'",
@@ -3476,7 +3500,7 @@ echo 'Excepcion capturada: ',  $e->getMessage(), "\n";
                     if (isset($_GET['custom'])) {
                     array_push($Parametros, "'" . $_GET['custom'] . "'");
                     }
-                     */
+                    */
 
                     $SQL = EjecutarSP('sp_tbl_FacturaVentaDetalleCarritoUpdCampos', $Parametros, 36);
                     if ($SQL) {
@@ -3972,11 +3996,11 @@ echo 'Excepcion capturada: ',  $e->getMessage(), "\n";
                 header('Location:reportes_orden_venta.php?a=' . base64_encode("OK_OVUPD"));
                 //}
                 /*}else{
-            InsertarLog(1, 39, $Cons_DetalleOrdenVenta);
-            throw new Exception('Ha ocurrido un error al insertar las lineas de la orden de venta');
-            sqlsrv_close($conexion);
-            exit();
-            }*/
+                InsertarLog(1, 39, $Cons_DetalleOrdenVenta);
+                throw new Exception('Ha ocurrido un error al insertar las lineas de la orden de venta');
+                sqlsrv_close($conexion);
+                exit();
+                }*/
             } else {
                 InsertarLog(1, 39, $Cons_UpdCabeceraOrdenVenta);
                 throw new Exception('Ha ocurrido un error al actualizar la orden de venta');
@@ -4275,15 +4299,15 @@ echo 'Excepcion capturada: ',  $e->getMessage(), "\n";
                             }
                             //Enviar datos al WebServices - Cuotas acuerdos
                             /*try{
-                        require_once("includes/conect_ws.php");
-                        $Parametros=array(
-                        'pIdAcpago' => $row_NewIdAcuerdo[0],
-                        'pLogin'=>$_SESSION['User']
-                        );
-                        $Client->InsertarAcuerdoPagoCuotasPortal($Parametros);
-                        }catch (Exception $e) {
-                        echo 'Excepcion capturada: ',  $e->getMessage(), "\n";
-                        }*/
+                            require_once("includes/conect_ws.php");
+                            $Parametros=array(
+                            'pIdAcpago' => $row_NewIdAcuerdo[0],
+                            'pLogin'=>$_SESSION['User']
+                            );
+                            $Client->InsertarAcuerdoPagoCuotasPortal($Parametros);
+                            }catch (Exception $e) {
+                            echo 'Excepcion capturada: ',  $e->getMessage(), "\n";
+                            }*/
                         }
                     } else {
                         throw new Exception('Ha ocurrido un error al insertar el acuerdo de pago');
