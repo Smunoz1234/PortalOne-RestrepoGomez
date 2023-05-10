@@ -7,7 +7,7 @@ $Filtro = ""; //Filtro
 $sw_suc = 0; //Mostrar las sucursales del cliente seleccionado
 $sw = 0; //Mostrar datos
 
-//Clientes
+// Clientes
 if (PermitirFuncion(205)) {
     $SQL_Cliente = Seleccionar("uvw_Sap_tbl_Clientes", "CodigoCliente, NombreCliente", "");
 } else {
@@ -15,12 +15,12 @@ if (PermitirFuncion(205)) {
     $SQL_Cliente = Seleccionar("uvw_tbl_ClienteUsuario", "CodigoCliente, NombreCliente", $Where);
 }
 
-//Fechas
+// Fechas
 if (isset($_GET['FechaInicial']) && $_GET['FechaInicial'] != "") {
     $sw = 1;
     $FechaInicial = $_GET['FechaInicial'];
 } else {
-    //Restar dias a la fecha actual
+    // Restar dias a la fecha actual
     $fecha = date('d/m/Y');
     $nuevafecha = strtotime('-' . ObtenerVariable("DiasRangoFechasGestionar") . ' day');
     $nuevafecha = date('d/m/Y', $nuevafecha);
@@ -35,12 +35,12 @@ if (isset($_GET['FechaFinal']) && $_GET['FechaFinal'] != "") {
 
 if (isset($_GET['Cliente'])) {
     $sw = 1;
-    if ($_GET['Cliente'] != "") { //Si se selecciono el cliente
-        $Filtro .= " and CardCode='" . $_GET['Cliente'] . "'";
+    if ($_GET['Cliente'] != "") { // Si se selecciono el cliente
+        $Filtro .= " AND cardcode='" . $_GET['Cliente'] . "'";
         $sw_suc = 1;
         if (isset($_GET['Sucursal'])) {
             if ($_GET['Sucursal'] == "") {
-                //Sucursales
+                // Sucursales
                 if (PermitirFuncion(205)) {
                     $Where = "CodigoCliente='" . $_GET['Cliente'] . "'";
                     $SQL_Sucursal = Seleccionar("uvw_Sap_tbl_Clientes_Sucursales", "NombreSucursal", $Where);
@@ -52,13 +52,14 @@ if (isset($_GET['Cliente'])) {
                 unset($WhereSuc);
                 $WhereSuc = array();
                 while ($row_Sucursal = sqlsrv_fetch_array($SQL_Sucursal)) {
-                    $WhereSuc[$j] = "ID_Sucursal='" . $row_Sucursal['NombreSucursal'] . "'";
+                    $WhereSuc[$j] = "id_sucursal='" . $row_Sucursal['NombreSucursal'] . "'";
                     $j++;
                 }
+
                 $FiltroSuc = implode(" OR ", $WhereSuc);
-                $Filtro .= " and (" . $FiltroSuc . ")";
+                $Filtro .= " AND (" . $FiltroSuc . ")";
             } else {
-                $Filtro .= " and ID_Sucursal='" . $_GET['Sucursal'] . "'";
+                $Filtro .= " AND id_sucursal='" . $_GET['Sucursal'] . "'";
             }
         }
 
@@ -69,7 +70,7 @@ if (isset($_GET['Cliente'])) {
             $k = 0;
             while ($row_Cliente = sqlsrv_fetch_array($SQL_Cliente)) {
 
-                //Sucursales
+                // Sucursales
                 $Where = "CodigoCliente='" . $row_Cliente['CodigoCliente'] . "' and ID_Usuario = " . $_SESSION['CodUser'];
                 $SQL_Sucursal = Seleccionar("uvw_tbl_SucursalesClienteUsuario", "NombreSucursal", $Where);
 
@@ -77,33 +78,34 @@ if (isset($_GET['Cliente'])) {
                 unset($WhereSuc);
                 $WhereSuc = array();
                 while ($row_Sucursal = sqlsrv_fetch_array($SQL_Sucursal)) {
-                    $WhereSuc[$j] = "ID_Sucursal='" . $row_Sucursal['NombreSucursal'] . "'";
+                    $WhereSuc[$j] = "id_sucursal='" . $row_Sucursal['NombreSucursal'] . "'";
                     $j++;
                 }
 
                 $FiltroSuc = implode(" OR ", $WhereSuc);
 
                 if ($k == 0) {
-                    $Filtro .= " AND (CardCode='" . $row_Cliente['CodigoCliente'] . "' AND (" . $FiltroSuc . "))";
+                    $Filtro .= " AND (cardcode='" . $row_Cliente['CodigoCliente'] . "' AND (" . $FiltroSuc . "))";
                 } else {
-                    $Filtro .= " OR (CardCode='" . $row_Cliente['CodigoCliente'] . "' AND (" . $FiltroSuc . "))";
+                    $Filtro .= " OR (cardcode='" . $row_Cliente['CodigoCliente'] . "' AND (" . $FiltroSuc . "))";
                 }
 
                 $k++;
             }
-            //Recargar consultas para los combos
+
+            // Recargar consultas para los combos
             $Where = "ID_Usuario = " . $_SESSION['CodUser'];
             $SQL_Cliente = Seleccionar("uvw_tbl_ClienteUsuario", "CodigoCliente, NombreCliente", $Where);
         }
     }
-} else { //Si no se selecciono el cliente
+} else { // Si no se selecciono el cliente
     if (!PermitirFuncion(205)) {
         $Where = "ID_Usuario = " . $_SESSION['CodUser'];
         $SQL_Cliente = Seleccionar("uvw_tbl_ClienteUsuario", "CodigoCliente, NombreCliente", $Where);
         $k = 0;
         while ($row_Cliente = sqlsrv_fetch_array($SQL_Cliente)) {
 
-            //Sucursales
+            // Sucursales
             $Where = "CodigoCliente='" . $row_Cliente['CodigoCliente'] . "' and ID_Usuario = " . $_SESSION['CodUser'];
             $SQL_Sucursal = Seleccionar("uvw_tbl_SucursalesClienteUsuario", "NombreSucursal", $Where);
 
@@ -111,36 +113,36 @@ if (isset($_GET['Cliente'])) {
             unset($WhereSuc);
             $WhereSuc = array();
             while ($row_Sucursal = sqlsrv_fetch_array($SQL_Sucursal)) {
-                $WhereSuc[$j] = "ID_Sucursal='" . $row_Sucursal['NombreSucursal'] . "'";
+                $WhereSuc[$j] = "id_sucursal='" . $row_Sucursal['NombreSucursal'] . "'";
                 $j++;
             }
 
             $FiltroSuc = implode(" OR ", $WhereSuc);
 
             if ($k == 0) {
-                $Filtro .= " AND (CardCode='" . $row_Cliente['CodigoCliente'] . "' AND (" . $FiltroSuc . "))";
+                $Filtro .= " AND (cardcode='" . $row_Cliente['CodigoCliente'] . "' AND (" . $FiltroSuc . "))";
             } else {
-                $Filtro .= " OR (CardCode='" . $row_Cliente['CodigoCliente'] . "' AND (" . $FiltroSuc . "))";
+                $Filtro .= " OR (cardcode='" . $row_Cliente['CodigoCliente'] . "' AND (" . $FiltroSuc . "))";
             }
 
             $k++;
         }
-        //Recargar consultas para los combos
+
+        // Recargar consultas para los combos
         $Where = "ID_Usuario = " . $_SESSION['CodUser'];
         $SQL_Cliente = Seleccionar("uvw_tbl_ClienteUsuario", "CodigoCliente, NombreCliente", $Where);
     }
 }
-if (isset($_GET['Categoria'])) {
-    if (($_GET['Categoria']) != "") {
-        $Filtro .= " and ID_Categoria='" . $_GET['Categoria'] . "'";
-    } else {
-        $Filtro .= " and ID_TipoCategoria=2";
-    }
-} else {
-    $Filtro .= " and ID_TipoCategoria=2";
+
+if (isset($_GET['Categoria']) && ($_GET['Categoria'] != "")) {
+    $Filtro .= " AND id_categoria='" . $_GET['Categoria'] . "'";
+
 }
+
 if ($sw == 1) {
-    $Cons = "Select * From uvw_tbl_archivos Where (Fecha Between '" . FormatoFecha($FechaInicial) . "' and '" . FormatoFecha($FechaFinal) . "') $Filtro Order by Fecha DESC";
+    $fi = FormatoFecha($FechaInicial);
+    $ff = FormatoFecha($FechaFinal);
+    $Cons = "SELECT * FROM uvw_tbl_PortalProveedores_Archivos WHERE (fecha BETWEEN '$fi' AND '$ff') $Filtro ORDER BY fecha DESC";
 } else {
     $Cons = "";
 }
@@ -240,16 +242,17 @@ $indicadorJerarquia = "&nbsp;&nbsp;&nbsp;";
                             <a href="index1.php">Inicio</a>
                         </li>
                         <li>
-                            <a href="#">Gestión de archivos</a>
+                            <a href="#">Portal Proveedores</a>
                         </li>
                         <li class="active">
-                            <strong>Gestionar Archivos - Portal Proveedores</strong>
+                            <strong>Gestionar Archivos</strong>
                         </li>
                     </ol>
                 </div>
                 <div class="col-sm-4">
                     <div class="title-action">
-                        <a href="gestionar_archivos_proveedores_add.php" class="btn btn-primary"><i class="fa fa-upload"></i> Cargar
+                        <a href="gestionar_archivos_proveedores_add.php" class="btn btn-primary"><i
+                                class="fa fa-upload"></i> Cargar
                             archivos</a>
                     </div>
                 </div>
@@ -355,7 +358,7 @@ $indicadorJerarquia = "&nbsp;&nbsp;&nbsp;";
                                     <thead>
                                         <tr>
                                             <th>Nombre del archivo</th>
-                                            <th>Descripci&oacute;n</th>
+                                            <th>Descripción</th>
                                             <th>Fecha archivo</th>
                                             <th>Cliente</th>
                                             <th>Sucursal</th>

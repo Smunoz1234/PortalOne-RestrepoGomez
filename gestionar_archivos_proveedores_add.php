@@ -82,19 +82,19 @@ $indicadorJerarquia = "&nbsp;&nbsp;&nbsp;";
 			<!-- InstanceBeginEditable name="Contenido" -->
 			<div class="row wrapper border-bottom white-bg page-heading">
 				<div class="col-sm-8">
-					<h2>Cargar informes</h2>
+					<h2>Cargar Archivos - Portal Proveedores</h2>
 					<ol class="breadcrumb">
 						<li>
 							<a href="index1.php">Inicio</a>
 						</li>
 						<li>
-							<a href="#">Gestión de archivos</a>
+							<a href="#">Portal Proveedores</a>
 						</li>
 						<li>
-							<a href="gestionar_archivos_proveedores.php">Gestionar Archivos - Portal Proveedores</a>
+							<a href="gestionar_archivos_proveedores.php">Gestionar Archivos</a>
 						</li>
 						<li class="active">
-							<strong>Cargar informes</strong>
+							<strong>Cargar Archivos</strong>
 						</li>
 					</ol>
 				</div>
@@ -187,6 +187,9 @@ $indicadorJerarquia = "&nbsp;&nbsp;&nbsp;";
 									$DocFiles = array();
 									$i = 0;
 									while ($archivo = readdir($ruta)) { //obtenemos un archivo y luego otro sucesivamente
+										// SMM, 05/10/2023
+										sqlsrv_fetch($SQL_Categorias, SQLSRV_SCROLL_ABSOLUTE, -1);
+
 										if (($archivo == ".") || ($archivo == ".."))
 											continue;
 
@@ -237,8 +240,8 @@ $indicadorJerarquia = "&nbsp;&nbsp;&nbsp;";
 													<div class="form-group">
 														<label class="col-sm-4 control-label">Categoria</label>
 														<div class="col-sm-8">
-															<select name="ID_Categoria" class="form-control select2"
-																id="ID_Categoria" required>
+															<select name="Categoria<?php echo $i; ?>"
+																class="form-control m-b select2" id="Categoria<?php echo $i; ?>">
 																<option value="" disabled selected>Seleccione...</option>
 																<?php while ($row_Categoria = sqlsrv_fetch_array($SQL_Categorias)) { ?>
 																	<option value="<?php echo $row_Categoria['id']; ?>" <?php if ((isset($row['id_categoria'])) && (strcmp($row_Categoria['id'], $row['id_categoria']) == 0)) {
@@ -289,7 +292,7 @@ $indicadorJerarquia = "&nbsp;&nbsp;&nbsp;";
 													class="fa fa-arrow-circle-o-left"></i> Cancelar</a>
 										</div>
 									</div>
-									<input type="hidden" id="P" name="P" value="9" />
+									<input type="hidden" id="P" name="P" value="59" />
 									<input type="hidden" id="CantFiles" name="CantFiles" value="<?php echo $i; ?>" />
 									<input type="hidden" id="CodigoCliente" name="CodigoCliente"
 										value="<?php echo $_POST['CodigoCliente']; ?>" />
@@ -332,9 +335,11 @@ $indicadorJerarquia = "&nbsp;&nbsp;&nbsp;";
 		$(document).ready(function () {
 			$("#AgregarDatos").validate();
 
+			/*
 			$(".truncate").dotdotdot({
 				watch: 'window'
 			});
+			*/
 
 			$('.chosen-select').chosen({ width: "100%" });
 			<?php

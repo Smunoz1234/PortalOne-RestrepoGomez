@@ -71,7 +71,11 @@ function PermitirFuncion($Permiso)
 function InsertarLog($Type, $Code, $Consulta)
 {
     global $conexion;
-    if ($Type == 1) {$Type = "Error";} else { $Type = "Success";}
+    if ($Type == 1) {
+        $Type = "Error";
+    } else {
+        $Type = "Success";
+    }
     $Consulta = str_replace("'", "''", $Consulta);
 
     if (isset($_SESSION['CodUser'])) {
@@ -454,7 +458,9 @@ function ObtenerVariable($Variable, $validar = true)
     $SQL = Seleccionar('uvw_tbl_VariablesGlobales', 'Valor', "NombreVariable='" . $Variable . "'");
     $row = sqlsrv_fetch_array($SQL);
     //$Num=sqlsrv_num_rows($SQL);
-    if (!isset($row['Valor']) && $validar) {echo "La variable global $Variable no tiene un valor.";}
+    if (!isset($row['Valor']) && $validar) {
+        echo "La variable global $Variable no tiene un valor.";
+    }
     return $row['Valor'] ?? "";
 }
 
@@ -464,7 +470,9 @@ function ObtenerValorDefecto($TipoObjeto, $NombreCampo, $validar = true)
     $SQL = Seleccionar('uvw_tbl_CamposValoresDefecto_Detalle', 'ValorCampo', "TipoObjeto='" . $TipoObjeto . "' AND NombreCampo='" . $NombreCampo . "' AND ID_Usuario='" . $_SESSION['CodUser'] . "'");
     $row = sqlsrv_fetch_array($SQL);
     //$Num=sqlsrv_num_rows($SQL);
-    if (!isset($row['ValorCampo']) && $validar) {echo "La variable $NombreCampo no tiene un valor por defecto.";}
+    if (!isset($row['ValorCampo']) && $validar) {
+        echo "La variable $NombreCampo no tiene un valor por defecto.";
+    }
     return $row['ValorCampo'] ?? "";
 }
 
@@ -1019,7 +1027,7 @@ function FormatoNombreArchivo($NombreArchivo)
     $FileActual = $NombreArchivo;
     $exp = explode('.', $FileActual);
     $Ext = end($exp);
-//    $Ext = end(explode('.',$NombreArchivo));
+    //    $Ext = end(explode('.',$NombreArchivo));
     //Sacar el nombre sin la extension
     $OnlyName = substr($NombreArchivo, 0, strlen($NombreArchivo) - (strlen($Ext) + 1));
     $NuevoNombre = substr(str_replace("_", " ", $OnlyName), 0, -12) . "." . $Ext;
@@ -1191,7 +1199,9 @@ function QuitarParametrosURL($url, $keys = array())
     }
 
     parse_str($url_parts['query'], $result_array);
-    foreach ($keys as $key) {unset($result_array[$key]);}
+    foreach ($keys as $key) {
+        unset($result_array[$key]);
+    }
     $url_parts['query'] = http_build_query($result_array);
     $url = (isset($url_parts["scheme"]) ? $url_parts["scheme"] . "://" : "") .
         (isset($url_parts["user"]) ? $url_parts["user"] . ":" : "") .
@@ -1484,9 +1494,9 @@ function EnviarMail($email_destino, $nombre_destino = "", $tipo_email = 0, $asun
         $InsertLog = "Insert Into tbl_Log Values ('" . date('Y-m-d H:i:s') . "','" . $_SESSION['CodUser'] . "','Error',50,'" . $mail->ErrorInfo . "')";
         sqlsrv_query($conexion, $InsertLog);
     } /*else{
-$InsertLog="Insert Into tbl_Log Values ('".date('Y-m-d H:i:s')."','".$_SESSION['CodUser']."','Success',50,'Send Email: ".$email_destino."')";
-sqlsrv_query($conexion,$InsertLog);
-}*/
+     $InsertLog="Insert Into tbl_Log Values ('".date('Y-m-d H:i:s')."','".$_SESSION['CodUser']."','Success',50,'Send Email: ".$email_destino."')";
+     sqlsrv_query($conexion,$InsertLog);
+     }*/
 }
 
 // Stiven Muñoz Murillo, 01/02/2022
