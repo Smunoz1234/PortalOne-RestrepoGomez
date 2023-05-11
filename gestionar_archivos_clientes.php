@@ -141,7 +141,7 @@ if (isset($_GET['ID_Categoria']) && ($_GET['ID_Categoria'] != "")) {
 if ($sw == 1) {
     $fi = FormatoFecha($FechaInicial);
     $ff = FormatoFecha($FechaFinal);
-    $Cons = "SELECT * FROM uvw_tbl_PortalProveedores_Archivos WHERE (fecha BETWEEN '$fi' AND '$ff') $Filtro ORDER BY fecha DESC";
+    $Cons = "SELECT * FROM uvw_tbl_PortalClientes_Archivos WHERE (fecha BETWEEN '$fi' AND '$ff') $Filtro ORDER BY fecha DESC";
 } else {
     $Cons = "";
 }
@@ -150,7 +150,7 @@ if ($sw == 1) {
 $SQL = sqlsrv_query($conexion, $Cons);
 
 // SMM, 05/10/2023
-$SQL_Categorias = Seleccionar('uvw_tbl_PortalProveedores_Categorias', '*');
+$SQL_Categorias = Seleccionar('uvw_tbl_PortalClientes_Categorias', '*');
 $indicadorJerarquia = "&nbsp;&nbsp;&nbsp;";
 ?>
 
@@ -161,7 +161,7 @@ $indicadorJerarquia = "&nbsp;&nbsp;&nbsp;";
 <head>
     <?php include_once "includes/cabecera.php"; ?>
     <!-- InstanceBeginEditable name="doctitle" -->
-    <title>Gestionar Archivos - Portal Proveedores |
+    <title>Gestionar Archivos - Portal Clientes |
         <?php echo NOMBRE_PORTAL; ?>
     </title>
     <!-- InstanceEndEditable -->
@@ -215,7 +215,7 @@ $indicadorJerarquia = "&nbsp;&nbsp;&nbsp;";
                     cancelButtonText: "Cancelar"
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        location.href = 'registro.php?P=60&type=2&id=' + id;
+                        location.href = 'registro.php?P=60&type=1&id=' + id;
                     }
                 });
             }
@@ -235,13 +235,13 @@ $indicadorJerarquia = "&nbsp;&nbsp;&nbsp;";
             <!-- InstanceBeginEditable name="Contenido" -->
             <div class="row wrapper border-bottom white-bg page-heading">
                 <div class="col-sm-8">
-                    <h2>Gestionar Archivos - Portal Proveedores</h2>
+                    <h2>Gestionar Archivos - Portal Clientes</h2>
                     <ol class="breadcrumb">
                         <li>
                             <a href="index1.php">Inicio</a>
                         </li>
                         <li>
-                            <a href="#">Portal Proveedores</a>
+                            <a href="#">Portal Clientes</a>
                         </li>
                         <li class="active">
                             <strong>Gestionar Archivos</strong>
@@ -250,7 +250,7 @@ $indicadorJerarquia = "&nbsp;&nbsp;&nbsp;";
                 </div>
                 <div class="col-sm-4">
                     <div class="title-action">
-                        <a href="gestionar_archivos_proveedores_add.php" class="btn btn-primary"><i
+                        <a href="gestionar_archivos_clientes_add.php" class="btn btn-primary"><i
                                 class="fa fa-upload"></i> Cargar
                             archivos</a>
                     </div>
@@ -262,7 +262,7 @@ $indicadorJerarquia = "&nbsp;&nbsp;&nbsp;";
                     <div class="col-lg-12">
                         <div class="ibox-content">
                             <?php include "includes/spinner.php"; ?>
-                            <form action="gestionar_archivos_proveedores.php" method="get" id="formBuscar"
+                            <form action="gestionar_archivos_clientes.php" method="get" id="formBuscar"
                                 class="form-horizontal">
                                 <div class="form-group">
                                     <label class="col-xs-12">
@@ -402,7 +402,7 @@ $indicadorJerarquia = "&nbsp;&nbsp;&nbsp;";
                                                 </td>
                                                 <td>
                                                     <?php if ($row['archivo'] != "") { ?><a
-                                                            href="gestionar_archivos_down.php?type=2&file=<?php echo base64_encode($row['id_archivo']); ?>"
+                                                            href="gestionar_archivos_down.php?type=1&file=<?php echo base64_encode($row['id_archivo']); ?>"
                                                             target="_blank" class="btn btn-success btn-xs"><i
                                                                 class="fa fa-download"></i> Descargar</a>
                                                         <?php if (PermitirFuncion(205) || ConsultarUsuarioCargue($row['id_archivo'])) { ?>

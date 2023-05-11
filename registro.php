@@ -4780,7 +4780,13 @@ if (isset($_REQUEST['P']) && $_REQUEST['P'] != "") {
                 $j++;
             }
             sqlsrv_close($conexion);
-            header('Location:gestionar_archivos_proveedores.php?a=' . base64_encode("OK_UpdFile"));
+
+            // SMM, 05/11/2023
+            if ($_POST['type'] == 2) {
+                header('Location:gestionar_archivos_proveedores.php?a=' . base64_encode("OK_UpdFile"));
+            } else {
+                header('Location:gestionar_archivos_clientes.php?a=' . base64_encode("OK_UpdFile"));
+            }
         } catch (Exception $e) {
             InsertarLog(1, 59, $Cons_InsArchivo);
             echo 'Excepcion capturada: ', $e->getMessage(), "\n";

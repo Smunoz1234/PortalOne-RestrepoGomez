@@ -43,7 +43,7 @@ if ($Step == 3) {
 }
 
 // SMM, 05/10/2023
-$SQL_Categorias = Seleccionar('uvw_tbl_PortalProveedores_Categorias', '*');
+$SQL_Categorias = Seleccionar('uvw_tbl_PortalClientes_Categorias', '*');
 $indicadorJerarquia = "&nbsp;&nbsp;&nbsp;";
 ?>
 
@@ -85,16 +85,16 @@ $indicadorJerarquia = "&nbsp;&nbsp;&nbsp;";
 			<!-- InstanceBeginEditable name="Contenido" -->
 			<div class="row wrapper border-bottom white-bg page-heading">
 				<div class="col-sm-8">
-					<h2>Cargar Archivos - Portal Proveedores</h2>
+					<h2>Cargar Archivos - Portal Clientes</h2>
 					<ol class="breadcrumb">
 						<li>
 							<a href="index1.php">Inicio</a>
 						</li>
 						<li>
-							<a href="#">Portal Proveedores</a>
+							<a href="#">Portal Clientes</a>
 						</li>
 						<li>
-							<a href="gestionar_archivos_proveedores.php">Gestionar Archivos</a>
+							<a href="gestionar_archivos_clientes.php">Gestionar Archivos</a>
 						</li>
 						<li class="active">
 							<strong>Cargar Archivos</strong>
@@ -108,7 +108,7 @@ $indicadorJerarquia = "&nbsp;&nbsp;&nbsp;";
 						<div class="ibox-content">
 							<?php include("includes/spinner.php"); ?>
 							<?php if ($Step == 1) { ?>
-								<form action="gestionar_archivos_proveedores_add.php" method="post" class="form-horizontal"
+								<form action="gestionar_archivos_clientes_add.php" method="post" class="form-horizontal"
 									id="SeleccionarCliente">
 									<div class="form-group">
 										<label class="col-lg-12">
@@ -131,7 +131,7 @@ $indicadorJerarquia = "&nbsp;&nbsp;&nbsp;";
 										<div class="col-sm-9">
 											<button class="btn btn-primary" type="submit">Continuar <i
 													class="fa fa-arrow-circle-right"></i></button> <a
-												href="gestionar_archivos_proveedores.php"
+												href="gestionar_archivos_clientes.php"
 												class="btn btn-outline btn-default"><i
 													class="fa fa-arrow-circle-o-left"></i> Regresar</a>
 										</div>
@@ -153,12 +153,12 @@ $indicadorJerarquia = "&nbsp;&nbsp;&nbsp;";
 								<br><br>
 								<div class="row">
 									<div class="col-lg-12">
-										<form action="gestionar_archivos_proveedores_add.php" method="post"
+										<form action="gestionar_archivos_clientes_add.php" method="post"
 											class="form-horizontal" id="AgregarArchivos">
 											<div class="col-sm-9">
 												<button class="btn btn-primary" type="submit">Continuar <i
 														class="fa fa-arrow-circle-right"></i></button> <a
-													href="gestionar_archivos_proveedores.php"
+													href="gestionar_archivos_clientes.php"
 													class="btn btn-outline btn-default"><i
 														class="fa fa-arrow-circle-o-left"></i> Cancelar</a>
 											</div>
@@ -293,14 +293,14 @@ $indicadorJerarquia = "&nbsp;&nbsp;&nbsp;";
 										<div class="col-sm-9">
 											<button class="btn btn-primary" id="toggleSpinners" type="submit">Continuar <i
 													class="fa fa-arrow-circle-right"></i></button> <a
-												href="gestionar_archivos_proveedores.php"
+												href="gestionar_archivos_clientes.php"
 												class="btn btn-outline btn-default"><i
 													class="fa fa-arrow-circle-o-left"></i> Cancelar</a>
 										</div>
 									</div>
 
 									<!-- SMM, 05/11/2023 -->
-									<input type="hidden" id="type" name="type" value="2">
+									<input type="hidden" id="type" name="type" value="1">
 
 									<input type="hidden" id="P" name="P" value="59" />
 									<input type="hidden" id="CantFiles" name="CantFiles" value="<?php echo $i; ?>" />
