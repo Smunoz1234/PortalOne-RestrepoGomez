@@ -4639,9 +4639,6 @@ if (isset($_REQUEST['P']) && $_REQUEST['P'] != "") {
                 if ($CountSuc > 0) { //Escogio sucursales
                     $k = 0; //Cantidad de sucursales
 
-                    echo "Entre 1";
-                    exit();
-
                     while ($k < $CountSuc) {
 
                         //Sacar la extension del archivo
@@ -4661,12 +4658,10 @@ if (isset($_REQUEST['P']) && $_REQUEST['P'] != "") {
                         $SQL_InsArchivo = sqlsrv_query($conexion, $Cons_InsArchivo);
 
                         if ($SQL_InsArchivo) {
-                            echo "Entre 11";
-                            exit();
 
                             //Mover archivo a la carpeta real
                             $SessionBD = $_SESSION['BD'];
-                            $dir_new = "$SessionBD/$carp_archivos/$CardCode/$Categoria/";
+                            $dir_new = "$SessionBD/$carp_archivos/$CardCode/$CategoriaAct/";
                             if (file_exists($dir_new)) {
                                 copy($dir . $DocFiles[$j], $dir_new . $NuevoNombre);
                             } else {
@@ -4725,13 +4720,22 @@ if (isset($_REQUEST['P']) && $_REQUEST['P'] != "") {
                         $CategoriaAct = $_POST["Categoria$j"];
                         $FechaAct = $_POST["Fecha$j"];
                         $ComentariosAct = LSiqmlObs($_POST["Comentarios$j"]);
-                        $Cons_InsArchivo = "EXEC sp_tbl_PortalProveedores_Archivos NULL,'$CardCode','$SucursalAct','$CategoriaAct','$FechaAct','$ComentariosAct','$NuevoNombre','$CodUser',1";
-                        $SQL_InsArchivo = sqlsrv_query($conexion, $Cons_InsArchivo);
+
+                        // SMM, 05/10/2023
+                        $Param_InsArchivo = array(
+                            "NULL",
+                            "'$CardCode'",
+                            "'$SucursalAct'",
+                            "'$CategoriaAct'",
+                            "'$FechaAct'",
+                            "'$ComentariosAct'",
+                            "'$NuevoNombre'",
+                            "'$CodUser'",
+                            "1"
+                        );
+                        $SQL_InsArchivo = EjecutarSP('sp_tbl_PortalProveedores_Archivos', $Param_InsArchivo);
 
                         if ($SQL_InsArchivo) {
-                            echo "Entre 21";
-                            exit();
-
                             //Mover archivo a la carpeta real
                             $SessionBD = $_SESSION['BD'];
                             $dir_new = "$SessionBD/$carp_archivos/$CardCode/$CategoriaAct/";
@@ -4772,6 +4776,58 @@ if (isset($_REQUEST['P']) && $_REQUEST['P'] != "") {
             echo "catch";
             exit();
         }
+    }
+
+    // Eliminar Archivos Portal Proveedores y Clientes. SMM, 05/10/2023
+    elseif ($P == 60) {
+        // SMM, 05/10/2023
+        $ID = $_GET['id'];
+
+        $CardName = "Clientes";
+        if ($_GET['type'] == 2) {
+            $CardName = "Proveedores";
+        }
+        $Tabla_Cons = "tbl_Portal$CardName" . "_Archivos";
+
+        try {
+            // Consultar archivo para eliminarlo fisicamente
+            $Con_BusArchivo = "SELECT * FROM uvw_$Tabla_Cons WHERE id_archivo='$ID'";
+            $SQL_BusArchivo = sqlsrv_query($conexion, $Con_BusArchivo);
+            $row_BusArchivo = sqlsrv_fetch_array($SQL_BusArchivo);
+
+            //Consultar si el archivo esta en mas de una sucursal
+            $ConsSuc = "SELECT * FROM uvw_$Tabla_Cons WHERE cardcode='" . $row_BusArchivo['cardcode'] . "' AND id_categoria='" . $row_BusArchivo['id_categoria'] . "' AND archivo='" . $row_BusArchivo['archivo'] . "'";
+            $SQLSuc = sqlsrv_query($conexion, $ConsSuc, array(), array("Scrollable" => 'static'));
+            $NumSuc = sqlsrv_num_rows($SQLSuc);
+            if ($NumSuc == 1) { // Si solo esta en un, se elimina fisicamente. Sino, no se elimina fisicamente
+                // echo $NumSuc;
+                $carp_archivos = ObtenerVariable("RutaArchivos");
+                $File = $_SESSION['BD'] . "/" . $carp_archivos . "/" . $row_BusArchivo['cardCode'] . "/" . $row_BusArchivo['id_categoria'] . "/" . $row_BusArchivo['archivo'];
+                if (file_exists($File)) {
+                    unlink($File);
+                }
+            }
+
+            $Cons_DelArchivo = "EXEC sp_$Tabla_Cons '" . $_GET['id'] . "',NULL,NULL,NULL,NULL,NULL,NULL,NULL,2";
+            if (sqlsrv_query($conexion, $Cons_DelArchivo)) {
+                InsertarLog(2, 13, $Cons_DelArchivo);
+                sqlsrv_close($conexion);
+                if ($_GET['type'] == 2) {
+                    header('Location:gestionar_archivos_proveedores.php?a=' . base64_encode("OK_File_delete"));
+                } else {
+                    header('Location:gestionar_archivos_clientes.php?a=' . base64_encode("OK_File_delete"));
+                }
+
+            } else {
+                InsertarLog(1, 60, $Cons_DelArchivo);
+                throw new Exception('Ha ocurrido un error al eliminar el archivo');
+                sqlsrv_close($conexion);
+            }
+        } catch (Exception $e) {
+            InsertarLog(1, 60, $Cons_DelArchivo);
+            echo 'Excepcion capturada: ', $e->getMessage(), "\n";
+        }
+
     }
 
 }

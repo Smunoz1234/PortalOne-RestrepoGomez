@@ -134,9 +134,8 @@ if (isset($_GET['Cliente'])) {
     }
 }
 
-if (isset($_GET['Categoria']) && ($_GET['Categoria'] != "")) {
-    $Filtro .= " AND id_categoria='" . $_GET['Categoria'] . "'";
-
+if (isset($_GET['ID_Categoria']) && ($_GET['ID_Categoria'] != "")) {
+    $Filtro .= " AND id_categoria='" . $_GET['ID_Categoria'] . "'";
 }
 
 if ($sw == 1) {
@@ -216,7 +215,7 @@ $indicadorJerarquia = "&nbsp;&nbsp;&nbsp;";
                     cancelButtonText: "Cancelar"
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        location.href = 'registro.php?P=13&type=2&id=' + id;
+                        location.href = 'registro.php?P=20&type=2&id=' + id;
                     }
                 });
             }
@@ -327,11 +326,10 @@ $indicadorJerarquia = "&nbsp;&nbsp;&nbsp;";
 
                                     <label class="col-lg-1 control-label">Categoría</label>
                                     <div class="col-lg-2">
-                                        <select name="ID_Categoria" class="form-control select2" id="ID_Categoria"
-                                            required>
-                                            <option value="" disabled selected>Seleccione...</option>
+                                        <select name="ID_Categoria" class="form-control select2" id="ID_Categoria">
+                                            <option value="">(Todas)</option>
                                             <?php while ($row_Categoria = sqlsrv_fetch_array($SQL_Categorias)) { ?>
-                                                <option value="<?php echo $row_Categoria['id']; ?>" <?php if ((isset($row['id_categoria'])) && (strcmp($row_Categoria['id'], $row['id_categoria']) == 0)) {
+                                                <option value="<?php echo $row_Categoria['id']; ?>" <?php if (isset($_GET['ID_Categoria']) && ($row_Categoria['id'] == $_GET['ID_Categoria'])) {
                                                        echo "selected";
                                                    } ?>>
                                                     <?php echo str_repeat($indicadorJerarquia, ($row_Categoria['nivel'])) . ' ' . $row_Categoria['nombre_categoria']; ?>
@@ -372,41 +370,41 @@ $indicadorJerarquia = "&nbsp;&nbsp;&nbsp;";
                                         <?php while ($row = sqlsrv_fetch_array($SQL)) { ?>
                                             <tr class="gradeX">
                                                 <td>
-                                                    <?php echo FormatoNombreArchivo($row['Archivo']); ?>
+                                                    <?php echo FormatoNombreArchivo($row['archivo']); ?>
                                                 </td>
                                                 <td>
-                                                    <?php echo $row['Comentarios']; ?>
+                                                    <?php echo $row['comentarios']; ?>
                                                 </td>
                                                 <td>
-                                                    <?php if ($row['Fecha'] != "") {
-                                                        echo $row['Fecha']->format('Y-m-d');
+                                                    <?php if ($row['fecha'] != "") {
+                                                        echo $row['fecha']->format('Y-m-d');
                                                     } else { ?>
                                                         <p class="text-muted">--</p>
                                                     <?php } ?>
                                                 </td>
                                                 <td>
-                                                    <?php echo $row['NombreCliente']; ?>
+                                                    <?php echo $row['cardname']; ?>
                                                 </td>
                                                 <td>
-                                                    <?php echo $row['ID_Sucursal']; ?>
+                                                    <?php echo $row['id_sucursal']; ?>
                                                 </td>
                                                 <td>
-                                                    <?php echo $row['NombreCategoria']; ?>
+                                                    <?php echo $row['nombre_categoria']; ?>
                                                 </td>
                                                 <td>
-                                                    <?php echo $row['FechaRegistro']->format('Y-m-d H:i:s'); ?>
+                                                    <?php echo $row['fecha_registro']->format('Y-m-d H:i:s'); ?>
                                                 </td>
                                                 <td>
-                                                    <?php echo $row['NombreUsuario']; ?>
+                                                    <?php echo $row['nombre_usuario']; ?>
                                                 </td>
                                                 <td>
-                                                    <?php if ($row['Archivo'] != "") { ?><a
-                                                            href="filedownload.php?file=<?php echo base64_encode($row['ID_Archivo']); ?>"
+                                                    <?php if ($row['archivo'] != "") { ?><a
+                                                            href="gestionar_archivos_down.php?type=2&file=<?php echo base64_encode($row['id_archivo']); ?>"
                                                             target="_blank" class="btn btn-success btn-xs"><i
                                                                 class="fa fa-download"></i> Descargar</a>
-                                                        <?php if (PermitirFuncion(205) || ConsultarUsuarioCargue($row['ID_Archivo'])) { ?>
+                                                        <?php if (PermitirFuncion(205) || ConsultarUsuarioCargue($row['id_archivo'])) { ?>
                                                             <a href="#"
-                                                                onClick="EliminarRegistro(<?php echo $row['ID_Archivo']; ?>);"
+                                                                onClick="EliminarRegistro(<?php echo $row['id_archivo']; ?>);"
                                                                 class="btn btn-danger btn-xs"><i class="fa fa-eraser"></i>
                                                                 Eliminar</a>
                                                         <?php }
