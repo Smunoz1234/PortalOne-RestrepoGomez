@@ -31,10 +31,13 @@ if ($Step == 3) {
 		$j++;
 	}
 
-	while ($row_Cliente = sqlsrv_fetch_array($SQL_Cliente)) {
-		if ((isset($_POST['CodigoCliente'])) && (strcmp($row_Cliente['CodigoCliente'], $_POST['CodigoCliente']) == 0)) {
-			$NombreCliente = $row_Cliente['NombreCliente'];
-			break;
+	$NombreCliente = "";
+	if (isset($_POST['CodigoCliente']) && ($_POST['CodigoCliente'] != "")) {
+		while ($row_Cliente = sqlsrv_fetch_array($SQL_Cliente)) {
+			if (strcmp($row_Cliente['CodigoCliente'], $_POST['CodigoCliente']) == 0) {
+				$NombreCliente = $row_Cliente['NombreCliente'];
+				break;
+			}
 		}
 	}
 }
@@ -109,16 +112,15 @@ $indicadorJerarquia = "&nbsp;&nbsp;&nbsp;";
 									id="SeleccionarCliente">
 									<div class="form-group">
 										<label class="col-lg-12">
-											<h3 class="bg-muted p-xs b-r-sm"><i class="fa fa-cloud-upload"></i> Seleccione
+											<h3 class="bg-success p-xs b-r-sm"><i class="fa fa-cloud-upload"></i> Seleccione
 												el cliente para cargar la información</h3>
 										</label>
 									</div>
 									<div class="form-group">
 										<label class="col-sm-1 control-label">Cliente</label>
 										<div class="col-sm-6">
-											<select name="Cliente" required class="form-control m-b chosen-select"
-												id="Cliente">
-												<option value="">Seleccione...</option>
+											<select name="Cliente" class="form-control m-b chosen-select" id="Cliente">
+												<option value="">(Todos)</option>
 												<?php while ($row_Cliente = sqlsrv_fetch_array($SQL_Cliente)) { ?>
 													<option value="<?php echo $row_Cliente['CodigoCliente']; ?>"><?php echo $row_Cliente['NombreCliente']; ?></option>
 												<?php } ?>
@@ -170,14 +172,14 @@ $indicadorJerarquia = "&nbsp;&nbsp;&nbsp;";
 								<form action="registro.php" method="post" class="form-horizontal" id="AgregarDatos">
 									<div class="form-group">
 										<label class="col-lg-12">
-											<h3 class="bg-muted p-xs b-r-sm"><i class="fa fa-info-circle"></i> Ingresar
+											<h3 class="bg-success p-xs b-r-sm"><i class="fa fa-info-circle"></i> Ingresar
 												información de los archivos</h3>
 										</label>
 									</div>
 									<div class="form-group">
-										<p class="col-lg-12 text-primary">Cliente:<br><strong>
-												<?php echo $NombreCliente; ?>
-											</strong></p>
+										<h3 class="col-lg-12">Cliente:<br>
+											<?php echo ($NombreCliente == "") ? "(Todos)" : $NombreCliente; ?>
+										</h3>
 									</div>
 									<br>
 									<?php
@@ -223,7 +225,7 @@ $indicadorJerarquia = "&nbsp;&nbsp;&nbsp;";
 													</div>
 												</div>
 												<div class="col-lg-6">
-													<div class="form-group">
+													<div class="form-group" <?php if($NombreCliente == "") { echo "style='visibility: hidden;'"; }?>>
 														<label class="col-sm-4 control-label">Sucursal</label>
 														<div class="col-sm-8">
 															<select id="Sucursal<?php echo $i; ?>"
@@ -238,15 +240,19 @@ $indicadorJerarquia = "&nbsp;&nbsp;&nbsp;";
 														</div>
 													</div>
 													<div class="form-group">
-														<label class="col-sm-4 control-label">Categoria</label>
+														<label class="col-sm-4 control-label">Categoria <span
+																class="text-danger">*</span></label>
 														<div class="col-sm-8">
-															<select name="Categoria<?php echo $i; ?>"
+															<select name="Categoria<?php echo $i; ?>" required
 																class="form-control m-b select2" id="Categoria<?php echo $i; ?>">
 																<option value="" disabled selected>Seleccione...</option>
 																<?php while ($row_Categoria = sqlsrv_fetch_array($SQL_Categorias)) { ?>
 																	<option value="<?php echo $row_Categoria['id']; ?>" <?php if ((isset($row['id_categoria'])) && (strcmp($row_Categoria['id'], $row['id_categoria']) == 0)) {
 																		   echo "selected";
-																	   } ?>>
+																	   } ?> 				
+																	   <?php if ($row_Categoria['es_hoja'] == 0) {
+																			echo "style='color: white; background-color: darkgray; font-weight: bold;' disabled";
+																		} ?>>
 																		<?php echo str_repeat($indicadorJerarquia, ($row_Categoria['nivel'])) . ' ' . $row_Categoria['nombre_categoria']; ?>
 																	</option>
 																<?php } ?>
@@ -292,6 +298,10 @@ $indicadorJerarquia = "&nbsp;&nbsp;&nbsp;";
 													class="fa fa-arrow-circle-o-left"></i> Cancelar</a>
 										</div>
 									</div>
+
+									<!-- SMM, 05/11/2023 -->
+									<input type="hidden" id="type" name="type" value="2">
+
 									<input type="hidden" id="P" name="P" value="59" />
 									<input type="hidden" id="CantFiles" name="CantFiles" value="<?php echo $i; ?>" />
 									<input type="hidden" id="CodigoCliente" name="CodigoCliente"
@@ -333,8 +343,13 @@ $indicadorJerarquia = "&nbsp;&nbsp;&nbsp;";
 	</script>
 	<script>
 		$(document).ready(function () {
-			$("#AgregarDatos").validate();
-
+			$("#AgregarDatos").validate({
+				submitHandler: function(form) {
+					$('.ibox-content').addClass('sk-loading'); // activa el mensaje "cargando"
+					form.submit(); // envía el formulario
+				}
+			});
+			
 			/*
 			$(".truncate").dotdotdot({
 				watch: 'window'
@@ -362,11 +377,13 @@ $indicadorJerarquia = "&nbsp;&nbsp;&nbsp;";
 			});
 		});
 
+		/*
 		$(function () {
 			$('#toggleSpinners').on('click', function () {
 				$('.ibox-content').toggleClass('sk-loading');
 			})
 		});
+		*/
 	</script>
 	<!-- InstanceEndEditable -->
 </body>

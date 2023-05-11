@@ -215,7 +215,7 @@ $indicadorJerarquia = "&nbsp;&nbsp;&nbsp;";
                     cancelButtonText: "Cancelar"
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        location.href = 'registro.php?P=20&type=2&id=' + id;
+                        location.href = 'registro.php?P=60&type=2&id=' + id;
                     }
                 });
             }
@@ -331,7 +331,10 @@ $indicadorJerarquia = "&nbsp;&nbsp;&nbsp;";
                                             <?php while ($row_Categoria = sqlsrv_fetch_array($SQL_Categorias)) { ?>
                                                 <option value="<?php echo $row_Categoria['id']; ?>" <?php if (isset($_GET['ID_Categoria']) && ($row_Categoria['id'] == $_GET['ID_Categoria'])) {
                                                        echo "selected";
-                                                   } ?>>
+                                                   } ?>
+                                                    <?php if ($row_Categoria['es_hoja'] == 0) {
+                                                        echo "style='color: white; background-color: darkgray; font-weight: bold;' disabled";
+                                                    } ?>>
                                                     <?php echo str_repeat($indicadorJerarquia, ($row_Categoria['nivel'])) . ' ' . $row_Categoria['nombre_categoria']; ?>
                                                 </option>
                                             <?php } ?>

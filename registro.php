@@ -4601,12 +4601,17 @@ if (isset($_REQUEST['P']) && $_REQUEST['P'] != "") {
     } elseif ($P == 58) { //Entrada de compra
     }
 
-    // Insertar nuevos archivos en el Portal de Provedores. SMM, 05/10/2023
+    // Insertar nuevos archivos en el Portal de Provedores y Clientes. SMM, 05/11/2023
     elseif ($P == 59) {
         try {
             // SMM, 05/10/2023
-            $CardCode = $_POST['CodigoCliente'];
+            $CardCode = $_POST['CodigoCliente'] ?? "";
             $CodUser = $_SESSION['CodUser'];
+
+            $CardType = "Clientes";
+            if ($_POST['type'] == 2) {
+                $CardType = "Proveedores";
+            }
 
             $i = 0; //Archivos
             $j = 0; //Cantidad de archivos
@@ -4654,7 +4659,7 @@ if (isset($_REQUEST['P']) && $_REQUEST['P'] != "") {
                         $CategoriaAct = $_POST['Categoria' . $j];
                         $FechaAct = $_POST['Fecha' . $j];
                         $ComentariosAct = LSiqmlObs($_POST['Comentarios' . $j]);
-                        $Cons_InsArchivo = "EXEC sp_tbl_PortalProveedores_Archivos NULL,'$CardCode','$SucursalAct','$CategoriaAct','$FechaAct','$ComentariosAct','$NuevoNombre','$CodUser',1";
+                        $Cons_InsArchivo = "EXEC sp_tbl_Portal$CardType" . "_Archivos NULL,'$CardCode','$SucursalAct','$CategoriaAct','$FechaAct','$ComentariosAct','$NuevoNombre','$CodUser',1";
                         $SQL_InsArchivo = sqlsrv_query($conexion, $Cons_InsArchivo);
 
                         if ($SQL_InsArchivo) {
@@ -4681,14 +4686,14 @@ if (isset($_REQUEST['P']) && $_REQUEST['P'] != "") {
                             //echo $Cons_DatosEmail;
                             $k++;
                         } else {
-                            InsertarLog(1, 9, $Cons_InsArchivo);
+                            InsertarLog(1, 59, $Cons_InsArchivo);
                             throw new Exception('Error insertando archivo');
                             sqlsrv_close($conexion);
                             exit();
                         }
                     }
-                } else { //No escogio sucursales
-                    //Buscar las sucursales asignadas
+                } else { // No escogio sucursales
+                    // Buscar las sucursales asignadas
                     if (PermitirFuncion(205)) {
                         $Cons_Sucursal = "SELECT NombreSucursal FROM uvw_Sap_tbl_Clientes_Sucursales WHERE CodigoCliente='$CardCode'";
                         $SQL_Sucursal = sqlsrv_query($conexion, $Cons_Sucursal);
@@ -4702,9 +4707,16 @@ if (isset($_REQUEST['P']) && $_REQUEST['P'] != "") {
                         $ListSucursales[$t] = $row_Sucursal['NombreSucursal'];
                         $t++;
                     }
+
+                    // SMM, 05/11/2023
+                    if ($CardCode == "") {
+                        array_push($ListSucursales, "");
+                    }
+
+                    // Si el cliente esta vacio, se añade una sucursal vacia.
                     $CountSuc = count($ListSucursales);
 
-                    $k = 0; //Cantidad de sucursales
+                    $k = 0; // Cantidad de sucursales
                     while ($k < $CountSuc) {
                         //Sacar la extension del archivo
                         $DocFile = $DocFiles[$j];
@@ -4733,7 +4745,7 @@ if (isset($_REQUEST['P']) && $_REQUEST['P'] != "") {
                             "'$CodUser'",
                             "1"
                         );
-                        $SQL_InsArchivo = EjecutarSP('sp_tbl_PortalProveedores_Archivos', $Param_InsArchivo);
+                        $SQL_InsArchivo = EjecutarSP("sp_tbl_Portal$CardType" . "_Archivos", $Param_InsArchivo);
 
                         if ($SQL_InsArchivo) {
                             //Mover archivo a la carpeta real
@@ -4758,7 +4770,7 @@ if (isset($_REQUEST['P']) && $_REQUEST['P'] != "") {
                             //echo $Cons_DatosEmail;
                             $k++;
                         } else {
-                            InsertarLog(1, 9, $Cons_InsArchivo);
+                            InsertarLog(1, 59, $Cons_InsArchivo);
                             throw new Exception('Error insertando archivo');
                             sqlsrv_close($conexion);
                             exit();
@@ -4770,7 +4782,7 @@ if (isset($_REQUEST['P']) && $_REQUEST['P'] != "") {
             sqlsrv_close($conexion);
             header('Location:gestionar_archivos_proveedores.php?a=' . base64_encode("OK_UpdFile"));
         } catch (Exception $e) {
-            InsertarLog(1, 9, $Cons_InsArchivo);
+            InsertarLog(1, 59, $Cons_InsArchivo);
             echo 'Excepcion capturada: ', $e->getMessage(), "\n";
 
             echo "catch";
@@ -4783,20 +4795,19 @@ if (isset($_REQUEST['P']) && $_REQUEST['P'] != "") {
         // SMM, 05/10/2023
         $ID = $_GET['id'];
 
-        $CardName = "Clientes";
+        $CardType = "Clientes";
         if ($_GET['type'] == 2) {
-            $CardName = "Proveedores";
+            $CardType = "Proveedores";
         }
-        $Tabla_Cons = "tbl_Portal$CardName" . "_Archivos";
 
         try {
             // Consultar archivo para eliminarlo fisicamente
-            $Con_BusArchivo = "SELECT * FROM uvw_$Tabla_Cons WHERE id_archivo='$ID'";
+            $Con_BusArchivo = "SELECT * FROM uvw_tbl_Portal$CardType" . "_Archivos WHERE id_archivo='$ID'";
             $SQL_BusArchivo = sqlsrv_query($conexion, $Con_BusArchivo);
             $row_BusArchivo = sqlsrv_fetch_array($SQL_BusArchivo);
 
             //Consultar si el archivo esta en mas de una sucursal
-            $ConsSuc = "SELECT * FROM uvw_$Tabla_Cons WHERE cardcode='" . $row_BusArchivo['cardcode'] . "' AND id_categoria='" . $row_BusArchivo['id_categoria'] . "' AND archivo='" . $row_BusArchivo['archivo'] . "'";
+            $ConsSuc = "SELECT * FROM uvw_tbl_Portal$CardType" . "_Archivos cardcode='" . $row_BusArchivo['cardcode'] . "' AND id_categoria='" . $row_BusArchivo['id_categoria'] . "' AND archivo='" . $row_BusArchivo['archivo'] . "'";
             $SQLSuc = sqlsrv_query($conexion, $ConsSuc, array(), array("Scrollable" => 'static'));
             $NumSuc = sqlsrv_num_rows($SQLSuc);
             if ($NumSuc == 1) { // Si solo esta en un, se elimina fisicamente. Sino, no se elimina fisicamente
@@ -4808,7 +4819,7 @@ if (isset($_REQUEST['P']) && $_REQUEST['P'] != "") {
                 }
             }
 
-            $Cons_DelArchivo = "EXEC sp_$Tabla_Cons '" . $_GET['id'] . "',NULL,NULL,NULL,NULL,NULL,NULL,NULL,2";
+            $Cons_DelArchivo = "EXEC sp_tbl_Portal$CardType" . "_Archivos '" . $_GET['id'] . "',NULL,NULL,NULL,NULL,NULL,NULL,NULL,2";
             if (sqlsrv_query($conexion, $Cons_DelArchivo)) {
                 InsertarLog(2, 13, $Cons_DelArchivo);
                 sqlsrv_close($conexion);
