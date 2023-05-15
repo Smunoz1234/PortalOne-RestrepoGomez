@@ -2,8 +2,6 @@
 PermitirAcceso(318);
 $sw = 0; //Para saber si ya se selecciono un cliente y mostrar las sucursales
 $Filtro = "";
-$sw_Clt = 0; //Tipo cliente
-$sw_Std = 0; //Tipo Estandar
 $sw_suc = 0; // SMM, 14/02/2023
 
 //Normas de reparto (Sucursal)
@@ -78,20 +76,6 @@ if (isset($_GET['Cliente'])) {
 		}
 	}
 }
-
-if ($sw == 1) {
-	//$SQL_Datos=Seleccionar("tbl_ProgramacionOrdenesServicio","*","IdCliente='".$_GET['Cliente']."' and IdLineaSucursal='".$_GET['Sucursal']."' and Periodo='".$_GET['Anno']."'");
-	//$Num_Datos=sql_num_rows($SQL_Datos);
-	$SQL_LMT = "";
-	if ($_GET['Sucursal'] != "") {
-		$SQL_LMT = Seleccionar("uvw_Sap_tbl_ArticulosLlamadas", "*", "(CodigoCliente='" . $_GET['Cliente'] . "' and LineaSucursal='" . $_GET['Sucursal'] . "' and Estado='Y') OR IdTipoListaArticulo='2'", "IdTipoListaArticulo, ItemCode");
-	}
-
-	$SQL_Frecuencia = Seleccionar("tbl_ProgramacionOrdenesServicioFrecuencia", "*");
-}
-
-// SMM, 25/01/2023
-$SQL_Periodos = Seleccionar("tbl_Periodos", "*", "Estado = 'Y'", "Periodo");
 ?>
 
 <!DOCTYPE html>

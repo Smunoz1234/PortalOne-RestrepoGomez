@@ -495,7 +495,7 @@ if ($row_Validacion["num_errors"] > 0) {
 		function OperacionModal(ID = "") {
 			$.ajax({
 				type: "POST",
-				url: "detalle_zonas_sn.php",
+				url: "detalle_puntos_control_sn.php",
 				data: {
 					type: (ID == "") ? $("#Type").val() : 3,
 					id_zona_sn: (ID == "") ? $("#IDZonaSN").val() : ID,
