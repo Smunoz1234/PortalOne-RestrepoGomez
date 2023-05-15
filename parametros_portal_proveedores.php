@@ -23,14 +23,7 @@ if (isset($_POST['Metodo']) && ($_POST['Metodo'] == 3)) {
 				$sw_error = 1;
 				$msg_error = "No se pudo eliminar la Funcion.";
 			}
-		} elseif ($_POST['TipoDoc'] == "Entrada") {
-			$SQL = EjecutarSP('sp_tbl_PortalProveedores_Entradas', $Param);
-			if (!$SQL) {
-				$sw_error = 1;
-				$msg_error = "No se pudo eliminar la Entrada.";
-			}
 		}
-
 	} catch (Exception $e) {
 		$sw_error = 1;
 		$msg_error = $e->getMessage();
@@ -109,48 +102,6 @@ if ((isset($_POST['frmType']) && ($_POST['frmType'] != "")) || (isset($_POST['Me
 				$sw_error = 1;
 				$msg_error = "No se pudo insertar la nueva Consulta";
 			}
-		} elseif ($_POST['TipoDoc'] == "Entrada") {
-			$FechaHora = "'" . FormatoFecha(date('Y-m-d'), date('H:i:s')) . "'";
-			$Usuario = "'" . $_SESSION['CodUser'] . "'";
-
-			$ID = (isset($_POST['ID_Actual']) && ($_POST['ID_Actual'] != "")) ? $_POST['ID_Actual'] : "NULL";
-
-			$Param = array(
-				$_POST['Metodo'] ?? 1,
-				// 1 - Crear, 2 - Actualizar
-				$ID,
-				"'" . $_POST['ID_Consulta'] . "'",
-				"'" . $_POST['ParametroEntrada'] . "'",
-				"'" . $_POST['EtiquetaEntrada'] . "'",
-				"'" . $_POST['Obligatorio'] . "'",
-				"'" . $_POST['Estado'] . "'",
-				"'" . $_POST['TipoCampo'] . "'",
-				"'" . $_POST['Multiple'] . "'",
-				"'" . $_POST['PermitirTodos'] . "'",
-				"'" . $_POST['VistaLista'] . "'",
-				"'" . $_POST['EtiquetaLista'] . "'",
-				"'" . $_POST['ValorLista'] . "'",
-				"'" . $_POST['Comentarios'] . "'",
-				$Usuario,
-				// @id_usuario_actualizacion
-				$FechaHora,
-				// @fecha_actualizacion
-				$FechaHora, // @hora_actualizacion
-				($_POST['Metodo'] == 1) ? $Usuario : "NULL",
-				($_POST['Metodo'] == 1) ? $FechaHora : "NULL",
-				($_POST['Metodo'] == 1) ? $FechaHora : "NULL",
-			);
-
-			$SQL = EjecutarSP('sp_tbl_PortalProveedores_Entradas', $Param);
-			$row = sqlsrv_fetch_array($SQL);
-
-			if (!$SQL) {
-				$sw_error = 1;
-				$msg_error = "No se pudo insertar la nueva Entrada";
-			} elseif (isset($row['Error'])) {
-				$sw_error = 1;
-				$msg_error = $row['Error'];
-			}
 		}
 
 		// OK
@@ -168,7 +119,6 @@ if ((isset($_POST['frmType']) && ($_POST['frmType'] != "")) || (isset($_POST['Me
 
 $SQL_Categorias = Seleccionar("uvw_tbl_PortalProveedores_Categorias", "*");
 $SQL_Funciones = Seleccionar("uvw_tbl_PortalProveedores_Funciones", "*");
-$SQL_Entradas = Seleccionar("uvw_tbl_PortalProveedores_Entradas", "*");
 $SQL_Perfiles = Seleccionar('uvw_tbl_PerfilesUsuarios', '*');
 ?>
 
@@ -343,13 +293,17 @@ $SQL_Perfiles = Seleccionar('uvw_tbl_PerfilesUsuarios', '*');
 															<tbody>
 																<?php while ($row_Categoria = sqlsrv_fetch_array($SQL_Categorias)) { ?>
 																	<tr>
-																		<td><?php echo $row_Categoria['nivel']; ?></td>
-																		<td><?php echo $row_Categoria['nombre_categoria']; ?></td>
-																		
+																		<td>
+																			<?php echo $row_Categoria['nivel']; ?>
+																		</td>
+																		<td>
+																			<?php echo $row_Categoria['nombre_categoria']; ?>
+																		</td>
+
 																		<td>
 																			<?php echo ($row_Categoria['categoria_padre'] == "") ? "[Raíz]" : $row_Categoria['categoria_padre']; ?>
 																		</td>
-																		
+
 																		<td>
 																			<?php sqlsrv_fetch($SQL_Perfiles, SQLSRV_SCROLL_ABSOLUTE, -1); ?>
 																			<?php $ids_perfiles = explode(";", $row_Categoria['perfiles']); ?>
