@@ -151,7 +151,7 @@ if (isset($_GET['Cliente'])) {
 					<div class="col-lg-12">
 						<div class="ibox-content">
 							<?php include "includes/spinner.php"; ?>
-							<form action="socios_negocios_zonas.php" method="get" class="form-horizontal" id="frmBuscar"
+							<form action="puntos_control_sn.php" method="get" class="form-horizontal" id="frmBuscar"
 								name="frmBuscar">
 								<div class="form-group">
 									<label class="col-xs-12">

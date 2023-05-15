@@ -27,7 +27,7 @@ if (isset($_GET['idsucursal']) && ($_GET['idsucursal'] != "")) {
 }
 
 // SMM, 24/02/2023
-$SQL = Seleccionar("uvw_tbl_SociosNegocios_Zonas", "*", "[id_socio_negocio]='$CardCodeID' $WhereSucursalSN", "[id_zona_sn]");
+$SQL = Seleccionar("uvw_tbl_PuntoControl", "*", "[id_socio_negocio]='$CardCodeID' $WhereSucursalSN");
 
 // SMM, 25/02/2023
 $msg_error = "";
@@ -37,16 +37,16 @@ $coduser = $_SESSION['CodUser'];
 $datetime = FormatoFecha(date('Y-m-d'), date('H:i:s'));
 
 $type = $_POST['type'] ?? 0;
-$id_zona_sn = $_POST['id_zona_sn'] ?? "";
-$zona_sn = $_POST['zona_sn'] ?? "";
+$id_interno = $_POST['id_interno'] ?? "NULL";
+$id_punto_control = $_POST['id_punto_control'] ?? "";
+$punto_control = $_POST['punto_control'] ?? "";
+$descripcion_punto_control = $_POST['descripcion_punto_control'] ?? "";
+$id_tipo_punto_control = $_POST['id_tipo_punto_control'] ?? "";
 $id_socio_negocio = $_POST['id_socio_negocio'] ?? "";
-$socio_negocio = $_POST['socio_negocio'] ?? "";
-$id_consecutivo_direccion = $_POST['id_consecutivo_direccion'] ?? "NULL";
-$id_direccion_destino = $_POST['id_direccion_destino'] ?? "";
-$direccion_destino = $_POST['direccion_destino'] ?? "";
+$id_zona_sn = $_POST['id_zona_sn'] ?? "";
+$id_nivel_infestacion = $_POST['id_nivel_infestacion'] ?? "";
+$instala_tecnico = $_POST['instala_tecnico'] ?? "";
 $estado = $_POST['estado'] ?? "";
-$observaciones = $_POST['observaciones'] ?? "";
-
 $id_usuario_creacion = "'$coduser'";
 $fecha_creacion = "'$datetime'";
 $hora_creacion = "'$datetime'";
@@ -57,17 +57,19 @@ $hora_actualizacion = "'$datetime'";
 if ($type == 1) {
 	$msg_error = "No se pudo crear el registro.";
 
+
 	$parametros = array(
 		$type,
-		"'$id_zona_sn'",
-		"'$zona_sn'",
+		"NULL",
+		"'$id_punto_control'",
+		"'$punto_control'",
+		"'$descripcion_punto_control'",
+		"'$id_tipo_punto_control'",
 		"'$id_socio_negocio'",
-		"'$socio_negocio'",
-		$id_consecutivo_direccion,
-		"'$id_direccion_destino'",
-		"'$direccion_destino'",
+		"'$id_zona_sn'",
+		"'$id_nivel_infestacion'",
+		"'$instala_tecnico'",
 		"'$estado'",
-		"'$observaciones'",
 		$id_usuario_actualizacion,
 		$fecha_actualizacion,
 		$hora_actualizacion,
@@ -81,15 +83,16 @@ if ($type == 1) {
 
 	$parametros = array(
 		$type,
-		"'$id_zona_sn'",
-		"'$zona_sn'",
+		"$id_interno",
+		"'$id_punto_control'",
+		"'$punto_control'",
+		"'$descripcion_punto_control'",
+		"'$id_tipo_punto_control'",
 		"'$id_socio_negocio'",
-		"'$socio_negocio'",
-		$id_consecutivo_direccion,
-		"'$id_direccion_destino'",
-		"'$direccion_destino'",
+		"'$id_zona_sn'",
+		"'$id_nivel_infestacion'",
+		"'$instala_tecnico'",
 		"'$estado'",
-		"'$observaciones'",
 		$id_usuario_actualizacion,
 		$fecha_actualizacion,
 		$hora_actualizacion,
@@ -100,13 +103,12 @@ if ($type == 1) {
 
 	$parametros = array(
 		$type,
-		// 3 - Eliminar
-		"'$id_zona_sn'",
+		"'$id_interno'",
 	);
 }
 
 if ($type != 0) {
-	$SQL_Operacion = EjecutarSP('sp_tbl_SociosNegocios_Zonas', $parametros);
+	$SQL_Operacion = EjecutarSP('sp_tbl_PuntoControl', $parametros);
 
 	if (!$SQL_Operacion) {
 		echo $msg_error;
@@ -126,7 +128,7 @@ if ($type != 0) {
 }
 
 // SMM, 02/03/2023
-$SQL_Validacion = Seleccionar("uvw_tbl_SociosNegocios_Zonas", "COUNT(*) AS num_errors", "[id_socio_negocio]='$CardCodeID' AND [error] = 'Y'");
+$SQL_Validacion = Seleccionar("uvw_tbl_PuntoControl", "COUNT(*) AS num_errors", "[id_socio_negocio]='$CardCodeID' AND [error] = 'Y'");
 $row_Validacion = sqlsrv_fetch_array($SQL_Validacion);
 
 $error_validacion = false;
@@ -346,7 +348,7 @@ if ($row_Validacion["num_errors"] > 0) {
 		<div class="form-group">
 			<div class="col-lg-2">
 				<button type="button" id="btnNuevo" class="btn btn-success" onclick="MostrarModal();"><i
-						class="fa fa-plus-circle"></i> Adicionar zonas</button>
+						class="fa fa-plus-circle"></i> Adicionar punto de control</button>
 			</div>
 			<div class="col-lg-4" style="<?php if (!$error_validacion) {
 				echo "display: none;";
