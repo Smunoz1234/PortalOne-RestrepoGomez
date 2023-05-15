@@ -5,19 +5,17 @@ $CardCodeID = "";
 $SucursalSN = "";
 
 // SMM, 24/02/2022
-$SQL_SucursalSN = "";
+$SQL_ZonaSN = "";
 if (isset($_GET['cardcode']) && ($_GET['cardcode'] != "")) {
 	$CardCodeID = base64_decode($_GET['cardcode']);
 	$SucursalSN = (isset($_GET['idsucursal']) && ($_GET['idsucursal'] != "")) ? base64_decode($_GET['idsucursal']) : "";
 
 	// Sucursales
-	if (PermitirFuncion(205)) {
-		$Where = "CodigoCliente='$CardCodeID' AND TipoDireccion='S'";
-		$SQL_SucursalSN = Seleccionar("uvw_Sap_tbl_Clientes_Sucursales", "NombreSucursal, NumeroLinea", $Where);
-	} else {
-		$Where = "CodigoCliente='$CardCodeID' AND TipoDireccion='S' AND ID_Usuario = " . $_SESSION['CodUser'];
-		$SQL_SucursalSN = Seleccionar("uvw_tbl_SucursalesClienteUsuario", "NombreSucursal, NumeroLinea", $Where);
+	$Where_ZonaSN = "[id_socio_negocio]='$CardCodeID'";
+	if ($SucursalSN != "") {
+		$Where_ZonaSN = "[id_socio_negocio]='$CardCodeID' AND [id_consecutivo_direccion] = '$CardCodeID'";
 	}
+	$SQL_ZonaSN = Seleccionar("uvw_tbl_SociosNegocios_Zonas", "*", $Where_ZonaSN);
 }
 
 // SMM, 24/02/2023
@@ -26,7 +24,9 @@ if (isset($_GET['idsucursal']) && ($_GET['idsucursal'] != "")) {
 	$WhereSucursalSN = "AND [id_consecutivo_direccion]='" . base64_decode($_GET['idsucursal']) . "'";
 }
 
-// SMM, 24/02/2023
+// SMM, 05/15/2023
+$SQL_TipoPC = Seleccionar("uvw_tbl_PuntoControl_Tipos", "*");
+$SQL_NivelInfestacionPC = Seleccionar("tbl_PuntoControl_Nivel_Infestacion", "*", "[estado] = 'Y'");
 $SQL = Seleccionar("uvw_tbl_PuntoControl", "*", "[id_socio_negocio]='$CardCodeID' $WhereSucursalSN");
 
 // SMM, 25/02/2023
@@ -125,15 +125,6 @@ if ($type != 0) {
 
 	// Mostrar mensajes AJAX.
 	exit();
-}
-
-// SMM, 02/03/2023
-$SQL_Validacion = Seleccionar("uvw_tbl_PuntoControl", "COUNT(*) AS num_errors", "[id_socio_negocio]='$CardCodeID' AND [error] = 'Y'");
-$row_Validacion = sqlsrv_fetch_array($SQL_Validacion);
-
-$error_validacion = false;
-if ($row_Validacion["num_errors"] > 0) {
-	$error_validacion = true;
 }
 ?>
 
@@ -253,7 +244,7 @@ if ($row_Validacion["num_errors"] > 0) {
 <body>
 
 	<div class="modal inmodal fade" id="modalZonasSN" tabindex="-1" role="dialog" aria-hidden="true">
-		<div class="modal-dialog modal-lg">
+		<div class="modal-dialog modal-lg" style="width: 70% !important;">
 			<div class="modal-content">
 				<div class="modal-header">
 					<h4 class="modal-title">Adicionar punto de control</h4>
@@ -263,57 +254,57 @@ if ($row_Validacion["num_errors"] > 0) {
 					<div class="modal-body">
 						<div class="form-group">
 							<div class="ibox-content">
-								<input type="hidden" id="Type">
+								<input type="hidden" id="type">
 
 								<div class="form-group">
-									<div class="col-md-6">
+									<div class="col-md-4">
 										<label class="control-label">Socio Negocio <span
 												class="text-danger">*</span></label>
 										<input required type="text" class="form-control" autocomplete="off"
-											id="IDSocioNegocio" value="<?php echo $CardCodeID; ?>" readonly>
+											id="id_socio_negocio" value="<?php echo $CardCodeID; ?>" readonly>
 									</div>
 
+									<div class="col-md-4">
+										<label class="control-label">ID Punto Control <span
+												class="text-danger">*</span></label>
+										<input required type="text" class="form-control" autocomplete="off"
+											id="id_punto_control">
+									</div>
+
+									<div class="col-md-4">
+										<label class="control-label">Nombre Punto Control <span
+												class="text-danger">*</span></label>
+										<input required type="text" class="form-control" autocomplete="off"
+											id="punto_control">
+									</div>
+
+								</div> <!-- form-group -->
+
+								<br><br><br><br>
+								<div class="form-group">
 									<div class="col-md-6">
-										<label class="control-label">Estado</label>
-										<select class="form-control" id="Estado">
-											<option value="Y">ACTIVO</option>
-											<option value="N">INACTIVO</option>
+										<label class="control-label">Tipo Punto Control <span
+												class="text-danger">*</span></label>
+										<select id="id_tipo_punto_control" class="form-control" required>
+											<option value="">Seleccione...</option>
+
+											<?php while ($row_TipoPC = sqlsrv_fetch_array($SQL_TipoPC)) { ?>
+												<option value="<?php echo $row_TipoPC['id_tipo_punto_control']; ?>"><?php echo $row_TipoPC['tipo_punto_control']; ?></option>
+											<?php } ?>
 										</select>
 									</div>
-								</div> <!-- form-group -->
-
-								<br><br><br><br>
-								<div class="form-group">
-									<div class="col-md-6">
-										<label class="control-label">ID Zona <span class="text-danger">*</span></label>
-										<input required type="text" class="form-control" autocomplete="off"
-											id="IDZonaSN">
-									</div>
 
 									<div class="col-md-6">
-										<label class="control-label">Nombre Zona <span
+										<label class="control-label">Zona Socio Negocio <span
 												class="text-danger">*</span></label>
-										<input required type="text" class="form-control" autocomplete="off" id="ZonaSN">
-									</div>
-								</div> <!-- form-group -->
-
-								<br><br><br><br>
-								<div class="form-group">
-									<div class="col-md-12">
-										<label class="control-label">Sucursal Socio Negocio <span
-												class="text-danger">*</span></label>
-										<select id="SucursalSN" class="form-control" <?php if ($SucursalSN != "") {
-											echo "readonly";
-										} ?> required>
+										<select id="id_zona_sn" class="form-control" required>
 											<option value="" <?php if ($SucursalSN == "") {
 												echo "disabled selected";
 											} ?>>
 												Seleccione...</option>
 
-											<?php while ($row_SucursalSN = sqlsrv_fetch_array($SQL_SucursalSN)) { ?>
-												<option value="<?php echo $row_SucursalSN['NumeroLinea']; ?>" <?php if ($SucursalSN == $row_SucursalSN['NumeroLinea']) {
-													   echo "selected";
-												   } ?>><?php echo $row_SucursalSN['NombreSucursal']; ?></option>
+											<?php while ($row_ZonaSN = sqlsrv_fetch_array($SQL_ZonaSN)) { ?>
+												<option value="<?php echo $row_ZonaSN['id_zona_sn']; ?>"><?php echo $row_ZonaSN['zona_sn']; ?></option>
 											<?php } ?>
 										</select>
 									</div>
@@ -322,9 +313,41 @@ if ($row_Validacion["num_errors"] > 0) {
 								<br><br><br><br>
 								<div class="form-group">
 									<div class="col-md-12">
-										<label class="control-label">Observaciones (250 caracteres)</label>
-										<textarea type="text" class="form-control" name="Observaciones"
-											id="Observaciones" rows="3" maxlength="250"></textarea>
+										<label class="control-label">Descripción Punto Control (200 caracteres)</label>
+										<textarea type="text" class="form-control" name="descripcion_punto_control"
+											id="descripcion_punto_control" rows="3" maxlength="200"></textarea>
+									</div>
+								</div> <!-- form-group -->
+
+								<br><br><br><br><br><br>
+								<div class="form-group">
+									<div class="col-md-4">
+										<label class="control-label">Nivel infestación <span
+												class="text-danger">*</span></label>
+										<select id="id_nivel_infestacion" class="form-control" required>
+											<?php while ($row_NivelInfestacionPC = sqlsrv_fetch_array($SQL_NivelInfestacionPC)) { ?>
+												<option
+													value="<?php echo $row_NivelInfestacionPC['id_nivel_infestacion']; ?>">
+													<?php echo $row_NivelInfestacionPC['nivel_infestacion']; ?></option>
+											<?php } ?>
+										</select>
+									</div>
+
+									<div class="col-md-4">
+										<label class="control-label">Instalado por técnico <span
+												class="text-danger">*</span></label>
+										<select class="form-control" id="instala_tecnico" required>
+											<option value="Y">Si, el técnico realiza la instalación</option>
+											<option value="N">No, el técnico NO realiza la instalación</option>
+										</select>
+									</div>
+
+									<div class="col-md-4">
+										<label class="control-label">Estado</label>
+										<select class="form-control" id="estado">
+											<option value="Y">ACTIVO</option>
+											<option value="N">INACTIVO</option>
+										</select>
 									</div>
 								</div> <!-- form-group -->
 
@@ -346,20 +369,9 @@ if ($row_Validacion["num_errors"] > 0) {
 
 	<div class="row">
 		<div class="form-group">
-			<div class="col-lg-2">
+			<div class="col-lg-3">
 				<button type="button" id="btnNuevo" class="btn btn-success" onclick="MostrarModal();"><i
 						class="fa fa-plus-circle"></i> Adicionar punto de control</button>
-			</div>
-			<div class="col-lg-4" style="<?php if (!$error_validacion) {
-				echo "display: none;";
-			} ?>">
-				<button type="button" id="btnCorregir" class="btn btn-warning" onclick="CorregirDatos();"><i
-						class="fa fa-gavel"></i> Corregir datos</button>
-
-				<button style="margin-left: 5px;" type="button" class="btn btn-sm btn-circle" data-toggle="tooltip"
-					data-placement="bottom" data-html="true"
-					title="Se encontraron inconsistencias en algunos de los nombres de los socios de negocios y sucursales asociadas, pulse el botón para corregir."><i
-						class="fa fa-info"></i></button>
 			</div>
 		</div> <!-- form-group -->
 
@@ -392,13 +404,15 @@ if ($row_Validacion["num_errors"] > 0) {
 										</th>
 
 										<th>Acciones</th>
-										<th>ID Zona</th>
-										<th>Zona</th>
-										<th>Socio Negocio</th>
-										<th>ID Dirección Destino</th>
-										<th>Dirección Destino</th>
+										<th>ID</th>
+										<th>Punto Control</th>
+										<th>Tipo Punto Control</th>
+										<th>Descripción</th>
+										<th>Socio de Negocio</th>
+										<th>Zona de Socio de Negocio</th>
+										<th>Nivel de Infestación</th>
+										<th>Instalado por Técnico</th>
 										<th>Estado</th>
-										<th>Observaciones</th>
 										<th>Fecha Actualización</th>
 										<th>Usuario Actualización</th>
 									</tr>
@@ -411,7 +425,7 @@ if ($row_Validacion["num_errors"] > 0) {
 												<div class="checkbox checkbox-success no-margins">
 													<input type="checkbox" class="chkSel"
 														id="chkSel<?php echo $row['id_zona_sn']; ?>" value=""
-														onchange="Seleccionar('<?php echo $row['id_zona_sn']; ?>');"
+														onchange="Seleccionar('<?php echo $row['id_interno']; ?>');"
 														aria-label="Single checkbox One"><label></label>
 												</div>
 											</td>
@@ -419,24 +433,43 @@ if ($row_Validacion["num_errors"] > 0) {
 											<td class="text-center form-inline w-80">
 												<button type="button" title="Editar información"
 													class="btn btn-warning btn-xs"
-													onclick="MostrarModal('<?php echo $row['id_zona_sn']; ?>');"><i
+													onclick="MostrarModal('<?php echo $row['id_interno']; ?>');"><i
 														class="fa fa-pencil"></i></button>
 											</td>
 
 											<td>
-												<?php echo $row['id_zona_sn']; ?>
+												<?php echo $row['id_interno']; ?>
 											</td>
 											<td>
-												<?php echo $row['zona_sn']; ?>
+												<?php echo $row['id_punto_control'] . " - " . $row['punto_control']; ?>
+											</td>
+											<td>
+												<?php echo $row['id_tipo_punto_control'] . " - " . $row['tipo_punto_control']; ?>
+											</td>
+											<td>
+												<?php echo $row['descripcion_punto_control']; ?>
 											</td>
 											<td>
 												<?php echo $row['socio_negocio']; ?>
 											</td>
+
 											<td>
-												<?php echo $row['id_direccion_destino']; ?>
-											</td>
-											<td>
+												<b>Zona:</b>
+												<?php echo $row['id_zona_sn'] . " - " . $row['zona_sn']; ?>
+
+												<br><br><b>ID Dirección Destino:</b>
+												<?php echo $row['id_consecutivo_direccion'] . " - " . $row['id_direccion_destino']; ?>
+
+												<br><br><b>Dirección Destino:</b>
 												<?php echo $row['direccion_destino']; ?>
+											</td>
+
+											<td>
+												<?php echo $row['nivel_infestacion']; ?>
+											</td>
+
+											<td>
+												<?php echo ($row['instala_tecnico'] == "Y") ? "Si, el técnico realiza la instalación" : "No, el técnico no realiza la instalación"; ?>
 											</td>
 
 											<td>
@@ -444,10 +477,6 @@ if ($row_Validacion["num_errors"] > 0) {
 													class="badge <?php echo ($row['estado'] == "Y") ? "badge-primary" : "badge-danger"; ?>">
 													<?php echo ($row['estado'] == "Y") ? "Activo" : "Inactivo"; ?>
 												</span>
-											</td>
-
-											<td>
-												<?php echo $row['observaciones']; ?>
 											</td>
 
 											<td>
@@ -468,47 +497,22 @@ if ($row_Validacion["num_errors"] > 0) {
 	</div> <!-- row m-t-md -->
 
 	<script>
-		// SMM, 02/03/2023
-		function CorregirDatos() {
-			Swal.fire({
-				title: 'Corregir Datos de la Tabla',
-				text: "¿Está seguro que desea continuar?",
-				icon: 'warning',
-				showCancelButton: true,
-				confirmButtonText: 'Si, continuar',
-				cancelButtonText: 'No'
-			}).then((result) => {
-				if (result.isConfirmed) {
-					$.ajax({
-						type: 'GET',
-						url: 'includes/procedimientos.php?type=53&id_socio_negocio=<?php echo $CardCodeID; ?>',
-						success: function (response) {
-							location.reload();
-						},
-						error: function (error) {
-							console.error('430->', error.responseText);
-						}
-					});
-				}
-			});
-		}
-
 		// SMM, 24/02/2023
 		function OperacionModal(ID = "") {
 			$.ajax({
 				type: "POST",
 				url: "detalle_puntos_control_sn.php",
 				data: {
-					type: (ID == "") ? $("#Type").val() : 3,
-					id_zona_sn: (ID == "") ? $("#IDZonaSN").val() : ID,
-					zona_sn: $("#ZonaSN").val(),
-					id_socio_negocio: $("#IDSocioNegocio").val(),
-					socio_negocio: "",
-					id_consecutivo_direccion: $("#SucursalSN").val(),
-					id_direccion_destino: "",
-					direccion_destino: "",
-					estado: $("#Estado").val(),
-					observaciones: $("#Observaciones").val(),
+					type: (ID == "") ? $("#type").val() : 3,
+					id_punto_control: $("#id_punto_control").val(),
+					punto_control: $("#punto_control").val(),
+					descripcion_punto_control: $("#descripcion_punto_control").val(),
+					id_tipo_punto_control: $("#id_tipo_punto_control").val(),
+					id_socio_negocio: $("#id_socio_negocio").val(),
+					id_zona_sn: $("#id_zona_sn").val(),
+					id_nivel_infestacion: $("#id_nivel_infestacion").val(),
+					instala_tecnico: $("#instala_tecnico").val(),
+					estado: $("#estado").val(),
 				},
 				success: function (response) {
 					Swal.fire({
@@ -547,7 +551,7 @@ if ($row_Validacion["num_errors"] > 0) {
 						$("#Estado").val(linea.estado);
 						$("#Observaciones").val(linea.observaciones);
 
-						$("#Type").val(2);
+						$("#type").val(2);
 						$('#modalZonasSN').modal("show");
 					},
 					error: function (error) {
@@ -555,7 +559,7 @@ if ($row_Validacion["num_errors"] > 0) {
 					}
 				});
 			} else {
-				$("#Type").val(1);
+				$("#type").val(1);
 				$('#modalZonasSN').modal("show");
 			}
 		}
