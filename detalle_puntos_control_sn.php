@@ -8,7 +8,7 @@ $namesucursal = $_GET['namesucursal'] ?? "";
 // SMM, 05/16/2023
 $SQL_ID = Seleccionar("uvw_tbl_PuntoControl", "MAX(id_interno) + 1 AS max_id_interno");
 $row_ID = sqlsrv_fetch_array($SQL_ID);
-$ID = $row_ID["max_id_interno"];
+$ID = $row_ID["max_id_interno"] ?? "1";
 
 // SMM, 05/16/2023
 $CardCodeID = "";
