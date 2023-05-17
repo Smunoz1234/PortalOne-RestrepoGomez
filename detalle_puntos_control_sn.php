@@ -263,14 +263,14 @@ if ($type != 0) {
 
 <body>
 
-	<div class="modal inmodal fade" id="modalZonasSN" tabindex="-1" role="dialog" aria-hidden="true">
+	<div class="modal inmodal fade" id="myModal" tabindex="-1" role="dialog" aria-hidden="true">
 		<div class="modal-dialog modal-lg" style="width: 70% !important;">
 			<div class="modal-content">
 				<div class="modal-header">
 					<h4 class="modal-title">Adicionar punto de control</h4>
-					<h4>
+					<h6 class="modal-title">
 						<?php echo $namesucursal; ?>
-					</h4>
+					</h6>
 				</div> <!-- modal-header -->
 
 				<form id="modalForm">
@@ -579,12 +579,16 @@ if ($type != 0) {
 	<script>
 		// SMM, 24/02/2023
 		function OperacionModal(ID = "") {
+			if (ID != "") {
+				$("#id_interno").val(ID);
+			}
+
 			$.ajax({
 				type: "POST",
 				url: "detalle_puntos_control_sn.php",
 				data: {
 					type: (ID == "") ? $("#type").val() : 3,
-					id_interno: (ID == "") ? $("#id_interno").val() : ID,
+					id_interno: $("#id_interno").val(),
 					punto_control: $("#punto_control").val(),
 					descripcion_punto_control: $("#descripcion_punto_control").val(),
 					id_tipo_punto_control: $("#id_tipo_punto_control").val(),
@@ -615,36 +619,45 @@ if ($type != 0) {
 			});
 		}
 
-		// SMM, 25/02/2023
+		// SMM, 17/05/2023
 		function MostrarModal(ID = "") {
 			if (ID != "") {
+				// SMM, 17/05/2023
+				$("#id_interno").val(ID);
+
 				$.ajax({
 					url: "ajx_buscar_datos_json.php",
 					data: {
-						type: 45,
+						type: 50,
 						id: ID
 					},
 					dataType: 'json',
 					success: function (linea) {
 						console.log(linea);
 
-						$("#IDZonaSN").val(linea.id_zona_sn);
-						$("#ZonaSN").val(linea.zona_sn);
-						$("#IDSocioNegocio").val(linea.id_socio_negocio);
-						$("#SucursalSN").val(linea.id_consecutivo_direccion);
-						$("#Estado").val(linea.estado);
-						$("#Observaciones").val(linea.observaciones);
+						// SMM, 17/05/2023
+						$("#id_punto_control").val(linea.id_punto_control);
+						$("#punto_control").val(linea.punto_control);
+						$("#id_tipo_punto_control").val(linea.id_tipo_punto_control);
+						$("#descripcion_punto_control").val(linea.descripcion_punto_control);
+						$("#id_zona_sn").val(linea.id_zona_sn);
+						$("#id_nivel_infestacion").val(linea.id_nivel_infestacion);
+						$("#instala_tecnico").val(linea.instala_tecnico);
+						$("#fecha_instalacion").val(linea.fecha_instalacion);
+						$("#estado").val(linea.estado);
+						$("#umbral_seguridad").val(linea.umbral_seguridad);
+						$("#umbral_critico").val(linea.umbral_critico);
 
 						$("#type").val(2);
-						$('#modalZonasSN').modal("show");
+						$('#myModal').modal("show");
 					},
 					error: function (error) {
-						console.error("470->", error.responseText);
+						console.error("660->", error.responseText);
 					}
 				});
 			} else {
 				$("#type").val(1);
-				$('#modalZonasSN').modal("show");
+				$('#myModal').modal("show");
 			}
 		}
 
@@ -662,7 +675,7 @@ if ($type != 0) {
 					OperacionModal();
 
 					// Ocultar modal.
-					$('#modalZonasSN').modal("hide");
+					$('#myModal').modal("hide");
 				}
 			}); // Swal.fire
 		});

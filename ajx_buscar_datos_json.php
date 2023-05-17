@@ -19,7 +19,8 @@ if ((isset($_GET['type']) && ($_GET['type'] != "")) || (isset($_POST['type']) &&
             'Ciudad' => $row['Ciudad'],
             'Barrio' => $row['Barrio'],
             'NombreContacto' => $row['NombreContacto'],
-            'TelefonoContacto' => PermitirFuncion(512) ? $row['CelularCliente'] : $row['TelefonoContacto'], // SMM, 23/03/2022
+            'TelefonoContacto' => PermitirFuncion(512) ? $row['CelularCliente'] : $row['TelefonoContacto'],
+            // SMM, 23/03/2022
             'CargoContacto' => $row['CargoContacto'],
             'CorreoContacto' => $row['CorreoContacto'],
         );
@@ -75,7 +76,8 @@ if ((isset($_GET['type']) && ($_GET['type'] != "")) || (isset($_POST['type']) &&
         $records = array();
         $row = sqlsrv_fetch_array($SQL);
         $records = array(
-            'Telefono' => PermitirFuncion(512) ? $row['TelefonoCelular'] : $row['Telefono1'], // SMM, 23/03/2022
+            'Telefono' => PermitirFuncion(512) ? $row['TelefonoCelular'] : $row['Telefono1'],
+            // SMM, 23/03/2022
             'Correo' => $row['CorreoElectronico'],
         );
         echo json_encode($records);
@@ -96,7 +98,7 @@ if ((isset($_GET['type']) && ($_GET['type'] != "")) || (isset($_POST['type']) &&
             'TelefonoContacto' => $row['TelefonoContacto'],
             'CargoContacto' => $row['CargoContacto'],
             'CorreoContacto' => $row['CorreoContacto'],
-//            'Posicion' => $row['Posicion'],
+            //            'Posicion' => $row['Posicion'],
             //            'DeOLT' => $row['DeOLT']
         );
         echo json_encode($records);
@@ -206,8 +208,10 @@ if ((isset($_GET['type']) && ($_GET['type'] != "")) || (isset($_POST['type']) &&
         while ($row = sqlsrv_fetch_array($SQL)) {
             $records[$j] = array(
                 'IdArticulo' => $row['IdArticulo'],
-                'CodArticuloProveedor' => $row['CodArticuloProveedor'], // NEDUGA, 24/02/2022
-                'IdListaPrecio' => $row['IdListaPrecio'], // SMM, 24/02/2022
+                'CodArticuloProveedor' => $row['CodArticuloProveedor'],
+                // NEDUGA, 24/02/2022
+                'IdListaPrecio' => $row['IdListaPrecio'],
+                // SMM, 24/02/2022
                 'DescripcionArticulo' => $row['DescripcionArticulo'],
                 'NombreBuscarArticulo' => $row['NombreBuscarArticulo'],
                 'UndMedida' => $row['UndMedida'],
@@ -668,19 +672,25 @@ if ((isset($_GET['type']) && ($_GET['type'] != "")) || (isset($_POST['type']) &&
                 'SerialInterno' => $row['SerialInterno'],
                 'SerialFabricante' => $row['SerialFabricante'],
                 'No_Motor' => $row['CDU_No_Motor'],
-                'IdArticuloLlamada' => $row['ItemCode'], // SMM, 24/01/2022
-                'DeArticuloLlamada' => $row['ItemCode'] . " - " . $row['ItemName'], // SMM, 24/01/2022
+                'IdArticuloLlamada' => $row['ItemCode'],
+                // SMM, 24/01/2022
+                'DeArticuloLlamada' => $row['ItemCode'] . " - " . $row['ItemName'],
+                // SMM, 24/01/2022
                 'CDU_IdMarca' => $row['CDU_IdMarca'],
                 'CDU_Marca' => $row['CDU_Marca'],
                 'CDU_IdLinea' => $row['CDU_IdLinea'],
                 'CDU_Linea' => $row['CDU_Linea'],
                 'CDU_Ano' => $row['CDU_Ano'],
-                'CDU_Color' => $row['CDU_Color'], // SMM, 24/01/2022
+                'CDU_Color' => $row['CDU_Color'],
+                // SMM, 24/01/2022
                 'CDU_Concesionario' => $row['CDU_Concesionario'],
                 'CDU_TipoServicio' => $row['CDU_TipoServicio'],
-                'CDU_NombreContacto' => $NombreContacto ?? "", // SMM, 15/02/2022
-                'CDU_TelefonoContacto' => $TelefonoContacto ?? "", // SMM, 22/02/2022
-                'CDU_CorreoContacto' => $CorreoContacto ?? "", // SMM, 22/02/2022
+                'CDU_NombreContacto' => $NombreContacto ?? "",
+                // SMM, 15/02/2022
+                'CDU_TelefonoContacto' => $TelefonoContacto ?? "",
+                // SMM, 22/02/2022
+                'CDU_CorreoContacto' => $CorreoContacto ?? "",
+                // SMM, 22/02/2022
                 'CDU_Kilometros' => $Kilometros ?? "", // SMM, 02/03/2022
             );
             echo json_encode($records);
@@ -719,7 +729,8 @@ if ((isset($_GET['type']) && ($_GET['type'] != "")) || (isset($_POST['type']) &&
             'Celular' => $row['Celular'],
             'Telefono' => $row['Telefono'],
             'Correo' => $row['Email'],
-            'IdListaPrecio' => $row['IdListaPrecio'], // SMM, 24/02/2022
+            'IdListaPrecio' => $row['IdListaPrecio'],
+            // SMM, 24/02/2022
             'SujetoImpuesto' => $row['SujetoImpuesto'], // SMM, 23/04/2022
         );
         echo json_encode($records);
@@ -787,6 +798,27 @@ if ((isset($_GET['type']) && ($_GET['type'] != "")) || (isset($_POST['type']) &&
             "id_consecutivo_direccion" => $row["id_consecutivo_direccion"],
             "estado" => $row["estado"],
             "observaciones" => $row["observaciones"],
+        );
+        echo json_encode($records);
+    }
+
+    // SMM, 10/03/2023
+    elseif ($type == 50) { // Consultar un punto de control en particular.
+        $SQL = Seleccionar("tbl_PuntoControl", "*", "[id_interno]='" . $_GET['id'] . "'");
+        $records = array();
+        $row = sqlsrv_fetch_array($SQL);
+        $records = array(
+            "id_punto_control" => $row["id_punto_control"],
+            "punto_control" => $row["punto_control"],
+            "id_tipo_punto_control" => $row["id_tipo_punto_control"],
+            "descripcion_punto_control" => $row["descripcion_punto_control"],
+            "id_zona_sn" => $row["id_zona_sn"],
+            "id_nivel_infestacion" => $row["id_nivel_infestacion"],
+            "instala_tecnico" => $row["instala_tecnico"],
+            "fecha_instalacion" => $row["fecha_instalacion"]->format('Y-m-d'),
+            "estado" => $row["estado"],
+            "umbral_seguridad" => $row["umbral_seguridad"],
+            "umbral_critico" => $row["umbral_critico"],
         );
         echo json_encode($records);
     }
