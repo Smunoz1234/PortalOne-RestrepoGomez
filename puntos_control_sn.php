@@ -215,9 +215,16 @@ if (isset($_GET['Cliente'])) {
 									</div>
 
 									<div class="form-group">
-										<iframe id="DataGrid" name="DataGrid" style="border: 0;" width="100%" height="700"
-											src="detalle_puntos_control_sn.php?cardcode=<?php echo base64_encode($_GET['Cliente']); ?>&idsucursal=<?php echo base64_encode($_GET['Sucursal']); ?>&periodo=<?php echo base64_encode($Anno); ?>"></iframe>
+										<iframe id="DataGrid" name="DataGrid" style="border: 0;" width="100%"
+											height="700"></iframe>
 									</div>
+
+									<script>
+										document.addEventListener('DOMContentLoaded', function () {
+											let iframe = document.getElementById('DataGrid');
+											iframe.src = 'detalle_puntos_control_sn.php?cardcode=<?php echo base64_encode($_GET['Cliente']); ?>&idsucursal=<?php echo base64_encode($_GET['Sucursal']); ?>&periodo=<?php echo base64_encode($Anno); ?>&namesucursal=' + encodeURIComponent($('#Sucursal option:selected').text());
+										});
+									</script>
 								<?php } ?>
 							</form>
 						</div>
@@ -235,42 +242,6 @@ if (isset($_GET['Cliente'])) {
 
 	<!-- InstanceBeginEditable name="EditRegion4" -->
 	<script>
-		$("#ActualizarCronograma").on("click", function () {
-			event.preventDefault(); // Evitar otras acciones del botón
-
-			Swal.fire({
-				title: "¿Desea actualizar todas las lineas?",
-				icon: 'question',
-				showCancelButton: true,
-				confirmButtonText: 'Si, confirmo',
-				cancelButtonText: 'No'
-			}).then((result) => {
-				if (result.isConfirmed) {
-
-					// Cargando...
-					$('.ibox-content').toggleClass('sk-loading', true);
-
-					$.ajax({
-						type: "GET",
-						url: "includes/procedimientos.php?type=52&Metodo=1&Cliente=<?php echo $_GET['Cliente'] ?? ""; ?>&Sucursal=<?php echo $_GET['Sucursal'] ?? ""; ?>&Periodo=<?php echo $Anno ?? ""; ?>",
-						success: function (response) {
-							let frame = document.getElementById('DataGrid');
-							frame.src = "detalle_puntos_control_sn.php?cardcode=<?php echo base64_encode($_GET['Cliente'] ?? ""); ?>&idsucursal=<?php echo base64_encode($_GET['Sucursal'] ?? ""); ?>&periodo=<?php echo base64_encode($Anno ?? ""); ?>";
-
-							Swal.fire({
-								title: '¡Listo!',
-								text: 'Las lineas han sido actualizadas exitosamente',
-								icon: 'success'
-							}); // Swal
-						}
-					}); // ajax
-
-					// Carga terminada.
-					$('.ibox-content').toggleClass('sk-loading', false);
-				}
-			}); // Swal
-		});
-
 		$(document).ready(function () {
 			// SMM, 18/01/2023
 			$('[data-toggle="tooltip"]').tooltip();

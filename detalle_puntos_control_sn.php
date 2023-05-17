@@ -1,33 +1,41 @@
 <?php
 require_once "includes/conexion.php";
 // PermitirAcceso(318);
-$CardCodeID = "";
-$SucursalSN = "";
 
-// SMM, 24/02/2022
-$SQL_ZonaSN = "";
+$Where = "";
+$namesucursal = $_GET['namesucursal'] ?? "";
+
+// SMM, 05/16/2023
+$SQL_ID = Seleccionar("uvw_tbl_PuntoControl", "MAX(id_interno) + 1 AS max_id_interno");
+$row_ID = sqlsrv_fetch_array($SQL_ID);
+$ID = $row_ID["max_id_interno"];
+
+// SMM, 05/16/2023
+$CardCodeID = "";
+$ConsecutivoPC = "";
 if (isset($_GET['cardcode']) && ($_GET['cardcode'] != "")) {
 	$CardCodeID = base64_decode($_GET['cardcode']);
-	$SucursalSN = (isset($_GET['idsucursal']) && ($_GET['idsucursal'] != "")) ? base64_decode($_GET['idsucursal']) : "";
+	$Where = "[id_socio_negocio]='$CardCodeID'";
 
-	// Sucursales
-	$Where_ZonaSN = "[id_socio_negocio]='$CardCodeID'";
-	if ($SucursalSN != "") {
-		$Where_ZonaSN = "[id_socio_negocio]='$CardCodeID' AND [id_consecutivo_direccion] = '$CardCodeID'";
-	}
-	$SQL_ZonaSN = Seleccionar("uvw_tbl_SociosNegocios_Zonas", "*", $Where_ZonaSN);
+	$SQL_Consecutivo = sqlsrv_query($conexion, "SELECT dbo.ObtenerConsecutivoPC('$CardCodeID') AS Consecutivo");
+	$row_Consecutivo = sqlsrv_fetch_array($SQL_Consecutivo);
+	$ConsecutivoPC = $row_Consecutivo["Consecutivo"];
 }
 
-// SMM, 24/02/2023
-$WhereSucursalSN = "";
+// SMM, 05/16/2023
+$SucursalSN = "";
 if (isset($_GET['idsucursal']) && ($_GET['idsucursal'] != "")) {
-	$WhereSucursalSN = "AND [id_consecutivo_direccion]='" . base64_decode($_GET['idsucursal']) . "'";
+	$SucursalSN = base64_decode($_GET['idsucursal']);
+	$Where = "[id_socio_negocio]='$CardCodeID' AND [id_consecutivo_direccion] = '$CardCodeID'";
 }
+
+// SMM, 05/16/2022
+$SQL_ZonaSN = Seleccionar("uvw_tbl_SociosNegocios_Zonas", "*", $Where, "id_zona_sn");
+$SQL = Seleccionar("uvw_tbl_PuntoControl", "*", $Where);
 
 // SMM, 05/15/2023
 $SQL_TipoPC = Seleccionar("uvw_tbl_PuntoControl_Tipos", "*");
 $SQL_NivelInfestacionPC = Seleccionar("tbl_PuntoControl_Nivel_Infestacion", "*", "[estado] = 'Y'");
-$SQL = Seleccionar("uvw_tbl_PuntoControl", "*", "[id_socio_negocio]='$CardCodeID' $WhereSucursalSN");
 
 // SMM, 25/02/2023
 $msg_error = "";
@@ -38,15 +46,18 @@ $datetime = FormatoFecha(date('Y-m-d'), date('H:i:s'));
 
 $type = $_POST['type'] ?? 0;
 $id_interno = $_POST['id_interno'] ?? "NULL";
-$id_punto_control = $_POST['id_punto_control'] ?? "";
 $punto_control = $_POST['punto_control'] ?? "";
 $descripcion_punto_control = $_POST['descripcion_punto_control'] ?? "";
 $id_tipo_punto_control = $_POST['id_tipo_punto_control'] ?? "";
+$prefijo = $_POST['prefijo'] ?? "";
 $id_socio_negocio = $_POST['id_socio_negocio'] ?? "";
 $id_zona_sn = $_POST['id_zona_sn'] ?? "";
 $id_nivel_infestacion = $_POST['id_nivel_infestacion'] ?? "";
 $instala_tecnico = $_POST['instala_tecnico'] ?? "";
 $estado = $_POST['estado'] ?? "";
+$fecha_instalacion = $_POST['fecha_instalacion'] ?? "NULL";
+$umbral_seguridad = $_POST['umbral_seguridad'] ?? "NULL";
+$umbral_critico = $_POST['umbral_critico'] ?? "NULL";
 $id_usuario_creacion = "'$coduser'";
 $fecha_creacion = "'$datetime'";
 $hora_creacion = "'$datetime'";
@@ -61,15 +72,18 @@ if ($type == 1) {
 	$parametros = array(
 		$type,
 		"NULL",
-		"'$id_punto_control'",
 		"'$punto_control'",
 		"'$descripcion_punto_control'",
 		"'$id_tipo_punto_control'",
+		"'$prefijo'",
 		"'$id_socio_negocio'",
 		"'$id_zona_sn'",
 		"'$id_nivel_infestacion'",
 		"'$instala_tecnico'",
 		"'$estado'",
+		$fecha_instalacion,
+		$umbral_seguridad,
+		$umbral_critico,
 		$id_usuario_actualizacion,
 		$fecha_actualizacion,
 		$hora_actualizacion,
@@ -84,15 +98,18 @@ if ($type == 1) {
 	$parametros = array(
 		$type,
 		"$id_interno",
-		"'$id_punto_control'",
 		"'$punto_control'",
 		"'$descripcion_punto_control'",
 		"'$id_tipo_punto_control'",
+		"'$prefijo'",
 		"'$id_socio_negocio'",
 		"'$id_zona_sn'",
 		"'$id_nivel_infestacion'",
 		"'$instala_tecnico'",
 		"'$estado'",
+		$fecha_instalacion,
+		$umbral_seguridad,
+		$umbral_critico,
 		$id_usuario_actualizacion,
 		$fecha_actualizacion,
 		$hora_actualizacion,
@@ -176,6 +193,10 @@ if ($type != 0) {
 		.select2-search__field:placeholder-shown {
 			width: 100% !important;
 		}
+
+		.ui-datepicker {
+			z-index: 9999999 !important;
+		}
 	</style>
 
 	<script>
@@ -248,6 +269,9 @@ if ($type != 0) {
 			<div class="modal-content">
 				<div class="modal-header">
 					<h4 class="modal-title">Adicionar punto de control</h4>
+					<h4>
+						<?php echo $namesucursal; ?>
+					</h4>
 				</div> <!-- modal-header -->
 
 				<form id="modalForm">
@@ -255,29 +279,30 @@ if ($type != 0) {
 						<div class="form-group">
 							<div class="ibox-content">
 								<input type="hidden" id="type">
+								<input type="hidden" id="prefijo">
 
 								<div class="form-group">
 									<div class="col-md-4">
-										<label class="control-label">Socio Negocio <span
+										<label class="control-label">ID Interno <span
 												class="text-danger">*</span></label>
-										<input required type="text" class="form-control" autocomplete="off"
-											id="id_socio_negocio" value="<?php echo $CardCodeID; ?>" readonly>
+										<input required readonly type="text" class="form-control" autocomplete="off"
+											id="id_interno" value="<?php echo $ID; ?>">
 									</div>
 
 									<div class="col-md-4">
 										<label class="control-label">ID Punto Control <span
 												class="text-danger">*</span></label>
 										<input required type="text" class="form-control" autocomplete="off"
-											id="id_punto_control">
+											id="id_punto_control" readonly>
 									</div>
 
 									<div class="col-md-4">
-										<label class="control-label">Nombre Punto Control <span
-												class="text-danger">*</span></label>
-										<input required type="text" class="form-control" autocomplete="off"
-											id="punto_control">
+										<label class="control-label">Estado</label>
+										<select class="form-control" id="estado">
+											<option value="Y">ACTIVO</option>
+											<option value="N">INACTIVO</option>
+										</select>
 									</div>
-
 								</div> <!-- form-group -->
 
 								<br><br><br><br>
@@ -289,24 +314,19 @@ if ($type != 0) {
 											<option value="">Seleccione...</option>
 
 											<?php while ($row_TipoPC = sqlsrv_fetch_array($SQL_TipoPC)) { ?>
-												<option value="<?php echo $row_TipoPC['id_tipo_punto_control']; ?>"><?php echo $row_TipoPC['tipo_punto_control']; ?></option>
+												<option value="<?php echo $row_TipoPC['id_tipo_punto_control']; ?>"
+													data-prefijo="<?php echo $row_TipoPC['codigo_prefijo']; ?>">
+													<?php echo $row_TipoPC['tipo_punto_control']; ?>
+												</option>
 											<?php } ?>
 										</select>
 									</div>
 
 									<div class="col-md-6">
-										<label class="control-label">Zona Socio Negocio <span
+										<label class="control-label">Nombre Punto Control <span
 												class="text-danger">*</span></label>
-										<select id="id_zona_sn" class="form-control" required>
-											<option value="" <?php if ($SucursalSN == "") {
-												echo "disabled selected";
-											} ?>>
-												Seleccione...</option>
-
-											<?php while ($row_ZonaSN = sqlsrv_fetch_array($SQL_ZonaSN)) { ?>
-												<option value="<?php echo $row_ZonaSN['id_zona_sn']; ?>"><?php echo $row_ZonaSN['zona_sn']; ?></option>
-											<?php } ?>
-										</select>
+										<input required type="text" class="form-control" autocomplete="off"
+											id="punto_control">
 									</div>
 								</div> <!-- form-group -->
 
@@ -321,7 +341,43 @@ if ($type != 0) {
 
 								<br><br><br><br><br><br>
 								<div class="form-group">
-									<div class="col-md-4">
+									<div class="col-md-6">
+										<label class="control-label">Instalado por técnico <span
+												class="text-danger">*</span></label>
+										<select class="form-control" id="instala_tecnico" required>
+											<option value="Y">Si, el técnico realiza la instalación</option>
+											<option value="N">No, el técnico NO realiza la instalación</option>
+										</select>
+									</div>
+
+									<div class="col-md-6">
+										<label class="control-label">Fecha Instalación</label>
+										<div class="input-group date">
+											<span class="input-group-addon"><i class="fa fa-calendar"></i></span><input
+												type="text" class="form-control" id="FechaInstalacion"
+												value="<?php echo date('Y-m-d'); ?>">
+										</div>
+									</div>
+								</div> <!-- form-group -->
+
+								<br><br><br><br>
+								<div class="form-group">
+									<div class="col-md-6">
+										<label class="control-label">Zona Socio Negocio <span
+												class="text-danger">*</span></label>
+										<select id="id_zona_sn" class="form-control" required>
+											<option value="" <?php if ($SucursalSN == "") {
+												echo "disabled selected";
+											} ?>>
+												Seleccione...</option>
+
+											<?php while ($row_ZonaSN = sqlsrv_fetch_array($SQL_ZonaSN)) { ?>
+												<option value="<?php echo $row_ZonaSN['id_zona_sn']; ?>"><?php echo $row_ZonaSN['zona_sn']; ?></option>
+											<?php } ?>
+										</select>
+									</div>
+
+									<div class="col-md-6">
 										<label class="control-label">Nivel infestación <span
 												class="text-danger">*</span></label>
 										<select id="id_nivel_infestacion" class="form-control" required>
@@ -332,22 +388,20 @@ if ($type != 0) {
 											<?php } ?>
 										</select>
 									</div>
+								</div> <!-- form-group -->
 
-									<div class="col-md-4">
-										<label class="control-label">Instalado por técnico <span
-												class="text-danger">*</span></label>
-										<select class="form-control" id="instala_tecnico" required>
-											<option value="Y">Si, el técnico realiza la instalación</option>
-											<option value="N">No, el técnico NO realiza la instalación</option>
-										</select>
+								<br><br><br><br>
+								<div class="form-group">
+									<div class="col-md-6">
+										<label class="control-label">Umbral de Seguridad</label>
+										<input type="number" class="form-control" autocomplete="off"
+											id="umbral_seguridad">
 									</div>
 
-									<div class="col-md-4">
-										<label class="control-label">Estado</label>
-										<select class="form-control" id="estado">
-											<option value="Y">ACTIVO</option>
-											<option value="N">INACTIVO</option>
-										</select>
+									<div class="col-md-6">
+										<label class="control-label">Umbral Crítico</label>
+										<input type="number" class="form-control" autocomplete="off"
+											id="umbral_critico">
 									</div>
 								</div> <!-- form-group -->
 
@@ -453,7 +507,7 @@ if ($type != 0) {
 												<?php echo $row['socio_negocio']; ?>
 											</td>
 
-											<td>
+											<td class="w-80">
 												<b>Zona:</b>
 												<?php echo $row['id_zona_sn'] . " - " . $row['zona_sn']; ?>
 
@@ -504,15 +558,18 @@ if ($type != 0) {
 				url: "detalle_puntos_control_sn.php",
 				data: {
 					type: (ID == "") ? $("#type").val() : 3,
-					id_punto_control: $("#id_punto_control").val(),
 					punto_control: $("#punto_control").val(),
 					descripcion_punto_control: $("#descripcion_punto_control").val(),
 					id_tipo_punto_control: $("#id_tipo_punto_control").val(),
-					id_socio_negocio: $("#id_socio_negocio").val(),
+					prefijo: $("#prefijo").val(),
+					id_socio_negocio: "<?php echo $CardCodeID; ?>",
 					id_zona_sn: $("#id_zona_sn").val(),
 					id_nivel_infestacion: $("#id_nivel_infestacion").val(),
 					instala_tecnico: $("#instala_tecnico").val(),
 					estado: $("#estado").val(),
+					fecha_instalacion: $("#fecha_instalacion").val(),
+					umbral_seguridad: $("#umbral_seguridad").val(),
+					umbral_critico: $("#umbral_critico").val(),
 				},
 				success: function (response) {
 					Swal.fire({
@@ -601,6 +658,25 @@ if ($type != 0) {
 					"thousands": ",",
 					"emptyTable": "No se encontraron resultados."
 				}
+			});
+
+			// SMM, 05/16/2023
+			$("#id_tipo_punto_control").on("change", function () {
+				let prefijo = $(this).children("option:selected").data("prefijo");
+
+				$("#prefijo").val(prefijo);
+				$("#id_punto_control").val(`${prefijo}-<?php echo $ConsecutivoPC; ?>`);
+				$("#punto_control").val($('#id_tipo_punto_control option:selected').text().trim());
+			});
+
+			$("#FechaInstalacion").datepicker({
+				todayBtn: "linked",
+				keyboardNavigation: false,
+				forceParse: false,
+				calendarWeeks: true,
+				autoclose: true,
+				format: 'yyyy-mm-dd',
+				todayHighlight: true
 			});
 		});
 	</script>
