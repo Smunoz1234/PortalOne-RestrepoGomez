@@ -55,7 +55,7 @@ $id_zona_sn = $_POST['id_zona_sn'] ?? "";
 $id_nivel_infestacion = $_POST['id_nivel_infestacion'] ?? "";
 $instala_tecnico = $_POST['instala_tecnico'] ?? "";
 $estado = $_POST['estado'] ?? "";
-$fecha_instalacion = $_POST['fecha_instalacion'] ?? "NULL";
+$fecha_instalacion = isset($_POST['fecha_instalacion']) ? ("'" . $_POST['fecha_instalacion'] . "'") : "NULL";
 $umbral_seguridad = $_POST['umbral_seguridad'] ?? "NULL";
 $umbral_critico = $_POST['umbral_critico'] ?? "NULL";
 $id_usuario_creacion = "'$coduser'";
@@ -67,7 +67,6 @@ $hora_actualizacion = "'$datetime'";
 
 if ($type == 1) {
 	$msg_error = "No se pudo crear el registro.";
-
 
 	$parametros = array(
 		$type,
@@ -354,7 +353,7 @@ if ($type != 0) {
 										<label class="control-label">Fecha Instalación</label>
 										<div class="input-group date">
 											<span class="input-group-addon"><i class="fa fa-calendar"></i></span><input
-												type="text" class="form-control" id="FechaInstalacion"
+												type="text" class="form-control" id="fecha_instalacion"
 												value="<?php echo date('Y-m-d'); ?>">
 										</div>
 									</div>
@@ -462,13 +461,12 @@ if ($type != 0) {
 										<th>Punto Control</th>
 										<th>Tipo Punto Control</th>
 										<th>Descripción</th>
-										<th>Socio de Negocio</th>
 										<th>Zona de Socio de Negocio</th>
 										<th>Nivel de Infestación</th>
-										<th>Instalado por Técnico</th>
+										<th>Instalación</th>
+										<th>Umbrales</th>
 										<th>Estado</th>
-										<th>Fecha Actualización</th>
-										<th>Usuario Actualización</th>
+										<th>Actualización</th>
 									</tr>
 								</thead>
 
@@ -478,7 +476,7 @@ if ($type != 0) {
 											<td class="text-center">
 												<div class="checkbox checkbox-success no-margins">
 													<input type="checkbox" class="chkSel"
-														id="chkSel<?php echo $row['id_zona_sn']; ?>" value=""
+														id="chkSel<?php echo $row['id_interno']; ?>" value=""
 														onchange="Seleccionar('<?php echo $row['id_interno']; ?>');"
 														aria-label="Single checkbox One"><label></label>
 												</div>
@@ -494,22 +492,36 @@ if ($type != 0) {
 											<td>
 												<?php echo $row['id_interno']; ?>
 											</td>
+
 											<td>
-												<?php echo $row['id_punto_control'] . " - " . $row['punto_control']; ?>
+												<b>ID:</b>
+												<?php echo $row['id_punto_control']; ?>
+
+												<br><br><b>Nombre:</b>
+												<?php echo $row['punto_control']; ?>
 											</td>
+
 											<td>
-												<?php echo $row['id_tipo_punto_control'] . " - " . $row['tipo_punto_control']; ?>
+												<b>ID:</b>
+												<?php echo $row['id_tipo_punto_control']; ?>
+
+												<br><br><b>Nombre:</b>
+												<?php echo $row['tipo_punto_control']; ?>
 											</td>
+
 											<td>
 												<?php echo $row['descripcion_punto_control']; ?>
 											</td>
-											<td>
-												<?php echo $row['socio_negocio']; ?>
-											</td>
 
 											<td class="w-80">
-												<b>Zona:</b>
-												<?php echo $row['id_zona_sn'] . " - " . $row['zona_sn']; ?>
+												<b>
+													<?php echo $row['id_zona_sn'] . " - " . $row['zona_sn']; ?>
+												</b>
+
+												<b>
+													<br>
+													<?php echo $row['socio_negocio']; ?>
+												</b>
 
 												<br><br><b>ID Dirección Destino:</b>
 												<?php echo $row['id_consecutivo_direccion'] . " - " . $row['id_direccion_destino']; ?>
@@ -523,7 +535,20 @@ if ($type != 0) {
 											</td>
 
 											<td>
-												<?php echo ($row['instala_tecnico'] == "Y") ? "Si, el técnico realiza la instalación" : "No, el técnico no realiza la instalación"; ?>
+												<b>
+													<?php echo ($row['instala_tecnico'] == "Y") ? "El técnico realiza la instalación" : "El técnico NO realiza la instalación"; ?>
+												</b>
+
+												<br><br><b>Fecha Instalación:</b>
+												<?php echo isset($row['fecha_instalacion']) ? date_format($row['fecha_instalacion'], 'Y-m-d H:i:s') : ""; ?>
+											</td>
+
+											<td>
+												<b>Umbral de Seguridad:</b>
+												<?php echo $row['umbral_seguridad']; ?>
+
+												<br><br><b>Umbral Crítico:</b>
+												<?php echo $row['umbral_critico']; ?>
 											</td>
 
 											<td>
@@ -534,10 +559,11 @@ if ($type != 0) {
 											</td>
 
 											<td>
-												<?php echo isset($row['fecha_actualizacion']) ? date_format($row['fecha_actualizacion'], 'Y-m-d H:i:s') : ""; ?>
-											</td>
-											<td>
+												<b>Usuario Actualización:</b>
 												<?php echo $row['usuario_actualizacion']; ?>
+
+												<br><br><b>Fecha Actualización:</b>
+												<?php echo isset($row['fecha_actualizacion']) ? date_format($row['fecha_actualizacion'], 'Y-m-d H:i:s') : ""; ?>
 											</td>
 										</tr>
 									<?php } ?>
@@ -558,6 +584,7 @@ if ($type != 0) {
 				url: "detalle_puntos_control_sn.php",
 				data: {
 					type: (ID == "") ? $("#type").val() : 3,
+					id_interno: (ID == "") ? $("#id_interno").val() : ID,
 					punto_control: $("#punto_control").val(),
 					descripcion_punto_control: $("#descripcion_punto_control").val(),
 					id_tipo_punto_control: $("#id_tipo_punto_control").val(),
@@ -658,6 +685,7 @@ if ($type != 0) {
 					"thousands": ",",
 					"emptyTable": "No se encontraron resultados."
 				}
+				, order: [[2, "desc"]] // SMM, 25/01/2023
 			});
 
 			// SMM, 05/16/2023
