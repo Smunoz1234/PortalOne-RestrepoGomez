@@ -135,10 +135,10 @@ if (isset($_GET['Cliente'])) {
 							<a href="index1.php">Inicio</a>
 						</li>
 						<li>
-							<a href="#">Servicios</a>
+							<a href="#">Datos maestros</a>
 						</li>
 						<li>
-							<a href="#">Asistentes</a>
+							<a href="#">Puntos de control</a>
 						</li>
 						<li class="active">
 							<strong>Puntos de control de socios de negocios</strong>

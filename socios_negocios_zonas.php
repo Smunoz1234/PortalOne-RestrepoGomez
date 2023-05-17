@@ -135,10 +135,10 @@ if (isset($_GET['Cliente'])) {
 							<a href="index1.php">Inicio</a>
 						</li>
 						<li>
-							<a href="#">Servicios</a>
+							<a href="#">Datos maestros</a>
 						</li>
 						<li>
-							<a href="#">Asistentes</a>
+							<a href="#">Puntos de control</a>
 						</li>
 						<li class="active">
 							<strong>Zonas de socios de negocios</strong>
@@ -164,16 +164,13 @@ if (isset($_GET['Cliente'])) {
 									<label class="col-lg-1 control-label">Socio Negocio <span
 											class="text-danger">*</span></label>
 									<div class="col-lg-3">
-										<input name="Cliente" type="hidden" id="Cliente"
-											value="<?php if (isset($_GET['Cliente']) && ($_GET['Cliente'] != "")) {
-												echo $_GET['Cliente'];
-											} ?>">
+										<input name="Cliente" type="hidden" id="Cliente" value="<?php if (isset($_GET['Cliente']) && ($_GET['Cliente'] != "")) {
+											echo $_GET['Cliente'];
+										} ?>">
 										<input name="NombreCliente" type="text" class="form-control" id="NombreCliente"
-											placeholder="Ingrese para buscar..."
-											value="<?php if (isset($_GET['NombreCliente']) && ($_GET['NombreCliente'] != "")) {
+											placeholder="Ingrese para buscar..." value="<?php if (isset($_GET['NombreCliente']) && ($_GET['NombreCliente'] != "")) {
 												echo $_GET['NombreCliente'];
-											} ?>"
-											required>
+											} ?>" required>
 									</div>
 									<!-- Fin, Cliente -->
 
