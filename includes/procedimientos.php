@@ -1322,7 +1322,7 @@ if (isset($_GET['type']) && $_GET['type'] != "") {
     }
 
     // Corregir datos de la tabla de Zonas SN. SMM, 02/03/2023
-    elseif ($_GET['type'] == 53) {
+    elseif ($_GET['type'] == 67) {
         $Parametros = array(
             "'" . ($_GET['id_socio_negocio'] ?? "") . "'",
             "'" . ($_GET['id_zona_sn'] ?? "") . "'",

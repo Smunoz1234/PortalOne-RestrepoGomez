@@ -420,7 +420,7 @@ if ($row_Validacion["num_errors"] > 0) {
 			if (result.isConfirmed) {
 				$.ajax({
 					type: 'GET',
-					url: 'includes/procedimientos.php?type=53&id_socio_negocio=<?php echo $CardCodeID; ?>',
+					url: 'includes/procedimientos.php?type=67&id_socio_negocio=<?php echo $CardCodeID; ?>',
 					success: function(response) {
 						location.reload();
 					},
@@ -472,7 +472,7 @@ if ($row_Validacion["num_errors"] > 0) {
 			$.ajax({
 				url:"ajx_buscar_datos_json.php",
 				data:{
-					type: 45,
+					type: 49,
 					id: ID
 				},
 				dataType:'json',
