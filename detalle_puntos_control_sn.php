@@ -26,11 +26,12 @@ if (isset($_GET['cardcode']) && ($_GET['cardcode'] != "")) {
 $SucursalSN = "";
 if (isset($_GET['idsucursal']) && ($_GET['idsucursal'] != "")) {
 	$SucursalSN = base64_decode($_GET['idsucursal']);
-	$Where = "[id_socio_negocio]='$CardCodeID' AND [id_consecutivo_direccion] = '$CardCodeID'";
+	$Where = "[id_socio_negocio]='$CardCodeID' AND [id_consecutivo_direccion] = '$SucursalSN'";
 }
 
 // SMM, 05/16/2022
-$SQL_ZonaSN = Seleccionar("uvw_tbl_SociosNegocios_Zonas", "*", $Where, "id_zona_sn");
+// echo $Where;
+$SQL_ZonaSN = Seleccionar("uvw_tbl_SociosNegocios_Zonas", "*", "$Where AND [estado] = 'Y'", "id_zona_sn");
 $SQL = Seleccionar("uvw_tbl_PuntoControl", "*", $Where);
 
 // SMM, 05/15/2023
