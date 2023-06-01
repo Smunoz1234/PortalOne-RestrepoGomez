@@ -22,7 +22,7 @@ if (!isset($_SESSION)) {
 }
 
 define("VERSION", "2.1.0");
-define("BDPRO","PortalOneRG_Pruebas");
+define("BDPRO","PortalOneRG_Sandbox");
 define("BDPRUEBAS","");
 
 
