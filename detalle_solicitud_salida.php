@@ -6,9 +6,6 @@ PermitirAcceso(1202);
 $DimSeries = intval(ObtenerVariable("DimensionSeries"));
 $SQL_Dimensiones = Seleccionar('uvw_Sap_tbl_Dimensiones', '*', "DimActive='Y'");
 
-// Pruebas, SMM 31/08/2022
-// $SQL_Dimensiones = Seleccionar('uvw_Sap_tbl_Dimensiones', '*', 'DimCode IN (1,2)');
-
 $array_Dimensiones = [];
 while ($row_Dimension = sqlsrv_fetch_array($SQL_Dimensiones)) {
     array_push($array_Dimensiones, $row_Dimension);
@@ -19,7 +16,11 @@ while ($row_Dimension = sqlsrv_fetch_array($SQL_Dimensiones)) {
 $BloquearDocumento = $_GET['bloquear'] ?? false;
 
 $sw = 0;
-//$Proyecto="";
+$Proyecto = "";
+
+$Serie = "";
+$Sucursal = "";
+
 $Almacen = "";
 $AlmacenDestino = "";
 $CardCode = "";
@@ -36,12 +37,13 @@ if (isset($_GET['id']) && ($_GET['id'] != "")) {
         if ($SQL) {
             $sw = 1;
             $CardCode = $_GET['cardcode'];
-            //$Proyecto=$_GET['prjcode'];
-            // SMM, 28/11/2022
-            // $Almacen = $_GET['whscode'];
+
+            // SMM, 04/04/2023
+            $Serie = $_GET['serie'] ?? "";
+            $Sucursal = $_GET['sucursal'] ?? "";
         } else {
             $CardCode = "";
-            //$Proyecto="";
+            $Proyecto = "";
             $Almacen = "";
             $AlmacenDestino = "";
         }
@@ -66,6 +68,12 @@ $ParamAlmacen = array(
 );
 $SQL_Almacen = EjecutarSP('sp_ConsultarAlmacenesUsuario', $ParamAlmacen);
 
+// SMM, 04/04/2023
+if (($type == 1) && ($Serie != "") && ($Sucursal != "")) {
+    $WhereAlmacen = "IdSeries='$Serie' AND IdSucursal='$Sucursal' AND IdTipoDocumento='1250000001'";
+    $SQL_Almacen = SeleccionarGroupBy('uvw_tbl_SeriesSucursalesAlmacenes', 'WhsCode, WhsName', $WhereAlmacen, "WhsCode, WhsName", 'WhsName');
+}
+
 // Almacenes destino, SMM, 28/11/2022
 $ParamAlmacenDest = array(
     "'" . $_SESSION['CodUser'] . "'",
@@ -74,8 +82,30 @@ $ParamAlmacenDest = array(
 );
 $SQL_ToAlmacen = EjecutarSP('sp_ConsultarAlmacenesUsuario', $ParamAlmacenDest);
 
-// Proyectos, SMM, 28/11/2022
-$SQL_Proyecto = Seleccionar('uvw_Sap_tbl_Proyectos', '*', '', 'DeProyecto');
+// SMM, 04/04/2023
+if (($type == 1) && ($Serie != "") && ($Sucursal != "")) {
+    $WhereToAlmacen = "IdSeries='$Serie' AND IdSucursal='$Sucursal' AND IdTipoDocumento='1250000001' AND ToWhsCode <> ''";
+    $SQL_ToAlmacen = SeleccionarGroupBy('uvw_tbl_SeriesSucursalesAlmacenes', 'ToWhsCode, ToWhsName', $WhereToAlmacen, "ToWhsCode, ToWhsName", 'ToWhsName');
+}
+
+// Filtrar proyectos asignados. SMM, 04/04/2023
+$Where_Proyectos = "ID_Usuario='" . $_SESSION['CodUser'] . "'";
+$SQL_Proyectos = Seleccionar('uvw_tbl_UsuariosProyectos', '*', $Where_Proyectos);
+
+$Proyectos = array();
+while ($Concepto = sqlsrv_fetch_array($SQL_Proyectos)) {
+    $Proyectos[] = ("'" . $Concepto['IdProyecto'] . "'");
+}
+
+$Filtro_Proyectos = "";
+if ((count($Proyectos) > 0) && ($type == 1)) {
+    $Filtro_Proyectos .= "IdProyecto IN (";
+    $Filtro_Proyectos .= implode(",", $Proyectos);
+    $Filtro_Proyectos .= ")";
+}
+
+// Proyectos, SMM, 04/04/2023
+$SQL_Proyecto = Seleccionar('uvw_Sap_tbl_Proyectos', '*', $Filtro_Proyectos, 'DeProyecto');
 
 // Filtrar conceptos de salida. SMM, 21/01/2023
 $Where_Conceptos = "ID_Usuario='" . $_SESSION['CodUser'] . "'";
@@ -488,7 +518,7 @@ if ($sw == 1) {
 			<td><input size="50" type="text" id="ItemName<?php echo $i; ?>" name="ItemName[]" class="form-control" value="<?php echo $row['ItemName']; ?>" maxlength="100" onChange="ActualizarDatos('ItemName',<?php echo $i; ?>,<?php echo $row['LineNum']; ?>);" <?php if ($row['LineStatus'] == 'C' || $Estado == 2 || (!PermitirFuncion(1201))) {echo "readonly";}?>></td>
 			<td><input size="15" type="text" id="UnitMsr<?php echo $i; ?>" name="UnitMsr[]" class="form-control" readonly value="<?php echo $row['UnitMsr']; ?>"></td>
 
-			<td><input size="15" type="text" id="Quantity<?php echo $i; ?>" name="Quantity[]" class="form-control" value="<?php echo number_format($row['Quantity'], 2); ?>" onChange="ActualizarDatos('Quantity',<?php echo $i; ?>,<?php echo $row['LineNum']; ?>);" onBlur="CalcularTotal(<?php echo $i; ?>);" onKeyUp="revisaCadena(this);" onKeyPress="return justNumbers(event,this.value);" <?php if ($row['LineStatus'] == 'C' || $Estado == 2 || (!PermitirFuncion(1201))) {echo "readonly";}?>></td>
+			<td><input size="15" type="text" id="Quantity<?php echo $i; ?>" name="Quantity[]" class="form-control" value="<?php echo number_format($row['Quantity'], 2); ?>" onChange="ActualizarDatos('Quantity',<?php echo $i; ?>,<?php echo $row['LineNum']; ?>);" onBlur="CalcularTotal(<?php echo $i; ?>);" onKeyUp="revisaCadena(this);" onKeyPress="return justNumbers(event,this.value);" <?php if ($row['LineStatus'] == 'C' || $Estado == 2 || (!PermitirFuncion(1201))) {echo "readonly";}?> onFocus="focalizarValores(this)"></td>
 
 			<td><input size="15" type="text" id="CantInicial<?php echo $i; ?>" name="CantInicial[]" class="form-control" value="<?php echo number_format($row['CantInicial'], 2); ?>" onKeyUp="revisaCadena(this);" onKeyPress="return justNumbers(event,this.value);" readonly></td>
 
@@ -523,6 +553,13 @@ if ($sw == 1) {
 						<option value="">(NINGUNO)</option>
 
 						<?php $SQL_Dim = Seleccionar('uvw_Sap_tbl_DimensionesReparto', '*', "DimCode=$DimCode");?>
+
+						<!-- SMM, 27/08/2023 -->
+						<?php if (($Serie != "") && ($DimCode == $DimSeries)) {?>
+							<?php $SQL_Dim = SeleccionarGroupBy('uvw_tbl_SeriesSucursalesAlmacenes', 'IdSucursal "OcrCode", DeSucursal "OcrName"', "IdSeries='$Serie'", "IdSucursal, DeSucursal");?>
+						<?php }?>
+						<!--Hasta aquí -->
+
 						<?php while ($row_Dim = sqlsrv_fetch_array($SQL_Dim)) {?>
 							<option value="<?php echo $row_Dim['OcrCode']; ?>" <?php if ((isset($row["OcrCode$OcrId"])) && (strcmp($row_Dim['OcrCode'], $row["OcrCode$OcrId"]) == 0)) {echo "selected=\"selected\"";}?>><?php echo $row_Dim['OcrCode'] . "-" . $row_Dim['OcrName']; ?></option>
 						<?php }?>
@@ -551,17 +588,24 @@ if ($sw == 1) {
 			</td> <!-- form-group -->
 
 			<td><input size="50" type="text" id="FreeTxt<?php echo $i; ?>" name="FreeTxt[]" class="form-control" value="<?php echo $row['FreeTxt']; ?>" onChange="ActualizarDatos('FreeTxt',<?php echo $i; ?>,<?php echo $row['LineNum']; ?>);" maxlength="100" <?php if ($row['LineStatus'] == 'C' || $Estado == 2 || (!PermitirFuncion(1201))) {echo "readonly";}?>></td>
-			<td><input size="15" type="text" id="Price<?php echo $i; ?>" name="Price[]" class="form-control" value="<?php echo number_format($row['Price'], 2); ?>" onChange="ActualizarDatos('Price',<?php echo $i; ?>,<?php echo $row['LineNum']; ?>);" onBlur="CalcularTotal(<?php echo $i; ?>);" onKeyUp="revisaCadena(this);" onKeyPress="return justNumbers(event,this.value);" readonly></td>
 
 			<td>
-				<input size="15" type="text" id="PriceTax<?php echo $i; ?>" name="PriceTax[]" class="form-control" value="<?php echo number_format($row['PriceTax'], $dPrecios, $sDecimal, $sMillares); ?>" onBlur="CalcularTotal(<?php echo $i; ?>);" onKeyUp="revisaCadena(this);" onKeyPress="return justNumbers(event,this.value);" readonly>
+				<input size="15" type="text" id="Price<?php echo $i; ?>" name="Price[]" class="form-control" value="<?php echo number_format($row['Price'], 2); ?>" onChange="ActualizarDatos('Price',<?php echo $i; ?>,<?php echo $row['LineNum']; ?>);" onBlur="CalcularTotal(<?php echo $i; ?>);" onKeyUp="revisaCadena(this);" onKeyPress="return justNumbers(event,this.value);" readonly onFocus="focalizarValores(this)">
+			</td>
+
+			<td>
+				<input size="15" type="text" id="PriceTax<?php echo $i; ?>" name="PriceTax[]" class="form-control" value="<?php echo number_format($row['PriceTax'], $dPrecios, $sDecimal, $sMillares); ?>" onBlur="CalcularTotal(<?php echo $i; ?>);" onKeyUp="revisaCadena(this);" onKeyPress="return justNumbers(event,this.value);" readonly onFocus="focalizarValores(this)">
 				<input type="hidden" id="TarifaIVA<?php echo $i; ?>" name="TarifaIVA[]" value="<?php echo number_format($row['TarifaIVA'], 0); ?>">
 				<input type="hidden" id="VatSum<?php echo $i; ?>" name="VatSum[]" value="<?php echo number_format($row['VatSum'], 2); ?>">
 			</td>
 
-			<td><input size="15" type="text" id="DiscPrcnt<?php echo $i; ?>" name="DiscPrcnt[]" class="form-control" value="<?php echo number_format($row['DiscPrcnt'], 2); ?>" onChange="ActualizarDatos('DiscPrcnt',<?php echo $i; ?>,<?php echo $row['LineNum']; ?>);" onBlur="CalcularTotal(<?php echo $i; ?>);" onKeyUp="revisaCadena(this);" onKeyPress="return justNumbers(event,this.value);" readonly></td>
+			<td>
+				<input size="15" type="text" id="DiscPrcnt<?php echo $i; ?>" name="DiscPrcnt[]" class="form-control" value="<?php echo number_format($row['DiscPrcnt'], 2); ?>" onChange="ActualizarDatos('DiscPrcnt',<?php echo $i; ?>,<?php echo $row['LineNum']; ?>);" onBlur="CalcularTotal(<?php echo $i; ?>);" onKeyUp="revisaCadena(this);" onKeyPress="return justNumbers(event,this.value);" readonly onFocus="focalizarValores(this)">
+			</td>
 
-			<td><input size="15" type="text" id="LineTotal<?php echo $i; ?>" name="LineTotal[]" class="form-control" readonly value="<?php echo number_format($row['LineTotal'], 2); ?>" onBlur="CalcularTotal(<?php echo $i; ?>, false);"></td>
+			<td>
+				<input size="15" type="text" id="LineTotal<?php echo $i; ?>" name="LineTotal[]" class="form-control" readonly value="<?php echo number_format($row['LineTotal'], 2); ?>" onBlur="CalcularTotal(<?php echo $i; ?>, false);" onFocus="focalizarValores(this)">
+			</td>
 
 			<td><?php if ($row['Metodo'] == 0) {?><i class="fa fa-check-circle text-info" title="Sincronizado con SAP"></i><?php } else {?><i class="fa fa-times-circle text-danger" title="Aún no enviado a SAP"></i><?php }?></td>
 		</tr>
@@ -603,6 +647,11 @@ if ($sw == 1) {
 </form>
 
 <script>
+// SMM, 05/04/2023
+function focalizarValores(elemento) {
+	elemento.value = parseFloat(elemento.value.replace(/,/g, ''));
+}
+
 // Actualizada. SMM, 02/12/2022
 function CalcularTotal(line, totalizar=true) {
 	console.log(`CalcularTotal(${line}, ${totalizar})`);

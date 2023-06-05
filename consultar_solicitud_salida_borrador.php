@@ -173,8 +173,11 @@ if (isset($_GET['DocNum']) && $_GET['DocNum'] != "") {
     $Cons = "Select * From uvw_Sap_tbl_SolicitudesSalidas_Borrador Where $Where";
 }
 
-// echo $Cons;
-$SQL = sqlsrv_query($conexion, $Cons);
+// SMM, 03/04/2023
+if ($sw == 1) {
+    // echo $Cons;
+    $SQL = sqlsrv_query($conexion, $Cons);
+}
 ?>
 
 <!DOCTYPE html>
@@ -496,7 +499,8 @@ if (isset($_GET['a']) && ($_GET['a'] == base64_encode("OK_DefinitivoAdd"))) {
 
 						<th>Comentarios</th> <!-- SMM, 25/11/2022 -->
 						<th>Descontable</th>
-						<!-- th>Documento destino</th-->
+
+						<!-- th>Documento destino</th -->
 
 						<th>Usuario Creación/Autor</th>
 						<th>Perfil Autor</th> <!-- SMM, 23/12/2022 -->
@@ -534,7 +538,8 @@ if (isset($_GET['a']) && ($_GET['a'] == base64_encode("OK_DefinitivoAdd"))) {
 
 							<td><?php echo SubComent($row['Comentarios']); ?></td> <!-- SMM, 25/11/2022 -->
 							<td><?php echo $row['Descontable']; ?></td>
-							<!-- Se elimino el documento
+
+							<!-- Se elimino el documento -->
 
 							<td><?php echo $row['UsuarioCreacion']; ?></td> <!-- Autor -->
 							<td><?php echo $row['PerfilUsuario_Creacion'] ?? ""; ?></td> <!-- Autor -->
@@ -577,7 +582,7 @@ if (isset($_GET['a']) && ($_GET['a'] == base64_encode("OK_DefinitivoAdd"))) {
  <script>
         $(document).ready(function(){
 			// SMM, 16/02/2023
-			<?php if (isset($_GET['Series'])) {?>
+			<?php if (isset($_GET['Series']) && ($_GET['Series'] != "")) {?>
 				$('#Series').trigger('change');
 			<?php }?>
 

@@ -106,8 +106,35 @@ if (isset($_GET['BuscarDato']) && $_GET['BuscarDato'] != "") {
 }
 
 $Cons = "Select * From uvw_Sap_tbl_TrasladosInventarios Where (DocDate Between '$FechaInicial' and '$FechaFinal') $Filtro Order by DocNum DESC";
-//echo $Cons;
-$SQL = sqlsrv_query($conexion, $Cons);
+
+// SMM, 15/03/2023
+if (isset($_GET['DocNum']) && $_GET['DocNum'] != "") {
+    $Where = "DocNum LIKE '%" . trim($_GET['DocNum']) . "%'";
+
+    $FilSerie = "";
+    $i = 0;
+    while ($row_Series = sqlsrv_fetch_array($SQL_Series)) {
+        if ($i == 0) {
+            $FilSerie .= "'" . $row_Series['IdSeries'] . "'";
+        } else {
+            $FilSerie .= ",'" . $row_Series['IdSeries'] . "'";
+        }
+        $i++;
+    }
+
+    // Comentar para no filtrar por serie.
+    $Where .= " AND [IdSeries] IN (" . $FilSerie . ")";
+
+    $SQL_Series = EjecutarSP('sp_ConsultarSeriesDocumentos', $ParamSerie);
+
+    $Cons = "SELECT * FROM uvw_Sap_tbl_TrasladosInventarios WHERE $Where";
+}
+
+// SMM, 03/04/2023
+if ($sw == 1) {
+    // echo $Cons;
+    $SQL = sqlsrv_query($conexion, $Cons);
+}
 ?>
 
 <!DOCTYPE html>
@@ -234,7 +261,7 @@ if (isset($_GET['a']) && ($_GET['a'] == base64_encode("OK_TrasInvUpd"))) {
 							<div class="col-lg-3">
 								<select name="Empleado" class="form-control select2" id="Empleado">
 									<?php if (PermitirFuncion(1215)) {?><option value="">(Todos)</option><?php }?>
-								  	
+
 									<?php while ($row_Empleado = sqlsrv_fetch_array($SQL_Empleado)) {?>
 										<option value="<?php echo $row_Empleado['ID_Empleado']; ?>" <?php if ((isset($_GET['Empleado'])) && (strcmp($row_Empleado['ID_Empleado'], $_GET['Empleado']) == 0)) {echo "selected=\"selected\"";}?>><?php echo $row_Empleado['NombreEmpleado']; ?></option>
 								  	<?php }?>
@@ -251,11 +278,12 @@ if (isset($_GET['a']) && ($_GET['a'] == base64_encode("OK_TrasInvUpd"))) {
 							<div class="col-lg-3">
 								<select name="Sucursal" class="form-control" id="Sucursal">
 									<option value="">(Todos)</option>
-								  <?php if (isset($_GET['Series']) && ($_GET['Series'] != "")) {
-    while ($row_Sucursal = sqlsrv_fetch_array($SQL_Sucursal)) {?>
+
+								  	<?php if (isset($_GET['Series']) && ($_GET['Series'] != "")) {?>
+    									<?php while ($row_Sucursal = sqlsrv_fetch_array($SQL_Sucursal)) {?>
 											<option value="<?php echo $row_Sucursal['IdSucursal']; ?>" <?php if (isset($_GET['Sucursal']) && (strcmp($row_Sucursal['IdSucursal'], $_GET['Sucursal']) == 0)) {echo "selected=\"selected\"";}?>><?php echo $row_Sucursal['DeSucursal']; ?></option>
-									<?php }
-}?>
+										<?php }?>
+									<?php }?>
 								</select>
 							</div>
 							<label class="col-lg-1 control-label">Buscar dato</label>
@@ -292,7 +320,14 @@ if (isset($_GET['a']) && ($_GET['a'] == base64_encode("OK_TrasInvUpd"))) {
 							</div>
 						</div>
 						<div class="form-group">
-							<div class="col-lg-12">
+							<!-- Número de documento -->
+							<label class="col-lg-1 control-label">Número documento</label>
+							<div class="col-lg-3">
+								<input name="DocNum" type="text" class="form-control" id="DocNum" maxlength="50" placeholder="Digite un número completo, o una parte del mismo..." value="<?php if (isset($_GET['DocNum']) && ($_GET['DocNum'] != "")) {echo $_GET['DocNum'];}?>">
+							</div>
+							<!-- SMM, 15/03/2023 -->
+
+							<div class="col-lg-8">
 								<button type="submit" class="btn btn-outline btn-success pull-right"><i class="fa fa-search"></i> Buscar</button>
 							</div>
 						</div>
@@ -375,7 +410,7 @@ if ($sw == 1) {
  <script>
         $(document).ready(function(){
 			// SMM, 16/02/2023
-			<?php if (isset($_GET['Series'])) {?>
+			<?php if (isset($_GET['Series']) && ($_GET['Series'] != "")) {?>
 				$('#Series').trigger('change');
 			<?php }?>
 

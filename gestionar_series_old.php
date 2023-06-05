@@ -146,7 +146,7 @@ function AgregarDoc(){
 						</div>						
 					</div>
 					<div class="row table-responsive">
-						<iframe id="DataGrid" name="DataGrid" style="border: 0;" width="100%" height="800" src="detalle_gestionar_series.php"></iframe>
+						<iframe id="DataGrid" name="DataGrid" style="border: 0;" width="100%" height="800" src="detalle_gestionar_series_old.php"></iframe>
 					</div>					
 				</div>
 			</div>			

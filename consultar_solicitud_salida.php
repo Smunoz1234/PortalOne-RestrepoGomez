@@ -109,10 +109,38 @@ if (isset($_GET['BuscarDato']) && $_GET['BuscarDato'] != "") {
     $Filtro .= " and (DocNum LIKE '%" . $_GET['BuscarDato'] . "%' OR NombreContacto LIKE '%" . $_GET['BuscarDato'] . "%' OR DocNumLlamadaServicio LIKE '%" . $_GET['BuscarDato'] . "%' OR ID_LlamadaServicio LIKE '%" . $_GET['BuscarDato'] . "%' OR IdDocPortal LIKE '%" . $_GET['BuscarDato'] . "%' OR NombreEmpleadoVentas LIKE '%" . $_GET['BuscarDato'] . "%' OR Comentarios LIKE '%" . $_GET['BuscarDato'] . "%')";
 }
 
-$Cons = "Select * From uvw_Sap_tbl_SolicitudesSalidas_Consulta Where (DocDate Between '$FechaInicial' and '$FechaFinal') $Filtro Order by DocNum DESC";
-// echo $Cons;
-$SQL = sqlsrv_query($conexion, $Cons);
+$Cons = "SELECT * FROM uvw_Sap_tbl_SolicitudesSalidas_Consulta WHERE (DocDate BETWEEN '$FechaInicial' AND '$FechaFinal') $Filtro ORDER BY DocNum DESC";
+
+// SMM, 10/03/2023
+if (isset($_GET['DocNum']) && $_GET['DocNum'] != "") {
+    $Where = "DocNum LIKE '%" . trim($_GET['DocNum']) . "%'";
+
+    $FilSerie = "";
+    $i = 0;
+    while ($row_Series = sqlsrv_fetch_array($SQL_Series)) {
+        if ($i == 0) {
+            $FilSerie .= "'" . $row_Series['IdSeries'] . "'";
+        } else {
+            $FilSerie .= ",'" . $row_Series['IdSeries'] . "'";
+        }
+        $i++;
+    }
+
+    // Comentar para no filtrar por serie.
+    $Where .= " AND [IdSeries] IN (" . $FilSerie . ")";
+
+    $SQL_Series = EjecutarSP('sp_ConsultarSeriesDocumentos', $ParamSerie);
+
+    $Cons = "SELECT * FROM uvw_Sap_tbl_SolicitudesSalidas_Consulta WHERE $Where";
+}
+
+// SMM, 03/04/2023
+if ($sw == 1) {
+    // echo $Cons;
+    $SQL = sqlsrv_query($conexion, $Cons);
+}
 ?>
+
 <!DOCTYPE html>
 <html><!-- InstanceBegin template="/Templates/PlantillaPrincipal.dwt.php" codeOutsideHTMLIsLocked="false" -->
 
@@ -275,28 +303,31 @@ if (isset($_GET['a']) && ($_GET['a'] == base64_encode("OK_SolSalUpd"))) {
 								<input name="Cliente" type="hidden" id="Cliente" value="<?php if (isset($_GET['Cliente']) && ($_GET['Cliente'] != "")) {echo $_GET['Cliente'];}?>">
 								<input name="NombreCliente" type="text" class="form-control" id="NombreCliente" placeholder="Para TODOS, dejar vacio..." value="<?php if (isset($_GET['NombreCliente']) && ($_GET['NombreCliente'] != "")) {echo $_GET['NombreCliente'];}?>">
 							</div>
+
 							<label class="col-lg-1 control-label"><?php echo $Nombre_DimSeries; ?></label>
 							<div class="col-lg-3">
 								<select name="Sucursal" class="form-control" id="Sucursal">
 									<option value="">(Todos)</option>
-								  <?php if (isset($_GET['Series']) && ($_GET['Series'] != "")) {
-    while ($row_Sucursal = sqlsrv_fetch_array($SQL_Sucursal)) {?>
+								  	<?php if (isset($_GET['Series']) && ($_GET['Series'] != "")) {?>
+    									<?php while ($row_Sucursal = sqlsrv_fetch_array($SQL_Sucursal)) {?>
 											<option value="<?php echo $row_Sucursal['IdSucursal']; ?>" <?php if (isset($_GET['Sucursal']) && (strcmp($row_Sucursal['IdSucursal'], $_GET['Sucursal']) == 0)) {echo "selected=\"selected\"";}?>><?php echo $row_Sucursal['DeSucursal']; ?></option>
-									<?php }
-}?>
+										<?php }?>
+									<?php }?>
 								</select>
 							</div>
+
 							<label class="col-lg-1 control-label">Buscar dato</label>
 							<div class="col-lg-3">
 								<input name="BuscarDato" type="text" class="form-control" id="BuscarDato" maxlength="100" value="<?php if (isset($_GET['BuscarDato']) && ($_GET['BuscarDato'] != "")) {echo $_GET['BuscarDato'];}?>">
 							</div>
 						</div>
+
 					  	<div class="form-group">
 							<label class="col-lg-1 control-label">Empleado</label>
 							<div class="col-lg-3">
 								<select name="Empleado" class="form-control select2" id="Empleado">
 									<?php if (PermitirFuncion(1215)) {?><option value="">(Todos)</option><?php }?>
-									
+
 									<?php while ($row_Empleado = sqlsrv_fetch_array($SQL_Empleado)) {?>
 										<option value="<?php echo $row_Empleado['ID_Empleado']; ?>" <?php if ((isset($_GET['Empleado'])) && (strcmp($row_Empleado['ID_Empleado'], $_GET['Empleado']) == 0)) {echo "selected=\"selected\"";}?>><?php echo $row_Empleado['NombreEmpleado']; ?></option>
 								  	<?php }?>
@@ -332,10 +363,21 @@ if (isset($_GET['a']) && ($_GET['a'] == base64_encode("OK_SolSalUpd"))) {
 									</select>
 								</div>
 							</div>
-							<div class="col-lg">
+
+							<!-- Número de documento -->
+							<label class="col-lg-1 control-label">Número documento</label>
+							<div class="col-lg-3">
+								<input name="DocNum" type="text" class="form-control" id="DocNum" maxlength="50" placeholder="Digite un número completo, o una parte del mismo..." value="<?php if (isset($_GET['DocNum']) && ($_GET['DocNum'] != "")) {echo $_GET['DocNum'];}?>">
+							</div>
+							<!-- SMM, 10/03/2023 -->
+						</div>
+
+						<div class="form-group">
+							<div class="col-lg-12">
 								<button type="submit" class="btn btn-outline btn-success pull-right"><i class="fa fa-search"></i> Buscar</button>
 							</div>
 						</div>
+
 						<?php if ($sw == 1) {?>
 					  	<div class="form-group">
 							<div class="col-lg-10 col-md-10">
@@ -376,9 +418,8 @@ if (isset($_GET['a']) && ($_GET['a'] == base64_encode("OK_SolSalUpd"))) {
                     </tr>
                     </thead>
                     <tbody>
-                    <?php
-if ($sw == 1) {
-    while ($row = sqlsrv_fetch_array($SQL)) {?>
+                    <?php if ($sw == 1) {?>
+						<?php while ($row = sqlsrv_fetch_array($SQL)) {?>
 						 <tr class="gradeX">
 							<td><?php echo $row['DocNum']; ?></td>
 							<td><?php echo $row['DeSeries']; ?></td>
@@ -398,8 +439,8 @@ if ($sw == 1) {
 								<a href="sapdownload.php?id=<?php echo base64_encode('15'); ?>&type=<?php echo base64_encode('2'); ?>&DocKey=<?php echo base64_encode($row['ID_SolSalida']); ?>&ObType=<?php echo base64_encode('1250000001'); ?>&IdFrm=<?php echo base64_encode($row['IdSeries']); ?>" target="_blank" class="btn btn-warning btn-xs"><i class="fa fa-download"></i> Descargar</a>
 							</td>
 						</tr>
-					<?php }
-}?>
+						<?php }?>
+					<?php }?>
                     </tbody>
                     </table>
               </div>
@@ -418,7 +459,7 @@ if ($sw == 1) {
 <script>
 	$(document).ready(function() {
 		// SMM, 16/02/2023
-		<?php if (isset($_GET['Series'])) {?>
+		<?php if (isset($_GET['Series']) && ($_GET['Series'] != "")) {?>
 			$('#Series').trigger('change');
 		<?php }?>
 

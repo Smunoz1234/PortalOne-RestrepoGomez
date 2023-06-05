@@ -1,72 +1,202 @@
-﻿<?php require("includes/conexion.php");
+﻿<?php require_once("includes/conexion.php"); 
 
-//Actividades recibidas
-//Fechas
-if(isset($_GET['FechaInicial_MisAct'])&&$_GET['FechaInicial_MisAct']!=""){
-	$FechaInicial_MisAct=$_GET['FechaInicial_MisAct'];
-}else{
-	//Restar dias a la fecha actual
-	$fecha = date('Y-m-d');
-	$nuevafecha = strtotime ('-'.ObtenerVariable("DiasRangoFechasDashboard").' day');
-	$nuevafecha = date ( 'Y-m-d' , $nuevafecha);
-	$FechaInicial_MisAct=$nuevafecha;
-}
-if(isset($_GET['FechaFinal_MisAct'])&&$_GET['FechaFinal_MisAct']!=""){
-	$FechaFinal_MisAct=$_GET['FechaFinal_MisAct'];
-}else{
-	$FechaFinal_MisAct=date('Y-m-d');
+if($_SESSION['Perfil']==6){//Perfil de proveedor
+	header('Location:index1_prov.php');
 }
 
-$Cons_MisAct="Select * From uvw_Sap_tbl_Actividades Where ID_EmpleadoActividad='".$_SESSION['CodigoSAP']."' And IdEstadoActividad='N'";
-//echo $Cons_MisAct;
-//echo "<br>";
-$SQL_MisAct=sqlsrv_query($conexion,$Cons_MisAct,array(),array( "Scrollable" => 'Static' ));
-$Num_MisAct=sqlsrv_num_rows($SQL_MisAct);
+setlocale(LC_TIME, "spanish");
+//require_once("includes/conexion_hn.php");
+$sw=0;
+$sw_alert=0;//Indica que hay alertas
+$sw_notify=0;//Indica que hay notificaciones
+$Filtro="";//Filtro
+$TotalDoc=0;//Total de documentos nuevos
+$Num_CntDoc=0;//Cantidad de documentos nuevos
+$TotalInf=0;//Total de informes nuevos
+$Num_InfAct=0;//Cantidad de informes nuevos
+$Num_Alertas=0;//Total de alertas actuales
+$Num_CntFrm=0;//Cantidad de formularios
+$Num_CntProd=0;//Cantidad de productos
+$sw_Informe=isset($_GET['id']) ? 1 : 0;//Indica si la pagina se esta cargando inicialmente o como informe. 1: Como Informe.
+$FechaInicial='';
+$FechaFinal='';
 
-//Actividades enviadas
-//Fechas
-if(isset($_GET['FechaInicial_ActAsig'])&&$_GET['FechaInicial_ActAsig']!=""){
-	$FechaInicial_ActAsig=$_GET['FechaInicial_ActAsig'];
-}else{
-	//Restar dias a la fecha actual
-	$fecha = date('Y-m-d');
-	$nuevafecha = strtotime ('-'.ObtenerVariable("DiasRangoFechasDashboard").' day');
-	$nuevafecha = date ( 'Y-m-d' , $nuevafecha);
-	$FechaInicial_ActAsig=$nuevafecha;
+if($sw_Informe==1){
+	//Fechas
+	if(isset($_GET['FechaInicial'])&&$_GET['FechaInicial']!=""){
+		$FechaInicial=$_GET['FechaInicial'];
+		$sw=1;
+	}else{
+		//Restar 7 dias a la fecha actual
+		$fecha = date('Y-m-d');
+		$nuevafecha = strtotime ('-'.ObtenerVariable("DiasRangoFechasDocSAP").' day');
+		$nuevafecha = date ( 'Y-m-d' , $nuevafecha);
+		$FechaInicial=$nuevafecha;
+	}
+	if(isset($_GET['FechaFinal'])&&$_GET['FechaFinal']!=""){
+		$FechaFinal=$_GET['FechaFinal'];
+		$sw=1;
+	}else{
+		$FechaFinal=date('Y-m-d');
+	}
+
+	//Sucursal
+	$ParamSucursal=array(
+		"'".$_SESSION['CodUser']."'"
+	);
+	$SQL_Sucursal=EjecutarSP('sp_ConsultarSucursalesUsuario',$ParamSucursal);
+
+	if(isset($_GET['Sucursal'])&&$_GET['Sucursal']!=""){
+		//Serie de llamada
+		$ParamSerie=array(
+			"'".$_SESSION['CodUser']."'",
+			"'191'"
+		);
+		$SQL_Series=EjecutarSP('sp_ConsultarSeriesDocumentos',$ParamSerie);
+	}
 }
-if(isset($_GET['FechaFinal_ActAsig'])&&$_GET['FechaFinal_ActAsig']!=""){
-	$FechaFinal_ActAsig=$_GET['FechaFinal_ActAsig'];
-}else{
-	$FechaFinal_ActAsig=date('Y-m-d');
+
+
+$Series=isset($_GET['Series']) ? $_GET['Series'] : '';
+
+//if(PermitirFuncion(901)){//Llamadas de servicio
+if(($sw_Informe==0) || ($sw_Informe==1&&$sw==1)){
+	$Param1=array(
+		"1",
+		"'".FormatoFecha($FechaInicial)."'",
+		"'".FormatoFecha($FechaFinal)."'",
+		"'".$Series."'"
+	);
+	$Param2=array(
+		"2",
+		"'".FormatoFecha($FechaInicial)."'",
+		"'".FormatoFecha($FechaFinal)."'",
+		"'".$Series."'"
+	);
+	$Param3=array(
+		"3",
+		"'".FormatoFecha($FechaInicial)."'",
+		"'".FormatoFecha($FechaFinal)."'",
+		"'".$Series."'"
+	);
+	$Param4=array(
+		"4",
+		"'".FormatoFecha($FechaInicial)."'",
+		"'".FormatoFecha($FechaFinal)."'",
+		"'".$Series."'"
+	);
+	$Param6=array(
+		"6",
+		"'".FormatoFecha($FechaInicial)."'",
+		"'".FormatoFecha($FechaFinal)."'",
+		"'".$Series."'"
+	);
+	$Param7=array(
+		"7",
+		"'".FormatoFecha($FechaInicial)."'",
+		"'".FormatoFecha($FechaFinal)."'",
+		"'".$Series."'"
+	);
+	
+	$SQL_Llamadas=EjecutarSP('sp_DashboardLlamadas',$Param1);
+	$row_Llamadas=sql_fetch_array($SQL_Llamadas);
+
+	$SQL_EstServicio=EjecutarSP('sp_DashboardLlamadas',$Param2);
+	$SQL_ActEstadoServ=EjecutarSP('sp_DashboardLlamadas',$Param3);
+	$SQL_OrdenServLlamada=EjecutarSP('sp_DashboardLlamadas',$Param4);
+//	$SQL_Panoramas=EjecutarSP('sp_DashboardLlamadas','5');
+	$SQL_ServiciosMes=EjecutarSP('sp_DashboardLlamadas',$Param6);
+	$SQL_OrigenLlamada=EjecutarSP('sp_DashboardLlamadas',$Param7);
+//	$row_EstServicio=sql_fetch_array($SQL_EstServicio);
+//}
+
+	$meses=array();
+	$datos=array();
+	$dias=array();
+	while($row_ServiciosMes=sql_fetch_array($SQL_ServiciosMes)){
+		if(!in_array($row_ServiciosMes['Mes'],$meses)){
+			array_push($meses, $row_ServiciosMes['Mes']);
+		}
+		
+		if(!in_array($row_ServiciosMes['Dia'],$dias)){
+			array_push($dias, $row_ServiciosMes['Dia']);
+		}
+
+		array_push($datos, [
+			'Mes'=>$row_ServiciosMes['Mes'],
+			'Dia'=>$row_ServiciosMes['Dia'],
+			'Cant'=>$row_ServiciosMes['Cant'],
+		]);
+	}
+	sort($dias);
+
+//	echo '<pre>';
+//	print_r($meses);
+//	echo '</pre>';
+//	
+//	echo '<pre>';
+//	print_r($datos);
+//	echo '</pre>';
+//	exit();
+	
+	if(PermitirFuncion(902) && $sw_Informe==0){//Dashboard de actividades enviadas y recibidas
+		//Actividades recibidas
+		//Fechas
+		//Restar dias a la fecha actual
+		/*$fecha = date('Y-m-d');
+		$nuevafecha = strtotime ('-'.ObtenerVariable("DiasRangoFechasDashboard").' day');
+		$nuevafecha = date ( 'Y-m-d' , $nuevafecha);
+
+		$FechaInicial_MisAct=$nuevafecha;
+		$FechaFinal_MisAct=date('Y-m-d');*/
+
+
+		$SQL_MisAct=Seleccionar('uvw_Sap_tbl_Actividades','TOP 10 FechaFinActividad,ID_Actividad,DE_AsuntoActividad,DE_TipoActividad,FechaHoraInicioActividad,FechaHoraFinActividad,DeAsignadoPor,NombreEmpleado',"ID_EmpleadoActividad='".$_SESSION['CodigoSAP']."' And IdEstadoActividad='N'");
+		$Num_MisAct=sqlsrv_num_rows($SQL_MisAct);
+
+		//Actividades enviadas
+		//Fechas
+		//Restar dias a la fecha actual
+		/*$fecha = date('Y-m-d');
+		$nuevafecha = strtotime ('-'.ObtenerVariable("DiasRangoFechasDashboard").' day');
+		$nuevafecha = date ( 'Y-m-d' , $nuevafecha);
+
+		$FechaInicial_ActAsig=$nuevafecha;
+		$FechaFinal_ActAsig=date('Y-m-d');*/
+
+		$SQL_ActAsig=Seleccionar('uvw_Sap_tbl_Actividades','TOP 10 FechaFinActividad,ID_Actividad,DE_AsuntoActividad,DE_TipoActividad,FechaHoraInicioActividad,FechaHoraFinActividad,DeAsignadoPor,NombreEmpleado',"UsuarioCreacion='".$_SESSION['User']."' And IdEstadoActividad='N'");
+		$Num_ActAsig=sqlsrv_num_rows($SQL_ActAsig);
+	}
+
 }
-$Cons_ActAsig="Select * From uvw_Sap_tbl_Actividades Where UsuarioCreacion='".$_SESSION['User']."' And IdEstadoActividad='N'";
-//echo $Cons_ActAsig;
-$SQL_ActAsig=sqlsrv_query($conexion,$Cons_ActAsig,array(),array( "Scrollable" => 'Buffered' ));
-$Num_ActAsig=sqlsrv_num_rows($SQL_ActAsig);
+
+//if(PermitirFuncion(903)){//Indicadores de cartera
+//	$SQL_Cartera=EjecutarSP('sp_DashboardCartera','',0,2);
+//	$row_Cartera=sql_fetch_array($SQL_Cartera,2);
+//}
+//
+//if(PermitirFuncion(904)){//Indicadores de gestiones de cartera
+//	$SQL_Gestion=EjecutarSP('sp_DashboardGestionCartera');
+//	$row_Gestion=sql_fetch_array($SQL_Gestion);
+//}
+//
+//if(PermitirFuncion(906)){//Indicadores de faturacion electronica
+//	$SQL_FactElect=Seleccionar('uvw_tbl_FacturacionElectronica_SeguimientoContadores','*');
+//	$row_FactElect=sql_fetch_array($SQL_FactElect);
+//}
+
+
 
 ?>
 <!DOCTYPE html>
 <html><!-- InstanceBegin template="/Templates/PlantillaPrincipal.dwt.php" codeOutsideHTMLIsLocked="false" -->
 
 <head>
-<?php include("includes/cabecera.php"); ?>
+<?php include_once("includes/cabecera.php"); ?>
 <!-- InstanceBeginEditable name="doctitle" -->
-<title><?php echo NOMBRE_PORTAL;?> | Inicio</title>
-	<!-- InstanceEndEditable -->
+<title>Inicio | <?php echo NOMBRE_PORTAL;?></title>
+<!-- InstanceEndEditable -->
 <!-- InstanceBeginEditable name="head" -->
-<?php 
-if(isset($_GET['a'])&&($_GET['a']==base64_encode("OK_UpdAdd"))){
-	echo "<script>
-		$(document).ready(function() {
-			swal({
-                title: '¡Listo!',
-                text: 'La actividad ha sido actualizada exitosamente.',
-                type: 'success'
-            });
-		});		
-		</script>";
-}
-?>
 <style>
 	#animar{
 		animation-duration: 1.5s;
@@ -93,40 +223,41 @@ if(isset($_GET['a'])&&($_GET['a']==base64_encode("OK_UpdAdd"))){
 	.modal-lg {
 		width: 50% !important;
 	}
-	.WarningColor{
-		border-left: 4px solid #f8ac59 !important;
-	}
-	.DangerColor{
-		border-left: 4px solid #ed5565 !important;
-	}
-	.InfoColor{
-		border-left: 4px solid #23c6c8 !important;
-	}
 </style>
-<?php if(!isset($_SESSION['SetCookie'])||($_SESSION['SetCookie']=="")){?>
+
 <script>
 $(document).ready(function(){
-	$('#myModal').modal("show");
+	<?php if(!isset($_SESSION['SetCookie'])||($_SESSION['SetCookie']=="")){?>
+		$('#myModal').modal("show");
+	<?php }?>
+	
+	$("#Sucursal").change(function(){
+		$('.ibox-content').toggleClass('sk-loading',true);
+		var Sucursal=document.getElementById('Sucursal').value;
+		$.ajax({
+			type: "POST",
+			url: "ajx_cbo_select.php?type=26&id="+Sucursal+"&tdoc=191",
+			success: function(response){
+				$('#Series').html(response).fadeIn();
+				$('.ibox-content').toggleClass('sk-loading',false);
+			}
+		});	
+	});
 });
 </script>
-<?php }?>
 <!-- InstanceEndEditable -->
 </head>
 
-<body>
+<body class="mini-navbar">
 
 <div id="wrapper">
 
-    <?php include("includes/menu.php"); ?>
+    <?php include_once("includes/menu.php"); ?>
 
     <div id="page-wrapper" class="gray-bg">
-        <?php include("includes/menu_superior.php"); ?>
+        <?php include_once("includes/menu_superior.php"); ?>
         <!-- InstanceBeginEditable name="Contenido" -->
-        <div class="row wrapper border-bottom white-bg page-heading">
-                <div class="col-lg-6">
-                    <h2>Bienvenido a <?php echo NOMBRE_PORTAL;?></h2>
-                </div>
-        </div>
+      
         <?php 
 		$Nombre_archivo="contrato_confidencialidad.txt";
 		$Archivo=fopen($Nombre_archivo,"r");
@@ -140,7 +271,7 @@ $(document).ready(function(){
 						<small>Por favor lea atentamente este contrato que contiene los T&eacute;rminos y Condiciones de uso de este sitio. Si continua usando este portal, consideramos que usted est&aacute; de acuerdo con ellos.</small>
 					</div>
 					<div class="modal-body">
-						<?php echo utf8_encode($Contenido);?>
+						<?php echo $Contenido;?>
 					</div>
 
 					<div class="modal-footer">
@@ -150,164 +281,538 @@ $(document).ready(function(){
 			</div>
 		</div>
         <div class="row page-wrapper wrapper-content animated fadeInRight">
-          	<div class="row">
-				<div class="col-lg-12">
-					<h3 class="bg-success p-xs b-r-sm"><i class="fa fa-tasks"></i> Tareas recibidas - <?php echo $Num_MisAct;?></h3>
-					<div class="ibox-content">
-					<?php include("includes/spinner.php"); ?>
-						<div class="row">
-							<div class="col-lg-12 col-md-12">
-								<div class="ibox-content">
-									<form action="index1.php" method="get" id="formBuscar_MisAct" class="form-horizontal">
-										<?php /*?><div class="form-group">
-											<label class="col-lg-1 control-label">Fechas</label>
-											<div class="col-lg-3">
-												<div class="input-daterange input-group" id="datepicker">
-													<input name="FechaInicial_MisAct" type="text" class="input-sm form-control" id="FechaInicial_MisAct" placeholder="Fecha inicial" value="<?php echo $FechaInicial_MisAct;?>"/>
-													<span class="input-group-addon">hasta</span>
-													<input name="FechaFinal_MisAct" type="text" class="input-sm form-control" id="FechaFinal_MisAct" placeholder="Fecha final" value="<?php echo $FechaFinal_MisAct;?>" />
-												</div>
-											</div>
-											<div class="col-lg-7">
-												<button type="submit" class="btn btn-outline btn-success"><i class="fa fa-search"></i> Buscar</button>
-											</div>
-										 </div><?php */?>
-									<div class="table-responsive">
-										<table class="table table-striped table-bordered table-hover dataTables-example" >
-											<thead>
-												<tr>
-													<th>Núm.</th>
-													<th>Titulo</th>
-													<th>Tipo</th>
-													<th>Asignado por</th>
-													<th>Fecha creación</th>
-													<th>Fecha actividad</th>
-													<th>Fecha limite</th>
-													<th>Dias venc.</th>
-													<th>Respuesta</th>
-													<th>Acciones</th>
-												</tr>
-											</thead>
-											<tbody>
-											<?php while($row_MisAct=sqlsrv_fetch_array($SQL_MisAct)){
-													$DVenc_MisAct=DiasTranscurridos(date('Y-m-d'),$row_MisAct['FechaFinActividad']);
-													if(($DVenc_MisAct[1]>=-2)&&($DVenc_MisAct[1]<0)){
-														$Clase="class='WarningColor'";
-													}elseif($DVenc_MisAct[1]>0){
-														$Clase="class='DangerColor'";
-													}else{
-														$Clase="class='InfoColor'";
-													}
-												?>
-												<tr class="gradeX">
-													<td <?php echo $Clase;?>><?php echo $row_MisAct['ID_Actividad'];?></td>
-													<td><?php echo $row_MisAct['TituloActividad'];?></td>
-													<td><?php echo $row_MisAct['TipoTarea'];?></td>
-													<td><?php echo $row_MisAct['DeAsignadoPor'];?></td>
-													<td><?php echo $row_MisAct['FechaCreacion'];?></td>
-													<td><?php echo $row_MisAct['FechaInicioActividad'];?></td>
-													<td><?php echo $row_MisAct['FechaFinActividad'];?></td>
-													<td><p class='<?php echo $DVenc_MisAct[0];?>'><?php echo $DVenc_MisAct[1];?></p></td>
-													<td><?php echo ConsultarNotasActividad($row_MisAct['ID_Actividad']);?></td>
-													<td><a href="actividad.php?id=<?php echo base64_encode($row_MisAct['ID_Actividad']);?>&return=<?php echo base64_encode($_SERVER['QUERY_STRING']);?>&pag=<?php echo base64_encode('index1.php');?>&tl=1" class="alkin btn btn-success btn-xs"><i class="fa fa-folder-open-o"></i> Abrir</a></td>
-												</tr>
-											<?php }?>
-											</tbody>
-										</table>
-									</div>
-									</form>
+		  <?php if($sw_Informe==1){?>
+		  <div class="row m-b-md">
+			<div class="col-lg-12">
+				<div class="ibox-content">
+					 <?php include("includes/spinner.php"); ?>
+				  <form action="index1.php" method="get" id="formBuscar" class="form-horizontal">
+						<div class="form-group">
+							<label class="col-xs-12"><h3 class="bg-success p-xs b-r-sm"><i class="fa fa-filter"></i> Datos para filtrar</h3></label>
+						</div>
+						<div class="form-group">
+							<label class="col-lg-1 control-label">Fechas</label>
+							<div class="col-lg-3">
+								<div class="input-daterange input-group" id="datepicker">
+									<input name="FechaInicial" type="text" class="input-sm form-control" id="FechaInicial" placeholder="Fecha inicial" value="<?php echo $FechaInicial;?>"/>
+									<span class="input-group-addon">hasta</span>
+									<input name="FechaFinal" type="text" class="input-sm form-control" id="FechaFinal" placeholder="Fecha final" value="<?php echo $FechaFinal;?>" />
 								</div>
+							</div>
+							<label class="col-lg-1 control-label">Sucursal</label>
+							<div class="col-lg-2">
+								<select name="Sucursal" class="form-control" id="Sucursal">
+									<option value="">(Todos)</option>
+								  <?php	while($row_Sucursal=sqlsrv_fetch_array($SQL_Sucursal)){?>
+											<option value="<?php echo $row_Sucursal['IdSucursal'];?>" <?php if(isset($_GET['Sucursal'])&&(strcmp($row_Sucursal['IdSucursal'],$_GET['Sucursal'])==0)){ echo "selected=\"selected\"";}?>><?php echo $row_Sucursal['DeSucursal'];?></option>
+									<?php }?>
+								</select>
+							</div>
+							<label class="col-lg-1 control-label">Serie</label>
+							<div class="col-lg-2">
+								<select name="Series" class="form-control" id="Series">
+										<option value="">(Todos)</option>
+								  <?php if($sw==1){ 
+											while($row_Series=sqlsrv_fetch_array($SQL_Series)){?>
+											<option value="<?php echo $row_Series['IdSeries'];?>" <?php if((isset($_GET['Series']))&&(strcmp($row_Series['IdSeries'],$_GET['Series'])==0)){ echo "selected=\"selected\"";}?>><?php echo $row_Series['DeSeries'];?></option>
+								  <?php 	}
+										}?>
+								</select>
+							</div>
+							<div class="col-lg-1">
+								<button type="submit" class="btn btn-outline btn-success pull-right"><i class="fa fa-search"></i> Buscar</button>
+							</div>
+						</div>
+					  <input type="hidden" name="id" id="id" value="<?php echo base64_encode($sw_Informe);?>" />
+				 </form>
+				</div>
+			</div>
+		  </div>
+		  <?php }?>
+		  <?php if(($sw_Informe==0) || ($sw_Informe==1&&$sw==1)){?>
+          <div class="row">
+            <div class="col-lg-3">
+              <div class="ibox ">
+                <div class="ibox-title"> <span class="label label-info pull-right"><?php if($sw_Informe==0){echo ucwords(strftime("%B"));}?></span>
+                  <h5>Llamadas abiertas</h5>
+                </div>
+                <div class="ibox-content">
+                  <h1 class="no-margins"><?php echo number_format($row_Llamadas['LlamadasAbiertas'],0);?></h1>
+				</div>
+              </div>
+            </div>
+            <div class="col-lg-3">
+              <div class="ibox ">
+                <div class="ibox-title"> <span class="label label-warning pull-right"><?php if($sw_Informe==0){echo ucwords(strftime("%B"));}?></span>
+                  <h5>Llamadas pendientes</h5>
+                </div>
+                <div class="ibox-content">
+                  <h1 class="no-margins"><?php echo number_format($row_Llamadas['LlamadasPendientes'],0);?></h1>
+				</div>
+              </div>
+            </div>
+            <div class="col-lg-3">
+              <div class="ibox ">
+                <div class="ibox-title"> <span class="label label-danger pull-right"><?php if($sw_Informe==0){echo ucwords(strftime("%B"));}?></span>
+                  <h5>Llamadas cerradas</h5>
+                </div>
+                <div class="ibox-content">
+                  <h1 class="no-margins"><?php echo number_format($row_Llamadas['LlamadasCerradas'],0);?></h1>
+				</div>
+              </div>
+            </div>
+            <div class="col-lg-3">
+              <div class="ibox ">
+                <div class="ibox-title"> <span class="label label-success pull-right"><?php if($sw_Informe==0){echo ucwords(strftime("%B"));}?></span>
+                  <h5>Total llamadas</h5>
+                </div>
+                <div class="ibox-content">
+                  <h1 class="no-margins"><?php echo number_format($row_Llamadas['TotalLlamadas'],0);?></h1>
+				</div>
+              </div>
+            </div>
+          </div>
+		  <div class="row">
+            <div class="col-lg-4">
+				<div class="ibox">
+					<div class="row">
+						<div class="col-lg-12 col-md-12">
+							<div class="ibox">
+								<div id="graph_1" class="table-responsive"></div>
 							</div>
 						</div>
 					</div>
-				</div> 
-			</div>
-			<?php if(PermitirFuncion(301)){?>
-			<br>
-			<div class="row">
-				<div class="col-lg-12">
-					<h3 class="bg-primary p-xs b-r-sm"><i class="fa fa-pencil-square-o"></i> Tareas enviadas - <?php echo $Num_ActAsig;?></h3>
-					<div class="ibox-content">
-					<?php include("includes/spinner.php"); ?>
-						<div class="row">
-							<div class="col-lg-12 col-md-12">
-								<div class="ibox-content">
-									<form action="index1.php" method="get" id="formBuscar_ActAsig" class="form-horizontal">
-										<?php /*?><div class="form-group">
-											<label class="col-lg-1 control-label">Fechas</label>
-											<div class="col-lg-3">
-												<div class="input-daterange input-group" id="datepicker">
-													<input name="FechaInicial_ActAsig" type="text" class="input-sm form-control" id="FechaInicial_ActAsig" placeholder="Fecha inicial" value="<?php echo $FechaInicial_ActAsig;?>"/>
-													<span class="input-group-addon">hasta</span>
-													<input name="FechaFinal_ActAsig" type="text" class="input-sm form-control" id="FechaFinal_ActAsig" placeholder="Fecha final" value="<?php echo $FechaFinal_ActAsig;?>" />
-												</div>
-											</div>
-											<div class="col-lg-7">
-												<button type="submit" class="btn btn-outline btn-success"><i class="fa fa-search"></i> Buscar</button>
-											</div>
-										 </div><?php */?>
-									<div class="table-responsive">
-										<table class="table table-striped table-bordered table-hover dataTables-example" >
-											<thead>
-												<tr>
-													<th>Núm.</th>
-													<th>Titulo</th>
-													<th>Tipo</th>
-													<th>Asignado a</th>
-													<th>Fecha creación</th>
-													<th>Fecha actividad</th>
-													<th>Fecha limite</th>													
-													<th>Dias venc.</th>
-													<th>Respuesta</th>
-													<th>Acciones</th>
-												</tr>
-											</thead>
-											<tbody>
-											<?php while($row_ActAsig=sqlsrv_fetch_array($SQL_ActAsig)){
-													$DVenc_ActAsi=DiasTranscurridos(date('Y-m-d'),$row_ActAsig['FechaFinActividad']);
-													if(($DVenc_ActAsi[1]>=-2)&&($DVenc_ActAsi[1]<0)){
-														$Clase="class='WarningColor'";
-													}elseif($DVenc_ActAsi[1]>0){
-														$Clase="class='DangerColor'";
-													}else{
-														$Clase="class='InfoColor'";
-													}
-												?>
-												<tr class="gradeX">
-													<td <?php echo $Clase;?>><?php echo $row_ActAsig['ID_Actividad'];?></td>
-													<td><?php echo $row_ActAsig['TituloActividad'];?></td>
-													<td><?php echo $row_ActAsig['TipoTarea'];?></td>
-													<td><?php if($row_ActAsig['NombreEmpleado']!=""){echo $row_ActAsig['NombreEmpleado'];}else{echo "(Sin asignar)";}?></td>
-													<td><?php echo $row_ActAsig['FechaCreacion'];?></td>
-													<td><?php echo $row_ActAsig['FechaInicioActividad'];?></td>
-													<td><?php echo $row_ActAsig['FechaFinActividad'];?></td>													
-													<td><p class='<?php echo $DVenc_ActAsi[0];?>'><?php echo $DVenc_ActAsi[1];?></p></td>
-													<td><?php echo ConsultarNotasActividad($row_ActAsig['ID_Actividad']);?></td>
-													<td><a href="actividad.php?id=<?php echo base64_encode($row_ActAsig['ID_Actividad']);?>&return=<?php echo base64_encode($_SERVER['QUERY_STRING']);?>&pag=<?php echo base64_encode('index1.php');?>&tl=1" class="alkin btn btn-success btn-xs"><i class="fa fa-folder-open-o"></i> Abrir</a></td>
-												</tr>
-											<?php }?>
-											</tbody>
-										</table>
-									</div>
-									</form>
-								</div>
+				</div>
+            </div>
+			<div class="col-lg-8">
+				<div class="ibox">
+					<div class="row">
+						<div class="col-lg-12 col-md-12">
+							<div class="ibox">
+								<div id="graph_4" class="table-responsive"></div>
 							</div>
 						</div>
 					</div>
-				</div> 
-			</div>
-			<?php }?>
+				</div>
+            </div>
+          </div>
+		  <div class="row">
+			  <div class="col-lg-4">
+				  <div class="ibox">
+					<div class="row">
+					  <div class="col-lg-12 col-md-12">
+						<div class="ibox">
+						  <div id="graph_2" class="table-responsive"></div>
+						</div>
+					  </div>
+					</div>
+				  </div>
+				</div>
+			  <div class="col-lg-4">
+				  <div class="ibox">
+					<div class="row">
+					  <div class="col-lg-12 col-md-12">
+						<div class="ibox">
+						  <div id="graph_3" class="table-responsive"></div>
+						</div>
+					  </div>
+					</div>
+				  </div>
+				</div>
+			  <?php if(PermitirFuncion(902) && $sw_Informe==0){//Dashboard de actividades enviadas y recibidas?>
+			  <div class="col-lg-4">
+				  <div class="ibox ">
+					<div class="ibox-title">
+					  <h5>Actividades</h5>
+					  <div class="ibox-tools"> <a class="collapse-link"> <i class="fa fa-chevron-up"></i> </a> <a class="close-link"> <i class="fa fa-times"></i> </a> </div>
+					</div>
+					<div class="ibox-content">
+					  <div class="tabs-container">
+						<ul class="nav nav-tabs">
+						  <li class="active"><a data-toggle="tab" href="#tab-1"><i class="fa fa-calendar"></i> Recibidas <span class="label label-success float-right m-l-sm"><?php echo $Num_MisAct;?></span></a></li>
+						  <li><a data-toggle="tab" href="#tab-2"><i class="fa fa-calendar"></i> Enviadas <span class="label label-success float-right m-l-sm"><?php echo $Num_ActAsig;?></span></a></li>
+						</ul>
+					  </div>
+					  <div class="tab-content">
+						<div id="tab-1" class="tab-pane active"> <br>
+						  <div class="feed-activity-list">
+							<?php
+							if ( $Num_MisAct > 0 ) {
+							  while ( $row_MisAct = sqlsrv_fetch_array( $SQL_MisAct ) ) {
+								$DVenc = DiasTranscurridos( $row_MisAct[ 'FechaFinActividad' ], date( 'Y-m-d' ) );
+								?>
+							<div class="feed-element">
+							  <div>
+								<div class="col-xs"> <a class="col-xs-6" href="actividad.php?id=<?php echo base64_encode($row_MisAct['ID_Actividad']);?>&tl=1" target="_blank"> <span class="badge badge-primary"><?php echo $row_MisAct['ID_Actividad'];?></span> </a> <span class="pull-right badge badge-success font-bold"><i class="fa fa-user"></i> <?php echo $row_MisAct['DeAsignadoPor'];?></span> </div>
+								<div class="col-xs">
+								  <h4 class="col-xs-12 font-bold no-margins"><?php echo $row_MisAct['DE_AsuntoActividad'];?></h4>
+								</div>
+								<div class="col-xs">
+								  <h4 class="col-xs-6 font-bold no-margins"><?php echo $row_MisAct['DE_TipoActividad'];?></h4>
+								  <h4 class="pull-right no-margins <?php echo $DVenc[0];?>"><strong>Vencimiendo: </strong>
+									<?php if($DVenc[1]==0){echo "Hoy";}else{echo $DVenc[1]." dias";}?>
+								  </h4>
+								</div>
+								<div class="col-xs">
+								  <h4 class="col-xs-6 text-navy no-margins">Inicia: <?php echo $row_MisAct['FechaHoraInicioActividad']->format('Y-m-d H:s');?></h4>
+								  <h4 class="pull-right text-danger no-margins">Finaliza: <?php echo $row_MisAct['FechaHoraFinActividad']->format('Y-m-d H:s');?></h4>
+								</div>
+							  </div>
+							</div>
+							<?php }
+											}else{?>
+							<div class="feed-element">
+							  <div>
+								<div>No hay actividades nuevas</div>
+							  </div>
+							</div>
+							<?php }?>
+						  </div>
+						</div>
+						<div id="tab-2" class="tab-pane"> <br>
+						  <div class="feed-activity-list">
+							<?php if($Num_ActAsig>0){
+											while($row_ActAsig=sqlsrv_fetch_array($SQL_ActAsig)){
+												$DVenc=DiasTranscurridos($row_ActAsig['FechaFinActividad'],date('Y-m-d'));
+											?>
+							<div class="feed-element">
+							  <div>
+								<div class="col-xs"> <a class="col-xs-6" href="actividad.php?id=<?php echo base64_encode($row_ActAsig['ID_Actividad']);?>&tl=1" target="_blank"> <span class="badge badge-primary"><?php echo $row_ActAsig['ID_Actividad'];?></span> </a> <span class="pull-right badge badge-success font-bold"><i class="fa fa-user"></i> <?php echo $row_ActAsig['NombreEmpleado'];?></span> </div>
+								<div class="col-xs">
+								  <h4 class="col-xs-12 font-bold no-margins"><?php echo $row_ActAsig['DE_AsuntoActividad'];?></h4>
+								</div>
+								<div class="col-xs">
+								  <h4 class="col-xs-6 font-bold no-margins"><?php echo $row_ActAsig['DE_TipoActividad'];?></h4>
+								  <h4 class="pull-right no-margins <?php echo $DVenc[0];?>"><strong>Vencimiendo: </strong>
+									<?php if($DVenc[1]==0){echo "Hoy";}else{echo $DVenc[1]." dias";}?>
+								  </h4>
+								</div>
+								<div class="col-xs">
+								  <h4 class="col-xs-6 text-navy no-margins">Inicia: <?php echo $row_ActAsig['FechaHoraInicioActividad']->format('Y-m-d H:s');?></h4>
+								  <h4 class="pull-right text-danger no-margins">Finaliza: <?php echo $row_ActAsig['FechaHoraFinActividad']->format('Y-m-d H:s');?></h4>
+								</div>
+							  </div>
+							</div>
+							<?php }
+											}else{?>
+							<div class="feed-element">
+							  <div>
+								<div>No hay actividades nuevas</div>
+							  </div>
+							</div>
+							<?php }?>
+						  </div>
+						</div>
+					  </div>
+					</div>
+				  </div>
+				</div>
+			  <?php }else{?>
+			  <div class="col-lg-4">
+				<div class="ibox">
+					<div class="row">
+						<div class="col-lg-12 col-md-12">
+							<div class="ibox">
+								<div id="graph_5" class="table-responsive"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+              </div>
+			  <?php }?>
+		  </div>
+		  <?php }?>
         </div>
         <!-- InstanceEndEditable -->
-        <?php include("includes/footer.php"); ?>
+        <?php include_once("includes/footer.php"); ?>
 
     </div>
 </div>
-<?php include("includes/pie.php"); ?>
+<?php include_once("includes/pie.php"); ?>
 <!-- InstanceBeginEditable name="EditRegion4" -->
+<?php if(($sw_Informe==0) || ($sw_Informe==1&&$sw==1)){?>
+<script>
+Highcharts.chart('graph_1', {
+    chart: {
+        type: 'variablepie'
+    },
+    title: {
+        text: 'Estados de servicio'
+    },
+    subtitle: {
+        text: 'Llamadas de servicio'
+    },
+    tooltip: {
+        headerFormat: '',
+        pointFormat: '<span style="color:{point.color}">{point.name}</span>: <b>{point.y}</b><br/>'
+    },
+
+    series: [
+        {
+			minPointSize: '50%',
+			innerSize: '40%',
+			zMin: 0,
+			name: "Estados de servicio",
+//            colorByPoint: true,
+			data: [
+			<?php while($row_EstServicio=sql_fetch_array($SQL_EstServicio)){?>
+				  {
+					name: "<?php echo $row_EstServicio['DeEstadoServicio'];?>",
+					y: <?php echo $row_EstServicio['Cant']; ?>
+				  },
+			<?php }?>
+            ]
+        }
+    ]
+});
+</script>
+<script>
+Highcharts.chart('graph_2', {
+    chart: {
+        plotBackgroundColor: null,
+        plotBorderWidth: null,
+        plotShadow: false,
+        type: 'pie'
+    },
+     title: {
+        text: 'Estados de tareas'
+    },
+    subtitle: {
+        text: 'Actividades'
+    },
+    tooltip: {
+        headerFormat: '',
+        pointFormat: '<span style="color:{point.color}">{point.name}</span>: <b>{point.y}</b><br/>'
+    },
+	accessibility: {
+        point: {
+            valueSuffix: '%'
+        }
+    },
+	plotOptions: {
+        pie: {
+            allowPointSelect: true,
+            cursor: 'pointer',
+            dataLabels: {
+                enabled: true,
+                format: '{point.percentage:.1f}%'
+            },
+            showInLegend: true
+        }
+    },
+    series: [
+        {
+			name: "Cantidad",
+			data: [
+			<?php while($row_ActEstadoServ=sql_fetch_array($SQL_ActEstadoServ)){?>
+				 {
+					name: "<?php echo $row_ActEstadoServ['DeTipoEstadoActividad'];?>",
+					color: "<?php echo $row_ActEstadoServ['Color'];?>",
+					y: <?php echo $row_ActEstadoServ['Cant'];?>
+				  },
+			<?php }?>
+            ]
+        }
+    ]
+});
+</script>
+<script>
+Highcharts.chart('graph_3', {
+    chart: {
+        type: 'bar'
+    },
+     title: {
+        text: 'Tipos de llamadas'
+    },
+    accessibility: {
+        announceNewData: {
+            enabled: true
+        }
+    },
+    xAxis: {
+        type: 'category'
+    },
+    yAxis: {
+        title: {
+            text: 'Cantidad'
+        }
+
+    },
+    legend: {
+        enabled: false
+    },
+    plotOptions: {
+        series: {
+            borderWidth: 0,
+            dataLabels: {
+                enabled: true,
+                format: '{point.y}'
+            }
+        }
+    },
+	tooltip: {
+        //headerFormat: '<span style="font-size:11px">{series.name}</span><br>',
+        pointFormat: '<span style="color:{point.color}">{point.name}</span>: <b>{point.y}</b>'
+    },
+    series: [
+        {
+			name: "Tipos de llamada",
+			colorByPoint: true,
+			data: [
+			<?php
+				while($row_OrdenServLlamada=sql_fetch_array($SQL_OrdenServLlamada)){?>
+				  {
+					name: '<?php echo $row_OrdenServLlamada['DeTipoLlamada'];?>',
+					y: <?php echo $row_OrdenServLlamada['Cant'];?>
+				  },
+			<?php }?>
+            ]
+        }
+    ]
+});
+</script>
+<script>
+Highcharts.chart('graph_4', {
+    chart: {
+        type: 'line'
+    },
+    title: {
+        text: '<?php echo $sw_Informe==1 ? 'Servicios agregados en el periodo' : 'Servicios agregados este mes'?>'
+    },
+	xAxis: {
+		type: 'category',
+		title: {
+            text: 'Dias del mes'
+        },
+		categories:[<?php for($i=0;$i<count($dias);$i++){echo "'".$dias[$i]."',";}?>]
+    },
+    yAxis: {
+        title: {
+            text: 'Cantidad'
+        }
+    },
+	plotOptions: {
+        line: {
+            dataLabels: {
+                enabled: true
+            },
+            enableMouseTracking: false
+        }
+    },
+    series: [
+		<?php
+		for($i=0;$i<count($meses);$i++){?>
+			{
+				name: '<?php echo $meses[$i];?>',
+				data: [
+					<?php
+					for($j=0;$j<count($datos);$j++){
+						if($datos[$j]['Mes']==$meses[$i]){?>
+							{
+								name:"<?php echo $datos[$j]['Dia']; ?>",
+								y:<?php echo $datos[$j]['Cant']; ?>
+							},
+					<?php		
+						}		
+					 }	?>
+				]
+			},			
+		<?php }	?>
+    ]
+});
+</script>
+<?php if($sw_Informe==1&&$sw==1){?>
+<script>
+Highcharts.chart('graph_5', {
+    chart: {
+        type: 'column'
+    },
+     title: {
+        text: 'Top Origen de llamadas'
+    },
+	subtitle: {
+        text: 'Llamadas de servicio'
+    },
+    accessibility: {
+        announceNewData: {
+            enabled: true
+        }
+    },
+    xAxis: {
+        type: 'category'
+    },
+    yAxis: {
+        title: {
+            text: 'Cantidad'
+        }
+
+    },
+    legend: {
+        enabled: false
+    },
+    plotOptions: {
+        series: {
+            borderWidth: 0,
+            dataLabels: {
+                enabled: true,
+                format: '{point.y}'
+            }
+        }
+    },
+	tooltip: {
+        //headerFormat: '<span style="font-size:11px">{series.name}</span><br>',
+        pointFormat: '<span style="color:{point.color}">{point.name}</span>: <b>{point.y}</b>'
+    },
+    series: [
+        {
+			name: "Origen de llamada",
+			colorByPoint: true,
+			data: [
+			<?php
+				while($row_OrigenLlamada=sql_fetch_array($SQL_OrigenLlamada)){?>
+				  {
+					name: '<?php echo $row_OrigenLlamada['DeOrigenLlamada'];?>',
+					y: <?php echo $row_OrigenLlamada['Cant'];?>
+				  },
+			<?php }?>
+            ]
+        }
+    ]
+});
+</script>
+<?php }?>
+<?php }?>
+
 <script>	
 	 $(document).ready(function(){
+		 $("#formBuscar").validate({
+			 submitHandler: function(form){
+				 $('.ibox-content').toggleClass('sk-loading');
+				 form.submit();
+			 }
+			});
+		 $('#FechaInicial').datepicker({
+			todayBtn: "linked",
+			keyboardNavigation: false,
+			forceParse: false,
+			calendarWeeks: true,
+			autoclose: true,
+			format: 'yyyy-mm-dd',
+			todayHighlight: true
+		});
+		 $('#FechaFinal').datepicker({
+			todayBtn: "linked",
+			keyboardNavigation: false,
+			forceParse: false,
+			calendarWeeks: true,
+			autoclose: true,
+			format: 'yyyy-mm-dd',
+			todayHighlight: true
+		}); 
 		 $('.navy-bg').each(function() {
+                animationHover(this, 'pulse');
+            });
+		  $('.yellow-bg').each(function() {
                 animationHover(this, 'pulse');
             });
 		 $('.lazur-bg').each(function() {
@@ -318,6 +823,184 @@ $(document).ready(function(){
 		  });
 	});
 </script>
+<script>
+var amount=<?php echo $TotalDoc;?>;
+	$({c:0}).animate({c:amount},{
+		step: function(now){
+			$("#run1").html(Math.round(now))
+		},
+		duration:2000,
+		easing:"linear"
+	});
+var amount=<?php echo $TotalInf;?>;
+	$({c:0}).animate({c:amount},{
+		step: function(now){
+			$("#run2").html(Math.round(now))
+		},
+		duration:2000,
+		easing:"linear"
+	});
+var amount=<?php echo $Num_Alertas;?>;
+	$({c:0}).animate({c:amount},{
+		step: function(now){
+			$("#run3").html(Math.round(now))
+		},
+		duration:1300,
+		easing:"linear"
+	});
+</script>
+<?php if(PermitirFuncion(901)){?>
+<script>
+var amount=<?php echo $row_Llamadas['LlamadasPendientes'];?>;
+	$({c:0}).animate({c:amount},{
+		step: function(now){
+			$("#LS_run1").html(number_format(Math.round(now),0))
+		},
+		duration:2000,
+		easing:"linear"
+	});
+var amount=<?php echo $row_Llamadas['LlamadasAbiertas'];?>;
+	$({c:0}).animate({c:amount},{
+		step: function(now){
+			$("#LS_run2").html(number_format(Math.round(now),0))
+		},
+		duration:2000,
+		easing:"linear"
+	});
+var amount=<?php echo $row_Llamadas['LlamadasCerradas'];?>;
+	$({c:0}).animate({c:amount},{
+		step: function(now){
+			$("#LS_run3").html(number_format(Math.round(now),0))
+		},
+		duration:2000,
+		easing:"linear"
+	});
+var amount=<?php echo $row_Llamadas['TotalLlamadas'];?>;
+	$({c:0}).animate({c:amount},{
+		step: function(now){
+			$("#LS_run4").html(number_format(Math.round(now),0))
+		},
+		duration:2000,
+		easing:"linear"
+	});
+</script>
+<?php }?>
+<?php if(PermitirFuncion(903)){?>
+<script>
+var amount=<?php echo $row_Cartera['Mes1a30'];?>;
+	$({c:0}).animate({c:amount},{
+		step: function(now){
+			$("#CA_run1").html(number_format(Math.round(now),0))
+		},
+		duration:2000,
+		easing:"linear"
+	});
+var amount=<?php echo $row_Cartera['Mes31a60'];?>;
+	$({c:0}).animate({c:amount},{
+		step: function(now){
+			$("#CA_run2").html(number_format(Math.round(now),0))
+		},
+		duration:2000,
+		easing:"linear"
+	});
+var amount=<?php echo $row_Cartera['Mes61a90'];?>;
+	$({c:0}).animate({c:amount},{
+		step: function(now){
+			$("#CA_run3").html(number_format(Math.round(now),0))
+		},
+		duration:2000,
+		easing:"linear"
+	});
+var amount=<?php echo $row_Cartera['Mes91a120'];?>;
+	$({c:0}).animate({c:amount},{
+		step: function(now){
+			$("#CA_run4").html(number_format(Math.round(now),0))
+		},
+		duration:2000,
+		easing:"linear"
+	});
+var amount=<?php echo $row_Cartera['Mes121a180'];?>;
+	$({c:0}).animate({c:amount},{
+		step: function(now){
+			$("#CA_run5").html(number_format(Math.round(now),0))
+		},
+		duration:2000,
+		easing:"linear"
+	});
+var amount=<?php echo $row_Cartera['Mes181'];?>;
+	$({c:0}).animate({c:amount},{
+		step: function(now){
+			$("#CA_run6").html(number_format(Math.round(now),0))
+		},
+		duration:2000,
+		easing:"linear"
+	});
+</script>
+<?php }?>	
+<?php if(PermitirFuncion(904)){?>
+<script>
+var amount=<?php echo $row_Gestion['CantLlamadas'];?>;
+	$({c:0}).animate({c:amount},{
+		step: function(now){
+			$("#GS_run1").html(number_format(Math.round(now),0))
+		},
+		duration:2000,
+		easing:"linear"
+	});
+var amount=<?php echo $row_Gestion['CantVisitas'];?>;
+	$({c:0}).animate({c:amount},{
+		step: function(now){
+			$("#GS_run2").html(number_format(Math.round(now),0))
+		},
+		duration:2000,
+		easing:"linear"
+	});
+var amount=<?php echo $row_Gestion['CantCartas'];?>;
+	$({c:0}).animate({c:amount},{
+		step: function(now){
+			$("#GS_run3").html(number_format(Math.round(now),0))
+		},
+		duration:2000,
+		easing:"linear"
+	});
+</script>
+<?php }?>
+<?php if(PermitirFuncion(906)){?>
+<script>
+var amount=<?php echo $row_FactElect['FACTURAS_PENDIENTES'];?>;
+	$({c:0}).animate({c:amount},{
+		step: function(now){
+			$("#FE_run1").html(number_format(Math.round(now),0))
+		},
+		duration:2000,
+		easing:"linear"
+	});
+var amount=<?php echo $row_FactElect['FACTURAS_NOVEDADES'];?>;
+	$({c:0}).animate({c:amount},{
+		step: function(now){
+			$("#FE_run2").html(number_format(Math.round(now),0))
+		},
+		duration:2000,
+		easing:"linear"
+	});
+var amount=<?php echo $row_FactElect['NOTACREDITO_PENDIENTES'];?>;
+	$({c:0}).animate({c:amount},{
+		step: function(now){
+			$("#FE_run3").html(number_format(Math.round(now),0))
+		},
+		duration:2000,
+		easing:"linear"
+	});
+var amount=<?php echo $row_FactElect['NOTACREDITO_NOVEDADES'];?>;
+	$({c:0}).animate({c:amount},{
+		step: function(now){
+			$("#FE_run4").html(number_format(Math.round(now),0))
+		},
+		duration:2000,
+		easing:"linear"
+	});
+</script>
+<?php }?>
 <?php if(isset($_GET['dt'])&&$_GET['dt']==base64_encode("result")){?>
 <script>
 	$(document).ready(function(){
@@ -332,74 +1015,6 @@ $(document).ready(function(){
 </script>
 <?php }?>
 <script src="js/js_setcookie.js"></script>
-<script>
-        $(document).ready(function(){
-			$('#FechaInicial_MisAct').datepicker({
-                todayBtn: "linked",
-                keyboardNavigation: false,
-                forceParse: false,
-                calendarWeeks: true,
-                autoclose: true,
-				format: 'Y-m-d'
-            });
-			 $('#FechaFinal_MisAct').datepicker({
-                todayBtn: "linked",
-                keyboardNavigation: false,
-                forceParse: false,
-                calendarWeeks: true,
-                autoclose: true,
-				format: 'Y-m-d'
-            }); 
-			<?php if(PermitirFuncion(301)){?>
-			$('#FechaInicial_ActAsig').datepicker({
-                todayBtn: "linked",
-                keyboardNavigation: false,
-                forceParse: false,
-                calendarWeeks: true,
-                autoclose: true,
-				format: 'Y-m-d'
-            });
-			 $('#FechaFinal_ActAsig').datepicker({
-                todayBtn: "linked",
-                keyboardNavigation: false,
-                forceParse: false,
-                calendarWeeks: true,
-                autoclose: true,
-				format: 'Y-m-d'
-            }); 
-			<?php }?>
-            $('.dataTables-example').DataTable({
-                pageLength: 10,
-                responsive: true,
-                dom: '<"html5buttons"B>lTfgitp',
-				language: {
-					"decimal":        "",
-					"emptyTable":     "No se encontraron resultados.",
-					"info":           "Mostrando _START_ - _END_ de _TOTAL_ registros",
-					"infoEmpty":      "Mostrando 0 - 0 de 0 registros",
-					"infoFiltered":   "(filtrando de _MAX_ registros)",
-					"infoPostFix":    "",
-					"thousands":      ",",
-					"lengthMenu":     "Mostrar _MENU_ registros",
-					"loadingRecords": "Cargando...",
-					"processing":     "Procesando...",
-					"search":         "Filtrar:",
-					"zeroRecords":    "Ningún registro encontrado",
-					"paginate": {
-						"first":      "Primero",
-						"last":       "Último",
-						"next":       "Siguiente",
-						"previous":   "Anterior"
-					},
-					"aria": {
-						"sortAscending":  ": Activar para ordenar la columna ascendente",
-						"sortDescending": ": Activar para ordenar la columna descendente"
-					}
-				},
-                buttons: []
-            });
-        });
-</script>
 <!-- InstanceEndEditable -->
 </body>
 

@@ -39,7 +39,10 @@ if (!isset($_GET['dato']) || ($_GET['dato'] == "")) {
 
     $borrador = $_GET['borrador'] ?? ""; // SMM, 07/03/2023
     $concepto = $_GET['concepto'] ?? ""; // SMM, 07/03/2023
-	$reqdate = $_GET['reqdate'] ?? date('Y-m-d'); // SMM, 07/03/2023
+    $reqdate = $_GET['reqdate'] ?? date('Y-m-d'); // SMM, 07/03/2023
+
+    $Serie = $_GET['serie'] ?? ""; // SMM, 27/03/2023
+    $Sucursal = $_GET['sucursal'] ?? ""; // SMM, 04/04/2023
 
     if (isset($_GET['idordenventa']) && $_GET['idordenventa'] != "") {
         $ID_OrdenVenta = base64_decode($_GET['idordenventa']);
@@ -330,7 +333,7 @@ else if(doctype==7){//Solicitud de traslado crear
 	  xhttp = new XMLHttpRequest();
 	  xhttp.onreadystatechange = function() {
 		  if (this.readyState == 4 && this.status == 200) {
-			  window.opener.document.getElementById('DataGrid').src='detalle_solicitud_salida.php?id=0&type=1&usr=<?php echo $_SESSION['CodUser']; ?>&cardcode=<?php echo $CardCode; ?>&whscode=<?php echo $Almacen; ?>';
+			  window.opener.document.getElementById('DataGrid').src='detalle_solicitud_salida.php?id=0&type=1&usr=<?php echo $_SESSION['CodUser']; ?>&cardcode=<?php echo $CardCode; ?>&whscode=<?php echo $Almacen; ?>&serie=<?php echo $Serie; ?>&sucursal=<?php echo $Sucursal; ?>';
 			  window.opener.document.getElementById('TotalItems').value=this.responseText;
 			  window.opener.document.getElementById('BuscarItem').value="";
 			  window.close();

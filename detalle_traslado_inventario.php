@@ -30,8 +30,9 @@ $Evento = "";
 $Usuario = "";
 $type = 1;
 $Estado = 1; //Abierto
+
 $Lotes = 0; //Cantidad de articulos con lotes
-$Seriales = 0; //Cantidad de articulos con
+$Seriales = 0; //Cantidad de articulos con seriales
 
 // Se eliminaron las dimensiones, 31/08/2022
 
