@@ -1,7 +1,8 @@
 <!-- Configurations -->
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta http-equiv="x-ua-compatible" content="IE=edge,chrome=1">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 <link rel="shortcut icon" href="css/favicon.png" />
 <link href="css/bootstrap.min.css" rel="stylesheet">
 
@@ -135,16 +136,16 @@
 <script src="js/inspinia.js"></script>
 <script src="js/plugins/pace/pace.min.js"></script>
 
- <!-- Jquery Validate -->
+<!-- Jquery Validate -->
 <script src="js/plugins/validate/jquery.validate.min.js"></script>
 
 <!-- Sweet alert -->
 <script src="js/plugins/sweetalert/sweetalert2.min.js"></script>
 
- <!-- Tinycon -->
+<!-- Tinycon -->
 <script src="js/plugins/tinycon/tinycon.min.js"></script>
 
- <!-- jsTree -->
+<!-- jsTree -->
 <script src="js/plugins/jsTree/jstree.min.js"></script>
 
 <!-- Password meter -->
@@ -286,8 +287,9 @@
 	//document.oncontextmenu = function(){return false;}
 </script>
 
-<!-- SMM, 06/03/2023 -->
+<!--
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/themes/base/jquery-ui.min.css" integrity="sha512-ELV+xyi8IhEApPS/pSj66+Jiw+sOT1Mqkzlh8ExXihe4zfqbWkxPRi8wptXIO9g73FSlhmquFlUOuMSoXz5IRw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js" integrity="sha256-lSjKY0/srUM9BE3dPm+c4fBo1dky2v27Gdjm2uoZaL0=" crossorigin="anonymous"></script>
 
 <script type="text/javascript" src="https://cdn.rawgit.com/prashantchaudhary/ddslick/master/jquery.ddslick.min.js"></script>
+-->
