@@ -358,8 +358,8 @@ if (isset($_POST['P']) && ($_POST['P'] != "")) { //Grabar Salida de inventario
                     "texto_libre" => $row_Det['FreeTxt'],
                     "id_bodega" => $row_Det['WhsCode'],
                     "id_bodega_destino" => $row_Det['ToWhsCode'],
-                    "cant_articulo" => intval($row_Det['Quantity']),
-                    "precio_articulo" => intval($row_Det['Price']),
+                    "cant_articulo" => doubleval($row_Det['Quantity']),
+                    "precio_articulo" => doubleval($row_Det['Price']),
                     "dim1" => $row_Det['OcrCode'],
                     "dim2" => $row_Det['OcrCode2'],
                     "dim3" => $row_Det['OcrCode3'],
@@ -373,7 +373,7 @@ if (isset($_POST['P']) && ($_POST['P'] != "")) { //Grabar Salida de inventario
                     "CDU_id_metodo_aplicacion" => $row_Det['CDU_IdMetodoAplicacion'],
                     "CDU_id_tipo_plagas" => $row_Det['CDU_IdTipoPlagas'],
                     "CDU_areas_controladas" => $row_Det['CDU_AreasControladas'],
-                    "CDU_cant_litros" => intval($row_Det['CDU_CantLitros']),
+                    "CDU_cant_litros" => doubleval($row_Det['CDU_CantLitros']),
                     "CDU_dosificacion" => 0,
                     "CDU_codigo_empleado" => "",
                     "CDU_nombre_empleado" => "",
@@ -408,7 +408,7 @@ if (isset($_POST['P']) && ($_POST['P'] != "")) { //Grabar Salida de inventario
                     "id_documento" => intval($row_Lotes['DocEntry']),
                     "id_linea" => intval($row_Lotes['DocLinea']),
                     "id_articulo" => $row_Lotes['ItemCode'],
-                    "articulo" => $row_Lotes['ItemName'],
+                    "articulo" => ($row_Lotes['ItemName'] ?? ""),
                     "cantidad" => intval($row_Lotes['Cantidad']),
                     "serial_lote" => $row_Lotes['DistNumber'],
                     "id_systema_articulo" => intval($row_Lotes['SysNumber']),
@@ -968,7 +968,7 @@ function verAutorizacion() {
 			var almacen=document.getElementById('Almacen').value;
 			var almacendestino=document.getElementById('AlmacenDestino').value;
 
-			<?php if ($edit == 0 && $dt_DR == 0 && $dt_SS == 0) {?>
+			<?php if ($edit == 0 && $dt_DR == 0 && $dt_SS == 0 && $sw_error == 0) {?>
 			$.ajax({
 				type: "POST",
 				url: "includes/procedimientos.php?type=7&objtype=67&cardcode="+carcode
@@ -985,53 +985,54 @@ function verAutorizacion() {
 					console.log("724->", error.responseText);
 				}
 			});
+
 			<?php if ($dt_SS == 0) { //Para que no recargue las listas cuando vienen de una solicitud de salida.?>
-			$.ajax({
-				type: "POST",
-				url: "ajx_cbo_select.php?type=3&tdir=S&id="+carcode,
-				success: function(response){
-					$('#SucursalDestino').html(response).fadeIn();
+				$.ajax({
+					type: "POST",
+					url: "ajx_cbo_select.php?type=3&tdir=S&id="+carcode,
+					success: function(response){
+						$('#SucursalDestino').html(response).fadeIn();
 
-					<?php if (($edit == 0) && ($ClienteDefault != "")) {?>
-						$("#SucursalDestino").val("<?php echo $SucursalDestinoDefault; ?>");
-					<?php }?>
+						<?php if (($edit == 0) && ($ClienteDefault != "")) {?>
+							$("#SucursalDestino").val("<?php echo $SucursalDestinoDefault; ?>");
+						<?php }?>
 
-					$('#SucursalDestino').trigger('change');
-				}
-				, error: function(error){
-					console.log("736->", error.responseText);
-				}
-			});
+						$('#SucursalDestino').trigger('change');
+					}
+					, error: function(error){
+						console.log("736->", error.responseText);
+					}
+				});
 
-			$.ajax({
-				type: "POST",
-				url: "ajx_cbo_select.php?type=3&tdir=B&id="+carcode,
-				success: function(response){
-					$('#SucursalFacturacion').html(response).fadeIn();
+				$.ajax({
+					type: "POST",
+					url: "ajx_cbo_select.php?type=3&tdir=B&id="+carcode,
+					success: function(response){
+						$('#SucursalFacturacion').html(response).fadeIn();
 
-					<?php if (($edit == 0) && ($ClienteDefault != "")) {?>
-						$("#SucursalFacturacion").val("<?php echo $SucursalFacturacionDefault; ?>");
-					<?php }?>
+						<?php if (($edit == 0) && ($ClienteDefault != "")) {?>
+							$("#SucursalFacturacion").val("<?php echo $SucursalFacturacionDefault; ?>");
+						<?php }?>
 
-					$('#SucursalFacturacion').trigger('change');
-				}
-				, error: function(error){
-					console.log("749->", error.responseText);
-				}
-			});
+						$('#SucursalFacturacion').trigger('change');
+					}
+					, error: function(error){
+						console.log("749->", error.responseText);
+					}
+				});
+
+				// Recargar condición de pago.
+				$.ajax({
+					type: "POST",
+					url: "ajx_cbo_select.php?type=7&id="+carcode,
+					success: function(response){
+						$('#CondicionPago').html(response).fadeIn();
+					}
+					, error: function(error){
+						console.log("760->", error.responseText);
+					}
+				});
 			<?php }?>
-
-			// Recargar condición de pago.
-			$.ajax({
-				type: "POST",
-				url: "ajx_cbo_select.php?type=7&id="+carcode,
-				success: function(response){
-					$('#CondicionPago').html(response).fadeIn();
-				}
-				, error: function(error){
-					console.log("760->", error.responseText);
-				}
-			});
 
 			// SMM, 23/01/2023
 			<?php if (isset($_GET['a'])) {?>
@@ -1792,15 +1793,19 @@ if ($edit == 1 || $sw_error == 1) {
 					<div class="col-lg-3">
                     	<input type="text" name="Referencia" id="Referencia" class="form-control" value="<?php if ($edit == 1) {echo $row['NumAtCard'];}?>" <?php if (($edit == 1) && ($row['Cod_Estado'] == 'C')) {echo "readonly";}?>>
                	  	</div>
+
+					<!-- SMM, 31/03/2023 -->
 					<label class="col-lg-1 control-label">Condición de pago</label>
 					<div class="col-lg-3">
-						<select name="CondicionPago" class="form-control" id="CondicionPago" required="required" <?php if (($edit == 1) && ($row['Cod_Estado'] == 'C')) {echo "disabled='disabled'";}?>>
+						<select name="CondicionPago" class="form-control" id="CondicionPago" <?php if (($edit == 1) && ($row['Cod_Estado'] == 'C')) {echo "disabled='disabled'";}?>>
 							<option value="">Seleccione...</option>
-						  <?php while ($row_CondicionPago = sqlsrv_fetch_array($SQL_CondicionPago)) {?>
-								<option value="<?php echo $row_CondicionPago['IdCondicionPago']; ?>" <?php if ($edit == 1 || $sw_error == 1) {if (($row['IdCondicionPago'] != "") && (strcmp($row_CondicionPago['IdCondicionPago'], $row['IdCondicionPago']) == 0)) {echo "selected=\"selected\"";}}?>><?php echo $row_CondicionPago['NombreCondicion']; ?></option>
-						  <?php }?>
+
+							<?php while ($row_CondicionPago = sqlsrv_fetch_array($SQL_CondicionPago)) {?>
+								<option value="<?php echo $row_CondicionPago['IdCondicionPago']; ?>" <?php if (isset($row['IdCondicionPago']) && (strcmp($row_CondicionPago['IdCondicionPago'], $row['IdCondicionPago']) == 0)) {echo "selected";} elseif ((isset($_GET['CondicionPago'])) && (strcmp($row_CondicionPago['IdCondicionPago'], base64_decode($_GET['CondicionPago'])) == 0)) {echo "selected";}?>><?php echo $row_CondicionPago['NombreCondicion']; ?></option>
+						  	<?php }?>
 						</select>
 				  	</div>
+					<!-- Hasta aquí -->
 				</div>
 
 				<!-- Dimensiones dinámicas, SMM 29/08/2022 -->
@@ -1869,9 +1874,9 @@ if ($edit == 1 || $sw_error == 1) {
 
 				<div class="form-group">
 					<!-- Inicio, Empleado -->
-					<label class="col-lg-1 control-label">Solicitado para <span class="text-danger">*</span></label>
+					<label class="col-lg-1 control-label">Solicitado para</label>
 					<div class="col-lg-3">
-						<select name="Empleado" class="form-control" required id="Empleado" <?php if (($edit == 1) && ($row['Cod_Estado'] == 'C')) {echo "disabled='disabled'";}?>>
+						<select name="Empleado" class="form-control" id="Empleado" <?php if (($edit == 1) && ($row['Cod_Estado'] == 'C')) {echo "disabled='disabled'";}?>>
 							<option value="">Seleccione...</option>
 							<?php while ($row_Empleado = sqlsrv_fetch_array($SQL_Empleado)) {?>
 								<option value="<?php echo $row_Empleado['ID_Empleado']; ?>" <?php if ((isset($row['CodEmpleado'])) && (strcmp($row_Empleado['ID_Empleado'], $row['CodEmpleado']) == 0)) {echo "selected=\"selected\"";} elseif (isset($_GET['Empleado']) && (strcmp($row_Empleado['ID_Empleado'], base64_decode($_GET['Empleado'])) == 0)) {echo "selected=\"selected\"";}?>><?php echo $row_Empleado['NombreEmpleado']; ?></option>
@@ -2155,7 +2160,7 @@ $return = QuitarParametrosURL($return, array("a"));
 						<div class="btn-group pull-right">
                             <button data-toggle="dropdown" class="btn btn-success dropdown-toggle"><i class="fa fa-mail-forward"></i> Copiar a <i class="fa fa-caret-down"></i></button>
                             <ul class="dropdown-menu">
-                                <li><a class="alkin dropdown-item" href="salida_inventario.php?dt_TI=1&DocEntry=<?php echo base64_encode($row['DocEntry']); ?>&Cardcode=<?php echo base64_encode($row['CardCode']); ?>&Dim1=<?php echo base64_encode($row['OcrCode']); ?>&Dim2=<?php echo base64_encode($row['OcrCode2']); ?>&Dim3=<?php echo base64_encode($row['OcrCode3']); ?>&SucursalFact=<?php echo base64_encode($row['SucursalFacturacion']); ?>&Sucursal=<?php echo base64_encode($row['SucursalDestino']); ?>&Direccion=<?php echo base64_encode($row['DireccionDestino']); ?>&Almacen=<?php echo base64_encode($row['ToWhsCode']); ?>&AlmacenDestino=<?php echo base64_encode($row['ToWhsCode']); ?>&Contacto=<?php echo base64_encode($row['CodigoContacto']); ?>&Empleado=<?php echo base64_encode($row['CodEmpleado']); ?>&TipoEntrega=<?php echo base64_encode($row['IdTipoEntrega']); ?>&AnioEntrega=<?php echo base64_encode($row['IdAnioEntrega']); ?>&TI=<?php echo base64_encode($row['ID_TrasladoInv']); ?>&Evento=<?php echo base64_encode($row['IdEvento']); ?>&Proyecto=<?php echo base64_encode($row['PrjCode']); ?>&ConceptoSalida=<?php echo base64_encode($row['ConceptoSalida']); ?>">Salida de inventario</a></li>
+                                <li><a class="alkin dropdown-item" href="salida_inventario.php?dt_TI=1&DocEntry=<?php echo base64_encode($row['DocEntry']); ?>&Cardcode=<?php echo base64_encode($row['CardCode']); ?>&Dim1=<?php echo base64_encode($row['OcrCode']); ?>&Dim2=<?php echo base64_encode($row['OcrCode2']); ?>&Dim3=<?php echo base64_encode($row['OcrCode3']); ?>&SucursalFact=<?php echo base64_encode($row['SucursalFacturacion']); ?>&Sucursal=<?php echo base64_encode($row['SucursalDestino']); ?>&Direccion=<?php echo base64_encode($row['DireccionDestino']); ?>&Almacen=<?php echo base64_encode($row['ToWhsCode']); ?>&AlmacenDestino=<?php echo base64_encode($row['ToWhsCode']); ?>&Contacto=<?php echo base64_encode($row['CodigoContacto']); ?>&Empleado=<?php echo base64_encode($row['CodEmpleado']); ?>&TipoEntrega=<?php echo base64_encode($row['IdTipoEntrega']); ?>&AnioEntrega=<?php echo base64_encode($row['IdAnioEntrega']); ?>&TI=<?php echo base64_encode($row['ID_TrasladoInv']); ?>&Evento=<?php echo base64_encode($row['IdEvento']); ?>&Proyecto=<?php echo base64_encode($row['PrjCode']); ?>&ConceptoSalida=<?php echo base64_encode($row['ConceptoSalida']); ?>&CondicionPago=<?php echo base64_encode($row['IdCondicionPago']); ?>">Salida de inventario</a></li>
                             </ul>
                         </div>
 					</div>
@@ -2288,15 +2293,15 @@ $return = QuitarParametrosURL($return, array("a"));
 		 //$('.chosen-select').chosen({width: "100%"});
 		 $(".select2").select2();
 
-		 <?php if ($edit == 1) {?>
-		 $('#Serie option:not(:selected)').attr('disabled',true);
-		 $('#Sucursal option:not(:selected)').attr('disabled',true);
-		 $('#Almacen option:not(:selected)').attr('disabled',true);
-	 	 <?php }?>
+		<?php if ($edit == 1) {?>
+			$('#Serie option:not(:selected)').attr('disabled',true);
+		 	$('#Sucursal option:not(:selected)').attr('disabled',true);
+		 	$('#Almacen option:not(:selected)').attr('disabled',true);
+	 	<?php }?>
 
-		 <?php if ($dt_SS == 1) {?>
-		 $('#Empleado option:not(:selected)').attr('disabled',true);
-		 <?php }?>
+		<?php if ($dt_SS == 1) {?>
+			// $('#Empleado option:not(:selected)').attr('disabled',true);
+		<?php }?>
 
 		// $('#Autorizacion option:not(:selected)').attr('disabled',true);
 
