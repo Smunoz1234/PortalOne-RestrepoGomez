@@ -139,14 +139,14 @@ if (isset($_GET['ID_Categoria']) && ($_GET['ID_Categoria'] != "")) {
 }
 
 if ($sw == 1) {
-    $fi = FormatoFecha($FechaInicial);
-    $ff = FormatoFecha($FechaFinal);
+    $fi = date('Y-m-d', strtotime($FechaInicial));
+    $ff = date('Y-m-d', strtotime($FechaFinal));
     $Cons = "SELECT * FROM uvw_tbl_PortalProveedores_Archivos WHERE (fecha BETWEEN '$fi' AND '$ff') $Filtro ORDER BY fecha DESC";
 } else {
     $Cons = "";
 }
 
-//echo $Cons;
+// echo $Cons;
 $SQL = sqlsrv_query($conexion, $Cons);
 
 // SMM, 05/10/2023

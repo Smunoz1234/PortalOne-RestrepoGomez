@@ -318,7 +318,7 @@ function BorrarLinea(id){
 		if (result.isConfirmed) {
 			$.ajax({
 				type: "GET",
-				url: "includes/procedimientos.php?type=66&linenum="+id,
+				url: "includes/procedimientos.php?type=68&linenum="+id,
 				success: function(response){
 					location.href = "gestionar_series.php?a=<?php echo base64_encode("OK_DelReg"); ?>";
 				},

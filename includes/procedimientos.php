@@ -1333,6 +1333,15 @@ if (isset($_GET['type']) && $_GET['type'] != "") {
         }
     }
 
+    // SMM, 01/06/2023
+    elseif ($_GET['type'] == 68) { // Eliminar una linea de la tabla de series
+        $ID = $_GET['linenum'] ?? "";
+        $SQL_Del = Eliminar("tbl_SeriesSucursalesAlmacenes", "[ID]='$ID'");
+        if ($SQL_Del) {
+            echo "*Ok*";
+        }
+    }
+
     // Cerrar conexión
     sqlsrv_close($conexion);
 }
