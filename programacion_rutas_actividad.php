@@ -78,9 +78,11 @@ if (isset($row['ID_EmpleadoActividad']) && (count($ids_grupos) > 0)) {
 }
 
 // SMM, 07/03/2023
+/*
 if (isset($row['IdTipoEstadoActividad']) && (strcmp("05", $row['IdTipoEstadoActividad']) == 0)) {
-	$disabled = "disabled";
+$disabled = "disabled";
 }
+ */
 ?>
 
 <form id="frmActividad" method="post">

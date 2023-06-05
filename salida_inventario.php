@@ -579,7 +579,7 @@ function ConsultarDatosCliente(){
 				}
 			});
 
-			<?php if ($edit == 0 && $sw_error == 0 && ($dt_TI == 0)) { // Limpiar carrito detalle. ?>
+			<?php if ($edit == 0 && $sw_error == 0 && $dt_TI == 0) { // Limpiar carrito detalle. ?>
 			$.ajax({
 				type: "POST",
 				url: "includes/procedimientos.php?type=7&objtype=60&cardcode="+carcode
@@ -587,57 +587,57 @@ function ConsultarDatosCliente(){
 			<?php }?>
 
 			<?php if ($dt_TI == 0) { //Para que no recargue las listas cuando vienen de una solicitud de salida.?>
-			$.ajax({
-				type: "POST",
-				url: "ajx_cbo_select.php?type=3&tdir=S&id="+carcode,
-				success: function(response){
-					$('#SucursalDestino').html(response).fadeIn();
+				$.ajax({
+					type: "POST",
+					url: "ajx_cbo_select.php?type=3&tdir=S&id="+carcode,
+					success: function(response){
+						$('#SucursalDestino').html(response).fadeIn();
 
-					<?php if (($edit == 0) && ($ClienteDefault != "")) {?>
-						$("#SucursalDestino").val("<?php echo $SucursalDestinoDefault; ?>");
-					<?php }?>
+						<?php if (($edit == 0) && ($ClienteDefault != "")) {?>
+							$("#SucursalDestino").val("<?php echo $SucursalDestinoDefault; ?>");
+						<?php }?>
 
-					$('#SucursalDestino').trigger('change');
-				},
-				error: function(error) {
-					console.log("Line 515", error.responseText);
+						$('#SucursalDestino').trigger('change');
+					},
+					error: function(error) {
+						console.log("Line 515", error.responseText);
 
-					$('.ibox-content').toggleClass('sk-loading', false);
-				}
-			});
+						$('.ibox-content').toggleClass('sk-loading', false);
+					}
+				});
 
-			$.ajax({
-				type: "POST",
-				url: "ajx_cbo_select.php?type=3&tdir=B&id="+carcode,
-				success: function(response){
-					$('#SucursalFacturacion').html(response).fadeIn();
+				$.ajax({
+					type: "POST",
+					url: "ajx_cbo_select.php?type=3&tdir=B&id="+carcode,
+					success: function(response){
+						$('#SucursalFacturacion').html(response).fadeIn();
 
-					<?php if (($edit == 0) && ($ClienteDefault != "")) {?>
-						$("#SucursalFacturacion").val("<?php echo $SucursalFacturacionDefault; ?>");
-					<?php }?>
+						<?php if (($edit == 0) && ($ClienteDefault != "")) {?>
+							$("#SucursalFacturacion").val("<?php echo $SucursalFacturacionDefault; ?>");
+						<?php }?>
 
-					$('#SucursalFacturacion').trigger('change');
-				},
-				error: function(error) {
-					console.log("Line 525", error.responseText);
+						$('#SucursalFacturacion').trigger('change');
+					},
+					error: function(error) {
+						console.log("Line 525", error.responseText);
 
-					$('.ibox-content').toggleClass('sk-loading', false);
-				}
-			});
+						$('.ibox-content').toggleClass('sk-loading', false);
+					}
+				});
+
+				$.ajax({
+					type: "POST",
+					url: "ajx_cbo_select.php?type=7&id="+carcode,
+					success: function(response){
+						$('#CondicionPago').html(response).fadeIn();
+					},
+					error: function(error) {
+						console.log("Line 543", error.responseText);
+
+						$('.ibox-content').toggleClass('sk-loading', false);
+					}
+				});
 			<?php }?>
-
-			$.ajax({
-				type: "POST",
-				url: "ajx_cbo_select.php?type=7&id="+carcode,
-				success: function(response){
-					$('#CondicionPago').html(response).fadeIn();
-				},
-				error: function(error) {
-					console.log("Line 543", error.responseText);
-
-					$('.ibox-content').toggleClass('sk-loading', false);
-				}
-			});
 
 			// SMM, 23/01/2023
 			<?php if (isset($_GET['a'])) {?>
@@ -1251,25 +1251,34 @@ if ($edit == 1 || $sw_error == 1) {
 }?>
 						</select>
 					</div>
+
+					<!-- SMM, 31/03/2023 -->
 					<label class="col-lg-1 control-label">Condición de pago</label>
 					<div class="col-lg-3">
-						<select name="CondicionPago" class="form-control" id="CondicionPago" required="required" <?php if ((($edit == 1) && ($row['Cod_Estado'] == 'C')) || ($dt_TI == 1)) {echo "readonly";}?>>
+						<select name="CondicionPago" class="form-control" id="CondicionPago" <?php if ((($edit == 1) && ($row['Cod_Estado'] == 'C')) || ($dt_TI == 1)) {echo "readonly";}?>>
 							<option value="">Seleccione...</option>
-						  <?php while ($row_CondicionPago = sqlsrv_fetch_array($SQL_CondicionPago)) {?>
-								<option value="<?php echo $row_CondicionPago['IdCondicionPago']; ?>" <?php if ($edit == 1) {if (($row['IdCondicionPago'] != "") && (strcmp($row_CondicionPago['IdCondicionPago'], $row['IdCondicionPago']) == 0)) {echo "selected=\"selected\"";}}?>><?php echo $row_CondicionPago['NombreCondicion']; ?></option>
-						  <?php }?>
+
+							<?php while ($row_CondicionPago = sqlsrv_fetch_array($SQL_CondicionPago)) {?>
+								<option value="<?php echo $row_CondicionPago['IdCondicionPago']; ?>" <?php if (isset($row['IdCondicionPago']) && (strcmp($row_CondicionPago['IdCondicionPago'], $row['IdCondicionPago']) == 0)) {echo "selected";} elseif ((isset($_GET['CondicionPago'])) && (strcmp($row_CondicionPago['IdCondicionPago'], base64_decode($_GET['CondicionPago'])) == 0)) {echo "selected";}?>><?php echo $row_CondicionPago['NombreCondicion']; ?></option>
+						  	<?php }?>
 						</select>
 				  	</div>
+					<!-- Hasta aquí -->
+
+					<!-- Inicio, Empleado -->
 					<label class="col-lg-1 control-label">Solicitado para</label>
 					<div class="col-lg-3">
-                    	<select name="Empleado" class="form-control" required id="Empleado" <?php if ((($edit == 1) && ($row['Cod_Estado'] == 'C')) || ($dt_TI == 1)) {echo "readonly";}?>>
-								<?php if (($edit == 0) && ($dt_TI == 0)) {?><option value="">Seleccione...</option><?php }?>
-                          <?php while ($row_Empleado = sqlsrv_fetch_array($SQL_Empleado)) {?>
+						<select name="Empleado" class="form-control" id="Empleado" <?php if ((($edit == 1) && ($row['Cod_Estado'] == 'C')) || ($dt_TI == 1)) {echo "readonly";}?>>
+							<option value="">Seleccione...</option>
+
+							<?php while ($row_Empleado = sqlsrv_fetch_array($SQL_Empleado)) {?>
 								<option value="<?php echo $row_Empleado['ID_Empleado']; ?>" <?php if ((isset($row['CodEmpleado'])) && (strcmp($row_Empleado['ID_Empleado'], $row['CodEmpleado']) == 0)) {echo "selected=\"selected\"";} elseif (isset($_GET['Empleado']) && (strcmp($row_Empleado['ID_Empleado'], base64_decode($_GET['Empleado'])) == 0)) {echo "selected=\"selected\"";}?>><?php echo $row_Empleado['NombreEmpleado']; ?></option>
-						  <?php }?>
+							<?php }?>
 						</select>
-               	  	</div>
+					</div>
+					<!-- SMM, 31/03/2023 -->
 				</div>
+
 				<div class="form-group">
 					<!-- Inicio, Proyecto -->
 					<label class="col-lg-1 control-label">Proyecto <span class="text-danger">*</span></label>
@@ -1562,19 +1571,19 @@ if (isset($_GET['return'])) {
 		 $('#TipoEntrega').trigger('change');
 	 	 <?php }?>
 
-		 <?php if ($dt_TI == 1) {?>
-		 $('#TipoEntrega').trigger('change');
-		 $('#Empleado option:not(:selected)').attr('disabled',true);
-		 $('#CentroCosto option:not(:selected)').attr('disabled',true);
-		 $('#UnidadNegocio option:not(:selected)').attr('disabled',true);
-		 $('#CondicionPago option:not(:selected)').attr('disabled',true);
-		 $('#TipoEntrega option:not(:selected)').attr('disabled',true);
-		 <?php }?>
+		<?php if ($dt_TI == 1) {?>
+			$('#TipoEntrega').trigger('change');
+			$('#TipoEntrega option:not(:selected)').attr('disabled',true);
+			$('#Empleado option:not(:selected)').attr('disabled',true);
+			$('#CondicionPago option:not(:selected)').attr('disabled',true);
+			$('#ConceptoSalida option:not(:selected)').attr('disabled',true);
+			$('#PrjCode option:not(:selected)').attr('disabled',true);
+			$('#Serie option:not(:selected)').attr('disabled',true);
+		<?php }?>
 
-		 <?php
-if (!PermitirFuncion(403)) {?>
-		 $('#Autorizacion option:not(:selected)').attr('disabled',true);
-	 	 <?php }?>
+		<?php if (!PermitirFuncion(403)) {?>
+			$('#Autorizacion option:not(:selected)').attr('disabled',true);
+	 	<?php }?>
 
 		 var options = {
 			  url: function(phrase) {

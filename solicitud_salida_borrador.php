@@ -9,8 +9,8 @@ $autorizaSAP = ""; // SMM, 15/12/2022
 
 // Bandera de pruebas que me permite comportame como Autorizador en lugar de Autor.
 // Nota: Si un usuario es Autorizador y Autor se le da prioridad al hecho de ser Autor.
-// Nota: Debo tener el perfil del Autor asignado en el gestor de usuarios para ser Autorizador. SMM, 19/12/2022
-$serAutorizador = false; // SMM, 18/12/2022
+// Nota: Debo tener el perfil del Autor asignado en el gestor de usuarios para ser Autorizador.
+$serAutorizador = false; // SMM, 19/12/2022
 
 $msg_error = ""; //Mensaje del error
 $IdSolSalida = 0;
@@ -183,7 +183,7 @@ if (isset($_POST['P']) && ($_POST['P'] != "")) { //Grabar Solicitud de salida
             // Se eliminaron las dimensiones, SMM 29/08/2022
 
             "'" . $_POST['PrjCode'] . "'", // SMM, 29/11/2022
-            "'" . $_POST['Autorizacion'] . "'", // SMM, 29/11/2022
+            "'" . ($_POST['Autorizacion'] ?? "P") . "'", // SMM, 04/04/2023
             "'" . $_POST['TipoEntrega'] . "'",
             $AnioEntrega,
             $EntregaDescont,
@@ -324,7 +324,7 @@ if (isset($_POST['P']) && ($_POST['P'] != "")) { //Grabar Solicitud de salida
 
             // Verificar que el documento cumpla las Condiciones o este Pendiente de Autorización.
             // if (($success == 1) || ($_POST['Autorizacion'] != "P")) {
-            if (($_POST['Autorizacion'] != "P")) {
+            if (isset($_POST['Autorizacion']) && ($_POST['Autorizacion'] != "P")) {
                 $success = 1;
 
                 // Inicio, Enviar datos al WebServices.
@@ -1930,6 +1930,8 @@ if (isset($_GET['return'])) {
 		// Estado de autorización de PortalOne en el Modal. SMM, 15/12/2022
 		$("#EstadoAutorizacionPO").html($("#Autorizacion").html());
 		$("#EstadoAutorizacionPO").on("change", function() {
+			$("#Autorizacion option").prop("disabled", false); // SMM, 04/04/2023
+
 			$("#Autorizacion").val($(this).val());
 			$("#Autorizacion").change(); // SMM, 17/01/2023
 		});
@@ -2094,8 +2096,12 @@ if (isset($_GET['return'])) {
 
 		// SMM, 18/12/2022
 		<?php if ((strtoupper($_SESSION["User"]) == strtoupper($row['Usuario'])) && (!$serAutorizador)) {?>
-			$('#Autorizacion option:not(:selected)').attr('disabled',true);
+			// Desactivado, 03/04/2023
+			// $('#Autorizacion option:not(:selected)').attr('disabled',true);
 		<?php }?>
+
+		// SMM, 03/04/2023
+		$('#Autorizacion option:not(:selected)').attr('disabled',true);
 	});
 </script>
 <script>
