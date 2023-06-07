@@ -179,15 +179,17 @@ if (isset($_POST['P']) && ($_POST['P'] == 32)) { //Crear llamada de servicio
 			($_POST['CantArticulo'] != "") ? LSiqmlValorDecimal($_POST['CantArticulo']) : 0,
 			($_POST['PrecioArticulo'] != "") ? LSiqmlValorDecimal($_POST['PrecioArticulo']) : 0,
 			"1", // Tipo de SP
-			PermitirFuncion(327) ? ("'" . $_POST['CDU_Marca'] . "'") : "''",
-			PermitirFuncion(327) ? ("'" . $_POST['CDU_Linea'] . "'") : "''",
-			PermitirFuncion(327) ? ("'" . $_POST['CDU_Ano'] . "'") : "''",
-			PermitirFuncion(327) ? ("'" . $_POST['CDU_Concesionario'] . "'") : "''",
-			PermitirFuncion(327) ? ("'" . $_POST['CDU_Aseguradora'] . "'") : "''",
-			PermitirFuncion(327) ? ("'" . $_POST['CDU_TipoPreventivo'] . "'") : "''",
-			PermitirFuncion(327) ? ("'" . $_POST['CDU_TipoServicio'] . "'") : "''",
-			(isset($_POST['CDU_Kilometros']) && PermitirFuncion(327)) ? $_POST['CDU_Kilometros'] : 0, // int
-			PermitirFuncion(327) ? ("'" . $_POST['CDU_Contrato'] . "'") : "''",
+
+			PermitirFuncion(327) ? ("'" . $_POST['CDU_Marca'] . "'") : "NULL",
+			PermitirFuncion(327) ? ("'" . $_POST['CDU_Linea'] . "'") : "NULL",
+			PermitirFuncion(327) ? ("'" . $_POST['CDU_Ano'] . "'") : "NULL",
+			PermitirFuncion(327) ? ("'" . $_POST['CDU_Concesionario'] . "'") : "NULL",
+			PermitirFuncion(327) ? ("'" . $_POST['CDU_Aseguradora'] . "'") : "NULL",
+			PermitirFuncion(327) ? ("'" . $_POST['CDU_TipoPreventivo'] . "'") : "NULL",
+			PermitirFuncion(327) ? ("'" . $_POST['CDU_TipoServicio'] . "'") : "NULL",
+			(isset($_POST['CDU_Kilometros']) && PermitirFuncion(327)) ? $_POST['CDU_Kilometros'] : "NULL", // int
+			PermitirFuncion(327) ? ("'" . $_POST['CDU_Contrato'] . "'") : "NULL",
+			
 			"NULL", // CDU_Asesor
 			"'" . $_POST['CDU_ListaMateriales'] . "'",
 			isset($_POST['CDU_TiempoTarea']) ? $_POST['CDU_TiempoTarea'] : 0, // int
@@ -370,15 +372,17 @@ if (isset($_POST['P']) && ($_POST['P'] == 33)) { //Actualizar llamada de servici
 			($_POST['CantArticulo'] != "") ? LSiqmlValorDecimal($_POST['CantArticulo']) : 0,
 			($_POST['PrecioArticulo'] != "") ? LSiqmlValorDecimal($_POST['PrecioArticulo']) : 0,
 			"$Type",
-			PermitirFuncion(327) ? ("'" . $_POST['CDU_Marca'] . "'") : "''",
-			PermitirFuncion(327) ? ("'" . $_POST['CDU_Linea'] . "'") : "''",
-			PermitirFuncion(327) ? ("'" . $_POST['CDU_Ano'] . "'") : "''",
-			PermitirFuncion(327) ? ("'" . $_POST['CDU_Concesionario'] . "'") : "''",
-			PermitirFuncion(327) ? ("'" . $_POST['CDU_Aseguradora'] . "'") : "''",
-			PermitirFuncion(327) ? ("'" . $_POST['CDU_TipoPreventivo'] . "'") : "''",
-			PermitirFuncion(327) ? ("'" . $_POST['CDU_TipoServicio'] . "'") : "''",
-			(isset($_POST['CDU_Kilometros']) && PermitirFuncion(327)) ? $_POST['CDU_Kilometros'] : 0, // int
-			PermitirFuncion(327) ? ("'" . $_POST['CDU_Contrato'] . "'") : "''",
+
+			PermitirFuncion(327) ? ("'" . $_POST['CDU_Marca'] . "'") : "NULL",
+			PermitirFuncion(327) ? ("'" . $_POST['CDU_Linea'] . "'") : "NULL",
+			PermitirFuncion(327) ? ("'" . $_POST['CDU_Ano'] . "'") : "NULL",
+			PermitirFuncion(327) ? ("'" . $_POST['CDU_Concesionario'] . "'") : "NULL",
+			PermitirFuncion(327) ? ("'" . $_POST['CDU_Aseguradora'] . "'") : "NULL",
+			PermitirFuncion(327) ? ("'" . $_POST['CDU_TipoPreventivo'] . "'") : "NULL",
+			PermitirFuncion(327) ? ("'" . $_POST['CDU_TipoServicio'] . "'") : "NULL",
+			(isset($_POST['CDU_Kilometros']) && PermitirFuncion(327)) ? $_POST['CDU_Kilometros'] : "NULL", // int
+			PermitirFuncion(327) ? ("'" . $_POST['CDU_Contrato'] . "'") : "NULL",
+			
 			"NULL",
 			"'" . $_POST['CDU_ListaMateriales'] . "'",
 			isset($_POST['CDU_TiempoTarea']) ? $_POST['CDU_TiempoTarea'] : 0, // int
