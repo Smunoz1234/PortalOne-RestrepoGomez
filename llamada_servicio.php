@@ -1153,27 +1153,29 @@ if (isset($sw_error) && ($sw_error == 1)) {
 				}
 			});
 
-			// Stiven Muñoz Murillo, 20/12/2021
-			$("#CDU_Marca").change(function(){
-				$('.ibox-content').toggleClass('sk-loading',true);
-				var marcaVehiculo=document.getElementById('CDU_Marca').value;
-				$.ajax({
-					type: "POST",
-					url: "ajx_cbo_select.php?type=39&id="+marcaVehiculo,
-					success: function(response){
-						// console.log(response);
+			// Stiven Muñoz Murillo, 07/06/2023
+			<?php if(PermitirFuncion(327)) {?>
+				$("#CDU_Marca").change(function(){
+					$('.ibox-content').toggleClass('sk-loading',true);
+					var marcaVehiculo=document.getElementById('CDU_Marca').value;
+					$.ajax({
+						type: "POST",
+						url: "ajx_cbo_select.php?type=39&id="+marcaVehiculo,
+						success: function(response){
+							// console.log(response);
 
-						if(borrarLineaModeloVehiculo) {
-							$('#CDU_Linea').html(response).fadeIn();
-							$('#CDU_Linea').trigger('change');
-						} else {
-							borrarLineaModeloVehiculo = true;
+							if(borrarLineaModeloVehiculo) {
+								$('#CDU_Linea').html(response).fadeIn();
+								$('#CDU_Linea').trigger('change');
+							} else {
+								borrarLineaModeloVehiculo = true;
+							}
+
+							$('.ibox-content').toggleClass('sk-loading',false);
 						}
-
-						$('.ibox-content').toggleClass('sk-loading',false);
-					}
+					});
 				});
-			});
+			<?php }?>
 
 			// Stiven Muñoz Murillo, 22/12/2021
 			$("#NumeroSerie").change(function(){
@@ -1203,21 +1205,23 @@ if (isset($sw_error) && ($sw_error == 1)) {
 							document.getElementById('DeArticuloLlamada').value = data.DeArticuloLlamada;
 							// $('#IdArticuloLlamada').trigger('change');
 
-							document.getElementById('CDU_Marca').value = data.CDU_IdMarca;
-							$('#CDU_Marca').trigger('change');
+							<?php if(PermitirFuncion(327)) {?>
+								document.getElementById('CDU_Marca').value = data.CDU_IdMarca;
+								$('#CDU_Marca').trigger('change');
 
-							borrarLineaModeloVehiculo = false;
-							document.getElementById('CDU_Linea').value = data.CDU_IdLinea;
-							$('#CDU_Linea').trigger('change');
+								borrarLineaModeloVehiculo = false;
+								document.getElementById('CDU_Linea').value = data.CDU_IdLinea;
+								$('#CDU_Linea').trigger('change');
 
-							document.getElementById('CDU_Ano').value = data.CDU_Ano;
-							$('#CDU_Ano').trigger('change');
+								document.getElementById('CDU_Ano').value = data.CDU_Ano;
+								$('#CDU_Ano').trigger('change');
 
-							document.getElementById('CDU_Concesionario').value = data.CDU_Concesionario;
-							$('#CDU_Concesionario').trigger('change');
+								document.getElementById('CDU_Concesionario').value = data.CDU_Concesionario;
+								$('#CDU_Concesionario').trigger('change');
 
-							document.getElementById('CDU_TipoServicio').value = (data.CDU_TipoServicio != null) ? data.CDU_TipoServicio : "";
-							$('#CDU_TipoServicio').trigger('change');
+								document.getElementById('CDU_TipoServicio').value = (data.CDU_TipoServicio != null) ? data.CDU_TipoServicio : "";
+								$('#CDU_TipoServicio').trigger('change');
+							<?php }?>
 
 							$('.ibox-content').toggleClass('sk-loading',false);
 						},
