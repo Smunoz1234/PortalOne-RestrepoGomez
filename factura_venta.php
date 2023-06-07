@@ -797,149 +797,102 @@ function MostrarRet(){
 		});
 		// Actualizar almacen, llega hasta aquí.
 
-		// Actualización de la dimensión 1 (Marca) en las líneas.
-		$("#Dim1").change(function() {
-			var frame=document.getElementById('DataGrid');
-			if(document.getElementById('Dim1').value!=""&&document.getElementById('CardCode').value!=""&&document.getElementById('TotalItems').value!="0"){
-				Swal.fire({
-					title: "¿Desea actualizar las lineas?",
-					icon: "question",
-					showCancelButton: true,
-					confirmButtonText: "Si, confirmo",
-					cancelButtonText: "No"
-				}).then((result) => {
-					if (result.isConfirmed) {
-						$('.ibox-content').toggleClass('sk-loading',true);
-							<?php if ($edit == 0) {?>
-						$.ajax({
-							type: "GET",
-							url: "registro.php?P=36&doctype=9&type=1&name=OcrCode&value="+Base64.encode(document.getElementById('Dim1').value)+"&line=0&cardcode="+document.getElementById('CardCode').value+"&whscode=0&actodos=1",
-							success: function(response){
-								frame.src="detalle_factura_venta.php?id=0&type=1&usr=<?php echo $_SESSION['CodUser']; ?>&cardcode="+document.getElementById('CardCode').value;
-								$('.ibox-content').toggleClass('sk-loading',false);
-							}
-						});
-						<?php } else {?>
-						$.ajax({
-							type: "GET",
-							url: "registro.php?P=36&doctype=9&type=2&name=OcrCode&value="+Base64.encode(document.getElementById('Dim1').value)+"&line=0&id=<?php echo $row['ID_FacturaVenta']; ?>&evento=<?php echo $IdEvento; ?>&actodos=1",
-							success: function(response){
-								frame.src="detalle_factura_venta.php?id=<?php echo base64_encode($row['ID_FacturaVenta']); ?>&evento=<?php echo base64_encode($IdEvento); ?>&type=2";
-								$('.ibox-content').toggleClass('sk-loading',false);
-							}
-						});
-						<?php }?>
-					}
-				});
+// Actualización de las dimensiones dinámicamente, SMM 06/06/2023
+<?php foreach ($array_Dimensiones as &$dim) {?>
+
+<?php $Name_IdDoc = "ID_FacturaVenta";?>
+<?php $DimCode = intval($dim['DimCode']);?>
+<?php $OcrId = ($DimCode == 1) ? "" : $DimCode;?>
+
+$("#<?php echo $dim['IdPortalOne']; ?>").change(function() {
+
+	var docType = 9;
+	var detalleDoc = "detalle_factura_venta.php";
+
+	var frame = document.getElementById('DataGrid');
+	var DimIdPO = document.getElementById('<?php echo $dim['IdPortalOne']; ?>').value;
+
+	<?php if ($DimCode == $DimSeries) {?>
+		$('.ibox-content').toggleClass('sk-loading',true);
+
+		let tDoc = 13;
+		let Serie = document.getElementById('Serie').value;
+
+		var url20 = `ajx_cbo_select.php?type=20&id=${DimIdPO}&serie=${Serie}&tdoc=${tDoc}&WhsCode=<?php echo isset($_GET['Almacen']) ? base64_decode($_GET['Almacen']) : ($row['WhsCode'] ?? ""); ?>`;
+
+		$.ajax({
+			type: "POST",
+			url: url20,
+			success: function(response){
+				// console.log(url20);
+				// console.log("ajx_cbo_select.php?type=20");
+
+				$('#Almacen').html(response).fadeIn();
+				// $('#Almacen').trigger('change');
+
+				$('.ibox-content').toggleClass('sk-loading',false);
+			},
+			error: function(error) {
+				// Mensaje de error
+				console.log("Line 869", error.responseText);
+
+				$('.ibox-content').toggleClass('sk-loading', false);
 			}
 		});
-		// Actualizar dimensión 1, llega hasta aquí.
+	<?php }?>
 
-		// Actualización de la dimensión 2 (Ciudad) en las líneas.
-		$("#Dim2").change(function() {
-			$('.ibox-content').toggleClass('sk-loading',true);
-			var Dim2=document.getElementById('Dim2').value;
-			var Serie=document.getElementById('Serie').value;
-			var frame=document.getElementById('DataGrid');
+	var CardCode = document.getElementById('CardCode').value;
+	var TotalItems = document.getElementById('TotalItems').value;
 
-			$.ajax({
-				type: "POST",
-				url: "ajx_cbo_select.php?type=20&id="+Dim2+"&serie="+Serie+"&tdoc=13",
-				success: function(response){
-					$('#Almacen').html(response).fadeIn();
-					$('.ibox-content').toggleClass('sk-loading',false);
-					//$('#Almacen').trigger('change');
-				}
-			});
+	if(DimIdPO!="" && CardCode!="" && TotalItems!="0") {
+		Swal.fire({
+			title: "¿Desea actualizar las lineas de la <?php echo $dim['DescPortalOne']; ?>?",
+			icon: "question",
+			showCancelButton: true,
+			confirmButtonText: "Si, confirmo",
+			cancelButtonText: "No"
+		}).then((result) => {
+			if (result.isConfirmed) {
+				$('.ibox-content').toggleClass('sk-loading',true);
 
-			if(document.getElementById('Dim2').value!=""&&document.getElementById('CardCode').value!=""&&document.getElementById('TotalItems').value!="0"){
-				Swal.fire({
-					title: "¿Desea actualizar las lineas?",
-					icon: "question",
-					showCancelButton: true,
-					confirmButtonText: "Si, confirmo",
-					cancelButtonText: "No"
-				}).then((result) => {
-					if (result.isConfirmed) {
-						$('.ibox-content').toggleClass('sk-loading',true);
-							<?php if ($edit == 0) {?>
-						$.ajax({
-							type: "GET",
-							url: "registro.php?P=36&doctype=9&type=1&name=OcrCode2&value="+Base64.encode(document.getElementById('Dim2').value)+"&line=0&cardcode="+document.getElementById('CardCode').value+"&whscode=0&actodos=1",
-							success: function(response){
-								frame.src="detalle_factura_venta.php?id=0&type=1&usr=<?php echo $_SESSION['CodUser']; ?>&cardcode="+document.getElementById('CardCode').value;
-								$('.ibox-content').toggleClass('sk-loading',false);
-							}
-						});
-						<?php } else {?>
-						$.ajax({
-							type: "GET",
-							url: "registro.php?P=36&doctype=9&type=2&name=OcrCode2&value="+Base64.encode(document.getElementById('Dim2').value)+"&line=0&id=<?php echo $row['ID_FacturaVenta']; ?>&evento=<?php echo $IdEvento; ?>&actodos=1",
-							success: function(response){
-								frame.src="detalle_factura_venta.php?id=<?php echo base64_encode($row['ID_FacturaVenta']); ?>&evento=<?php echo base64_encode($IdEvento); ?>&type=2";
-								$('.ibox-content').toggleClass('sk-loading',false);
-							}
-						});
-						<?php }?>
-					}
-				});
+				<?php if ($edit == 0) {?>
+					$.ajax({
+						type: "GET",
+						url: `registro.php?P=36&type=1&doctype=${docType}&name=OcrCode<?php echo $OcrId; ?>&value=${Base64.encode(DimIdPO)}&cardcode=${CardCode}&actodos=1&whscode=0&line=0`,
+						success: function(response){
+							frame.src=`${detalleDoc}?type=1&id=0&usr=<?php echo $_SESSION['CodUser']; ?>&cardcode=${CardCode}`;
+
+							$('.ibox-content').toggleClass('sk-loading',false);
+						}
+					});
+				<?php } else {?>
+					$.ajax({
+						type: "GET",
+						url: `registro.php?P=36&type=2&doctype=${docType}&name=OcrCode<?php echo $OcrId; ?>&value=${Base64.encode(DimIdPO)}&id=<?php echo $row[strval($Name_IdDoc)]; ?>&evento=<?php echo $IdEvento; ?>&actodos=1&line=0`,
+						success: function(response){
+							frame.src=`${detalleDoc}?type=2&id=<?php echo base64_encode($row[strval($Name_IdDoc)]); ?>&evento=<?php echo base64_encode($IdEvento); ?>`;
+
+							$('.ibox-content').toggleClass('sk-loading',false);
+						}
+					});
+				<?php }?>
 			}
 		});
-		// Actualizar dimensión 2, llega hasta aquí.
+	} else  {
+		if(false) {
+			console.log("No se cumple la siguiente condición en la <?php echo $dim['DimName']; ?>");
 
-		// Actualización de la dimensión 3 (Placa) en las líneas.
-		$("#Dim3").change(function() {
-			// $('.ibox-content').toggleClass('sk-loading',true);
+			console.log(`DimIdPO == ${DimIdPO}`);
+			console.log(`CardCode == ${CardCode}`);
+			console.log(`TotalItems == ${TotalItems}`);
 
-			var Dim3=document.getElementById('Dim3').value;
-			var Serie=document.getElementById('Serie').value;
-			var frame=document.getElementById('DataGrid');
+			$('.ibox-content').toggleClass('sk-loading',false);
+		}
+	}
+});
 
-
-			if(Dim3!=""&&document.getElementById('CardCode').value!=""&&document.getElementById('TotalItems').value!="0"){
-				console.log("Line 819");
-				Swal.fire({
-					title: "¿Desea actualizar las lineas?",
-					icon: "question",
-					showCancelButton: true,
-					confirmButtonText: "Si, confirmo",
-					cancelButtonText: "No"
-				}).then((result) => {
-					if (result.isConfirmed) {
-						$('.ibox-content').toggleClass('sk-loading',true);
-							<?php if ($edit == 0) {?>
-						$.ajax({
-							type: "GET",
-							url: "registro.php?P=36&doctype=9&type=1&name=OcrCode3&value="+Base64.encode(Dim3)+"&line=0&cardcode="+document.getElementById('CardCode').value+"&whscode=0&actodos=1",
-							success: function(response){
-								frame.src="detalle_factura_venta.php?id=0&type=1&usr=<?php echo $_SESSION['CodUser']; ?>&cardcode="+document.getElementById('CardCode').value;
-								$('.ibox-content').toggleClass('sk-loading',false);
-							},
-							error: function(error) {
-								console.error("Line 838", error.responseText);
-								$('.ibox-content').toggleClass('sk-loading',false);
-							}
-						});
-						<?php } else {?>
-							console.log("Line 838");
-						$.ajax({
-							type: "GET",
-							url: "registro.php?P=36&doctype=9&type=2&name=OcrCode3&value="+Base64.encode(Dim3)+"&line=0&id=<?php echo $row['ID_FacturaVenta']; ?>&evento=<?php echo $IdEvento; ?>&actodos=1",
-							success: function(response){
-								frame.src="detalle_factura_venta.php?id=<?php echo base64_encode($row['ID_FacturaVenta']); ?>&evento=<?php echo base64_encode($IdEvento); ?>&type=2";
-								$('.ibox-content').toggleClass('sk-loading',false);
-							},
-							error: function(error) {
-								console.error("Line 846", error.responseText);
-								$('.ibox-content').toggleClass('sk-loading',false);
-							}
-						});
-						<?php }?>
-					}
-				});
-			}
-		});
-		// Actualizar dimensión 3, llega hasta aquí.
+<?php }?>
+// Actualización dinámica, llega hasta aquí.
 
 		// Actualización del vendedor en las líneas, SMM 23/02/2022
 		$("#EmpleadoVentas").change(function() {

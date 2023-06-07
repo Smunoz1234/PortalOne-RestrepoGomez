@@ -1726,7 +1726,7 @@ if ($edit == 1 || $sw_error == 1) {
 
 						<div id="tab-3" class="tab-pane">
 							<div class="panel-body">
-								<?php if (($edit == 1) || sqlsrv_has_rows($SQL_Anexo)) {
+								<?php if (($edit == 1) || (isset($SQL_Anexo) && sqlsrv_has_rows($SQL_Anexo))) {
     if ((($edit == 1) && ($row['IdAnexo'] != 0)) || (sqlsrv_has_rows($SQL_Anexo) && ($edit == 0))) {?>
 										<div class="form-group">
 											<div class="col-lg-4">
