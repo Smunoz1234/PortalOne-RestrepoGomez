@@ -352,7 +352,14 @@ if($sw==1){
 							<th>Serie</th>
 							<th>Tipo llamada</th>
 							<th>Cliente</th>
-							<th>Sucursal</th> 
+							<th>Sucursal</th>
+							
+							<th>Articulo</th>
+							<th>Serial Interno</th>
+							<th>Nombre Contacto</th>
+							<th>Telefono Contacto</th>
+							<th>Correo Contacto</th>
+							
 							<th>Facturado</th>
 							<th>Servicio</th>  
 							<th>Metodo aplicación</th>
@@ -374,7 +381,7 @@ if($sw==1){
 						</thead>
 						<tbody>
 						<?php $i=1;
-							 while($row=sql_fetch_array($SQL)){?>
+							 while($row=sqlsrv_fetch_array($SQL)){?>
 							<tr id="tr_<?php echo $i;?>" class="gradeX">
 								<td><?php echo $i;?></td>
 								<td class="text-center"><button type="button" title="Mostrar actividades" class="btn btn-success btn-xs" onClick="CargarAct('<?php echo $row['ID_LlamadaServicio'];?>','<?php echo $row['ID_Llamada'];?>');"><i class="fa fa-plus"></i></button></td>
@@ -383,6 +390,13 @@ if($sw==1){
 								<td><?php echo $row['DeTipoLlamada'];?></td>
 								<td><?php echo $row['NombreCliente'];?></td>
 								<td><?php echo $row['NombreSucursalCliente'];?></td>
+								
+								<td><?php echo $row['DeArticuloLlamada'];?></td>
+								<td><?php echo $row['SerialArticuloLlamada'];?></td>
+								<td><?php echo $row['NombreContactoLlamada'];?></td>
+								<td><?php echo $row['TelefonoContactoLlamada'];?></td>
+								<td><?php echo $row['CorreoContactoLlamada'];?></td>
+								
 								<td><?php echo $row['Facturado'];?></td>
 								<td><?php echo $row['ServiciosLlamadas'];?></td>
 								<td><?php echo $row['MetodoAplicaLlamadas'];?></td>
@@ -392,7 +406,7 @@ if($sw==1){
 								<td><span <?php if($row['IdEstadoLlamada']=='-3'){echo "class='label label-info'";}elseif($row['IdEstadoLlamada']=='-2'){echo "class='label label-warning'";}else{echo "class='label label-danger'";}?>><?php echo $row['DeEstadoLlamada'];?></span></td>	
 								<td><span <?php if($row['IdEstadoServicioLlamada']=='0'){echo "class='label label-warning'";}elseif($row['IdEstadoServicioLlamada']=='1'){echo "class='label label-primary'";}else{echo "class='label label-danger'";}?>><?php echo $row['EstadoServicioLlamada'];?></span></td>								
 								<td><?php echo ($row['FechaActividad']!="") ? $row['FechaActividad']->format('Y-m-d H:i') : "";?></td>
-								<td><?php echo ($row['FechaCronograma']!="") ? $row['FechaCronograma']->format('Y-m-d') : "";?></td>
+								<td><?php echo (isset($row['FechaCronograma']) && ($row['FechaCronograma']!="")) ? $row['FechaCronograma']->format('Y-m-d') : "";?></td>
 								<td><?php echo $row['NombreEmpleadoActividad'];?></td>
 								<td><?php echo $row['NombreEstadoActividad'];?></td>
 								<td><?php echo SubComent($row['ComentarioLlamada']);?></td>
