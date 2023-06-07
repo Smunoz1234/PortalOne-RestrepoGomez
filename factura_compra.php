@@ -1372,7 +1372,7 @@ if ($edit == 1 || $sw_error == 1) {
 					<label class="col-xs-12"><h3 class="bg-success p-xs b-r-sm"><i class="fa fa-list"></i> Contenido de la factura</h3></label>
 				</div>
 				<!-- Inicio, descuento aseguradora -->
-				<?php if ($edit == 0) {?>
+				<?php if (($edit == 0) && PermitirFuncion(425)) {?>
 					<div class="form-group">
 						<label class="col-lg-1 control-label">Valor descuento</label>
 						<div class="col-lg-4">
