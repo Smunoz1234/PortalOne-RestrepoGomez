@@ -331,7 +331,7 @@ if (isset($sw_error) && ($sw_error == 1)) {
 									  </div>
 								</div> <!-- tab-1 -->
 
-								<div id="tab-4" class="tab-pane active">
+								<div id="tab-4" class="tab-pane">
 									<div class="form-group">
 										<div class="col-lg-10">
 										<div class="table-responsive">
@@ -400,7 +400,7 @@ if (isset($sw_error) && ($sw_error == 1)) {
 									  </div>
 								</div> <!-- tab-4 -->
 
-								<div id="tab-5" class="tab-pane active">
+								<div id="tab-5" class="tab-pane">
 									<div class="form-group">
 										<div class="col-lg-10">
 										<div class="table-responsive">
