@@ -1698,9 +1698,9 @@ function verAutorizacion() {
 					<!-- Hasta aquí -->
 
 					<!-- Inicio, TipoEntrega -->
-					<label class="col-lg-1 control-label">Tipo entrega <span class="text-danger">*</span></label>
+					<label class="col-lg-1 control-label">Tipo entrega</label>
 					<div class="col-lg-3">
-                    	<select name="TipoEntrega" class="form-control" id="TipoEntrega" <?php if (($edit == 1) && ($row['Cod_Estado'] == 'C')) {echo "disabled='disabled'";}?> required>
+                    	<select name="TipoEntrega" class="form-control" id="TipoEntrega" <?php if (($edit == 1) && ($row['Cod_Estado'] == 'C')) {echo "disabled='disabled'";}?>>
 								<option value="">Seleccione...</option>
                           <?php while ($row_TipoEntrega = sqlsrv_fetch_array($SQL_TipoEntrega)) {?>
 								<option value="<?php echo $row_TipoEntrega['IdTipoEntrega']; ?>" <?php if ((isset($row['IdTipoEntrega'])) && (strcmp($row_TipoEntrega['IdTipoEntrega'], $row['IdTipoEntrega']) == 0)) {echo "selected=\"selected\"";}?>><?php echo $row_TipoEntrega['DeTipoEntrega']; ?></option>
@@ -1731,9 +1731,9 @@ function verAutorizacion() {
 
 				<div class="form-group">
 						<!-- SMM, 23/12/2022 -->
-						<label class="col-lg-1 control-label">Concepto Salida <span class="text-danger">*</span></label>
+						<label class="col-lg-1 control-label">Concepto Salida</label>
 						<div class="col-lg-3">
-							<select name="ConceptoSalida" class="form-control select2" id="ConceptoSalida" <?php if (($edit == 1) && ($row['Cod_Estado'] == 'C')) {echo "disabled='disabled'";}?> required>
+							<select name="ConceptoSalida" class="form-control select2" id="ConceptoSalida" <?php if (($edit == 1) && ($row['Cod_Estado'] == 'C')) {echo "disabled='disabled'";}?>>
 									<option value="">Seleccione...</option>
 									<?php while ($row_ConceptoSalida = sqlsrv_fetch_array($SQL_ConceptoSalida)) {?>
 										<option value="<?php echo $row_ConceptoSalida['id_concepto_salida']; ?>" <?php if ((isset($row['ConceptoSalida'])) && (strcmp($row_ConceptoSalida['id_concepto_salida'], $row['ConceptoSalida']) == 0)) {echo "selected";}?>><?php echo $row_ConceptoSalida['id_concepto_salida'] . "-" . $row_ConceptoSalida['concepto_salida']; ?></option>
