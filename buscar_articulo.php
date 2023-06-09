@@ -844,8 +844,7 @@ $rawdata = array();
                     } else {
                         // La posición $j=7 debe hacer referencia al almacen, si esto cambia se debe cambiar aquí.
                         // print_r($rawdata);
-                        // Reemplazar el 7 por 8 en Ditar. Debido a que en Ditar se incluyo el campo ItemGroupName.
-                        echo "<td><a href=\"#\" onClick=\"showHint('" . $rawdata[$i][$j] . "','" . $rawdata[$i][8] . "');\">" . utf8_encode($rawdata[$i][$j]) . "</a></td>";
+                        echo "<td><a href=\"#\" onClick=\"showHint('" . $rawdata[$i][$j] . "','" . $rawdata[$i][7] . "');\">" . utf8_encode($rawdata[$i][$j]) . "</a></td>";
                     }
                 } else {
                     if (is_object($rawdata[$i][$j])) {
