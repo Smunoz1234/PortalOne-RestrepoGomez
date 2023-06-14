@@ -45,8 +45,11 @@ $Recurso = isset($_GET['Recursos']) ? implode(',', $_GET['Recursos']) : ""; // S
 $Cliente = isset($_GET['Cliente']) ? $_GET['Cliente'] : "";
 $NomSucursal = isset($_GET['Sucursal']) ? $_GET['Sucursal'] : "";
 
+// SMM, 14/06/2023
+$DimSeries = intval(ObtenerVariable("DimensionSeries"));
+
 //Lista de cargos de recursos (Tecnicos)
-$SQL_CargosRecursos = Seleccionar('uvw_Sap_tbl_Recursos', 'DISTINCT IdCargo, DeCargo', "CentroCosto2='" . $Sede . "'");
+$SQL_CargosRecursos = Seleccionar('uvw_Sap_tbl_Recursos', 'DISTINCT IdCargo, DeCargo', "CentroCosto$DimSeries='" . $Sede . "'");
 
 //Lista de recursos (Tecnicos)
 $ParamRec = array(
