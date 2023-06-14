@@ -11,7 +11,8 @@ if (isset($_GET['msg']) && ($_GET['msg'] != "")) {
 
 $dt_LS = 0; //sw para saber si vienen datos del SN. 0 no vienen. 1 si vienen.
 $sw_valDir = 0; //Validar si el nombre de la direccion cambio
-$TituloLlamada = ""; //Titulo por defecto cuando se está creando la llamada de servicio
+
+$TituloLlamada = "PLAN DE CONTROL DE PLAGAS"; // Titulo por defecto cuando se está creando la llamada de servicio
 
 $testMode = false; // SMM, 04/03/2022
 
@@ -504,11 +505,6 @@ if (isset($_POST['P']) && ($_POST['P'] == 33)) { //Actualizar llamada de servici
 
 if (isset($_POST['P']) && ($_POST['P'] == 40)) { //Reabrir llamada de servicio
 	try {
-		//$Parametros=array(
-		//            'id_documento' => intval(base64_decode($_POST['DocEntry'])),
-		//            'id_evento' => 0
-		//        );
-
 		$Parametros = "";
 
 		$Metodo = "LlamadasServicios/Reabrir/" . base64_decode($_POST['DocEntry']);
@@ -999,19 +995,32 @@ if (isset($sw_error) && ($sw_error == 1)) {
 			} else {
 				$('.ibox-content').toggleClass('sk-loading', false);
 			}
-			// TODO, filtrar los resultados por cliente y sucursal
-			/*
+
+			<?php if(PermitirFuncion(329)) { ?>
 			$.ajax({
 				type: "POST",
 				url: "ajx_cbo_select.php?type=11&id="+Cliente+"&suc="+Sucursal,
 				success: function(response){
-					$('#ArticuloLlamada').html(response).fadeIn();
-					$('#ArticuloLlamada').trigger('change');
+					$('#IdArticuloLlamada').html(response).fadeIn();
+					$('#IdArticuloLlamada').trigger('change');
+					
 					$('.ibox-content').toggleClass('sk-loading',false);
 				}
 			});
-			*/
-			// TODO, abajo en el buscar
+			<?php } ?>
+
+		/*
+		$("#TipoLlamada").change(function(){
+			$.ajax({
+				type: "POST",
+				url: "ajx_cbo_select.php?type=15&id="+document.getElementById('TipoLlamada').value,
+				success: function(response){
+					$('#TipoProblema').html(response).fadeIn();
+				}
+			});
+		});
+		*/
+
 			$.ajax({
 				url:"ajx_buscar_datos_json.php",
 				data:{
@@ -1735,8 +1744,9 @@ function AgregarEsto(contenedorID, valorElemento) {
 												</div>
 
 												<?php if (isset($row['IdEstadoLlamada']) && ($row['IdEstadoLlamada'] == '-1') && false) { ?>
-																<a href="#" class="btn btn-outline btn-primary" onClick="$('#modalCorreo').modal('show');"><i class="fa fa-envelope"></i> Enviar correo</a>
+													<a href="#" class="btn btn-outline btn-primary" onClick="$('#modalCorreo').modal('show');"><i class="fa fa-envelope"></i> Enviar correo</a>
 												<?php } ?>
+                                                
 												<a href="#" class="btn btn-outline btn-info" onClick="VerMapaRel('<?php echo base64_encode($row['ID_LlamadaServicio']); ?>','<?php echo base64_encode('191'); ?>');"><i class="fa fa-sitemap"></i> Mapa de relaciones</a>
 											</div>
 										<?php } else if (PermitirFuncion(508)) { ?>
@@ -1860,29 +1870,53 @@ function AgregarEsto(contenedorID, valorElemento) {
 								  } ?>">
 							</div>
 						</div>
+
 						<div class="form-group">
 							<div class="col-lg-8 border-bottom">
 								<label class="control-label text-danger">Información del servicio</label>
 							</div>
 						</div>
+						
 						<div class="form-group">
-							<div class="col-lg-8">
-								<label class="control-label"><i onClick="ConsultarArticulo();" title="Consultar ID Servicio" style="cursor: pointer" class="btn-xs btn-success fa fa-search"></i> ID servicio <span class="text-danger">*</span></label>
-								<input name="IdArticuloLlamada" type="hidden" id="IdArticuloLlamada" value="<?php if (($type_llmd == 1) || ($sw_error == 1)) {
-									echo $row['IdArticuloLlamada'];
-								} elseif ($dt_LS == 1 && isset($row_Articulo['ItemCode'])) {
-									echo $row_Articulo['ItemCode'];
-								} ?>">
+							<?php if(PermitirFuncion(329)) { ?>
+								<div class="col-lg-8">
+									<label class="control-label"><i onClick="ConsultarArticulo();" title="Consultar ID Servicio" style="cursor: pointer" class="btn-xs btn-success fa fa-search"></i> ID servicio <span class="text-danger">*</span></label>
+									<select name="IdArticuloLlamada" required class="form-control select2" id="IdArticuloLlamada" <?php if (($type_llmd == 1) && (!PermitirFuncion(302) || ($row['IdEstadoLlamada'] == '-1'))) {
+										echo "disabled";
+									} ?>>
+										<option value="">Seleccione...</option>
+										
+										<?php if (($type_llmd == 1) || ($sw_error == 1)) {
+											while ($row_Articulos = sqlsrv_fetch_array($SQL_Articulos)) { ?>
+												<option value="<?php echo $row_Articulos['ItemCode']; ?>" <?php if ((isset($row['IdArticuloLlamada'])) && (strcmp($row_Articulos['ItemCode'], $row['IdArticuloLlamada']) == 0)) {
+														echo "selected";
+													} ?>>
+													<?php echo $row_Articulos['ItemCode'] . " - " . $row_Articulos['ItemName'] . " (SERV: " . substr($row_Articulos['Servicios'], 0, 20) . " - ÁREA: " . substr($row_Articulos['Areas'], 0, 20) . ")"; ?>
+												</option>
+											<?php }
+										} ?>
+									</select>
+								</div>
+							<?php } else { ?>
+								<div class="col-lg-8">
+									<label class="control-label"><i onClick="ConsultarArticulo();" title="Consultar ID Servicio" style="cursor: pointer" class="btn-xs btn-success fa fa-search"></i> ID servicio <span class="text-danger">*</span></label>
+									<input name="IdArticuloLlamada" type="hidden" id="IdArticuloLlamada" value="<?php if (($type_llmd == 1) || ($sw_error == 1)) {
+										echo $row['IdArticuloLlamada'];
+									} elseif ($dt_LS == 1 && isset($row_Articulo['ItemCode'])) {
+										echo $row_Articulo['ItemCode'];
+									} ?>">
 
-								<!-- Descripción del Item -->
-								<input name="DeArticuloLlamada" type="text" required="required" class="form-control" id="DeArticuloLlamada" placeholder="Digite para buscar..."
-								<?php if (($type_llmd == 1) && (!PermitirFuncion(302) || ($row['IdEstadoLlamada'] == '-1'))) {
-									echo "disabled='disabled'";
-								} ?>
-								value="<?php if (($type_llmd == 1 || $sw_error == 1 || $dt_LS == 1) && isset($row_Articulo['ItemCode'])) {
-									echo $row_Articulo['ItemCode'] . " - " . $row_Articulo['ItemName'];
-								} ?>">
-							</div>
+									<!-- Descripción del Item -->
+									<input name="DeArticuloLlamada" type="text" required="required" class="form-control" id="DeArticuloLlamada" placeholder="Digite para buscar..."
+									<?php if (($type_llmd == 1) && (!PermitirFuncion(302) || ($row['IdEstadoLlamada'] == '-1'))) {
+										echo "disabled='disabled'";
+									} ?>
+									value="<?php if (($type_llmd == 1 || $sw_error == 1 || $dt_LS == 1) && isset($row_Articulo['ItemCode'])) {
+										echo $row_Articulo['ItemCode'] . " - " . $row_Articulo['ItemName'];
+									} ?>">
+								</div>
+							<?php } ?>
+							
 							<div class="col-lg-4">
 								<label class="control-label"><i onClick="ConsultarEquipo();" title="Consultar tarjeta de equipo" style="cursor: pointer" class="btn-xs btn-success fa fa-search"></i> Tarjeta de equipo</label>
 								<select name="NumeroSerie" class="form-control select2" id="NumeroSerie" <?php if (($type_llmd == 1) && (!PermitirFuncion(302) || ($row['IdEstadoLlamada'] == '-1'))) {
