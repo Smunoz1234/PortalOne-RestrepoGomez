@@ -189,8 +189,8 @@ function BuscarLote(){
 		var Almacen='<?php echo $Almacen; ?>';
 		var CardCode='<?php echo $CardCode; ?>';
 		var Lotes='<?php echo $Lotes; ?>'
-		if(Almacen!=""&&CardCode!=""&&Lotes>0){
-			remote=open('popup_lotes_sap.php?docentry=0&evento=0&whscode=<?php echo $Almacen; ?>&edit=<?php echo $type; ?>&usuario=<?php echo $Usuario; ?>&cardcode=<?php echo $CardCode; ?>&objtype=16&sentido=in','remote',"width=1200,height=500,location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=no,fullscreen=no,directories=no,status=yes,left="+posicion_x+",top="+posicion_y+"");
+		if(CardCode!=""&&Lotes>0){
+			remote=open('popup_lotes_sap.php?docentry=0&evento=0&edit=<?php echo $type; ?>&usuario=<?php echo $Usuario; ?>&cardcode=<?php echo $CardCode; ?>&objtype=16&sentido=in','remote',"width=1200,height=500,location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=no,fullscreen=no,directories=no,status=yes,left="+posicion_x+",top="+posicion_y+"");
 			remote.focus();
 		}
 	<?php } else { //Editando Devolucion de venta ?>
