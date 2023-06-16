@@ -111,9 +111,10 @@ if ($sw == 1) {
 	);
 	//  echo $NomSP;
 	//    print_r($Param);
+
 	$SQL = EjecutarSP($NomSP, $Param);
-	//    sqlsrv_next_result($SQL);
-	//    print_r($row);
+	//	sqlsrv_next_result($SQL);
+	//	print_r($row);
 
 	$SQL_Almacen = SeleccionarGroupBy('uvw_tbl_SeriesSucursalesAlmacenes', 'WhsCode, WhsName', "IdSucursal='" . $Sede . "' and IdTipoDocumento='17'", "WhsCode, WhsName", 'WhsName');
 	$SQL_AlmacenDestino = SeleccionarGroupBy('uvw_tbl_SeriesSucursalesAlmacenes', 'ToWhsCode, ToWhsName', "IdSucursal='" . $Sede . "' and IdTipoDocumento='67'", "ToWhsCode, ToWhsName", 'ToWhsName');
@@ -129,7 +130,7 @@ if ($sw == 1) {
 		"'" . $NombreEmpleado . "'",
 		"'" . $EstadoActividad . "'",
 		"'" . $SeriesOT . "'",
-		"'" . $_SESSION['CodUser'] . "'",
+		"'" . $_SESSION['CodUser'] . "'"
 	);
 
 	// Stiven Muñoz Murillo, 26/01/2022
@@ -137,6 +138,8 @@ if ($sw == 1) {
 		? "sp_ConsultarDespachoRutasOT_Resumen" : "sp_ConsultarDespachoRutas_Resumen";
 
 	$SQL_Res = EjecutarSP($NomSP_Resumen, $ParamRes);
+
+	//$SQL_Res=EjecutarSP('sp_ConsultarDespachoRutas_Resumen',$ParamRes);
 }
 ?>
 <!DOCTYPE html>
@@ -359,8 +362,8 @@ if ($sw == 1) {
 											<option value="">(Todos)</option>
 											<?php while ($row_Suc = sqlsrv_fetch_array($SQL_Suc)) { ?>
 												<option value="<?php echo $row_Suc['IdSucursal']; ?>" <?php if ((isset($_GET['Sede']) && ($_GET['Sede'] != "")) && (strcmp($row_Suc['IdSucursal'], $_GET['Sede']) == 0)) {
-													   echo "selected=\"selected\"";
-												   } ?>><?php echo $row_Suc['DeSucursal']; ?>
+													echo "selected=\"selected\"";
+												} ?>><?php echo $row_Suc['DeSucursal']; ?>
 												</option>
 											<?php } ?>
 										</select>
@@ -372,8 +375,10 @@ if ($sw == 1) {
 											<?php if (isset($_GET['Sede']) && ($_GET['Sede'] != "")) {
 												while ($row_SeriesOT = sqlsrv_fetch_array($SQL_SeriesOT)) { ?>
 													<option value="<?php echo $row_SeriesOT['IdSeries']; ?>" <?php if ((isset($_GET['SeriesOT'])) && (strcmp($row_SeriesOT['IdSeries'], $_GET['SeriesOT']) == 0)) {
-														   echo "selected=\"selected\"";
-													   } ?>><?php echo $row_SeriesOT['DeSeries']; ?></option>
+														echo "selected=\"selected\"";
+													} ?>>
+														<?php echo $row_SeriesOT['DeSeries']; ?>
+													</option>
 												<?php }
 											} ?>
 										</select>
@@ -401,8 +406,9 @@ if ($sw == 1) {
 											if ($sw == 1) {
 												while ($row_Almacen = sqlsrv_fetch_array($SQL_Almacen)) { ?>
 													<option value="<?php echo $row_Almacen['WhsCode']; ?>" <?php if ((isset($_GET['Almacen']) && ($_GET['Almacen']) != "") && (strcmp($row_Almacen['WhsCode'], $_GET['Almacen']) == 0)) {
-														   echo "selected=\"selected\"";
-													   } ?>><?php echo $row_Almacen['WhsName']; ?>
+														echo "selected=\"selected\"";
+													} ?>>
+														<?php echo $row_Almacen['WhsName']; ?>
 													</option>
 												<?php }
 											} ?>
@@ -417,9 +423,11 @@ if ($sw == 1) {
 												$j = 0;
 												while ($row_Recursos = sqlsrv_fetch_array($SQL_Recursos)) { ?>
 													<option value="<?php echo $row_Recursos['ID_Empleado']; ?>" <?php if ((isset($_GET['Recursos'][$j]) && ($_GET['Recursos'][$j]) != "") && (strcmp($row_Recursos['ID_Empleado'], $_GET['Recursos'][$j]) == 0)) {
-														   echo "selected=\"selected\"";
-														   $j++;
-													   } ?>><?php echo $row_Recursos['NombreEmpleado']; ?></option>
+														echo "selected=\"selected\"";
+														$j++;
+													} ?>>
+														<?php echo $row_Recursos['NombreEmpleado']; ?>
+													</option>
 												<?php }
 											} ?>
 										</select>
@@ -436,7 +444,8 @@ if ($sw == 1) {
 													<?php if ((isset($_GET['EstadoActividad'][$j])) && (strcmp($row_EstadoActividad['ID_TipoEstadoServicio'], $_GET['EstadoActividad'][$j]) == 0)) {
 														echo "selected=\"selected\"";
 													} ?>>
-													<?php echo $row_EstadoActividad['DE_TipoEstadoServicio']; ?></option>
+													<?php echo $row_EstadoActividad['DE_TipoEstadoServicio']; ?>
+												</option>
 											<?php } ?>
 										</select>
 									</div>
@@ -449,8 +458,10 @@ if ($sw == 1) {
 											if ($sw == 1) {
 												while ($row_AlmacenDestino = sqlsrv_fetch_array($SQL_AlmacenDestino)) { ?>
 													<option value="<?php echo $row_AlmacenDestino['ToWhsCode']; ?>" <?php if ((isset($_GET['AlmacenDestino']) && ($_GET['AlmacenDestino']) != "") && (strcmp($row_AlmacenDestino['ToWhsCode'], $_GET['AlmacenDestino']) == 0)) {
-														   echo "selected=\"selected\"";
-													   } ?>><?php echo $row_AlmacenDestino['ToWhsName']; ?></option>
+														echo "selected=\"selected\"";
+													} ?>>
+														<?php echo $row_AlmacenDestino['ToWhsName']; ?>
+													</option>
 												<?php }
 											} ?>
 										</select>
@@ -462,11 +473,14 @@ if ($sw == 1) {
 											<option value="1" <?php if (isset($_GET['TipoDespacho']) && ($_GET['TipoDespacho'] == "1")) {
 												echo "selected=\"selected\"";
 											} ?>>
-												Actividades</option>
+												Actividades
+											</option>
+											
 											<option value="2" <?php if (isset($_GET['TipoDespacho']) && ($_GET['TipoDespacho'] == "2")) {
 												echo "selected=\"selected\"";
-											} ?>>Llamadas
-												de servicios</option>
+											} ?>>
+												Llamadas de servicios
+											</option>
 										</select>
 									</div>
 								</div>
@@ -478,8 +492,10 @@ if ($sw == 1) {
 											<?php
 											while ($row_TipoLlamadas = sqlsrv_fetch_array($SQL_TipoLlamadas)) { ?>
 												<option value="<?php echo $row_TipoLlamadas['IdTipoLlamada']; ?>" <?php if ((isset($_GET['TipoLlamada'])) && (strcmp($row_TipoLlamadas['IdTipoLlamada'], $_GET['TipoLlamada']) == 0)) {
-													   echo "selected=\"selected\"";
-												   } ?>><?php echo $row_TipoLlamadas['DeTipoLlamada']; ?></option>
+													echo "selected=\"selected\"";
+												} ?>>
+													<?php echo $row_TipoLlamadas['DeTipoLlamada']; ?>
+												</option>
 											<?php } ?>
 										</select>
 									</div>
@@ -519,12 +535,15 @@ if ($sw == 1) {
 									<div class="ibox-content">
 										<div class="row m-b-md">
 											<div class="col-lg-12">
+												<a href="sapdownload.php?id=<?php echo base64_encode('18'); ?>&type=<?php echo base64_encode('2'); ?>&FechaInicial=<?php echo base64_encode(FormatoFecha($FechaInicial)); ?>&FechaFinal=<?php echo base64_encode(FormatoFecha($FechaFinal)); ?>&Sede=<?php echo base64_encode($Sede); ?>&Almacen=<?php echo base64_encode($Almacen); ?>&TipoLlamada=<?php echo base64_encode($TipoLlamada); ?>&Tecnicos=<?php echo base64_encode($NombreEmpleado); ?>"
+													target="_blank" class="btn btn-warning disabled"><i
+														class="fa fa-download"></i> Descargar rutas</a>
 												<button class="pull-right btn btn-danger disabled" id="btnImprimir"
 													name="btnImprimir" onClick="EnviarDatos();"><i
-														class="fa fa-file-pdf-o"></i> Exportar lista de ordenes</button>
+														class="fa fa-file-pdf-o"></i> Exportar rutas</button>
 												<button class="pull-right btn btn-success m-r-xs disabled" id="btnEntregas"
 													name="btnEntregas" onClick="ExportarEntregas();"><i
-														class="fa fa-file-pdf-o"></i> Exportar lista de articulos</button>
+														class="fa fa-file-pdf-o"></i> Exportar entregas</button>
 											</div>
 										</div>
 										<div class="table-responsive">
@@ -538,8 +557,8 @@ if ($sw == 1) {
 														<th>Cliente</th>
 														<th>Sucursal cliente</th>
 														<th>Fecha llamada</th>
-														<th>Estado llamada</th>
-														<th>Serial Interno</th>
+														<!-- th>Estado llamada</th -->
+														<!-- th>Serial Interno</th -->
 														<th>Fecha actividad</th>
 														<th>Estado actividad</th>
 														<th>Técnico</th>
@@ -575,12 +594,12 @@ if ($sw == 1) {
 															<td>
 																<?php echo $row['FechaCreacionLLamada']; ?>
 															</td>
-															<td>
-																<?php echo $row['DeEstadoLlamada']; ?>
-															</td>
-															<td>
-																<?php echo $row['SerialArticuloLlamada']; ?>
-															</td>
+															<!-- td>
+																<?php echo $row['DeEstadoLlamada'] ?? ""; ?>
+															</td -->
+															<!--td>
+																<?php echo $row['SerialArticuloLlamada'] ?? ""; ?>
+															</td -->
 															<td>
 																<?php echo is_object($row['FechaActividad']) ? $row['FechaActividad']->format('Y-m-d H:i') : $row['FechaActividad']; ?>
 															</td>
@@ -612,8 +631,9 @@ if ($sw == 1) {
 																</div>
 															</td>
 														</tr>
-														<?php $i++;
-													} ?>
+														
+														<?php $i++; ?>
+													<?php } ?>
 												</tbody>
 											</table>
 										</div>
@@ -704,8 +724,9 @@ if ($sw == 1) {
 														<?php echo $row_Res['DE_ItemType']; ?>
 													</td>
 												</tr>
-												<?php $i++;
-											} ?>
+
+												<?php $i++; ?>
+											<?php } ?>
 										</tbody>
 									</table>
 								</div>
