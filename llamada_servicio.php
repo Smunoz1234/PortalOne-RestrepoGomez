@@ -2535,7 +2535,7 @@ function AgregarEsto(contenedorID, valorElemento) {
 							</div>
 							<div class="form-group">
 								<label class="control-label">Correo de contacto <?php if (PermitirFuncion(324)) { ?><span class="text-danger">*</span><?php } ?></label>
-								<input <?php if (PermitirFuncion(324)) { ?> required <?php } ?> autocomplete="off" name="CDU_CorreoContacto" type="email" class="form-control" id="CDU_CorreoContacto" maxlength="100" <?php if (($type_llmd == 1) && (!PermitirFuncion(302) || ($row['IdEstadoLlamada'] == '-1'))) {
+								<input <?php if (PermitirFuncion(324)) { ?> required <?php } ?> autocomplete="off" name="CDU_CorreoContacto" type="text" class="form-control" id="CDU_CorreoContacto" maxlength="100" <?php if (($type_llmd == 1) && (!PermitirFuncion(302) || ($row['IdEstadoLlamada'] == '-1'))) {
 										   echo "readonly='readonly'";
 									   } ?> value="<?php if (($type_llmd == 1) || ($sw_error == 1)) {
 											 echo $row['CDU_CorreoContacto'];
