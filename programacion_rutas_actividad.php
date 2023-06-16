@@ -22,8 +22,14 @@ if ($type_act == 1) {
 $SQL_Actividades = Seleccionar('uvw_tbl_Actividades_Rutas', '*', $Where);
 $row = sql_fetch_array($SQL_Actividades);
 
-//Asunto actividad
-$SQL_AsuntoActividad = Seleccionar('uvw_Sap_tbl_AsuntosActividad', '*', "Id_TipoActividad=2", 'DE_AsuntoActividad');
+// Consultar Tipo Actividad desde los Parámetros Asistentes. SMM, 16/06/2023
+$Cons_TipoActividad = "SELECT dbo.FN_NDG_PARAMETRO_ASISTENTE('TipoActividad', 1) AS TipoActividad";
+$SQL_TipoActividad = sqlsrv_query($conexion, $Cons_TipoActividad);
+$row_TipoActividad = sqlsrv_fetch_array($SQL_TipoActividad);
+$Id_TipoActividad = $row_TipoActividad["TipoActividad"];
+
+// Asunto Actividad. SMM, 16/06/2023
+$SQL_AsuntoActividad = Seleccionar('uvw_Sap_tbl_AsuntosActividad', '*', "Id_TipoActividad=$Id_TipoActividad", 'DE_AsuntoActividad');
 
 //Empleados
 $SQL_EmpleadoActividad = Seleccionar('uvw_Sap_tbl_Empleados', '*', "IdUsuarioSAP=0", 'NombreEmpleado');
