@@ -22,7 +22,10 @@ if($sw==1){
 	$sw=1;
 }
 
+// SMM, 16/06/2023
+$SQL_Periodos = Seleccionar("tbl_Periodos", "*", "Estado = 'Y'", "Periodo"); 
 ?>
+
 <!DOCTYPE html>
 <html><!-- InstanceBegin template="/Templates/PlantillaPrincipal.dwt.php" codeOutsideHTMLIsLocked="false" -->
 
@@ -123,10 +126,9 @@ if($sw==1){
 							<label class="col-lg-1 control-label">Año <span class="text-danger">*</span></label>
 							<div class="col-lg-2">
 								<select name="Anno" required class="form-control" id="Anno">
-									<option value="2019" <?php if((isset($Anno))&&(strcmp(2019,$Anno)==0)){ echo "selected=\"selected\"";}?>>2019</option>
-									<option value="2020" <?php if((isset($Anno))&&(strcmp(2020,$Anno)==0)){ echo "selected=\"selected\"";}?>>2020</option>
-									<option value="2021" <?php if((isset($Anno))&&(strcmp(2021,$Anno)==0)){ echo "selected=\"selected\"";}?>>2021</option>
-									<option value="2022" <?php if((isset($Anno))&&(strcmp(2022,$Anno)==0)){ echo "selected=\"selected\"";}?>>2022</option>
+									<?php while ($row_Periodo = sqlsrv_fetch_array($SQL_Periodos)) {?>
+										<option value="<?php echo $row_Periodo['Periodo']; ?>" <?php if ((isset($Anno)) && (strcmp($row_Periodo['Periodo'], $Anno) == 0)) {echo "selected";}?>><?php echo $row_Periodo['Periodo']; ?></option>
+									<?php }?>
 								</select>
 							</div>
 							<div class="col-lg-1">

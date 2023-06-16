@@ -489,8 +489,8 @@ while ($row_TipoLlamadas = sqlsrv_fetch_array($SQL_TipoLlamadas)) {?>
 								</tr>
 								</thead>
 								<tbody>
-								<?php $i = 0;
-    while ($row = sql_fetch_array($SQL)) {?>
+								<?php $i = 0; ?>
+    							<?php while ($row = sqlsrv_fetch_array($SQL)) {?>
 									 <tr id="tr_<?php echo $i; ?>">
 										<td><a href="llamada_servicio.php?id=<?php echo base64_encode($row['ID_LlamadaServicio']); ?>&tl=1" target="_blank"><?php echo $row['DocNum']; ?></a></td>
 										<td><?php echo $row['NombreSerie']; ?></td>
@@ -562,8 +562,8 @@ while ($row_TipoLlamadas = sqlsrv_fetch_array($SQL_TipoLlamadas)) {?>
 						</tr>
 						</thead>
 						<tbody>
-						<?php $i = 1;
-    while ($row_Res = sql_fetch_array($SQL_Res)) {?>
+						<?php $i = 1; ?>
+    					<?php while ($row_Res = sqlsrv_fetch_array($SQL_Res)) {?>
 							<tr>
 								<td><?php echo $i; ?></td>
 								<td><?php echo $row_Res['ItemCode']; ?></td>

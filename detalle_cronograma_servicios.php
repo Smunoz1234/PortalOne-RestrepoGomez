@@ -511,7 +511,7 @@ $i++;}
 		$.ajax({
 			url:"ajx_buscar_datos_json.php",
 			data:{
-				type: 44,
+				type: 48,
 				id: ID
 			},
 			dataType:'json',
