@@ -1541,7 +1541,6 @@ if (isset($_GET['return'])) {
 				<input type="hidden" form="CrearOfertaVenta" id="d_LS" name="d_LS" value="<?php echo $dt_LS; ?>" />
 				<input type="hidden" form="CrearOfertaVenta" id="tl" name="tl" value="<?php echo $edit; ?>" />
 				<input type="hidden" form="CrearOfertaVenta" id="return" name="return" value="<?php echo base64_encode($return); ?>" />
-				<input type="hidden" form="CrearOfertaVenta" id="PrjCode" name="PrjCode" value="<?php if ($edit == 1) {echo $row['PrjCode'];}?>" />
 			  </form>
 		   </div>
 			</div>
