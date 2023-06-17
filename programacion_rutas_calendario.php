@@ -559,8 +559,8 @@ if ($sw == 1) {
 								}else{
 									$("#btnGuardar").prop('disabled', false);
 									$("#btnPendientes").prop('disabled', false);
-
-	//								info.event.setExtendedProp('id',response)
+									
+									// info.event.setExtendedProp('id',response)
 									info.event.setExtendedProp('estado','N')
 									info.event.setExtendedProp('llamadaServicio',info.draggedEl.dataset.docnum)
 									info.event.setExtendedProp('estadoLlamadaServ',info.draggedEl.dataset.estado)
@@ -569,7 +569,11 @@ if ($sw == 1) {
 
 									mostrarNotify('Se ha agregado una nueva actividad')
 								}
-	//							console.log(response)
+
+								// console.log(response);
+							},
+							error: function(error) {
+								console.log("Error:", error);
 							}
 						});
 					}else{
