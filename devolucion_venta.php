@@ -243,6 +243,7 @@ if (isset($_GET['dt_ET']) && ($_GET['dt_ET']) == 1) {
         "'" . base64_decode($_GET['Almacen']) . "'",
         "'" . base64_decode($_GET['Cardcode']) . "'",
         "'" . $_SESSION['CodUser'] . "'",
+		"'" . base64_decode($_GET['DocEntry']) . "'", // SMM, 16/06/2023
     );
     $SQL_CopiarEntregaToDevolucion = EjecutarSP('sp_tbl_EntregaVentaDet_To_DevolucionVentaDet', $ParametrosCopiarEntregaToDevolucion);
     if (!$SQL_CopiarEntregaToDevolucion) {
@@ -1129,7 +1130,7 @@ function ConsultarDatosCliente(){
 							<div class="btn-group">
 								<button data-toggle="dropdown" class="btn btn-outline btn-success dropdown-toggle"><i class="fa fa-download"></i> Descargar formato <i class="fa fa-caret-down"></i></button>
 								<ul class="dropdown-menu">
-									<?php $SQL_Formato = Seleccionar('uvw_tbl_FormatosSAP', '*', "ID_Objeto=16 AND (IdFormato='" . $row['IdSeries'] . "' OR DeSeries IS NULL) AND VerEnDocumento='Y' AND (EsBorrador='N' OR EsBorrador IS NULL)");?>
+									<?php $SQL_Formato = Seleccionar('uvw_tbl_FormatosSAP', '*', "ID_Objeto=16 AND (IdFormato='" . ($row['IdSeries'] ?? -1) . "') AND VerEnDocumento='Y' AND (EsBorrador='N' OR EsBorrador IS NULL)");?>
 									<?php while ($row_Formato = sqlsrv_fetch_array($SQL_Formato)) {?>
 										<li>
 											<a class="dropdown-item" target="_blank" href="sapdownload.php?id=<?php echo base64_encode('15'); ?>&type=<?php echo base64_encode('2'); ?>&DocKey=<?php echo base64_encode($row['DocEntry']); ?>&ObType=<?php echo base64_encode($row_Formato['ID_Objeto']); ?>&IdFrm=<?php echo base64_encode($row_Formato['IdFormato']); ?>"><?php echo $row_Formato['NombreVisualizar']; ?></a>
