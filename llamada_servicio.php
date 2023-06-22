@@ -505,7 +505,10 @@ if (isset($_POST['P']) && ($_POST['P'] == 33)) { //Actualizar llamada de servici
 
 if (isset($_POST['P']) && ($_POST['P'] == 40)) { //Reabrir llamada de servicio
 	try {
-		$Parametros = "";
+        $Parametros = array(
+            'docentry_llamada' => intval(base64_decode($_POST['DocEntry'])),
+            'usuario_actualizacion' => strtolower($_SESSION['User']),
+        );
 
 		$Metodo = "LlamadasServicios/Reabrir/" . base64_decode($_POST['DocEntry']);
 		$Resultado = EnviarWebServiceSAP($Metodo, $Parametros, true, true);
