@@ -55,7 +55,7 @@ $DuracionActividad = $row_DuracionActividad["DuracionActividad"] ?? 120;
 ?>
 
 <?php while ($row_OT = sqlsrv_fetch_array($SQL_OT)) {?>
-    <div class="card card-body mt-lg-3 bg-light border-primary <?php if ($row_OT['Validacion'] == "OK") {echo "item-drag";}?>" style="min-height: 14rem;" data-title="<?php echo $row_OT['Etiqueta'] ?? ""; ?>" data-docnum="<?php echo $row_OT['DocNum']; ?>" data-estado="<?php echo $row_OT['IdEstadoLlamada']; ?>" data-info="<?php echo $row_OT['DeTipoLlamada'] ?? ""; ?>" data-validacion="<?php echo $row_OT['Validacion']; ?>"
+    <div class="card card-body mt-lg-3 bg-light border-primary <?php if ($row_OT['Validacion'] == "OK") {echo "item-drag";}?>" style="min-height: 14rem;" data-title="<?php if(PermitirFuncion(330)) { echo $row_OT['Etiqueta_Automotriz'] ?? ""; } else { echo $row_OT['Etiqueta'] ?? ""; } ?>" data-docnum="<?php echo $row_OT['DocNum']; ?>" data-estado="<?php echo $row_OT['IdEstadoLlamada']; ?>" data-info="<?php echo $row_OT['DeTipoLlamada'] ?? ""; ?>" data-validacion="<?php echo $row_OT['Validacion']; ?>"
 	data-tiempo="<?php echo (isset($row_OT['CDU_TiempoTarea']) && ($row_OT['CDU_TiempoTarea'] != 0)) ? $row_OT['CDU_TiempoTarea'] : $DuracionActividad; ?>" data-comentario="<?php echo $row_OT['ComentarioLlamada'] ?? ""; ?>">
 
 		<h5 class="card-title"><a href="llamada_servicio.php?id=<?php echo base64_encode($row_OT['ID_LlamadaServicio']); ?>&tl=1" target="_blank" title="Consultar Llamada de servicio" class="btn-xs btn-success fas fa-search"></a> <?php echo $row_OT['DocNum']; ?></h5>
