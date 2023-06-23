@@ -205,15 +205,7 @@ function ConsultarCant(){
 						   <div class="form-group">
 							<label class="col-xs-12"><h3 class="bg-success p-xs b-r-sm"><i class="fa fa-filter"></i> Datos para filtrar</h3></label>
 						  </div>
-						<div class="form-group">							
-							<label class="col-lg-1 control-label">Fechas</label>
-							<div class="col-lg-3">
-								<div class="input-daterange input-group" id="datepicker">
-									<input name="FechaInicial" type="text" class="input-sm form-control" id="FechaInicial" placeholder="Fecha inicial" value="<?php echo $FechaInicial;?>" autocomplete="off"/>
-									<span class="input-group-addon">hasta</span>
-									<input name="FechaFinal" type="text" class="input-sm form-control" id="FechaFinal" placeholder="Fecha final" value="<?php echo $FechaFinal;?>" autocomplete="off" />
-								</div>
-							</div>
+						<div class="form-group">														
 							<label class="col-lg-1 control-label">Sede</label>
 							<div class="col-lg-3">
 								<select name="Sucursal" class="form-control" id="Sucursal" required>
@@ -223,8 +215,9 @@ function ConsultarCant(){
 									<?php }?>
 								</select>
 							</div>
+
 							<label class="col-lg-1 control-label">Serie OT</label>
-							<div class="col-lg-2">
+							<div class="col-lg-3">
 								<select name="SeriesOT" class="form-control" id="SeriesOT" required>
 										<option value="">Seleccione...</option>
 								  <?php if($sw==1){ 
@@ -233,7 +226,17 @@ function ConsultarCant(){
 								  <?php 	}
 										}?>
 								</select>
-							</div>							
+							</div>
+
+							<label class="col-lg-1 control-label">Método de aplicación</label>
+							<div class="col-lg-3">
+								<select name="MetodoAplicacion" class="form-control" id="MetodoAplicacion">
+									<option value="">(NINGUNO)</option>
+								  <?php	while($row_MetodoAplicacion=sqlsrv_fetch_array($SQL_MetodoAplicacion)){?>
+											<option value="<?php echo $row_MetodoAplicacion['IdMetodoAplicacion'];?>" <?php if(isset($_GET['MetodoAplicacion'])&&(strcmp($row_MetodoAplicacion['IdMetodoAplicacion'],$_GET['MetodoAplicacion'])==0)){ echo "selected=\"selected\"";}?>><?php echo $row_MetodoAplicacion['DeMetodoAplicacion'];?></option>
+									<?php }?>
+								</select>
+							</div>
 						</div>
 					 	<div class="form-group">
 							<label class="col-lg-1 control-label">Articulo</label>
@@ -247,7 +250,7 @@ function ConsultarCant(){
 								<input name="NombreArticuloCambiar" type="text" class="form-control" id="NombreArticuloCambiar" placeholder="Ingrese para buscar..." value="<?php if(isset($_GET['NombreArticuloCambiar'])&&($_GET['NombreArticuloCambiar']!="")){ echo $_GET['NombreArticuloCambiar'];}?>" required>
 							</div>
 							<label class="col-lg-1 control-label">Tipo transacción</label>
-							<div class="col-lg-2">
+							<div class="col-lg-3">
 								<select name="TipoTransaccion" class="form-control" id="TipoTransaccion">
 									<option value="0" <?php if((isset($_GET['TipoTransaccion']))&&($_GET['TipoTransaccion']==0)){ echo "selected=\"selected\"";}?>>Cambio de producto</option>
 									<option value="1" <?php if((isset($_GET['TipoTransaccion']))&&($_GET['TipoTransaccion']==1)){ echo "selected=\"selected\"";}?>>Eliminar producto</option>
@@ -256,16 +259,24 @@ function ConsultarCant(){
 							</div>
 						</div>
 					  	<div class="form-group">
-							<label class="col-lg-1 control-label">Método de aplicación</label>
+							<label class="col-lg-1 control-label">Fechas</label>
 							<div class="col-lg-3">
-								<select name="MetodoAplicacion" class="form-control select2" id="MetodoAplicacion">
-									<option value="">(NINGUNO)</option>
-								  <?php	while($row_MetodoAplicacion=sqlsrv_fetch_array($SQL_MetodoAplicacion)){?>
-											<option value="<?php echo $row_MetodoAplicacion['IdMetodoAplicacion'];?>" <?php if(isset($_GET['MetodoAplicacion'])&&(strcmp($row_MetodoAplicacion['IdMetodoAplicacion'],$_GET['MetodoAplicacion'])==0)){ echo "selected=\"selected\"";}?>><?php echo $row_MetodoAplicacion['DeMetodoAplicacion'];?></option>
-									<?php }?>
-								</select>
+								<div class="input-daterange input-group" id="datepicker">
+									<input name="FechaInicial" type="text" class="input-sm form-control" id="FechaInicial" placeholder="Fecha inicial" value="<?php echo $FechaInicial;?>" autocomplete="off"/>
+									<span class="input-group-addon">hasta</span>
+									<input name="FechaFinal" type="text" class="input-sm form-control" id="FechaFinal" placeholder="Fecha final" value="<?php echo $FechaFinal;?>" autocomplete="off" />
+								</div>
 							</div>
-							<div class="col-lg-8">
+							<div class="col-lg-1">
+								<button type="button" class="btn btn-sm btn-info btn-circle" data-toggle="tooltip" data-html="true"
+								title="LAS FECHAS CONSULTADAS SON DE LAS ACTIVIDADES ASIGNADAS A LAS LLAMADAS DE SERVICIO"><i class="fa fa-info"></i></button>
+							</div>
+							
+							<div class="col-lg-3">
+								<a href="parametros_dosificaciones.php" class="btn btn-primary pull-right" target="_blank"><i class="fa fa-external-link"></i> Ver parámetro de dosificación</a>
+							</div>
+
+							<div class="col-lg-4">
 								<button type="submit" class="btn btn-outline btn-success pull-right"><i class="fa fa-search"></i> Buscar</button>
 							</div>
 						</div>
@@ -379,6 +390,9 @@ function ConsultarCant(){
 <!-- InstanceBeginEditable name="EditRegion4" -->
  <script>
         $(document).ready(function(){
+			// SMM, 23/06/2023
+			$('[data-toggle="tooltip"]').tooltip();
+
 			$("#formBuscar").validate({
 			 submitHandler: function(form){
 				 $('.ibox-content').toggleClass('sk-loading');

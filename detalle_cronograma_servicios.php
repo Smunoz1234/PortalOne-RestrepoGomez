@@ -490,7 +490,7 @@ $i++;}
 
 				$.ajax({
 					type: "GET",
-					url: `includes/procedimientos.php?type=52&Metodo=2&Linea=${ID}&Cliente=<?php echo base64_decode($_GET['cardcode'] ?? ""); ?>&Sucursal=<?php echo base64_decode($_GET['idsucursal'] ?? ""); ?>&Periodo=<?php echo base64_decode($_GET['periodo'] ?? ""); ?>`,
+					url: `includes/procedimientos.php?type=66&Metodo=2&Linea=${ID}&Cliente=<?php echo base64_decode($_GET['cardcode'] ?? ""); ?>&Sucursal=<?php echo base64_decode($_GET['idsucursal'] ?? ""); ?>&Periodo=<?php echo base64_decode($_GET['periodo'] ?? ""); ?>`,
 					success: function(response) {
 						Swal.fire({
 							title: '¡Listo!',

@@ -392,7 +392,7 @@ function AgregarLMT(){
 
 				$.ajax({
 					type: "GET",
-					url: "includes/procedimientos.php?type=52&Metodo=1&Cliente=<?php echo $_GET['Cliente'] ?? ""; ?>&Sucursal=<?php echo $_GET['Sucursal'] ?? ""; ?>&Periodo=<?php echo $Anno ?? ""; ?>",
+					url: "includes/procedimientos.php?type=66&Metodo=1&Cliente=<?php echo $_GET['Cliente'] ?? ""; ?>&Sucursal=<?php echo $_GET['Sucursal'] ?? ""; ?>&Periodo=<?php echo $Anno ?? ""; ?>",
 					success: function(response) {
 						let frame = document.getElementById('DataGrid');
 						frame.src = "detalle_cronograma_servicios.php?cardcode=<?php echo base64_encode($_GET['Cliente'] ?? ""); ?>&idsucursal=<?php echo base64_encode($_GET['Sucursal'] ?? ""); ?>&periodo=<?php echo base64_encode($Anno ?? ""); ?>";
