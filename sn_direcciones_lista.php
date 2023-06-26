@@ -32,6 +32,7 @@ if($edit==0){//Creando
 </style>
 <script>
 function ConsultarDireccion(ID,tdir){
+	console.log("consultando dirección...");
 	$('.ibox-content', window.parent.document).toggleClass('sk-loading',true);
 	//var frame=window.parent.document.getElementById('frameCtcDetalle');
 	$.ajax({
@@ -40,7 +41,13 @@ function ConsultarDireccion(ID,tdir){
 		success: function(response){
 			$('#frameDirDetalle', window.parent.document).html(response);
 			//$('#CodigoPostal'+id).trigger('change');
-			$('.ibox-content', window.parent.document).toggleClass('sk-loading',false);
+
+			console.log("consulta de dirección éxitosa.");
+			// El cargando se quita desde el detalle. SMM, 26/06/2023
+			// $('.ibox-content', window.parent.document).toggleClass('sk-loading',false);
+		}, 
+		error: function(error) {
+			console.log("error:", error);
 		}
 	});
 	//frame.src="sn_contactos_detalle.php?edit=<?php echo base64_encode($edit);?>&id=<?php if($edit==1){echo base64_encode($id);}?>&cod="+btoa(ID);

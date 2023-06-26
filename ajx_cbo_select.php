@@ -74,6 +74,12 @@ if (!isset($_GET['type']) || ($_GET['type'] == "")) { //Saber que combo voy a co
             );
             $SQL = EjecutarSP('sp_ConsultarSucursalesClientes', $Parametros);
 
+            // SMM, 26/06/2023
+            $FiltrarSucursales = "";
+            if(isset($SQL) && (sqlsrv_num_rows($SQL) == 1)) {
+                $FiltrarSucursales = "selected";
+            }
+
             //$Cons="Select * From uvw_Sap_tbl_Clientes_Sucursales Where CodigoCliente='".$_GET['id']."' and TipoDireccion='".$type_dir."' Order by TipoDireccion, NombreSucursal";
             //$SQL=sqlsrv_query($conexion,$Cons);
 
@@ -87,7 +93,7 @@ if (!isset($_GET['type']) || ($_GET['type'] == "")) { //Saber que combo voy a co
                         echo "<optgroup label='Dirección de destino'></optgroup>";
                         $sw_dirS = 1;
                     }
-                    echo "<option value=\"" . $row['NombreSucursal'] . "\">" . $row['NombreSucursal'] . "</option>";
+                    echo "<option value=\"" . $row['NombreSucursal'] . "\" $FiltrarSucursales>" . $row['NombreSucursal'] . "</option>";
                 }
             } else {
                 echo "<option value=''>Seleccione...</option>";

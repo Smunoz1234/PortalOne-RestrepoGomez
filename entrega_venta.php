@@ -961,6 +961,10 @@ function verAutorizacion() {
 		});
 		// Actualizar almacen, llega hasta aquí.
 
+// SMM, 26/06/2023
+<?php if(($edit == 1) && ($row['Cod_Estado'] == 'C')) {?>
+	console.log("Se desactivo el evento onchange de las dimensiones dado que el documento esta cerrado.");
+<?php } else { ?>
 // Actualización de las dimensiones dinámicamente, SMM 22/08/2022
 <?php foreach ($array_Dimensiones as &$dim) {?>
 
@@ -1057,6 +1061,7 @@ function verAutorizacion() {
 
 <?php }?>
 // Actualización dinámica, llega hasta aquí.
+<?php } ?>
 
 		// Actualización del vendedor en las líneas, SMM 23/02/2022
 		$("#EmpleadoVentas").change(function() {

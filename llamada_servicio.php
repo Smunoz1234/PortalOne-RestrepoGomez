@@ -1866,7 +1866,7 @@ function AgregarEsto(contenedorID, valorElemento) {
 							</div>
 							<div class="col-lg-4">
 								<label class="control-label">Correo</label>
-								<input name="CorreoLlamada" type="email" class="form-control" id="CorreoLlamada" maxlength="100" <?php if (($type_llmd == 1) && (!PermitirFuncion(302) || ($row['IdEstadoLlamada'] == '-1'))) {
+								<input name="CorreoLlamada" type="text" class="form-control" id="CorreoLlamada" maxlength="100" <?php if (($type_llmd == 1) && (!PermitirFuncion(302) || ($row['IdEstadoLlamada'] == '-1'))) {
 									echo "readonly='readonly'";
 								} ?> value="<?php if (($type_llmd == 1) || ($sw_error == 1)) {
 									  echo $row['CorreoContactoLlamada'];

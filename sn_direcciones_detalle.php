@@ -292,6 +292,7 @@ function GuardarDatos(){
 }
 	
 function BuscarCiudad(save=true){
+	console.log("buscando ciudad...");
 	$('.ibox-content').toggleClass('sk-loading',true);
 	$.ajax({
 		type: "POST",
@@ -310,6 +311,7 @@ function BuscarCiudad(save=true){
 }
 	
 function BuscarCodigoPostal(){
+	console.log("buscando código postal...");
 	$('.ibox-content').toggleClass('sk-loading',true);
 	$.ajax({
 		type: "POST",
@@ -324,6 +326,7 @@ function BuscarCodigoPostal(){
 }
 
 function BuscarBarrio(){
+	console.log("buscando barrio...");
 	$('.ibox-content').toggleClass('sk-loading',true);
 	$.ajax({
 		type: "POST",
