@@ -598,7 +598,7 @@ function MostrarRet(){
 			// Cargar contactos del cliente.
 			$.ajax({
 				type: "POST",
-				url: "ajx_cbo_select.php?type=2&id="+carcode,
+				url: "ajx_cbo_select.php?type=2&id="+carcode+"&fe=1",
 				success: function(response){
 					$('#ContactoCliente').html(response).fadeIn();
 				},
