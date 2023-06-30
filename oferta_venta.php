@@ -386,8 +386,9 @@ if($edit == 0) {
 $SQL_CondicionPago = Seleccionar('uvw_Sap_tbl_CondicionPago', '*', '', 'IdCondicionPago');
 
 //Datos de dimensiones del usuario actual
-$SQL_DatosEmpleados = Seleccionar('uvw_Sap_tbl_Empleados', 'CentroCosto1,CentroCosto2,CentroCosto3', "ID_Empleado='" . $_SESSION['CodigoSAP'] . "'");
+$SQL_DatosEmpleados = Seleccionar('uvw_tbl_Usuarios', 'CentroCosto1,CentroCosto2,CentroCosto3', "ID_Usuario='" . $_SESSION['CodUser'] . "'");
 $row_DatosEmpleados = sqlsrv_fetch_array($SQL_DatosEmpleados);
+// print_r($row_DatosEmpleados);
 
 //Estado documento
 $SQL_EstadoDoc = Seleccionar('uvw_tbl_EstadoDocSAP', '*');
@@ -1351,7 +1352,8 @@ if ($edit == 1 || $sw_error == 1) {
 						<select id="PrjCode" name="PrjCode" class="form-control select2" required="required" <?php if (($edit == 1) && ($row['Cod_Estado'] == 'C')) {echo "disabled='disabled'";}?>>
 								<option value="">(NINGUNO)</option>
 							<?php while ($row_Proyecto = sqlsrv_fetch_array($SQL_Proyecto)) {?>
-								<option value="<?php echo $row_Proyecto['IdProyecto']; ?>" <?php if ((isset($row['PrjCode'])) && (strcmp($row_Proyecto['IdProyecto'], $row['PrjCode']) == 0)) {echo "selected=\"selected\"";} elseif ((isset($_GET['Proyecto'])) && (strcmp($row_Proyecto['IdProyecto'], base64_decode($_GET['Proyecto'])) == 0)) {echo "selected=\"selected\"";}?>>
+								<option value="<?php echo $row_Proyecto['IdProyecto']; ?>" <?php if ((isset($row['PrjCode'])) && (strcmp($row_Proyecto['IdProyecto'], $row['PrjCode']) == 0)) {echo "selected=\"selected\"";} elseif ((isset($_GET['Proyecto'])) && (strcmp($row_Proyecto['IdProyecto'], base64_decode($_GET['Proyecto'])) == 0)) {echo "selected=\"selected\"";}
+								elseif($FiltroPrj == $row_Proyecto['IdProyecto']) { echo "selected"; } ?>>
 									<?php echo $row_Proyecto['DeProyecto']; ?>
 								</option>
 							<?php }?>

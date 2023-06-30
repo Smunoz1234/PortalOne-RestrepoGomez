@@ -456,8 +456,8 @@ if ($sw_error == 1) {
 //Condiciones de pago
 $SQL_CondicionPago = Seleccionar('uvw_Sap_tbl_CondicionPago', '*', '', 'IdCondicionPago');
 
-//Datos de dimensiones del usuario actual. Modificado, 20/02/2023
-$SQL_DatosEmpleados = Seleccionar('uvw_tbl_Usuarios', 'CentroCosto1,CentroCosto2,AlmacenOrigen,AlmacenDestino', "ID_Usuario='" . $_SESSION['CodUser'] . "'");
+//Datos de dimensiones del usuario actual.
+$SQL_DatosEmpleados = Seleccionar('uvw_tbl_Usuarios', '*', "ID_Usuario='" . $_SESSION['CodUser'] . "'");
 $row_DatosEmpleados = sqlsrv_fetch_array($SQL_DatosEmpleados);
 
 //Empleados
@@ -1775,7 +1775,8 @@ function verAutorizacion() {
 											echo "selected=\"selected\"";
 										} elseif (isset($_GET[strval($dim['IdPortalOne'])]) && (strcmp($row_Dim['OcrCode'], base64_decode($_GET[strval($dim['IdPortalOne'])])) == 0)) {
 											echo "selected=\"selected\"";
-										} ?>>
+										}
+										elseif(($edit == 0) && ($row_DatosEmpleados["CentroCosto$DimCode"] == $row_Dim['OcrCode'])) { echo "selected"; } ?>>
 											<?php echo $row_Dim['OcrCode'] . "-" . $row_Dim['OcrName']; ?>
 										</option>
 								<?php } ?>

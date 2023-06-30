@@ -133,8 +133,8 @@ if ($edit == 1) { //Editar articulo
 	//Datos de inventario
 	$SQL_DtInvent = Seleccionar('uvw_Sap_tbl_Articulos', '*', "ItemCode='" . $IdItemCode . "'");
 
-	//Lista de precios
-	$SQL_ListaPrecio = Seleccionar('uvw_Sap_tbl_ListaPrecioArticulos', '*', "ItemCode='" . $IdItemCode . "'");
+	//Lista de precios. SMM, 27/04/2023
+	$SQL_ListaPrecio = Seleccionar('uvw_Sap_tbl_ListaPrecioArticulos', '*', "ItemCode='$IdItemCode'  AND Price > 0");
 
 	//Anexos
 	$SQL_AnexoArticulos = Seleccionar('uvw_Sap_tbl_DocumentosSAP_Anexos', '*', "AbsEntry='" . $row['IdAnexoArticulo'] . "'");
@@ -152,9 +152,8 @@ if ($sw_error == 1) { //Si ocurre un error
 	//Datos de inventario
 	$SQL_DtInvent = Seleccionar('uvw_Sap_tbl_Articulos', '*', "ItemCode='" . $IdItemCode . "'");
 
-	//Lista de precios
-	$SQL_ListaPrecio = Seleccionar('uvw_Sap_tbl_ListaPrecioArticulos', '*', "ItemCode='" . $IdItemCode . "'");
-
+	//Lista de precios. SMM, 27/04/2023
+	$SQL_ListaPrecio = Seleccionar('uvw_Sap_tbl_ListaPrecioArticulos', '*', "ItemCode='$IdItemCode' AND Price > 0");
 }
 
 //Estado articulo
@@ -499,21 +498,10 @@ $SQL_CapaPasajeros = Seleccionar('uvw_Sap_tbl_Articulos_CapaPasajerosVehiculo', 
 															readonly>
 													</div>
 													<!-- 08/03/2022 -->
-
-													<!-- SMM -->
-													<label class="col-lg-1 control-label">Método apllicación</label>
-													<div class="col-lg-3">
-														<input type="text" class="form-control" name="CDU_MetodoAplicacion"
-															id="CDU_MetodoAplicacion"
-															value="<?php if ($edit == 1) {
-																echo $row['CDU_MetodoAplicacion'] ?? "";
-															} ?>"
-															readonly>
-													</div>
-													<!-- 24/06/2023 -->
 												</div>
 											</div>
 										</div>
+
 										<div class="ibox">
 											<div class="ibox-title bg-success">
 												<h5 class="collapse-link"><i class="fa fa-money"></i> Lista de precios
@@ -562,6 +550,7 @@ $SQL_CapaPasajeros = Seleccionar('uvw_Sap_tbl_Articulos_CapaPasajerosVehiculo', 
 												</div>
 											</div>
 										</div>
+
 										<!-- INICIO, información del vehículo -->
 										<div class="ibox">
 											<div class="ibox-title bg-success">
@@ -574,8 +563,10 @@ $SQL_CapaPasajeros = Seleccionar('uvw_Sap_tbl_Articulos_CapaPasajerosVehiculo', 
 											<div class="ibox-content">
 												<div class="form-group">
 													<div class="col-lg-4">
-														<label class="control-label">Marca del vehículo</label>
-														<select name="CDU_IdMarca" class="form-control select2"id="CDU_IdMarca">
+														<label class="control-label">Marca del vehículo <span
+																class="text-danger">*</span></label>
+														<select name="CDU_IdMarca" class="form-control select2"
+															required="required" id="CDU_IdMarca">
 															<option value="" disabled selected disabled selected>
 																Seleccione...</option>
 															<?php while ($row_MarcaVehiculo = sqlsrv_fetch_array($SQL_MarcaVehiculo)) { ?>
@@ -590,16 +581,18 @@ $SQL_CapaPasajeros = Seleccionar('uvw_Sap_tbl_Articulos_CapaPasajerosVehiculo', 
 														</select>
 													</div>
 													<div class="col-lg-4">
-														<label class="control-label">Línea del vehículo</label>
-														<select name="CDU_Linea" class="form-control select2" id="CDU_Linea">
+														<label class="control-label">Línea del vehículo <span
+																class="text-danger">*</span></label>
+														<select name="CDU_Linea" class="form-control select2"
+															required="required" id="CDU_Linea">
 															<option value="" disabled selected>Seleccione...</option>
 															<?php while ($row_LineaVehiculo = sqlsrv_fetch_array($SQL_LineaVehiculo)) { ?>
 																<option
-																	value="<?php echo $row_LineaVehiculo['LineaModeloVehiculo']; //['Codigo'];    ?>"
+																	value="<?php echo $row_LineaVehiculo['LineaModeloVehiculo']; //['Codigo'];     ?>"
 																	<?php if ((isset($row['CDU_Linea'])) && (strcmp($row_LineaVehiculo['LineaModeloVehiculo'], $row['CDU_Linea']) == 0)) {
 																		echo "selected=\"selected\"";
 																	} ?>>
-																	<?php echo $row_LineaVehiculo['LineaModeloVehiculo']; //. " - " . $row_LineaVehiculo['MarcaVehiculo'];    ?>
+																	<?php echo $row_LineaVehiculo['LineaModeloVehiculo']; //. " - " . $row_LineaVehiculo['MarcaVehiculo'];     ?>
 																</option>
 															<?php } ?>
 														</select>
@@ -694,7 +687,7 @@ $SQL_CapaPasajeros = Seleccionar('uvw_Sap_tbl_Articulos_CapaPasajerosVehiculo', 
 														</select>
 													</div>
 												</div>
-											</div>
+											</div> <!-- ibox-content -->
 										</div>
 										<!-- FIN, información del vehículo -->
 
