@@ -181,7 +181,7 @@ if ($sw == 1) {
 				$('.ibox-content').toggleClass('sk-loading', true);
 				$.ajax({
 					type: "POST",
-					url: "ajx_cbo_select.php?type=26&id=" + document.getElementById('Sede').value + "&tdoc=191",
+					url: "ajx_cbo_select.php?type=26&id=" + document.getElementById('Sede').value + "&tdoc=191&todos=1",
 					success: function (response) {
 						$('#SeriesOT').html(response).fadeIn();
 						$('.ibox-content').toggleClass('sk-loading', false);
