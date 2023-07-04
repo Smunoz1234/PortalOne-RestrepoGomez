@@ -623,7 +623,7 @@ $cadena = isset($row) ? "JSON.parse('$row_encode'.replace(/\\n|\\r/g, ''))" : "'
 											<option value="">Seleccione...</option>
 											<?php
 											while ($row_Plantilla = sqlsrv_fetch_array($SQL_Plantilla)) { ?>
-												<option value="<?php echo $row_Plantilla['CodigoPlantilla']; ?>" <?php if (strcmp($row_Plantilla['CodigoPlantilla'], $row['CDU_CodPlantilla']) == 0) {
+												<option value="<?php echo $row_Plantilla['CodigoPlantilla']; ?>" <?php if (isset($row['CDU_CodPlantilla']) && ($row_Plantilla['CodigoPlantilla'] == $row['CDU_CodPlantilla'])) {
 													   echo "selected=\"selected\"";
 												   } ?>><?php echo $row_Plantilla['CodigoPlantilla'] . " - " . $row_Plantilla['Descripcion']; ?></option>
 											<?php } ?>
