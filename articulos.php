@@ -11,6 +11,7 @@ $sw_error = 0; //Sw para saber si ha ocurrido un error al crear o actualizar un 
 $Posicion = "";
 $OLT = "";
 
+$IdItemCode = "";
 if (isset($_GET['id']) && ($_GET['id'] != "")) {
 	$IdItemCode = base64_decode($_GET['id']);
 }
@@ -133,9 +134,6 @@ if ($edit == 1) { //Editar articulo
 	//Datos de inventario
 	$SQL_DtInvent = Seleccionar('uvw_Sap_tbl_Articulos', '*', "ItemCode='" . $IdItemCode . "'");
 
-	//Lista de precios. SMM, 27/04/2023
-	$SQL_ListaPrecio = Seleccionar('uvw_Sap_tbl_ListaPrecioArticulos', '*', "ItemCode='$IdItemCode'  AND Price > 0");
-
 	//Anexos
 	$SQL_AnexoArticulos = Seleccionar('uvw_Sap_tbl_DocumentosSAP_Anexos', '*', "AbsEntry='" . $row['IdAnexoArticulo'] . "'");
 
@@ -151,10 +149,10 @@ if ($sw_error == 1) { //Si ocurre un error
 
 	//Datos de inventario
 	$SQL_DtInvent = Seleccionar('uvw_Sap_tbl_Articulos', '*', "ItemCode='" . $IdItemCode . "'");
-
-	//Lista de precios. SMM, 27/04/2023
-	$SQL_ListaPrecio = Seleccionar('uvw_Sap_tbl_ListaPrecioArticulos', '*', "ItemCode='$IdItemCode' AND Price > 0");
 }
+
+// Lista de precios. SMM, 30/06/2023
+$SQL_ListaPrecio = Seleccionar('uvw_Sap_tbl_ListaPrecioArticulos', '*', "ItemCode='$IdItemCode'  AND Price > 0");
 
 //Estado articulo
 $SQL_EstadoArticulo = Seleccionar('uvw_tbl_EstadoArticulo', '*');
