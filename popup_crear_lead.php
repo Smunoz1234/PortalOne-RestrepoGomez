@@ -474,7 +474,7 @@ while ($row_GruposClientes = sqlsrv_fetch_array($SQL_GruposClientes)) {?>
 										</select>
 									</div>
 								</div>
-								<div class="form-group">
+								<div class="form-group" style="visibility: hidden;">
 									<label class="col-lg-1 control-label">Proyecto</label>
 									<div class="col-lg-3">
 										<label class="checkbox-inline i-checks"><input name="CrearProyecto" id="CrearProyecto" type="checkbox" value="Y"> Crear el proyecto para este cliente</label>

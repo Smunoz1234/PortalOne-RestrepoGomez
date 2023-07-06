@@ -77,43 +77,45 @@ if (isset($_POST['P']) && ($_POST['P'] != "")) { //Grabar lista de materiales
 			$IdEvento = base64_decode($_POST['IdEvento']);
 
 			//Consultar cabecera
-			$SQL_json = Seleccionar("tbl_ListaMateriales", '*', "ItemCode='" . $ItemCode . "' and IdEvento='" . $IdEvento . "'");
+			$SQL_json = Seleccionar("tbl_ListaMateriales", '*', "ItemCode='$ItemCode' AND IdEvento='$IdEvento'");
 			$row_json = sqlsrv_fetch_array($SQL_json);
 
 			//Consultar detalle
-			$SQL_det = Seleccionar("tbl_ListaMaterialesDetalle", '*', "Father='" . $ItemCode . "' and IdEvento='" . $IdEvento . "'", 'ChildNum');
+			$SQL_det = Seleccionar("tbl_ListaMaterialesDetalle", '*', "Father='$ItemCode' AND IdEvento='$IdEvento' AND Metodo<>3", 'ChildNum');
 
 			$Detalle = array();
 
 			while ($row_det = sqlsrv_fetch_array($SQL_det)) {
 
-				array_push($Detalle, array(
-					"id_lista_material" => $row_det['Father'],
-					"id_linea" => intval($row_det['ChildNum']),
-					"id_linea_visual_order" => intval($row_det['VisOrder']),
-					"id_articulo" => $row_det['ItemCode'],
-					"tipo_linea" => "" . $row_det['Type'] . "",
-					"cant_articulo" => number_format($row_det['Cantidad'], 2),
-					"id_bodega" => $row_det['WhsCode'],
-					"precio_articulo" => intval($row_det['Precio']),
-					"und_medida" => $row_det['UndMedida'],
-					"metodo_emision" => $row_det['MetodoEmision'],
-					"comentarios" => null,
-					"id_lista_precio" => intval($row_det['IdListaPrecio']),
-					"dim1" => $row_det['OcrCode'],
-					"dim2" => $row_det['OcrCode2'],
-					"dim3" => $row_det['OcrCode3'],
-					"dim4" => null,
-					"dim5" => null,
-					"id_proyecto" => $row_det['IdProyecto'],
-					"CDU_id_servicio" => $row_det['CDU_IdServicio'],
-					"CDU_id_metodo_aplicacion" => $row_det['CDU_IdMetodoAplicacion'],
-					"CDU_id_tipo_plagas" => $row_det['CDU_IdTipoPlagas'],
-					"CDU_areas_controladas" => $row_det['CDU_AreasControladas'],
-					"CDU_cant_litros" => intval($row_det['CDU_CantLitros']),
-					"metodo_linea" => intval($row_det['Metodo']),
-					"metodo" => intval($row_json['Metodo']),
-				)
+				array_push(
+					$Detalle,
+					array(
+						"id_lista_material" => $row_det['Father'],
+						"id_linea" => intval($row_det['ChildNum']),
+						"id_linea_visual_order" => intval($row_det['VisOrder']),
+						"id_articulo" => $row_det['ItemCode'],
+						"tipo_linea" => "" . $row_det['Type'] . "",
+						"cant_articulo" => number_format($row_det['Cantidad'], 2),
+						"id_bodega" => $row_det['WhsCode'],
+						"precio_articulo" => intval($row_det['Precio']),
+						"und_medida" => $row_det['UndMedida'],
+						"metodo_emision" => $row_det['MetodoEmision'],
+						"comentarios" => null,
+						"id_lista_precio" => intval($row_det['IdListaPrecio']),
+						"dim1" => $row_det['OcrCode'],
+						"dim2" => $row_det['OcrCode2'],
+						"dim3" => $row_det['OcrCode3'],
+						"dim4" => null,
+						"dim5" => null,
+						"id_proyecto" => $row_det['IdProyecto'],
+						"CDU_id_servicio" => $row_det['CDU_IdServicio'],
+						"CDU_id_metodo_aplicacion" => $row_det['CDU_IdMetodoAplicacion'],
+						"CDU_id_tipo_plagas" => $row_det['CDU_IdTipoPlagas'],
+						"CDU_areas_controladas" => $row_det['CDU_AreasControladas'],
+						"CDU_cant_litros" => intval($row_det['CDU_CantLitros']),
+						"metodo_linea" => intval($row_det['Metodo']),
+						"metodo" => intval($row_json['Metodo']),
+					)
 				);
 			}
 
@@ -122,45 +124,58 @@ if (isset($_POST['P']) && ($_POST['P'] != "")) { //Grabar lista de materiales
 				"lista_material" => strtoupper($row_json['ItemName']),
 				"tipo_lista_material" => $row_json['TipoListaMat'],
 				"cantidad" => number_format($row_json['Cantidad'], 2),
+				"cantidad_prom_produccion" => intval($row_json['TamProduccion']),
+				"id_lista_precio" => intval($row_json['IdListaPrecio']),
 				"dim1" => $row_json['OcrCode'],
 				"dim2" => $row_json['OcrCode2'],
 				"dim3" => $row_json['OcrCode3'],
 				"dim4" => "",
 				"dim5" => "",
 				"id_proyecto" => $row_json['IdProyecto'],
-				"id_lista_precio" => intval($row_json['IdListaPrecio']),
 				"id_bodega" => $row_json['ToWH'],
-				"cantidad_prom_produccion" => intval($row_json['TamProduccion']),
 				"CDU_id_socio_negocio" => $row_json['CDU_CodigoCliente'],
 				"CDU_socio_negocio" => $row_json['CDU_NombreCliente'],
 				"CDU_id_consecutivo_direccion" => intval($row_json['CDU_IdSucursalCliente']),
 				"CDU_id_direccion_destino" => $row_json['CDU_SucursalCliente'],
 				"CDU_servicios" => $row_json['CDU_Servicios'],
 				"CDU_areas" => $row_json['CDU_Areas'],
-				"id_plantilla_actividad" => $row_json['CDU_CodPlantilla'],
-				"id_oportunidad_venta" => "",
 				"id_documento" => "",
-				"usuario_actualizacion" => $_SESSION['User'],
-				"fecha_actualizacion" => ($row_json['FechaActualizacion']->format('Y-m-d') . "T" . $row_json['FechaActualizacion']->format('H:i:s')),
-				"hora_actualizacion" => ($row_json['FechaActualizacion']->format('Y-m-d') . "T" . $row_json['FechaActualizacion']->format('H:i:s')),
-				"seg_actualizacion" => intval($row_json['FechaActualizacion']->format('s')),
+				"id_oportunidad_venta" => "",
+				"id_plantilla_actividad" => $row_json['CDU_CodPlantilla'],
 				"metodo" => intval($row_json['Metodo']),
 				"CDU_tiempo_tarea" => intval($row_json['CDU_TiempoTarea']),
-				// SMM 01/02/2022
+				"CDU_metodo_aplicacion" => $row_json['CDU_MetodoAplicacion'],
 				"lista_material_lineas" => $Detalle,
 			);
 
-			//            $Cabecera_json=json_encode($Cabecera);
-			//            echo $Cabecera_json;
-			//            exit();
+			$Cabecera_json=json_encode($Cabecera);
+			// echo $Cabecera_json;
+			// exit();
+
+			// SMM, 05/07/2023
+			$usuario = $_SESSION['User'];
+			$fechaCrea = ($row_json['FechaRegistro']->format('Y-m-d') . "T" . $row_json['FechaRegistro']->format('H:i:s'));
+			$horaCrea = ($row_json['FechaRegistro']->format('Y-m-d') . "T" . $row_json['FechaRegistro']->format('H:i:s'));
+			$fechaAct = ($row_json['FechaActualizacion']->format('Y-m-d') . "T" . $row_json['FechaActualizacion']->format('H:i:s'));
+			$horaAct = ($row_json['FechaActualizacion']->format('Y-m-d') . "T" . $row_json['FechaActualizacion']->format('H:i:s'));
+			$segundoAct = intval($row_json['FechaActualizacion']->format('s'));
 
 			//Enviar datos al WebServices
 			try {
 				if ($_POST['tl'] == 0) { //Creando
+					$Cabecera["usuario_creacion"] = $usuario;
+					$Cabecera["fecha_creacion"] = $fechaCrea;
+					$Cabecera["hora_creacion"] = $horaCrea;
+
 					$Metodo = "ListasMateriales";
 					$Resultado = EnviarWebServiceSAP($Metodo, $Cabecera, true, true);
 				} else { //Editando
-					$Metodo = "ListasMateriales/" . $ItemCode;
+					$Cabecera["usuario_actualizacion"] = $usuario;
+					$Cabecera["fecha_actualizacion"] = $fechaAct;
+					$Cabecera["hora_actualizacion"] = $horaAct;
+					$Cabecera["seg_actualizacion"] = $segundoAct;
+
+					$Metodo = "ListasMateriales/$ItemCode";
 					$Resultado = EnviarWebServiceSAP($Metodo, $Cabecera, true, true, "PUT");
 				}
 
@@ -169,6 +184,7 @@ if (isset($_POST['P']) && ($_POST['P'] != "")) { //Grabar lista de materiales
 					$msg_error = $Resultado->Mensaje;
 					$Cabecera_json = json_encode($Cabecera);
 				} else {
+					$sw_error = 0; // SMM, 06/07/2023
 					$Msg = ($_POST['tl'] == 1) ? "OK_LMTUpd" : "OK_LMTAdd";
 					//sqlsrv_close($conexion);
 					//header('Location:lista_materiales.php?id='.base64_encode($ItemCode).'&tl=1&a='.base64_encode($Msg));
@@ -469,31 +485,25 @@ $cadena = isset($row) ? "JSON.parse('$row_encode'.replace(/\\n|\\r/g, ''))" : "'
 									<label class="col-lg-1 control-label">Código <span
 											class="text-danger">*</span></label>
 									<div class="col-lg-3">
-										<input type="text" name="ItemCode" id="ItemCode" class="form-control"
-											value="<?php if ($edit == 1 || $sw_error == 1) {
-												echo $row['ItemCode'];
-											} ?>"
-											<?php if ($edit == 1) {
-												echo "readonly";
-											} ?> required>
+										<input type="text" name="ItemCode" id="ItemCode" class="form-control" value="<?php if ($edit == 1 || $sw_error == 1) {
+											echo $row['ItemCode'];
+										} ?>" <?php if ($edit == 1) {
+											 echo "readonly";
+										 } ?> required>
 									</div>
 									<label class="col-lg-1 control-label">Descripción <span
 											class="text-danger">*</span></label>
 									<div class="col-lg-3">
-										<input type="text" name="ItemName" id="ItemName" class="form-control"
-											value="<?php if ($edit == 1 || $sw_error == 1) {
-												echo $row['ItemName'];
-											} ?>"
-											required>
+										<input type="text" name="ItemName" id="ItemName" class="form-control" value="<?php if ($edit == 1 || $sw_error == 1) {
+											echo $row['ItemName'];
+										} ?>" required>
 									</div>
 									<label class="col-lg-1 control-label">Cantidad <span
 											class="text-danger">*</span></label>
 									<div class="col-lg-3">
-										<input type="text" name="Cantidad" id="Cantidad" class="form-control"
-											value="<?php if ($edit == 1 || $sw_error == 1) {
-												echo number_format($row['Cantidad'], 2);
-											} ?>"
-											required>
+										<input type="text" name="Cantidad" id="Cantidad" class="form-control" value="<?php if ($edit == 1 || $sw_error == 1) {
+											echo number_format($row['Cantidad'], 2);
+										} ?>" required>
 									</div>
 								</div>
 								<div class="form-group">
@@ -587,16 +597,13 @@ $cadena = isset($row) ? "JSON.parse('$row_encode'.replace(/\\n|\\r/g, ''))" : "'
 									<label class="col-lg-1 control-label">Cliente <span
 											class="text-danger">*</span></label>
 									<div class="col-lg-3">
-										<input name="Cliente" type="hidden" id="Cliente"
-											value="<?php if (($edit == 1) || ($sw_error == 1)) {
-												echo $row['CDU_CodigoCliente'];
-											} ?>">
+										<input name="Cliente" type="hidden" id="Cliente" value="<?php if (($edit == 1) || ($sw_error == 1)) {
+											echo $row['CDU_CodigoCliente'];
+										} ?>">
 										<input name="NombreCliente" type="text" class="form-control" id="NombreCliente"
-											placeholder="Escribar para buscar..."
-											value="<?php if (($edit == 1) || ($sw_error == 1)) {
+											placeholder="Escribar para buscar..." value="<?php if (($edit == 1) || ($sw_error == 1)) {
 												echo $row['CDU_NombreCliente'];
-											} ?>"
-											required>
+											} ?>" required>
 									</div>
 									<label class="col-lg-1 control-label">Sucursal cliente <span
 											class="text-danger">*</span></label>
@@ -650,8 +657,7 @@ $cadena = isset($row) ? "JSON.parse('$row_encode'.replace(/\\n|\\r/g, ''))" : "'
 									<label class="col-lg-1 control-label">Método Aplicación</label>
 									<div class="col-lg-3">
 										<textarea name="CDU_MetodoAplicacion" rows="5" class="form-control"
-											id="CDU_MetodoAplicacion"
-											type="text"><?php if (($edit == 1) || ($sw_error == 1)) {
+											id="CDU_MetodoAplicacion" type="text"><?php if (($edit == 1) || ($sw_error == 1)) {
 												echo $row_Sap['CDU_MetodoAplicacion'] ?? "";
 											} ?></textarea>
 									</div>
@@ -691,8 +697,7 @@ $cadena = isset($row) ? "JSON.parse('$row_encode'.replace(/\\n|\\r/g, ''))" : "'
 											class="text-danger">*</span></label>
 									<div class="col-lg-3">
 										<input name="CDU_TiempoTarea" type="number" class="form-control"
-											id="CDU_TiempoTarea" required="required"
-											value="<?php if (($edit == 1) || ($sw_error == 1)) {
+											id="CDU_TiempoTarea" required="required" value="<?php if (($edit == 1) || ($sw_error == 1)) {
 												echo $row_Sap['CDU_TiempoTarea'] ?? '';
 											} ?>">
 									</div>
@@ -726,8 +731,7 @@ $cadena = isset($row) ? "JSON.parse('$row_encode'.replace(/\\n|\\r/g, ''))" : "'
 									<div class="tab-content">
 										<div id="tab-1" class="tab-pane active">
 											<iframe id="DataGrid" name="DataGrid" style="border: 0;" width="100%"
-												height="300"
-												src="<?php if ($edit == 0 && $sw_error == 0) {
+												height="300" src="<?php if ($edit == 0 && $sw_error == 0) {
 													echo "detalle_lista_materiales.php";
 												} else {
 													echo "detalle_lista_materiales.php?id=" . base64_encode($row['ItemCode']) . "&evento=" . base64_encode($row['IdEvento']) . "&type=2";
