@@ -550,7 +550,7 @@ $SQL_CapaPasajeros = Seleccionar('uvw_Sap_tbl_Articulos_CapaPasajerosVehiculo', 
 										</div>
 
 										<!-- INICIO, información del vehículo -->
-										<div class="ibox">
+										<div class="ibox" <?php if(!PermitirFuncion(1007)) { ?> style="display: none;" <?php } ?>>
 											<div class="ibox-title bg-success">
 												<h5 class="collapse-link"><i class="fa fa-info-circle"></i> Información
 													base del vehículo</h5>

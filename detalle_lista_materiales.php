@@ -84,7 +84,7 @@ $SQL_Proyecto = Seleccionar('uvw_Sap_tbl_Proyectos', '*', '', 'DeProyecto');
 			if (confirm(String.fromCharCode(191) + 'Est' + String.fromCharCode(225) + ' seguro que desea eliminar este item? Este proceso no se puede revertir.')) {
 				$.ajax({
 					type: "GET",
-					url: "includes/procedimientos.php?type=44&linenum=" + json + "&id=<?php echo base64_decode($_GET['id']); ?>&evento=<?php echo base64_decode($_GET['evento']); ?>",
+					url: "includes/procedimientos.php?type=44&linenum=" + json + "&id=<?php echo base64_decode($_GET['id'] ?? ""); ?>&evento=<?php echo base64_decode($_GET['evento'] ?? ""); ?>",
 					success: function (response) {
 						window.location.href = "detalle_lista_materiales.php?<?php echo $_SERVER['QUERY_STRING']; ?>";
 					}
@@ -96,7 +96,7 @@ $SQL_Proyecto = Seleccionar('uvw_Sap_tbl_Proyectos', '*', '', 'DeProyecto');
 			if (confirm(String.fromCharCode(191) + 'Est' + String.fromCharCode(225) + ' seguro que desea duplicar estos registros?')) {
 				$.ajax({
 					type: "GET",
-					url: "includes/procedimientos.php?type=45&linenum=" + json + "&id=<?php echo base64_decode($_GET['id']); ?>&evento=<?php echo base64_decode($_GET['evento']); ?>",
+					url: "includes/procedimientos.php?type=45&linenum=" + json + "&id=<?php echo base64_decode($_GET['id'] ?? ""); ?>&evento=<?php echo base64_decode($_GET['evento'] ?? ""); ?>",
 					success: function (response) {
 						window.location.href = "detalle_lista_materiales.php?<?php echo $_SERVER['QUERY_STRING']; ?>";
 					}
@@ -107,7 +107,7 @@ $SQL_Proyecto = Seleccionar('uvw_Sap_tbl_Proyectos', '*', '', 'DeProyecto');
 		function ActualizarDatos(name, id, line) {//Actualizar datos asincronicamente
 			$.ajax({
 				type: "GET",
-				url: "registro.php?P=36&doctype=15&name=" + name + "&value=" + btoa(document.getElementById(name + id).value) + "&line=" + line + "&id=<?php echo base64_decode($_GET['id']); ?>&evento=<?php echo base64_decode($_GET['evento']); ?>",
+				url: "registro.php?P=36&doctype=15&name=" + name + "&value=" + btoa(document.getElementById(name + id).value) + "&line=" + line + "&id=<?php echo base64_decode($_GET['id'] ?? ""); ?>&evento=<?php echo base64_decode($_GET['evento'] ?? ""); ?>",
 				success: function (response) {
 					if (response != "Error") {
 						window.parent.document.getElementById('TimeAct').innerHTML = "<strong>Actualizado:</strong> " + response;
@@ -523,8 +523,8 @@ $SQL_Proyecto = Seleccionar('uvw_Sap_tbl_Proyectos', '*', '', 'DeProyecto');
 								doctype: '17',
 								item: IdArticulo,
 								whscode: CodAlmacen,
-								id: '<?php echo base64_decode($_GET['id']); ?>',
-								evento: '<?php echo base64_decode($_GET['evento']); ?>',
+								id: '<?php echo base64_decode($_GET['id'] ?? ""); ?>',
+								evento: '<?php echo base64_decode($_GET['evento'] ?? ""); ?>',
 								lista_precio: btoa(ListaPrecio),
 								proyecto: btoa(Proyecto),
 								ocrcode: btoa(OcrCode),

@@ -148,7 +148,7 @@ if (isset($_POST['P']) && ($_POST['P'] != "")) { //Grabar lista de materiales
 				"lista_material_lineas" => $Detalle,
 			);
 
-			$Cabecera_json=json_encode($Cabecera);
+			$Cabecera_json = json_encode($Cabecera);
 			// echo $Cabecera_json;
 			// exit();
 
@@ -166,6 +166,7 @@ if (isset($_POST['P']) && ($_POST['P'] != "")) { //Grabar lista de materiales
 					$Cabecera["usuario_creacion"] = $usuario;
 					$Cabecera["fecha_creacion"] = $fechaCrea;
 					$Cabecera["hora_creacion"] = $horaCrea;
+					$Cabecera["crear_articulo"] = PermitirFuncion(1005);
 
 					$Metodo = "ListasMateriales";
 					$Resultado = EnviarWebServiceSAP($Metodo, $Cabecera, true, true);
@@ -350,7 +351,8 @@ $cadena = isset($row) ? "JSON.parse('$row_encode'.replace(/\\n|\\r/g, ''))" : "'
 	</style>
 	<script>
 		function BuscarArticulo(dato) {
-			var itemcode = document.getElementById("ItemCode").value;
+			let itemcode = document.getElementById("ItemCode");
+
 			var lista_precio = document.getElementById("ListaPrecio").value;
 			var proyecto = document.getElementById("Proyecto").value;
 			var ocrcode = document.getElementById("OcrCode").value;
@@ -361,8 +363,8 @@ $cadena = isset($row) ? "JSON.parse('$row_encode'.replace(/\\n|\\r/g, ''))" : "'
 			posicion_x = (screen.width / 2) - (1200 / 2);
 			posicion_y = (screen.height / 2) - (500 / 2);
 			if (dato != "") {
-				if (itemcode != "") {
-					remote = open('buscar_articulo.php?dato=' + dato + '&idlistamaterial=' + btoa(itemcode) + '&evento=<?php if ($edit == 1) {
+				if (itemcode.value != "" || !itemcode.required) {
+					remote = open('buscar_articulo.php?dato=' + dato + '&idlistamaterial=' + btoa(itemcode.value) + '&evento=<?php if ($edit == 1) {
 						echo base64_encode($row['IdEvento']);
 					} else {
 						echo base64_encode($IdEvento);
@@ -482,14 +484,16 @@ $cadena = isset($row) ? "JSON.parse('$row_encode'.replace(/\\n|\\r/g, ''))" : "'
 									</label>
 								</div>
 								<div class="form-group">
-									<label class="col-lg-1 control-label">Código <span
-											class="text-danger">*</span></label>
+									<label class="col-lg-1 control-label">Código
+										<?php if (!PermitirFuncion(1006)) { ?> <span class="text-danger">*</span>
+										<?php } ?>
+									</label>
 									<div class="col-lg-3">
 										<input type="text" name="ItemCode" id="ItemCode" class="form-control" value="<?php if ($edit == 1 || $sw_error == 1) {
 											echo $row['ItemCode'];
-										} ?>" <?php if ($edit == 1) {
+										} ?>" <?php if (($edit == 1) || PermitirFuncion(1006)) {
 											 echo "readonly";
-										 } ?> required>
+										 } ?> <?php if (!PermitirFuncion(1006)) { ?> required <?php } ?>>
 									</div>
 									<label class="col-lg-1 control-label">Descripción <span
 											class="text-danger">*</span></label>
@@ -743,7 +747,12 @@ $cadena = isset($row) ? "JSON.parse('$row_encode'.replace(/\\n|\\r/g, ''))" : "'
 									<div class="col-lg-8">
 										<?php if ($edit == 0 && PermitirFuncion(1209)) { ?>
 											<button class="btn btn-primary" type="submit" form="frmListaMateriales"
-												id="Crear"><i class="fa fa-check"></i> Crear lista de materiales</button>
+												id="Crear"><i class="fa fa-check"></i>
+												Crear lista de materiales
+												<?php if (PermitirFuncion(1005)) {
+													echo "y articulo";
+												} ?>
+											</button>
 										<?php } else { ?>
 											<button class="btn btn-warning" type="submit" form="frmListaMateriales"
 												id="Actualizar"><i class="fa fa-refresh"></i> Actualizar lista de
