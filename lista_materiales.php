@@ -77,12 +77,12 @@ if (isset($_POST['P']) && ($_POST['P'] != "")) { //Grabar lista de materiales
 			$ItemCode = $_POST['ItemCode'];
 			$IdEvento = base64_decode($_POST['IdEvento']);
 
-			//Consultar cabecera
+			// Consultar cabecera
 			$SQL_json = Seleccionar("tbl_ListaMateriales", '*', "ItemCode='$ItemCode' AND IdEvento='$IdEvento'");
 			$row_json = sqlsrv_fetch_array($SQL_json);
 
-			//Consultar detalle
-			$SQL_det = Seleccionar("tbl_ListaMaterialesDetalle", '*', "Father='$ItemCode' AND IdEvento='$IdEvento' AND Metodo<>3", 'ChildNum');
+			// Consultar detalle
+			$SQL_det = Seleccionar("tbl_ListaMaterialesDetalle", '*', "Father='$ItemCode' AND IdEvento='$IdEvento'", 'ChildNum');
 
 			$Detalle = array();
 
@@ -177,7 +177,7 @@ if (isset($_POST['P']) && ($_POST['P'] != "")) { //Grabar lista de materiales
 					$Cabecera["usuario_actualizacion"] = $usuario;
 					$Cabecera["fecha_actualizacion"] = $fechaAct;
 					$Cabecera["hora_actualizacion"] = $horaAct;
-					$Cabecera["seg_actualizacion"] = $segundoAct;
+					$Cabecera["seg_actualizacion"] = ($segundoAct + 1); // Porque no se puede enviar como Cero
 
 					$Metodo = "ListasMateriales/$ItemCode";
 					$Resultado = EnviarWebServiceSAP($Metodo, $Cabecera, true, true, "PUT");
