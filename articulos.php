@@ -11,6 +11,24 @@ $sw_error = 0; //Sw para saber si ha ocurrido un error al crear o actualizar un 
 $Posicion = "";
 $OLT = "";
 
+// Dimensiones, SMM 15/07/2023
+$DimSeries = intval(ObtenerVariable("DimensionSeries"));
+$SQL_Dimensiones = Seleccionar('uvw_Sap_tbl_Dimensiones', '*', "DimActive='Y'");
+
+// Pruebas, SMM 15/07/2023
+// $SQL_Dimensiones = Seleccionar('uvw_Sap_tbl_Dimensiones', '*', 'DimCode IN (1,2,3,4)');
+
+$array_Dimensiones = [];
+while ($row_Dimension = sqlsrv_fetch_array($SQL_Dimensiones)) {
+    array_push($array_Dimensiones, $row_Dimension);
+}
+
+$encode_Dimensiones = json_encode($array_Dimensiones);
+$cadena_Dimensiones = "JSON.parse('$encode_Dimensiones'.replace(/\\n|\\r/g, ''))";
+// echo "<script> console.log('cadena_Dimensiones'); </script>";
+// echo "<script> console.log($cadena_Dimensiones); </script>";
+// Hasta aquí, SMM 15/07/2023
+
 $IdItemCode = "";
 if (isset($_GET['id']) && ($_GET['id'] != "")) {
 	$IdItemCode = base64_decode($_GET['id']);
@@ -307,25 +325,22 @@ $SQL_CapaPasajeros = Seleccionar('uvw_Sap_tbl_Articulos_CapaPasajerosVehiculo', 
 									</div>
 								</div>
 								<input type="hidden" id="P" name="P" value="MM_Art" />
-								<input type="hidden" id="IdArticuloPortal" name="IdArticuloPortal"
-									value="<?php if (isset($row['IdArticuloPortal'])) {
-										echo base64_encode($row['IdArticuloPortal']);
-									} ?>" />
+								<input type="hidden" id="IdArticuloPortal" name="IdArticuloPortal" value="<?php if (isset($row['IdArticuloPortal'])) {
+									echo base64_encode($row['IdArticuloPortal']);
+								} ?>" />
 								<input type="hidden" id="ext" name="ext" value="<?php echo $sw_ext; ?>" />
 								<input type="hidden" id="tl" name="tl" value="<?php echo $edit; ?>" />
 								<input type="hidden" id="error" name="error" value="<?php echo $sw_error; ?>" />
-								<input type="hidden" id="pag" name="pag"
-									value="<?php if (isset($_REQUEST['pag'])) {
-										echo $_REQUEST['pag'];
-									} else {
-										echo base64_encode("articulos.php");
-									} //viene de afuera ?>" />
-								<input type="hidden" id="return" name="return"
-									value="<?php if (isset($_REQUEST['return'])) {
-										echo base64_encode($_REQUEST['return']);
-									} else {
-										echo base64_encode($_SERVER['QUERY_STRING']);
-									} //viene de afuera ?>" />
+								<input type="hidden" id="pag" name="pag" value="<?php if (isset($_REQUEST['pag'])) {
+									echo $_REQUEST['pag'];
+								} else {
+									echo base64_encode("articulos.php");
+								} //viene de afuera ?>" />
+								<input type="hidden" id="return" name="return" value="<?php if (isset($_REQUEST['return'])) {
+									echo base64_encode($_REQUEST['return']);
+								} else {
+									echo base64_encode($_SERVER['QUERY_STRING']);
+								} //viene de afuera ?>" />
 							</div>
 						</div>
 					</div>
@@ -363,13 +378,11 @@ $SQL_CapaPasajeros = Seleccionar('uvw_Sap_tbl_Articulos_CapaPasajerosVehiculo', 
 													<label class="col-lg-1 control-label">Código</label>
 													<div class="col-lg-3">
 														<input name="ItemCode" autofocus="autofocus" type="text"
-															required class="form-control" id="ItemCode"
-															value="<?php if ($edit == 1) {
+															required class="form-control" id="ItemCode" value="<?php if ($edit == 1) {
 																echo $row['ItemCode'];
-															} ?>"
-															<?php if ($edit == 1) {
-																echo "readonly='readonly'";
-															} ?>>
+															} ?>" <?php if ($edit == 1) {
+																 echo "readonly='readonly'";
+															 } ?>>
 													</div>
 													<label class="col-lg-1 control-label">Artículo de inventario</label>
 													<div class="col-lg-1">
@@ -404,16 +417,14 @@ $SQL_CapaPasajeros = Seleccionar('uvw_Sap_tbl_Articulos_CapaPasajerosVehiculo', 
 													<label class="col-lg-1 control-label">Descripción</label>
 													<div class="col-lg-3">
 														<input type="text" class="form-control" name="ItemName"
-															id="ItemName" required
-															value="<?php if ($edit == 1) {
+															id="ItemName" required value="<?php if ($edit == 1) {
 																echo $row['ItemName'];
 															} ?>">
 													</div>
 													<label class="col-lg-1 control-label">Referencia</label>
 													<div class="col-lg-3">
 														<input type="text" class="form-control" name="FrgnName"
-															id="FrgnName"
-															value="<?php if ($edit == 1) {
+															id="FrgnName" value="<?php if ($edit == 1) {
 																echo $row['FrgnName'];
 															} ?>">
 													</div>
@@ -426,7 +437,8 @@ $SQL_CapaPasajeros = Seleccionar('uvw_Sap_tbl_Articulos_CapaPasajerosVehiculo', 
 																<option value="<?php echo $row_TipoArticulo['ItemType']; ?>"
 																	<?php if ((isset($row['ItemType'])) && (strcmp($row_TipoArticulo['ItemType'], $row['ItemType']) == 0)) {
 																		echo "selected=\"selected\"";
-																	} ?>><?php echo $row_TipoArticulo['DE_ItemType']; ?></option>
+																	} ?>><?php echo $row_TipoArticulo['DE_ItemType']; ?>
+																</option>
 															<?php } ?>
 														</select>
 													</div>
@@ -451,8 +463,7 @@ $SQL_CapaPasajeros = Seleccionar('uvw_Sap_tbl_Articulos_CapaPasajerosVehiculo', 
 													<label class="col-lg-1 control-label">Unidad de medida</label>
 													<div class="col-lg-3">
 														<input type="text" class="form-control" name="UnidadMedInv"
-															id="UnidadMedInv"
-															value="<?php if ($edit == 1) {
+															id="UnidadMedInv" value="<?php if ($edit == 1) {
 																echo $row['InvntryUom'];
 															} ?>">
 													</div>
@@ -467,7 +478,8 @@ $SQL_CapaPasajeros = Seleccionar('uvw_Sap_tbl_Articulos_CapaPasajerosVehiculo', 
 																	value="<?php echo $row_GruposArticulos['ItmsGrpCod'] . "__" . $row_GruposArticulos['ItmsGrpNam']; ?>"
 																	<?php if ((isset($row['ItmsGrpCod'])) && (strcmp($row_GruposArticulos['ItmsGrpCod'], $row['ItmsGrpCod']) == 0)) {
 																		echo "selected=\"selected\"";
-																	} ?>><?php echo $row_GruposArticulos['ItmsGrpNam']; ?></option>
+																	} ?>><?php echo $row_GruposArticulos['ItmsGrpNam']; ?>
+																</option>
 															<?php } ?>
 														</select>
 													</div>
@@ -478,27 +490,66 @@ $SQL_CapaPasajeros = Seleccionar('uvw_Sap_tbl_Articulos_CapaPasajerosVehiculo', 
 													<label class="col-lg-1 control-label">Ubicación Física</label>
 													<div class="col-lg-3">
 														<input type="text" class="form-control"
-															name="CDU_UbicacionFisica" id="CDU_UbicacionFisica"
-															value="<?php if ($edit == 1) {
+															name="CDU_UbicacionFisica" id="CDU_UbicacionFisica" value="<?php if ($edit == 1) {
 																echo $row['CDU_UbicacionFisica'] ?? "";
-															} ?>"
-															readonly>
+															} ?>" readonly>
 													</div>
 													<!-- 03/03/2022 -->
 													<!-- SMM -->
 													<label class="col-lg-1 control-label">Código de proveedor</label>
 													<div class="col-lg-3">
 														<input type="text" class="form-control" name="SuppCatNum"
-															id="SuppCatNum"
-															value="<?php if ($edit == 1) {
+															id="SuppCatNum" value="<?php if ($edit == 1) {
 																echo $row['SuppCatNum'];
-															} ?>"
-															readonly>
+															} ?>" readonly>
 													</div>
 													<!-- 08/03/2022 -->
 												</div>
 											</div>
 										</div>
+
+										<!-- Inicio parametros de finanzas -->
+										<div class="ibox">
+											<div class="ibox-title bg-success">
+												<h5 class="collapse-link">
+													<i class="fa fa-info"></i> Parámetros de finanzas
+												</h5>
+												<a class="collapse-link pull-right">
+													<i class="fa fa-chevron-up"></i>
+												</a>
+											</div> <!-- ibox-title -->
+											<div class="ibox-content">
+
+												<!-- Dimensiones dinámicas, SMM 15/06/2022 -->
+												<div class="form-group">
+													<?php foreach ($array_Dimensiones as &$dim) { ?>
+														<label class="col-lg-1 control-label">
+															<?php echo $dim['DescPortalOne']; ?>
+														</label>
+														<div class="col-lg-3">
+															<select name="<?php echo $dim['IdPortalOne'] ?>" id="<?php echo $dim['IdPortalOne'] ?>" class="form-control select2">
+																<option value="">Seleccione...</option>
+
+																<?php $SQL_Dim = Seleccionar('uvw_Sap_tbl_DimensionesReparto', '*', 'DimCode=' . $dim['DimCode']); ?>
+																<?php while ($row_Dim = sqlsrv_fetch_array($SQL_Dim)) { ?>
+																	<?php $DimCode = intval($dim['DimCode']); ?>
+																	<?php $OcrId = ($DimCode == 1) ? "" : $DimCode; ?>
+
+																	<option value="<?php echo $row_Dim['OcrCode']; ?>" <?php if ($row_Dim['OcrCode'] == $row["IdCenCosto$DimCode"]) {
+																		   echo "selected";
+																	   } ?>>
+																		<?php echo $row_Dim['OcrName']; ?>
+																	</option>
+																<?php } ?>
+															</select>
+														</div>
+													<?php } ?>
+												</div>
+												<!-- Dimensiones dinámicas, hasta aquí -->
+												
+											</div> <!-- ibox-content -->
+										</div>
+										<!-- Fin parametros de finanzas -->
 
 										<div class="ibox">
 											<div class="ibox-title bg-success">
@@ -550,7 +601,8 @@ $SQL_CapaPasajeros = Seleccionar('uvw_Sap_tbl_Articulos_CapaPasajerosVehiculo', 
 										</div>
 
 										<!-- INICIO, información del vehículo -->
-										<div class="ibox" <?php if(!PermitirFuncion(1007)) { ?> style="display: none;" <?php } ?>>
+										<div class="ibox" <?php if (!PermitirFuncion(1007)) { ?> style="display: none;"
+											<?php } ?>>
 											<div class="ibox-title bg-success">
 												<h5 class="collapse-link"><i class="fa fa-info-circle"></i> Información
 													base del vehículo</h5>
@@ -624,7 +676,7 @@ $SQL_CapaPasajeros = Seleccionar('uvw_Sap_tbl_Articulos_CapaPasajerosVehiculo', 
 																<option
 																	value="<?php echo $row_ServicioVehiculo['CodigoServicioVehiculo']; ?>"
 																	<?php if (isset($row['CDU_ServicioVehiculo']) && (strcmp($row_ServicioVehiculo['CodigoServicioVehiculo'], $row['CDU_ServicioVehiculo']) == 0)) {
-																		echo "selected=\"selected\"";
+																		echo "selected";
 																	} ?>>
 																	<?php echo $row_ServicioVehiculo['NombreServicioVehiculo']; ?>
 																</option>
@@ -641,7 +693,7 @@ $SQL_CapaPasajeros = Seleccionar('uvw_Sap_tbl_Articulos_CapaPasajerosVehiculo', 
 																<option
 																	value="<?php echo $row_TipoCarroceriaVehiculo['CodigoTipoCarroceriaVehiculo']; ?>"
 																	<?php if (isset($row['CDU_TipoCarroceria']) && (strcmp($row_TipoCarroceriaVehiculo['CodigoTipoCarroceriaVehiculo'], $row['CDU_TipoCarroceria']) == 0)) {
-																		echo "selected=\"selected\"";
+																		echo "selected";
 																	} ?>>
 																	<?php echo $row_TipoCarroceriaVehiculo['NombreTipoCarroceriaVehiculo']; ?>
 																</option>

@@ -60,12 +60,13 @@ if (isset($_POST['P']) && ($_POST['P'] != "")) { //Grabar lista de materiales
 			"'" . $_POST['CodigoPlantilla'] . "'",
 			"'" . $_SESSION['CodUser'] . "'",
 			"'" . $_SESSION['CodUser'] . "'",
-			// Campos nuevos
 			"'" . ($_POST['CDU_IdMarca'] ?? "") . "'",
 			"'" . ($_POST['CDU_IdLinea'] ?? "") . "'",
 			"'" . $_POST['CDU_MetodoAplicacion'] . "'",
-			isset($_POST['CDU_TiempoTarea']) ? $_POST['CDU_TiempoTarea'] : 0,
-			// int
+			$_POST['CDU_TiempoTarea'] ?? 0,
+			// Campos nuevos
+			$_POST['CDU_Frecuencia'] ?? 0,
+			"'" . ($_POST['CDU_IdLineaNegocio'] ?? "") . "'",
 			// Tipo de método
 			$Type
 		);
@@ -145,6 +146,8 @@ if (isset($_POST['P']) && ($_POST['P'] != "")) { //Grabar lista de materiales
 				"metodo" => intval($row_json['Metodo']),
 				"CDU_tiempo_tarea" => intval($row_json['CDU_TiempoTarea']),
 				"CDU_metodo_aplicacion" => $row_json['CDU_MetodoAplicacion'],
+				"frecuencia" => intval($row_json['CDU_Frecuencia']),
+				"id_linea_negocio" => $row_json['CDU_IdLineaNegocio'],
 				"lista_material_lineas" => $Detalle,
 			);
 
@@ -283,6 +286,9 @@ $SQL_Plantilla = Seleccionar('uvw_tbl_PlantillaActividades', '*');
 $SQL_MarcaVehiculo = Seleccionar('uvw_Sap_tbl_ListaMateriales_MarcaVehiculo', '*');
 // Lineas de vehiculo en la tarjeta de equipo
 $SQL_LineaVehiculo = Seleccionar('uvw_Sap_tbl_ListaMateriales_LineaVehiculo', '*');
+
+// SMM, 14/07/2023
+$SQL_LineaNegocio = Seleccionar('uvw_Sap_tbl_ListaMateriales_LineaNegocio', '*');
 
 // Stiven Muñoz Murillo, 07/02/2022
 $row_encode = isset($row) ? json_encode($row) : "";
@@ -668,6 +674,41 @@ $cadena = isset($row) ? "JSON.parse('$row_encode'.replace(/\\n|\\r/g, ''))" : "'
 								</div>
 
 								<div class="form-group">
+									<label class="col-lg-1 control-label">Línea Negocio</label>
+									<div class="col-lg-3">
+										<select name="CDU_IdLineaNegocio" class="form-control select2"
+											id="CDU_IdLineaNegocio">
+											<option value="" disabled selected>Seleccione...</option>
+
+											<?php while ($row_LineaNegocio = sqlsrv_fetch_array($SQL_LineaNegocio)) { ?>
+												<option value="<?php echo $row_LineaNegocio['IdLineaNegocio']; ?>" <?php if ((isset($row_Sap['CDU_IdLineaNegocio'])) && (strcmp($row_LineaNegocio['IdLineaNegocio'], $row_Sap['CDU_IdLineaNegocio']) == 0)) {
+													   echo "selected";
+												   } ?>>
+													<?php echo $row_LineaNegocio['DeLineaNegocio']; ?>
+												</option>
+											<?php } ?>
+										</select>
+									</div>
+
+									<label class="col-lg-1 control-label">Frecuencia</label>
+									<div class="col-lg-3">
+										<input name="CDU_Frecuencia" type="number" class="form-control"
+											id="CDU_Frecuencia" required value="<?php if (($edit == 1) || ($sw_error == 1)) {
+												echo $row_Sap['CDU_Frecuencia'] ?? "";
+											} ?>">
+									</div>
+
+									<label class="col-lg-1 control-label">Tiempo tarea (Minutos) <span
+											class="text-danger">*</span></label>
+									<div class="col-lg-3">
+										<input name="CDU_TiempoTarea" type="number" class="form-control"
+											id="CDU_TiempoTarea" required="required" value="<?php if (($edit == 1) || ($sw_error == 1)) {
+												echo $row_Sap['CDU_TiempoTarea'] ?? '';
+											} ?>">
+									</div>
+								</div>
+
+								<div class="form-group">
 									<label class="col-lg-1 control-label">Marca</label>
 									<div class="col-lg-3">
 										<select name="CDU_IdMarca" class="form-control select2" id="CDU_IdMarca">
@@ -695,15 +736,6 @@ $cadena = isset($row) ? "JSON.parse('$row_encode'.replace(/\\n|\\r/g, ''))" : "'
 												</option>
 											<?php } ?>
 										</select>
-									</div>
-
-									<label class="col-lg-1 control-label">Tiempo tarea (Minutos) <span
-											class="text-danger">*</span></label>
-									<div class="col-lg-3">
-										<input name="CDU_TiempoTarea" type="number" class="form-control"
-											id="CDU_TiempoTarea" required="required" value="<?php if (($edit == 1) || ($sw_error == 1)) {
-												echo $row_Sap['CDU_TiempoTarea'] ?? '';
-											} ?>">
 									</div>
 								</div>
 
