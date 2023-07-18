@@ -138,8 +138,6 @@ if ($sw == 1) {
 		? "sp_ConsultarDespachoRutasOT_Resumen" : "sp_ConsultarDespachoRutas_Resumen";
 
 	$SQL_Res = EjecutarSP($NomSP_Resumen, $ParamRes);
-
-	//$SQL_Res=EjecutarSP('sp_ConsultarDespachoRutas_Resumen',$ParamRes);
 }
 ?>
 <!DOCTYPE html>
