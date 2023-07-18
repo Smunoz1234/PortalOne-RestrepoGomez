@@ -148,6 +148,7 @@ if (isset($_POST['P']) && ($_POST['P'] != "")) { //Grabar lista de materiales
 				"CDU_metodo_aplicacion" => $row_json['CDU_MetodoAplicacion'],
 				"frecuencia" => intval($row_json['CDU_Frecuencia']),
 				"id_linea_negocio" => $row_json['CDU_IdLineaNegocio'],
+				"CDU_id_articulo_vta_factura" => ($row_json['CDU_IdArticuloVTAFactura'] ?? ""),
 				"lista_material_lineas" => $Detalle,
 			);
 
@@ -290,11 +291,15 @@ $SQL_LineaVehiculo = Seleccionar('uvw_Sap_tbl_ListaMateriales_LineaVehiculo', '*
 // SMM, 14/07/2023
 $SQL_LineaNegocio = Seleccionar('uvw_Sap_tbl_ListaMateriales_LineaNegocio', '*');
 
+// SMM, 18/07/2023
+$SQL_ArticulosVTA = Seleccionar('uvw_Sap_tbl_Articulos_VTA_Factura', '*');
+
 // Stiven Muñoz Murillo, 07/02/2022
 $row_encode = isset($row) ? json_encode($row) : "";
 $cadena = isset($row) ? "JSON.parse('$row_encode'.replace(/\\n|\\r/g, ''))" : "'Not Found'";
 // echo "<script> console.log($cadena); </script>";
 ?>
+
 <!DOCTYPE html>
 <html><!-- InstanceBegin template="/Templates/PlantillaPrincipal.dwt.php" codeOutsideHTMLIsLocked="false" -->
 
@@ -737,6 +742,22 @@ $cadena = isset($row) ? "JSON.parse('$row_encode'.replace(/\\n|\\r/g, ''))" : "'
 											<?php } ?>
 										</select>
 									</div>
+
+									<label class="col-lg-1 control-label"><i onclick="ConsultarArticulo();" title="Consultar Articulo" style="cursor: pointer" class="btn-xs btn-success fa fa-search"></i> Articulo VTA Factura</label>
+									<div class="col-lg-3">
+										<select name="CDU_IdArticuloVTAFactura" class="form-control select2"
+											id="CDU_IdArticuloVTAFactura">
+											<option value="" disabled selected>Seleccione...</option>
+
+											<?php while ($row_ArticuloVTA = sqlsrv_fetch_array($SQL_ArticulosVTA)) { ?>
+												<option value="<?php echo $row_ArticuloVTA['ItemCode']; ?>" <?php if ((isset($row_Sap['CDU_IdArticuloVTAFactura'])) && (strcmp($row_ArticuloVTA['ItemCode'], $row_Sap['CDU_IdArticuloVTAFactura']) == 0)) {
+													   echo "selected";
+												   } ?>>
+													<?php echo $row_ArticuloVTA['ItemCode'] . " - " . $row_ArticuloVTA['ItemName']; ?>
+												</option>
+											<?php } ?>
+										</select>
+									</div>
 								</div>
 
 								<div class="form-group">
@@ -834,6 +855,16 @@ $cadena = isset($row) ? "JSON.parse('$row_encode'.replace(/\\n|\\r/g, ''))" : "'
 	<?php include_once "includes/pie.php"; ?>
 	<!-- InstanceBeginEditable name="EditRegion4" -->
 	<script>
+		function ConsultarArticulo(){
+			var Articulo=document.getElementById('CDU_IdArticuloVTAFactura');
+			// console.log(Articulo.value);
+			if(Articulo.value!=""){
+				self.name='opener';
+				remote=open('articulos.php?id='+Base64.encode(Articulo.value)+'&ext=1&tl=1','remote','location=no,scrollbar=yes,menubars=no,toolbars=no,resizable=yes,fullscreen=yes,status=yes');
+				remote.focus();
+			}
+		}
+
 		$(document).ready(function () {
 			$("#frmListaMateriales").validate({
 				submitHandler: function (form) {

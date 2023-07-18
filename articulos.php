@@ -189,6 +189,9 @@ $SQL_ServicioVehiculo = Seleccionar('uvw_Sap_tbl_Articulos_ServicioVehiculo', '*
 $SQL_TipoCarroceria = Seleccionar('uvw_Sap_tbl_Articulos_TipoCarroceriaVehiculo', '*');
 $SQL_NumPuertas = Seleccionar('uvw_Sap_tbl_Articulos_NumPuertasVehiculo', '*');
 $SQL_CapaPasajeros = Seleccionar('uvw_Sap_tbl_Articulos_CapaPasajerosVehiculo', '*');
+
+// SMM, 18/07/2023
+$SQL_ArticulosVTA = Seleccionar('uvw_Sap_tbl_Articulos_VTA_Factura', '*');
 ?>
 
 <!DOCTYPE html>
@@ -504,7 +507,23 @@ $SQL_CapaPasajeros = Seleccionar('uvw_Sap_tbl_Articulos_CapaPasajerosVehiculo', 
 															} ?>" readonly>
 													</div>
 													<!-- 08/03/2022 -->
-												</div>
+
+													<label class="col-lg-1 control-label"><i onclick="ConsultarArticulo();" title="Consultar Articulo" style="cursor: pointer" class="btn-xs btn-success fa fa-search"></i> Articulo VTA Factura</label>
+													<div class="col-lg-3">
+														<select name="CDU_IdArticuloVTAFactura" class="form-control select2"
+															id="CDU_IdArticuloVTAFactura">
+															<option value="" disabled selected>Seleccione...</option>
+
+															<?php while ($row_ArticuloVTA = sqlsrv_fetch_array($SQL_ArticulosVTA)) { ?>
+																<option value="<?php echo $row_ArticuloVTA['ItemCode']; ?>" <?php if ((isset($row['CDU_IdArticuloVTAFactura'])) && (strcmp($row_ArticuloVTA['ItemCode'], $row['CDU_IdArticuloVTAFactura']) == 0)) {
+																	echo "selected";
+																} ?>>
+																	<?php echo $row_ArticuloVTA['ItemCode'] . " - " . $row_ArticuloVTA['ItemName']; ?>
+																</option>
+															<?php } ?>
+														</select>
+													</div>
+												</div> <!-- form-group -->
 											</div>
 										</div>
 
@@ -872,6 +891,16 @@ $SQL_CapaPasajeros = Seleccionar('uvw_Sap_tbl_Articulos_CapaPasajerosVehiculo', 
 	<?php include "includes/pie.php"; ?>
 	<!-- InstanceBeginEditable name="EditRegion4" -->
 	<script>
+		function ConsultarArticulo(){
+			var Articulo=document.getElementById('CDU_IdArticuloVTAFactura');
+			// console.log(Articulo.value);
+			if(Articulo.value!=""){
+				self.name='opener';
+				remote=open('articulos.php?id='+Base64.encode(Articulo.value)+'&ext=1&tl=1','remote','location=no,scrollbar=yes,menubars=no,toolbars=no,resizable=yes,fullscreen=yes,status=yes');
+				remote.focus();
+			}
+		}
+
 		$(document).ready(function () {
 			$("#FrmArticulo").validate({
 				submitHandler: function (form) {
