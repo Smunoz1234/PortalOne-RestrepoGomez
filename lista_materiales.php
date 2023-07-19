@@ -12,7 +12,12 @@ if (isset($_GET['id']) && ($_GET['id'] != "")) { //ID de la Lista de material (I
 
 if (isset($_POST['ItemCode']) && ($_POST['ItemCode'] != "")) { //Tambien el Id interno, pero lo envío cuando mando el formulario
 	$ItemCode = base64_decode($_POST['ItemCode']);
-	$IdEvento = base64_decode($_POST['IdEvento']);
+	$IdEvento = base64_decode($_POST['IdEvento'] ?? "");
+}
+
+// SMM, 18/07/2023
+if (isset($_GET['ItemCode']) && ($_GET['ItemCode'] != "")) { // También el ID Interno, pero lo envío desde Articulos (Crear LMT).
+	$ItemCode = base64_decode($_GET['ItemCode']);
 }
 
 if (isset($_POST['swError']) && ($_POST['swError'] != "")) { //Para saber si ha ocurrido un error.
@@ -210,10 +215,20 @@ if (isset($_POST['P']) && ($_POST['P'] != "")) { //Grabar lista de materiales
 
 }
 
+$row_Articulo = array();
 if ($edit == 0 && $sw_error == 0) {
 	$SQL_NewIdEvento = EjecutarSP('sp_ObtenerIdEvento');
 	$row_NewIdEvento = sqlsrv_fetch_array($SQL_NewIdEvento);
 	$IdEvento = $row_NewIdEvento[0];
+
+	// SMM, 18/07/2023
+	if ($ItemCode !== 0) {
+		$SQL_Articulos = Seleccionar("uvw_Sap_tbl_ArticulosTodos", '*', "ItemCode='$ItemCode'");
+		$row_Articulo = sqlsrv_fetch_array($SQL_Articulos);
+
+		// Mostrar la salida de print_r con formato legible
+		// echo '<pre>' . print_r($row_Articulo, true) . '</pre>';
+	}
 }
 
 if ($edit == 1 && $sw_error == 0) {
@@ -298,6 +313,59 @@ $SQL_ArticulosVTA = Seleccionar('uvw_Sap_tbl_Articulos_VTA_Factura', '*');
 $row_encode = isset($row) ? json_encode($row) : "";
 $cadena = isset($row) ? "JSON.parse('$row_encode'.replace(/\\n|\\r/g, ''))" : "'Not Found'";
 // echo "<script> console.log($cadena); </script>";
+
+// SMM, 19/07/2023
+if (isset($_GET['dt_OV']) && ($_GET['dt_OV']) == 1) { // Verificar que viene de una Orden de ventas (Duplicar)
+    $dt_OF = 1;
+
+    // SMM, 30/09/2022
+    $ID_Documento = "'" . base64_decode($_GET['OV']) . "'";
+
+    $WhereAnexos = "ID_Documento=$ID_Documento";
+    // echo $WhereAnexos;
+
+    Eliminar("tbl_DocumentosSAP_Anexos", $WhereAnexos);
+    // Hasta aquí, 30/09/2022
+
+    $ParametrosCopiarOrdenToOrden = array(
+        $ID_Documento, // SMM, 30/09/2022
+        "'" . base64_decode($_GET['Evento']) . "'",
+        "'" . base64_decode($_GET['Almacen']) . "'",
+        "'" . base64_decode($_GET['Cardcode']) . "'",
+        "'" . $_SESSION['CodUser'] . "'",
+    );
+
+    $SQL_CopiarOrdenToOrden = EjecutarSP('sp_tbl_OrdenVentaDet_To_OrdenVentaDet', $ParametrosCopiarOrdenToOrden);
+    if (!$SQL_CopiarOrdenToOrden) {
+        echo "<script>
+		$(document).ready(function() {
+			Swal.fire({
+				title: '¡Ha ocurrido un error!',
+				text: 'No se pudo duplicar la Orden de venta.',
+				icon: 'error'
+			});
+		});
+		</script>";
+    }
+
+    //Clientes
+    $SQL_Cliente = Seleccionar('uvw_Sap_tbl_Clientes', '*', "CodigoCliente='" . base64_decode($_GET['Cardcode']) . "'", 'NombreCliente');
+    $row_Cliente = sqlsrv_fetch_array($SQL_Cliente);
+
+    //Contacto cliente
+    $SQL_ContactoCliente = Seleccionar('uvw_Sap_tbl_ClienteContactos', '*', "CodigoCliente='" . base64_decode($_GET['Cardcode']) . "'", 'NombreContacto');
+
+    //Sucursales, SMM 06/05/2022
+    $SQL_SucursalDestino = Seleccionar('uvw_Sap_tbl_Clientes_Sucursales', '*', "CodigoCliente='" . base64_decode($_GET['Cardcode']) . "' AND TipoDireccion='S'", 'NombreSucursal');
+    $SQL_SucursalFacturacion = Seleccionar('uvw_Sap_tbl_Clientes_Sucursales', '*', "CodigoCliente='" . base64_decode($_GET['Cardcode']) . "' AND TipoDireccion='B'", 'NombreSucursal');
+
+    //Orden de servicio
+    $SQL_OrdenServicioCliente = Seleccionar('uvw_Sap_tbl_LlamadasServicios', '*', "ID_LlamadaServicio='" . base64_decode($_GET['LS']) . "'");
+    $row_OrdenServicioCliente = sqlsrv_fetch_array($SQL_OrdenServicioCliente);
+
+    // Anexos, SMM 30/09/2022
+    $SQL_Anexo = Seleccionar('uvw_tbl_DocumentosSAP_Anexos', '*', $WhereAnexos);
+}
 ?>
 
 <!DOCTYPE html>
@@ -425,10 +493,17 @@ $cadena = isset($row) ? "JSON.parse('$row_encode'.replace(/\\n|\\r/g, ''))" : "'
 					url: "ajx_cbo_sucursales_clientes_simple.php?CardCode=" + Cliente.value + "&sucline=1&selec=1&todos=0",
 					success: function (response) {
 						$('#Sucursal').html(response);
+
+						// SMM, 18/07/2023
+						<?php if (isset($row_Articulo["IdSucCliente"])) { ?>
+							$("#Sucursal").val("<?php echo $row_Articulo["IdSucCliente"]; ?>");
+						<?php } ?> 
+						
 						$("#Sucursal").trigger("change");
 					}
 				});
 			});
+
 			// Stiven Muñoz Murillo, 28/12/2021
 			$("#CDU_IdMarca").change(function () {
 				$('.ibox-content').toggleClass('sk-loading', true);
@@ -443,6 +518,11 @@ $cadena = isset($row) ? "JSON.parse('$row_encode'.replace(/\\n|\\r/g, ''))" : "'
 					}
 				});
 			});
+
+			// SMM, 18/07/2023
+			<?php if (isset($row_Articulo["IdCliente"])) { ?>
+				$("#Cliente").trigger("change");
+			<?php } ?> 
 		});
 	</script>
 	<!-- InstanceEndEditable -->
@@ -511,6 +591,8 @@ $cadena = isset($row) ? "JSON.parse('$row_encode'.replace(/\\n|\\r/g, ''))" : "'
 									<div class="col-lg-3">
 										<input type="text" name="ItemName" id="ItemName" class="form-control" value="<?php if ($edit == 1 || $sw_error == 1) {
 											echo $row['ItemName'];
+										} elseif (isset($row_Articulo["ItemName"])) {
+											echo $row_Articulo["ItemName"];
 										} ?>" required>
 									</div>
 									<label class="col-lg-1 control-label">Cantidad <span
@@ -609,15 +691,22 @@ $cadena = isset($row) ? "JSON.parse('$row_encode'.replace(/\\n|\\r/g, ''))" : "'
 									</label>
 								</div>
 								<div class="form-group">
-									<label class="col-lg-1 control-label">Cliente <span
-											class="text-danger">*</span></label>
+									<label class="col-lg-1 control-label">
+										<i onClick="ConsultarCliente();" title="Consultar cliente"
+											style="cursor: pointer" class="btn-xs btn-success fa fa-search"></i>
+										Cliente <span class="text-danger">*</span>
+									</label>
 									<div class="col-lg-3">
 										<input name="Cliente" type="hidden" id="Cliente" value="<?php if (($edit == 1) || ($sw_error == 1)) {
 											echo $row['CDU_CodigoCliente'];
+										} elseif (isset($row_Articulo["IdCliente"])) {
+											echo $row_Articulo["IdCliente"];
 										} ?>">
 										<input name="NombreCliente" type="text" class="form-control" id="NombreCliente"
 											placeholder="Escribar para buscar..." value="<?php if (($edit == 1) || ($sw_error == 1)) {
 												echo $row['CDU_NombreCliente'];
+											} elseif (isset($row_Articulo["DeCliente"])) {
+												echo $row_Articulo["DeCliente"];
 											} ?>" required>
 									</div>
 									<label class="col-lg-1 control-label">Sucursal cliente <span
@@ -658,6 +747,8 @@ $cadena = isset($row) ? "JSON.parse('$row_encode'.replace(/\\n|\\r/g, ''))" : "'
 										<textarea name="CDU_Servicios" rows="5" class="form-control" id="CDU_Servicios"
 											type="text"><?php if (($edit == 1) || ($sw_error == 1)) {
 												echo $row['CDU_Servicios'];
+											} elseif (isset($row_Articulo["Servicios"])) {
+												echo $row_Articulo["Servicios"];
 											} ?></textarea>
 									</div>
 
@@ -666,6 +757,8 @@ $cadena = isset($row) ? "JSON.parse('$row_encode'.replace(/\\n|\\r/g, ''))" : "'
 										<textarea name="CDU_Areas" rows="5" class="form-control" id="CDU_Areas"
 											type="text"><?php if (($edit == 1) || ($sw_error == 1)) {
 												echo $row['CDU_Areas'];
+											} elseif (isset($row_Articulo["Areas"])) {
+												echo $row_Articulo["Areas"];
 											} ?></textarea>
 									</div>
 
@@ -674,6 +767,8 @@ $cadena = isset($row) ? "JSON.parse('$row_encode'.replace(/\\n|\\r/g, ''))" : "'
 										<textarea name="CDU_MetodoAplicacion" rows="5" class="form-control"
 											id="CDU_MetodoAplicacion" type="text"><?php if (($edit == 1) || ($sw_error == 1)) {
 												echo $row_Sap['CDU_MetodoAplicacion'] ?? "";
+											} elseif (isset($row_Articulo["CDU_MetodoAplicacion"])) {
+												echo $row_Articulo["CDU_MetodoAplicacion"];
 											} ?></textarea>
 									</div>
 								</div>
@@ -743,7 +838,9 @@ $cadena = isset($row) ? "JSON.parse('$row_encode'.replace(/\\n|\\r/g, ''))" : "'
 										</select>
 									</div>
 
-									<label class="col-lg-1 control-label"><i onclick="ConsultarArticulo();" title="Consultar Articulo" style="cursor: pointer" class="btn-xs btn-success fa fa-search"></i> Articulo VTA Factura</label>
+									<label class="col-lg-1 control-label"><i onclick="ConsultarArticulo();"
+											title="Consultar Articulo" style="cursor: pointer"
+											class="btn-xs btn-success fa fa-search"></i> Articulo VTA Factura</label>
 									<div class="col-lg-3">
 										<select name="CDU_IdArticuloVTAFactura" class="form-control select2"
 											id="CDU_IdArticuloVTAFactura">
@@ -834,6 +931,17 @@ $cadena = isset($row) ? "JSON.parse('$row_encode'.replace(/\\n|\\r/g, ''))" : "'
 											</div>
 										</div>
 									</div>
+
+									<?php if ($edit == 1) {?>
+										<div class="col-lg-12">
+											<div class="btn-group dropdown pull-right">
+												<button data-toggle="dropdown" class="btn btn-success dropdown-toggle"><i class="fa fa-mail-forward"></i> Copiar a <i class="fa fa-caret-down"></i></button>
+												<ul class="dropdown-menu">
+													<li><a class="alkin dropdown-item" href="lista_materiales.php?dt_LMT=1&LMT=<?php echo base64_encode($ItemCode); ?>">Lista de Materiales (Duplicar)</a></li>
+												</ul>
+											</div>
+										</div>
+									<?php }?>
 								</div>
 								<input type="hidden" id="P" name="P" value="66" />
 								<input type="hidden" id="IdEvento" name="IdEvento"
@@ -855,12 +963,25 @@ $cadena = isset($row) ? "JSON.parse('$row_encode'.replace(/\\n|\\r/g, ''))" : "'
 	<?php include_once "includes/pie.php"; ?>
 	<!-- InstanceBeginEditable name="EditRegion4" -->
 	<script>
-		function ConsultarArticulo(){
-			var Articulo=document.getElementById('CDU_IdArticuloVTAFactura');
+		// SMM, 18/07/2023
+		function ConsultarCliente() {
+			let Cliente = document.getElementById('Cliente');
+
+			if (Cliente.value != "") {
+				self.name = 'opener';
+
+				remote = open('socios_negocios.php?id=' + Base64.encode(Cliente.value) + '&ext=1&tl=1', 'remote', 'location=no,scrollbar=yes,menubars=no,toolbars=no,resizable=yes,fullscreen=yes,status=yes');
+				remote.focus();
+			}
+		}
+
+		// SMM, 18/07/2023
+		function ConsultarArticulo() {
+			var Articulo = document.getElementById('CDU_IdArticuloVTAFactura');
 			// console.log(Articulo.value);
-			if(Articulo.value!=""){
-				self.name='opener';
-				remote=open('articulos.php?id='+Base64.encode(Articulo.value)+'&ext=1&tl=1','remote','location=no,scrollbar=yes,menubars=no,toolbars=no,resizable=yes,fullscreen=yes,status=yes');
+			if (Articulo.value != "") {
+				self.name = 'opener';
+				remote = open('articulos.php?id=' + Base64.encode(Articulo.value) + '&ext=1&tl=1', 'remote', 'location=no,scrollbar=yes,menubars=no,toolbars=no,resizable=yes,fullscreen=yes,status=yes');
 				remote.focus();
 			}
 		}

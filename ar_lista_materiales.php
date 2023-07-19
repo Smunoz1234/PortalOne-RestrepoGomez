@@ -12,6 +12,7 @@ if(isset($_GET['id'])&&$_GET['id']!=""){
 		<div class="row m-b-md">
 			<div class="col-lg-12">
 				<a href="lista_materiales.php?id=<?php echo base64_encode($IdItemCode);?>&tl=1" target="_blank" class="btn btn-success"><i class="fa fa-edit"></i> Ver Lista de materiales</a>
+				<a style="margin-left: 15px;" href="lista_materiales.php?ItemCode=<?php echo base64_encode($IdItemCode);?>" target="_blank" class="btn btn-info"><i class="fa fa-plus"></i> Crear Lista de materiales</a>
 			</div>
 		</div>
 		<div class="table-responsive">

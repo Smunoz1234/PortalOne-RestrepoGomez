@@ -20,7 +20,7 @@ $SQL_Dimensiones = Seleccionar('uvw_Sap_tbl_Dimensiones', '*', "DimActive='Y'");
 
 $array_Dimensiones = [];
 while ($row_Dimension = sqlsrv_fetch_array($SQL_Dimensiones)) {
-    array_push($array_Dimensiones, $row_Dimension);
+	array_push($array_Dimensiones, $row_Dimension);
 }
 
 $encode_Dimensiones = json_encode($array_Dimensiones);
@@ -118,9 +118,9 @@ if (isset($_POST['P']) && ($_POST['P'] == "MM_Art")) { //Insertar o actualizar a
 					$msg_error = $Archivo['DE_Respuesta'];
 					//throw new Exception($Archivo['DE_Respuesta']);
 					/*if($_POST['EstadoActividad']=='Y'){
-				$UpdEstado="Update tbl_Actividades Set Cod_Estado='N' Where ID_Actividad='".$IdActividad."'";
-				$SQL_UpdEstado=sqlsrv_query($conexion,$UpdEstado);
-				}*/
+							   $UpdEstado="Update tbl_Actividades Set Cod_Estado='N' Where ID_Actividad='".$IdActividad."'";
+							   $SQL_UpdEstado=sqlsrv_query($conexion,$UpdEstado);
+							   }*/
 				} else {
 
 					sqlsrv_close($conexion);
@@ -192,6 +192,11 @@ $SQL_CapaPasajeros = Seleccionar('uvw_Sap_tbl_Articulos_CapaPasajerosVehiculo', 
 
 // SMM, 18/07/2023
 $SQL_ArticulosVTA = Seleccionar('uvw_Sap_tbl_Articulos_VTA_Factura', '*');
+
+// SMM, 19/07/2023
+if (isset($row["IdCliente"]) && ($row["IdCliente"] != "")) {
+	$SQL_SucursalCliente = Seleccionar('uvw_Sap_tbl_Clientes_Sucursales', '*', "CodigoCliente='" . $row["IdCliente"] . "'", 'NombreSucursal');
+}
 ?>
 
 <!DOCTYPE html>
@@ -508,16 +513,21 @@ $SQL_ArticulosVTA = Seleccionar('uvw_Sap_tbl_Articulos_VTA_Factura', '*');
 													</div>
 													<!-- 08/03/2022 -->
 
-													<label class="col-lg-1 control-label"><i onclick="ConsultarArticulo();" title="Consultar Articulo" style="cursor: pointer" class="btn-xs btn-success fa fa-search"></i> Articulo VTA Factura</label>
+													<label class="col-lg-1 control-label"><i
+															onclick="ConsultarArticulo();" title="Consultar Articulo"
+															style="cursor: pointer"
+															class="btn-xs btn-success fa fa-search"></i> Articulo VTA
+														Factura</label>
 													<div class="col-lg-3">
-														<select name="CDU_IdArticuloVTAFactura" class="form-control select2"
-															id="CDU_IdArticuloVTAFactura">
+														<select name="CDU_IdArticuloVTAFactura"
+															class="form-control select2" id="CDU_IdArticuloVTAFactura">
 															<option value="" disabled selected>Seleccione...</option>
 
 															<?php while ($row_ArticuloVTA = sqlsrv_fetch_array($SQL_ArticulosVTA)) { ?>
-																<option value="<?php echo $row_ArticuloVTA['ItemCode']; ?>" <?php if ((isset($row['CDU_IdArticuloVTAFactura'])) && (strcmp($row_ArticuloVTA['ItemCode'], $row['CDU_IdArticuloVTAFactura']) == 0)) {
-																	echo "selected";
-																} ?>>
+																<option value="<?php echo $row_ArticuloVTA['ItemCode']; ?>"
+																	<?php if ((isset($row['CDU_IdArticuloVTAFactura'])) && (strcmp($row_ArticuloVTA['ItemCode'], $row['CDU_IdArticuloVTAFactura']) == 0)) {
+																		echo "selected";
+																	} ?>>
 																	<?php echo $row_ArticuloVTA['ItemCode'] . " - " . $row_ArticuloVTA['ItemName']; ?>
 																</option>
 															<?php } ?>
@@ -546,7 +556,9 @@ $SQL_ArticulosVTA = Seleccionar('uvw_Sap_tbl_Articulos_VTA_Factura', '*');
 															<?php echo $dim['DescPortalOne']; ?>
 														</label>
 														<div class="col-lg-3">
-															<select name="<?php echo $dim['IdPortalOne'] ?>" id="<?php echo $dim['IdPortalOne'] ?>" class="form-control select2">
+															<select name="<?php echo $dim['IdPortalOne'] ?>"
+																id="<?php echo $dim['IdPortalOne'] ?>"
+																class="form-control select2">
 																<option value="">Seleccione...</option>
 
 																<?php $SQL_Dim = Seleccionar('uvw_Sap_tbl_DimensionesReparto', '*', 'DimCode=' . $dim['DimCode']); ?>
@@ -565,10 +577,86 @@ $SQL_ArticulosVTA = Seleccionar('uvw_Sap_tbl_Articulos_VTA_Factura', '*');
 													<?php } ?>
 												</div>
 												<!-- Dimensiones dinámicas, hasta aquí -->
-												
+
 											</div> <!-- ibox-content -->
 										</div>
 										<!-- Fin parametros de finanzas -->
+
+										<!-- INICIO, información comercial SN -->
+										<div class="ibox">
+											<div class="ibox-title bg-success">
+												<h5 class="collapse-link"><i class="fa fa-info-circle"></i> Información
+													comercial del socio de negocio</h5>
+												<a class="collapse-link pull-right">
+													<i class="fa fa-chevron-up"></i>
+												</a>
+											</div>
+											<div class="ibox-content">
+												<div class="form-group">
+													<label class="col-lg-1 control-label">
+														<i onClick="ConsultarCliente();" title="Consultar cliente"
+															style="cursor: pointer"
+															class="btn-xs btn-success fa fa-search"></i>
+														Cliente <span class="text-danger">*</span>
+													</label>
+													<div class="col-lg-3">
+														<input name="IdCliente" type="hidden" id="IdCliente" value="<?php if (($edit == 1) || ($sw_error == 1)) {
+															echo $row['IdCliente'];
+														} ?>">
+														<input name="DeCliente" type="text" class="form-control"
+															id="DeCliente" placeholder="Escribar para buscar..." value="<?php if (($edit == 1) || ($sw_error == 1)) {
+																echo $row['DeCliente'];
+															} ?>" required>
+													</div>
+
+													<label class="col-lg-1 control-label">Sucursal cliente <span
+															class="text-danger">*</span></label>
+													<div class="col-lg-3">
+														<select id="IdSucCliente" name="IdSucCliente"
+															class="form-control select2" required>
+															<option value="">Seleccione...</option>
+															
+															<?php if (($edit == 1) || ($sw_error == 1)) {
+																while ($row_Sucursal = sqlsrv_fetch_array($SQL_SucursalCliente)) { ?>
+																	<option value="<?php echo $row_Sucursal['NumeroLinea']; ?>"
+																		<?php if (strcmp($row_Sucursal['NumeroLinea'], $row['IdSucCliente']) == 0) {
+																			echo "selected";
+																		} ?>><?php echo $row_Sucursal['NombreSucursal']; ?>
+																	</option>
+																<?php }
+															} ?>
+														</select>
+													</div>
+												</div>
+
+												<div class="form-group">
+													<label class="col-lg-1 control-label">Servicios</label>
+													<div class="col-lg-3">
+														<textarea name="Servicios" rows="5" class="form-control"
+															id="Servicios" type="text"><?php if (($edit == 1) || ($sw_error == 1)) {
+																echo $row['Servicios'];
+															} ?></textarea>
+													</div>
+
+													<label class="col-lg-1 control-label">Áreas</label>
+													<div class="col-lg-3">
+														<textarea name="Areas" rows="5" class="form-control" id="Areas"
+															type="text"><?php if (($edit == 1) || ($sw_error == 1)) {
+																echo $row['Areas'];
+															} ?></textarea>
+													</div>
+
+													<label class="col-lg-1 control-label">Método Aplicación</label>
+													<div class="col-lg-3">
+														<textarea name="CDU_MetodoAplicacion" rows="5"
+															class="form-control" id="CDU_MetodoAplicacion" type="text"><?php if (($edit == 1) || ($sw_error == 1)) {
+																echo $row['CDU_MetodoAplicacion'] ?? "";
+															} ?></textarea>
+													</div>
+												</div>
+											</div> <!-- ibox-content -->
+										</div>
+										<!-- FIN, información comercial SN -->
 
 										<div class="ibox">
 											<div class="ibox-title bg-success">
@@ -748,7 +836,7 @@ $SQL_ArticulosVTA = Seleccionar('uvw_Sap_tbl_Articulos_VTA_Factura', '*');
 																<option
 																	value="<?php echo $row_CapaPasajeros['CodigoCapPasajerosVehiculo']; ?>"
 																	<?php if (isset($row['CDU_CapaPasajeros']) && (strcmp($row_CapaPasajeros['CodigoCapPasajerosVehiculo'], $row['CDU_CapaPasajeros']) == 0)) {
-																		echo "selected=\"selected\"";
+																		echo "selected";
 																	} ?>>
 																	<?php echo $row_CapaPasajeros['NombreCapPasajerosVehiculo']; ?>
 																</option>
@@ -891,12 +979,24 @@ $SQL_ArticulosVTA = Seleccionar('uvw_Sap_tbl_Articulos_VTA_Factura', '*');
 	<?php include "includes/pie.php"; ?>
 	<!-- InstanceBeginEditable name="EditRegion4" -->
 	<script>
-		function ConsultarArticulo(){
-			var Articulo=document.getElementById('CDU_IdArticuloVTAFactura');
+		function ConsultarArticulo() {
+			var Articulo = document.getElementById('CDU_IdArticuloVTAFactura');
 			// console.log(Articulo.value);
-			if(Articulo.value!=""){
-				self.name='opener';
-				remote=open('articulos.php?id='+Base64.encode(Articulo.value)+'&ext=1&tl=1','remote','location=no,scrollbar=yes,menubars=no,toolbars=no,resizable=yes,fullscreen=yes,status=yes');
+			if (Articulo.value != "") {
+				self.name = 'opener';
+				remote = open('articulos.php?id=' + Base64.encode(Articulo.value) + '&ext=1&tl=1', 'remote', 'location=no,scrollbar=yes,menubars=no,toolbars=no,resizable=yes,fullscreen=yes,status=yes');
+				remote.focus();
+			}
+		}
+
+		// SMM, 19/07/2023
+		function ConsultarCliente() {
+			let Cliente = document.getElementById("IdCliente");
+
+			if (Cliente.value != "") {
+				self.name = 'opener';
+
+				remote = open('socios_negocios.php?id=' + Base64.encode(Cliente.value) + '&ext=1&tl=1', 'remote', 'location=no,scrollbar=yes,menubars=no,toolbars=no,resizable=yes,fullscreen=yes,status=yes');
 				remote.focus();
 			}
 		}
@@ -921,6 +1021,38 @@ $SQL_ArticulosVTA = Seleccionar('uvw_Sap_tbl_Articulos_VTA_Factura', '*');
 
 			$('.footable').footable();
 
+			// SMM, 19/07/2023
+			$("#IdCliente").change(function () {
+				let Cliente = document.getElementById("IdCliente");
+				
+				$.ajax({
+					type: "POST",
+					url: "ajx_cbo_sucursales_clientes_simple.php?CardCode=" + Cliente.value + "&sucline=1&selec=1&todos=0",
+					success: function (response) {
+						$('#IdSucCliente').html(response);
+						$("#IdSucCliente").trigger("change");
+					}
+				});
+			});
+
+			// SMM, 19/07/2023
+			let options = {
+				url: function (phrase) {
+					return "ajx_buscar_datos_json.php?type=7&id=" + phrase;
+				},
+				getValue: "NombreBuscarCliente",
+				requestDelay: 400,
+				list: {
+					match: {
+						enabled: true
+					},
+					onClickEvent: function () {
+						var value = $("#DeCliente").getSelectedItemData().CodigoCliente;
+						$("#IdCliente").val(value).trigger("change");
+					}
+				}
+			};
+			$("#DeCliente").easyAutocomplete(options);
 		});
 	</script>
 	<script>
