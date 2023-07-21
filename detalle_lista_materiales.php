@@ -10,11 +10,10 @@ $Evento = "";
 $type = 1;
 $Estado = 1; //Abierto
 if (isset($_GET['id']) && ($_GET['id'] != "")) {
-	//	if($_GET['type']==1){
-//		$type=1;
-//	}else{
-//		$type=$_GET['type'];
-//	}
+	if(isset($_GET['type'])) {
+		$type=$_GET['type'];
+	}
+
 	$SQL = Seleccionar("tbl_ListaMaterialesDetalle", "*", "Usuario='" . $_SESSION['CodUser'] . "' and Father='" . base64_decode($_GET['id']) . "' and IdEvento='" . base64_decode($_GET['evento']) . "' and Metodo <> 3", 'VisOrder');
 	if ($SQL) {
 		$sw = 1;

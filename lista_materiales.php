@@ -256,7 +256,6 @@ if ($edit == 1 && $sw_error == 0) {
 	$row_Sap_encode = isset($row_Sap) ? json_encode($row_Sap) : "";
 	$cadena_sap = isset($row_Sap) ? "JSON.parse('$row_Sap_encode'.replace(/\\n|\\r/g, ''))" : "'Not Found'";
 	// echo "<script> console.log('SAP', $cadena_sap); </script>";
-
 }
 
 if ($sw_error == 1) {
@@ -315,56 +314,43 @@ $cadena = isset($row) ? "JSON.parse('$row_encode'.replace(/\\n|\\r/g, ''))" : "'
 // echo "<script> console.log($cadena); </script>";
 
 // SMM, 19/07/2023
-if (isset($_GET['dt_OV']) && ($_GET['dt_OV']) == 1) { // Verificar que viene de una Orden de ventas (Duplicar)
-    $dt_OF = 1;
+$dt_LMT = 0;
+if (isset($_GET['dt_LMT']) && ($_GET['dt_LMT']) == 1) { // Verificar que viene de una Lista de materiales (Duplicar)
+	$dt_LMT = 1;
+	$ID_Documento = "'" . base64_decode($_GET['LMT']) . "'";
 
-    // SMM, 30/09/2022
-    $ID_Documento = "'" . base64_decode($_GET['OV']) . "'";
+	$Where = "ItemCode=$ID_Documento AND IdEvento='" . base64_decode($_GET['Evento']) . "'";
+	// echo "SELECT * FROM tbl_ListaMateriales WHERE $Where";
 
-    $WhereAnexos = "ID_Documento=$ID_Documento";
-    // echo $WhereAnexos;
+	$SQL = Seleccionar("tbl_ListaMateriales", '*', $Where);
+	$row = sqlsrv_fetch_array($SQL);
 
-    Eliminar("tbl_DocumentosSAP_Anexos", $WhereAnexos);
-    // Hasta aquí, 30/09/2022
+	// Lista de materiales (SAP)
+	$SQL_Sap = Seleccionar("uvw_Sap_tbl_ListaMateriales", '*', "ItemCode=$ID_Documento");
+	$row_Sap = sqlsrv_fetch_array($SQL_Sap);
 
-    $ParametrosCopiarOrdenToOrden = array(
-        $ID_Documento, // SMM, 30/09/2022
-        "'" . base64_decode($_GET['Evento']) . "'",
-        "'" . base64_decode($_GET['Almacen']) . "'",
-        "'" . base64_decode($_GET['Cardcode']) . "'",
-        "'" . $_SESSION['CodUser'] . "'",
-    );
+	$ParametrosCopiar = array(
+		$ID_Documento,
+		$IdEvento, // Nuevo Evento desde "sp_ObtenerIdEvento"
+		"'" . base64_decode($_GET['Evento']) . "'",
+		"'" . $_SESSION['CodUser'] . "'",
+	);
 
-    $SQL_CopiarOrdenToOrden = EjecutarSP('sp_tbl_OrdenVentaDet_To_OrdenVentaDet', $ParametrosCopiarOrdenToOrden);
-    if (!$SQL_CopiarOrdenToOrden) {
-        echo "<script>
+	$SQL_Copiar = EjecutarSP('sp_tbl_ListaMaterialesDet_To_ListaMaterialesDet', $ParametrosCopiar);
+	if (!$SQL_Copiar) {
+		echo "<script>
 		$(document).ready(function() {
 			Swal.fire({
 				title: '¡Ha ocurrido un error!',
-				text: 'No se pudo duplicar la Orden de venta.',
+				text: 'No se pudo duplicar la Lista de materiales.',
 				icon: 'error'
 			});
 		});
 		</script>";
-    }
+	}
 
-    //Clientes
-    $SQL_Cliente = Seleccionar('uvw_Sap_tbl_Clientes', '*', "CodigoCliente='" . base64_decode($_GET['Cardcode']) . "'", 'NombreCliente');
-    $row_Cliente = sqlsrv_fetch_array($SQL_Cliente);
-
-    //Contacto cliente
-    $SQL_ContactoCliente = Seleccionar('uvw_Sap_tbl_ClienteContactos', '*', "CodigoCliente='" . base64_decode($_GET['Cardcode']) . "'", 'NombreContacto');
-
-    //Sucursales, SMM 06/05/2022
-    $SQL_SucursalDestino = Seleccionar('uvw_Sap_tbl_Clientes_Sucursales', '*', "CodigoCliente='" . base64_decode($_GET['Cardcode']) . "' AND TipoDireccion='S'", 'NombreSucursal');
-    $SQL_SucursalFacturacion = Seleccionar('uvw_Sap_tbl_Clientes_Sucursales', '*', "CodigoCliente='" . base64_decode($_GET['Cardcode']) . "' AND TipoDireccion='B'", 'NombreSucursal');
-
-    //Orden de servicio
-    $SQL_OrdenServicioCliente = Seleccionar('uvw_Sap_tbl_LlamadasServicios', '*', "ID_LlamadaServicio='" . base64_decode($_GET['LS']) . "'");
-    $row_OrdenServicioCliente = sqlsrv_fetch_array($SQL_OrdenServicioCliente);
-
-    // Anexos, SMM 30/09/2022
-    $SQL_Anexo = Seleccionar('uvw_tbl_DocumentosSAP_Anexos', '*', $WhereAnexos);
+	$codigoCliente = $row['CDU_CodigoCliente'] ?? "";
+	$SQL_Sucursal = Seleccionar("uvw_Sap_tbl_Clientes_Sucursales", "NombreSucursal, NumeroLinea", "CodigoCliente='$codigoCliente'");
 }
 ?>
 
@@ -497,8 +483,8 @@ if (isset($_GET['dt_OV']) && ($_GET['dt_OV']) == 1) { // Verificar que viene de 
 						// SMM, 18/07/2023
 						<?php if (isset($row_Articulo["IdSucCliente"])) { ?>
 							$("#Sucursal").val("<?php echo $row_Articulo["IdSucCliente"]; ?>");
-						<?php } ?> 
-						
+						<?php } ?>
+
 						$("#Sucursal").trigger("change");
 					}
 				});
@@ -522,7 +508,7 @@ if (isset($_GET['dt_OV']) && ($_GET['dt_OV']) == 1) { // Verificar que viene de 
 			// SMM, 18/07/2023
 			<?php if (isset($row_Articulo["IdCliente"])) { ?>
 				$("#Cliente").trigger("change");
-			<?php } ?> 
+			<?php } ?>
 		});
 	</script>
 	<!-- InstanceEndEditable -->
@@ -589,7 +575,7 @@ if (isset($_GET['dt_OV']) && ($_GET['dt_OV']) == 1) { // Verificar que viene de 
 									<label class="col-lg-1 control-label">Descripción <span
 											class="text-danger">*</span></label>
 									<div class="col-lg-3">
-										<input type="text" name="ItemName" id="ItemName" class="form-control" value="<?php if ($edit == 1 || $sw_error == 1) {
+										<input type="text" name="ItemName" id="ItemName" class="form-control" value="<?php if ($edit == 1 || $sw_error == 1 || $dt_LMT == 1) {
 											echo $row['ItemName'];
 										} elseif (isset($row_Articulo["ItemName"])) {
 											echo $row_Articulo["ItemName"];
@@ -598,7 +584,7 @@ if (isset($_GET['dt_OV']) && ($_GET['dt_OV']) == 1) { // Verificar que viene de 
 									<label class="col-lg-1 control-label">Cantidad <span
 											class="text-danger">*</span></label>
 									<div class="col-lg-3">
-										<input type="text" name="Cantidad" id="Cantidad" class="form-control" value="<?php if ($edit == 1 || $sw_error == 1) {
+										<input type="text" name="Cantidad" id="Cantidad" class="form-control" value="<?php if ($edit == 1 || $sw_error == 1 || $dt_LMT == 1) {
 											echo number_format($row['Cantidad'], 2);
 										} ?>" required>
 									</div>
@@ -609,7 +595,7 @@ if (isset($_GET['dt_OV']) && ($_GET['dt_OV']) == 1) { // Verificar que viene de 
 									<div class="col-lg-3">
 										<select name="TipoListaMat" class="form-control" id="TipoListaMat" required>
 											<?php while ($row_TipoLista = sqlsrv_fetch_array($SQL_TipoLista)) { ?>
-												<option value="<?php echo $row_TipoLista['TipoListaMat']; ?>" <?php if (($edit == 1 || $sw_error == 1) && (isset($row['TipoListaMat'])) && (strcmp($row_TipoLista['TipoListaMat'], $row['TipoListaMat']) == 0)) {
+												<option value="<?php echo $row_TipoLista['TipoListaMat']; ?>" <?php if (($edit == 1 || $sw_error == 1 || $dt_LMT == 1) && (isset($row['TipoListaMat'])) && (strcmp($row_TipoLista['TipoListaMat'], $row['TipoListaMat']) == 0)) {
 													   echo "selected=\"selected\"";
 												   } ?>><?php echo $row_TipoLista['DeTipoListaMat']; ?></option>
 											<?php } ?>
@@ -620,7 +606,7 @@ if (isset($_GET['dt_OV']) && ($_GET['dt_OV']) == 1) { // Verificar que viene de 
 									<div class="col-lg-3">
 										<select name="ListaPrecio" class="form-control" id="ListaPrecio" required>
 											<?php while ($row_ListaPrecios = sqlsrv_fetch_array($SQL_ListaPrecios)) { ?>
-												<option value="<?php echo $row_ListaPrecios['IdListaPrecio']; ?>" <?php if (($edit == 1 || $sw_error == 1) && (isset($row['IdListaPrecio'])) && (strcmp($row_ListaPrecios['IdListaPrecio'], $row['IdListaPrecio']) == 0)) {
+												<option value="<?php echo $row_ListaPrecios['IdListaPrecio']; ?>" <?php if (($edit == 1 || $sw_error == 1 || $dt_LMT == 1) && (isset($row['IdListaPrecio'])) && (strcmp($row_ListaPrecios['IdListaPrecio'], $row['IdListaPrecio']) == 0)) {
 													   echo "selected=\"selected\"";
 												   } ?>><?php echo $row_ListaPrecios['DeListaPrecio']; ?></option>
 											<?php } ?>
@@ -631,7 +617,7 @@ if (isset($_GET['dt_OV']) && ($_GET['dt_OV']) == 1) { // Verificar que viene de 
 										<select name="Proyecto" class="form-control select2" id="Proyecto">
 											<option value="">Seleccione...</option>
 											<?php while ($row_Proyecto = sqlsrv_fetch_array($SQL_Proyecto)) { ?>
-												<option value="<?php echo $row_Proyecto['IdProyecto']; ?>" <?php if (($edit == 1 || $sw_error == 1) && (isset($row['IdProyecto'])) && (strcmp($row_Proyecto['IdProyecto'], $row['IdProyecto']) == 0)) {
+												<option value="<?php echo $row_Proyecto['IdProyecto']; ?>" <?php if (($edit == 1 || $sw_error == 1 || $dt_LMT == 1) && (isset($row['IdProyecto'])) && (strcmp($row_Proyecto['IdProyecto'], $row['IdProyecto']) == 0)) {
 													   echo "selected=\"selected\"";
 												   } ?>><?php echo $row_Proyecto['DeProyecto']; ?>
 												</option>
@@ -646,7 +632,7 @@ if (isset($_GET['dt_OV']) && ($_GET['dt_OV']) == 1) { // Verificar que viene de 
 										<select name="OcrCode2" class="form-control" id="OcrCode2" required="required">
 											<option value="">Seleccione...</option>
 											<?php while ($row_UnidadNegocio = sqlsrv_fetch_array($SQL_UnidadNegocio)) { ?>
-												<option value="<?php echo $row_UnidadNegocio['OcrCode']; ?>" <?php if (($edit == 1 || $sw_error == 1) && (isset($row['OcrCode2'])) && (strcmp($row_UnidadNegocio['OcrCode'], $row['OcrCode2']) == 0)) {
+												<option value="<?php echo $row_UnidadNegocio['OcrCode']; ?>" <?php if (($edit == 1 || $sw_error == 1 || $dt_LMT == 1) && (isset($row['OcrCode2'])) && (strcmp($row_UnidadNegocio['OcrCode'], $row['OcrCode2']) == 0)) {
 													   echo "selected=\"selected\"";
 												   } elseif (($edit == 0) && ($row_DatosEmpleados['CentroCosto2'] != "") && (strcmp($row_DatosEmpleados['CentroCosto2'], $row_UnidadNegocio['OcrCode']) == 0)) {
 													   echo "selected=\"selected\"";
@@ -660,7 +646,7 @@ if (isset($_GET['dt_OV']) && ($_GET['dt_OV']) == 1) { // Verificar que viene de 
 										<select name="OcrCode" class="form-control" id="OcrCode">
 											<option value="">Seleccione...</option>
 											<?php while ($row_CentroCosto = sqlsrv_fetch_array($SQL_CentroCosto)) { ?>
-												<option value="<?php echo $row_CentroCosto['OcrCode']; ?>" <?php if (($edit == 1 || $sw_error == 1) && (isset($row['OcrCode'])) && (strcmp($row_CentroCosto['OcrCode'], $row['OcrCode']) == 0)) {
+												<option value="<?php echo $row_CentroCosto['OcrCode']; ?>" <?php if (($edit == 1 || $sw_error == 1 || $dt_LMT == 1) && (isset($row['OcrCode'])) && (strcmp($row_CentroCosto['OcrCode'], $row['OcrCode']) == 0)) {
 													   echo "selected=\"selected\"";
 												   } elseif (($edit == 0) && ($row_DatosEmpleados['CentroCosto1'] != "") && (strcmp($row_DatosEmpleados['CentroCosto1'], $row_CentroCosto['OcrCode']) == 0)) {
 													   echo "selected=\"selected\"";
@@ -674,7 +660,7 @@ if (isset($_GET['dt_OV']) && ($_GET['dt_OV']) == 1) { // Verificar que viene de 
 										<select name="OcrCode3" class="form-control" id="OcrCode3">
 											<option value="">Seleccione...</option>
 											<?php while ($row_Sede = sqlsrv_fetch_array($SQL_Sede)) { ?>
-												<option value="<?php echo $row_Sede['OcrCode']; ?>" <?php if (($edit == 1 || $sw_error == 1) && (isset($row['OcrCode3'])) && (strcmp($row_Sede['OcrCode'], $row['OcrCode3']) == 0)) {
+												<option value="<?php echo $row_Sede['OcrCode']; ?>" <?php if (($edit == 1 || $sw_error == 1 || $dt_LMT == 1) && (isset($row['OcrCode3'])) && (strcmp($row_Sede['OcrCode'], $row['OcrCode3']) == 0)) {
 													   echo "selected=\"selected\"";
 												   } elseif (($edit == 0) && ($row_DatosEmpleados['CentroCosto3'] != "") && (strcmp($row_DatosEmpleados['CentroCosto3'], $row_Sede['OcrCode']) == 0)) {
 													   echo "selected=\"selected\"";
@@ -697,13 +683,13 @@ if (isset($_GET['dt_OV']) && ($_GET['dt_OV']) == 1) { // Verificar que viene de 
 										Cliente <span class="text-danger">*</span>
 									</label>
 									<div class="col-lg-3">
-										<input name="Cliente" type="hidden" id="Cliente" value="<?php if (($edit == 1) || ($sw_error == 1)) {
+										<input name="Cliente" type="hidden" id="Cliente" value="<?php if (($edit == 1) || ($sw_error == 1) || ($dt_LMT == 1)) {
 											echo $row['CDU_CodigoCliente'];
 										} elseif (isset($row_Articulo["IdCliente"])) {
 											echo $row_Articulo["IdCliente"];
 										} ?>">
 										<input name="NombreCliente" type="text" class="form-control" id="NombreCliente"
-											placeholder="Escribar para buscar..." value="<?php if (($edit == 1) || ($sw_error == 1)) {
+											placeholder="Escribar para buscar..." value="<?php if (($edit == 1) || ($sw_error == 1) || ($dt_LMT == 1)) {
 												echo $row['CDU_NombreCliente'];
 											} elseif (isset($row_Articulo["DeCliente"])) {
 												echo $row_Articulo["DeCliente"];
@@ -715,7 +701,7 @@ if (isset($_GET['dt_OV']) && ($_GET['dt_OV']) == 1) { // Verificar que viene de 
 										<select id="Sucursal" name="Sucursal" class="form-control select2" required>
 											<option value="">Seleccione...</option>
 											<?php
-											if (($edit == 1) || ($sw_error == 1)) {
+											if (($edit == 1) || ($sw_error == 1) || ($dt_LMT == 1)) {
 												while ($row_Sucursal = sqlsrv_fetch_array($SQL_Sucursal)) { ?>
 													<option value="<?php echo $row_Sucursal['NumeroLinea']; ?>" <?php if (strcmp($row_Sucursal['NumeroLinea'], $row['CDU_IdSucursalCliente']) == 0) {
 														   echo "selected=\"selected\"";
@@ -745,7 +731,7 @@ if (isset($_GET['dt_OV']) && ($_GET['dt_OV']) == 1) { // Verificar que viene de 
 									<label class="col-lg-1 control-label">Servicios</label>
 									<div class="col-lg-3">
 										<textarea name="CDU_Servicios" rows="5" class="form-control" id="CDU_Servicios"
-											type="text"><?php if (($edit == 1) || ($sw_error == 1)) {
+											type="text"><?php if (($edit == 1) || ($sw_error == 1) || ($dt_LMT == 1)) {
 												echo $row['CDU_Servicios'];
 											} elseif (isset($row_Articulo["Servicios"])) {
 												echo $row_Articulo["Servicios"];
@@ -755,7 +741,7 @@ if (isset($_GET['dt_OV']) && ($_GET['dt_OV']) == 1) { // Verificar que viene de 
 									<label class="col-lg-1 control-label">Áreas</label>
 									<div class="col-lg-3">
 										<textarea name="CDU_Areas" rows="5" class="form-control" id="CDU_Areas"
-											type="text"><?php if (($edit == 1) || ($sw_error == 1)) {
+											type="text"><?php if (($edit == 1) || ($sw_error == 1) || ($dt_LMT == 1)) {
 												echo $row['CDU_Areas'];
 											} elseif (isset($row_Articulo["Areas"])) {
 												echo $row_Articulo["Areas"];
@@ -765,7 +751,7 @@ if (isset($_GET['dt_OV']) && ($_GET['dt_OV']) == 1) { // Verificar que viene de 
 									<label class="col-lg-1 control-label">Método Aplicación</label>
 									<div class="col-lg-3">
 										<textarea name="CDU_MetodoAplicacion" rows="5" class="form-control"
-											id="CDU_MetodoAplicacion" type="text"><?php if (($edit == 1) || ($sw_error == 1)) {
+											id="CDU_MetodoAplicacion" type="text"><?php if (($edit == 1) || ($sw_error == 1) || ($dt_LMT == 1)) {
 												echo $row_Sap['CDU_MetodoAplicacion'] ?? "";
 											} elseif (isset($row_Articulo["CDU_MetodoAplicacion"])) {
 												echo $row_Articulo["CDU_MetodoAplicacion"];
@@ -793,7 +779,7 @@ if (isset($_GET['dt_OV']) && ($_GET['dt_OV']) == 1) { // Verificar que viene de 
 									<label class="col-lg-1 control-label">Frecuencia</label>
 									<div class="col-lg-3">
 										<input name="CDU_Frecuencia" type="number" class="form-control"
-											id="CDU_Frecuencia" required value="<?php if (($edit == 1) || ($sw_error == 1)) {
+											id="CDU_Frecuencia" required value="<?php if (($edit == 1) || ($sw_error == 1) || ($dt_LMT == 1)) {
 												echo $row_Sap['CDU_Frecuencia'] ?? "";
 											} ?>">
 									</div>
@@ -802,7 +788,7 @@ if (isset($_GET['dt_OV']) && ($_GET['dt_OV']) == 1) { // Verificar que viene de 
 											class="text-danger">*</span></label>
 									<div class="col-lg-3">
 										<input name="CDU_TiempoTarea" type="number" class="form-control"
-											id="CDU_TiempoTarea" required="required" value="<?php if (($edit == 1) || ($sw_error == 1)) {
+											id="CDU_TiempoTarea" required="required" value="<?php if (($edit == 1) || ($sw_error == 1) || ($dt_LMT == 1)) {
 												echo $row_Sap['CDU_TiempoTarea'] ?? '';
 											} ?>">
 									</div>
@@ -886,7 +872,7 @@ if (isset($_GET['dt_OV']) && ($_GET['dt_OV']) == 1) { // Verificar que viene de 
 										<div id="tab-1" class="tab-pane active">
 											<iframe id="DataGrid" name="DataGrid" style="border: 0;" width="100%"
 												height="300" src="<?php if ($edit == 0 && $sw_error == 0) {
-													echo "detalle_lista_materiales.php";
+													echo "detalle_lista_materiales.php?id=" . base64_encode(0) . "&evento=" . base64_encode($IdEvento) . "&type=1";
 												} else {
 													echo "detalle_lista_materiales.php?id=" . base64_encode($row['ItemCode']) . "&evento=" . base64_encode($row['IdEvento']) . "&type=2";
 												} ?>"></iframe>
@@ -932,16 +918,20 @@ if (isset($_GET['dt_OV']) && ($_GET['dt_OV']) == 1) { // Verificar que viene de 
 										</div>
 									</div>
 
-									<?php if ($edit == 1) {?>
+									<?php if ($edit == 1) { ?>
 										<div class="col-lg-12">
 											<div class="btn-group dropdown pull-right">
-												<button data-toggle="dropdown" class="btn btn-success dropdown-toggle"><i class="fa fa-mail-forward"></i> Copiar a <i class="fa fa-caret-down"></i></button>
+												<button data-toggle="dropdown" class="btn btn-success dropdown-toggle"><i
+														class="fa fa-mail-forward"></i> Copiar a <i
+														class="fa fa-caret-down"></i></button>
 												<ul class="dropdown-menu">
-													<li><a class="alkin dropdown-item" href="lista_materiales.php?dt_LMT=1&LMT=<?php echo base64_encode($ItemCode); ?>">Lista de Materiales (Duplicar)</a></li>
+													<li><a class="alkin dropdown-item"
+															href="lista_materiales.php?dt_LMT=1&LMT=<?php echo base64_encode($ItemCode); ?>&Evento=<?php echo base64_encode($IdEvento); ?>">Lista
+															de Materiales (Duplicar)</a></li>
 												</ul>
 											</div>
 										</div>
-									<?php }?>
+									<?php } ?>
 								</div>
 								<input type="hidden" id="P" name="P" value="66" />
 								<input type="hidden" id="IdEvento" name="IdEvento"
