@@ -79,18 +79,19 @@ if (isset($_POST['P']) && ($_POST['P'] != "")) { //Grabar lista de materiales
 		// Insertar a la tabla de PortalOne
 		$SQL_CabeceraListaMateriales = EjecutarSP('sp_tbl_ListaMateriales', $ParametrosCabListaMateriales, $_POST['P']);
 		if ($SQL_CabeceraListaMateriales) {
-			$ItemCode = $_POST['ItemCode'];
+			$ItemCode = $_POST['ItemCode'] ?? 0;
 			$IdEvento = base64_decode($_POST['IdEvento']);
 
 			// Consultar cabecera
-			$SQL_json = Seleccionar("tbl_ListaMateriales", '*', "ItemCode='$ItemCode' AND IdEvento='$IdEvento'");
+			$Where_json = ($_POST['tl'] == 0) ? "IdEvento='$IdEvento'" : "ItemCode='$ItemCode' AND IdEvento='$IdEvento'";
+			$SQL_json = Seleccionar("tbl_ListaMateriales", '*', $Where_json);
 			$row_json = sqlsrv_fetch_array($SQL_json);
 
 			// Consultar detalle
-			$SQL_det = Seleccionar("tbl_ListaMaterialesDetalle", '*', "Father='$ItemCode' AND IdEvento='$IdEvento'", 'ChildNum');
+			$Where_det = ($_POST['tl'] == 0) ? "IdEvento='$IdEvento'" : "Father='$ItemCode' AND IdEvento='$IdEvento'";
+			$SQL_det = Seleccionar("tbl_ListaMaterialesDetalle", '*', $Where_det, 'ChildNum');
 
 			$Detalle = array();
-
 			while ($row_det = sqlsrv_fetch_array($SQL_det)) {
 
 				array_push(
