@@ -1,6 +1,22 @@
 <?php
 require_once("includes/conexion.php");
 PermitirAcceso(1208);
+
+// Dimensiones. SMM, 21/07/2023
+$DimSeries = intval(ObtenerVariable("DimensionSeries"));
+$SQL_Dimensiones = Seleccionar('uvw_Sap_tbl_Dimensiones', '*', "DimActive='Y'");
+
+$array_Dimensiones = [];
+while ($row_Dimension = sqlsrv_fetch_array($SQL_Dimensiones)) {
+	array_push($array_Dimensiones, $row_Dimension);
+}
+
+$encode_Dimensiones = json_encode($array_Dimensiones);
+$cadena_Dimensiones = "JSON.parse('$encode_Dimensiones'.replace(/\\n|\\r/g, ''))";
+// echo "<script> console.log('cadena_Dimensiones'); </script>";
+// echo "<script> console.log($cadena_Dimensiones); </script>";
+// Hasta aquí. SMM, 21/07/2023
+
 $sw = 0;
 //$Proyecto="";
 $Almacen = "";
@@ -10,8 +26,8 @@ $Evento = "";
 $type = 1;
 $Estado = 1; //Abierto
 if (isset($_GET['id']) && ($_GET['id'] != "")) {
-	if(isset($_GET['type'])) {
-		$type=$_GET['type'];
+	if (isset($_GET['type'])) {
+		$type = $_GET['type'];
 	}
 
 	$SQL = Seleccionar("tbl_ListaMaterialesDetalle", "*", "Usuario='" . $_SESSION['CodUser'] . "' and Father='" . base64_decode($_GET['id']) . "' and IdEvento='" . base64_decode($_GET['evento']) . "' and Metodo <> 3", 'VisOrder');
@@ -38,14 +54,7 @@ $SQL_Almacen = Seleccionar("uvw_Sap_tbl_Almacenes", "*");
 //Lista de precios
 $SQL_ListaPrecios = Seleccionar('uvw_Sap_tbl_ListaPrecios', '*');
 
-//Normas de reparto (Centros de costos)
-$SQL_Dim1 = Seleccionar('uvw_Sap_tbl_DimensionesReparto', '*', 'DimCode=1');
-
-//Normas de reparto (Unidad negocio)
-$SQL_Dim2 = Seleccionar('uvw_Sap_tbl_DimensionesReparto', '*', 'DimCode=2');
-
-//Normas de reparto (Sede cliente)
-$SQL_Dim3 = Seleccionar('uvw_Sap_tbl_DimensionesReparto', '*', 'DimCode=3');
+// Se eliminaron las dimensiones, 27/07/2023
 
 //Proyectos
 $SQL_Proyecto = Seleccionar('uvw_Sap_tbl_Proyectos', '*', '', 'DeProyecto');
@@ -209,9 +218,15 @@ $SQL_Proyecto = Seleccionar('uvw_Sap_tbl_Proyectos', '*', '', 'DeProyecto');
 						<th>Cantidad</th>
 						<th>Almacén</th>
 						<th>Proyecto</th>
-						<th>Dimensión 1</th>
-						<th>Dimensión 2</th>
-						<th>Dimensión 3</th>
+
+						<!-- Dimensiones dinámicas, SMM 21/07/2023 -->
+						<?php foreach ($array_Dimensiones as &$dim) { ?>
+							<th>
+								<?php echo $dim["DimDesc"]; ?>
+							</th>
+						<?php } ?>
+						<!-- Dimensiones dinámicas, hasta aquí -->
+
 						<th>Método emisión</th>
 						<th>Servicio</th>
 						<th>Método aplicación</th>
@@ -230,9 +245,9 @@ $SQL_Proyecto = Seleccionar('uvw_Sap_tbl_Proyectos', '*', '', 'DeProyecto');
 						while ($row = sqlsrv_fetch_array($SQL)) {
 							sqlsrv_fetch($SQL_Almacen, SQLSRV_SCROLL_ABSOLUTE, -1);
 							sqlsrv_fetch($SQL_Proyecto, SQLSRV_SCROLL_ABSOLUTE, -1);
-							sqlsrv_fetch($SQL_Dim1, SQLSRV_SCROLL_ABSOLUTE, -1);
-							sqlsrv_fetch($SQL_Dim2, SQLSRV_SCROLL_ABSOLUTE, -1);
-							sqlsrv_fetch($SQL_Dim3, SQLSRV_SCROLL_ABSOLUTE, -1);
+
+							// Se eliminaron las dimensiones, 27/07/2023
+					
 							sqlsrv_fetch($SQL_Servicios, SQLSRV_SCROLL_ABSOLUTE, -1);
 							sqlsrv_fetch($SQL_MetodoAplicacion, SQLSRV_SCROLL_ABSOLUTE, -1);
 							sqlsrv_fetch($SQL_TipoPlaga, SQLSRV_SCROLL_ABSOLUTE, -1);
@@ -242,8 +257,8 @@ $SQL_Proyecto = Seleccionar('uvw_Sap_tbl_Proyectos', '*', '', 'DeProyecto');
 							<tr>
 								<td class="text-center">
 									<div class="checkbox checkbox-success no-margins">
-										<input type="checkbox" class="chkSel" id="chkSel<?php echo $row['ChildNum']; ?>" value=""
-											onChange="Seleccionar('<?php echo $row['ChildNum']; ?>');"
+										<input type="checkbox" class="chkSel" id="chkSel<?php echo $row['ChildNum']; ?>"
+											value="" onChange="Seleccionar('<?php echo $row['ChildNum']; ?>');"
 											aria-label="Single checkbox One"><label></label>
 									</div>
 								</td>
@@ -272,8 +287,8 @@ $SQL_Proyecto = Seleccionar('uvw_Sap_tbl_Proyectos', '*', '', 'DeProyecto');
 										onChange="ActualizarDatos('WhsCode',<?php echo $i; ?>,<?php echo $row['ChildNum']; ?>);">
 										<?php while ($row_Almacen = sqlsrv_fetch_array($SQL_Almacen)) { ?>
 											<option value="<?php echo $row_Almacen['WhsCode']; ?>" <?php if ((isset($row['WhsCode'])) && (strcmp($row_Almacen['WhsCode'], $row['WhsCode']) == 0)) {
-												  echo "selected=\"selected\"";
-											  } ?>><?php echo $row_Almacen['WhsName']; ?></option>
+												   echo "selected=\"selected\"";
+											   } ?>><?php echo $row_Almacen['WhsName']; ?></option>
 										<?php } ?>
 									</select>
 								</td>
@@ -284,44 +299,33 @@ $SQL_Proyecto = Seleccionar('uvw_Sap_tbl_Proyectos', '*', '', 'DeProyecto');
 										<option value="">(NINGUNO)</option>
 										<?php while ($row_Proyecto = sqlsrv_fetch_array($SQL_Proyecto)) { ?>
 											<option value="<?php echo $row_Proyecto['IdProyecto']; ?>" <?php if ((isset($row['IdProyecto'])) && (strcmp($row_Proyecto['IdProyecto'], $row['IdProyecto']) == 0)) {
-												  echo "selected=\"selected\"";
-											  } ?>><?php echo $row_Proyecto['DeProyecto']; ?></option>
+												   echo "selected=\"selected\"";
+											   } ?>><?php echo $row_Proyecto['DeProyecto']; ?></option>
 										<?php } ?>
 									</select>
 								</td>
 
-								<td>
-									<select id="OcrCode<?php echo $i; ?>" name="OcrCode[]" class="form-control select2"
-										onChange="ActualizarDatos('OcrCode',<?php echo $i; ?>,<?php echo $row['ChildNum']; ?>);">
-										<?php while ($row_Dim1 = sqlsrv_fetch_array($SQL_Dim1)) { ?>
-											<option value="<?php echo $row_Dim1['OcrCode']; ?>" <?php if ((isset($row['OcrCode'])) && (strcmp($row_Dim1['OcrCode'], $row['OcrCode']) == 0)) {
-												  echo "selected=\"selected\"";
-											  } ?>><?php echo $row_Dim1['OcrName']; ?></option>
-										<?php } ?>
-									</select>
-								</td>
+								<!-- Dimensiones dinámicas, SMM 22/08/2022 -->
+								<?php foreach ($array_Dimensiones as &$dim) { ?>
+									<?php $DimCode = intval($dim['DimCode']); ?>
+									<?php $OcrId = ($DimCode == 1) ? "" : $DimCode; ?>
 
-								<td>
-									<select id="OcrCode2<?php echo $i; ?>" name="OcrCode2[]" class="form-control select2"
-										onChange="ActualizarDatos('OcrCode2',<?php echo $i; ?>,<?php echo $row['ChildNum']; ?>);">
-										<?php while ($row_Dim2 = sqlsrv_fetch_array($SQL_Dim2)) { ?>
-											<option value="<?php echo $row_Dim2['OcrCode']; ?>" <?php if ((isset($row['OcrCode2'])) && (strcmp($row_Dim2['OcrCode'], $row['OcrCode2']) == 0)) {
-												  echo "selected=\"selected\"";
-											  } ?>><?php echo $row_Dim2['OcrName']; ?></option>
-										<?php } ?>
-									</select>
-								</td>
+									<td>
+										<select id="OcrCode<?php echo $OcrId . $i; ?>" name="OcrCode<?php echo $OcrId; ?>[]"
+											class="form-control select2"
+											onChange="ActualizarDatos('OcrCode<?php echo $OcrId; ?>',<?php echo $i; ?>,<?php echo $row['ChildNum']; ?>);">
+											<option value="">(NINGUNO)</option>
 
-								<td>
-									<select id="OcrCode3<?php echo $i; ?>" name="OcrCode3[]" class="form-control select2"
-										onChange="ActualizarDatos('OcrCode3',<?php echo $i; ?>,<?php echo $row['ChildNum']; ?>);">
-										<?php while ($row_Dim3 = sqlsrv_fetch_array($SQL_Dim3)) { ?>
-											<option value="<?php echo $row_Dim3['OcrCode']; ?>" <?php if ((isset($row['OcrCode3'])) && (strcmp($row_Dim3['OcrCode'], $row['OcrCode3']) == 0)) {
-												  echo "selected=\"selected\"";
-											  } ?>><?php echo $row_Dim3['OcrName']; ?></option>
-										<?php } ?>
-									</select>
-								</td>
+											<?php $SQL_Dim = Seleccionar('uvw_Sap_tbl_DimensionesReparto', '*', "DimCode=$DimCode"); ?>
+											<?php while ($row_Dim = sqlsrv_fetch_array($SQL_Dim)) { ?>
+												<option value="<?php echo $row_Dim['OcrCode']; ?>" <?php if ((isset($row["OcrCode$OcrId"])) && ($row_Dim['OcrCode'] == $row["OcrCode$OcrId"])) {
+													   echo "selected";
+												   } ?>><?php echo $row_Dim['OcrName']; ?></option>
+											<?php } ?>
+										</select>
+									</td>
+								<?php } ?>
+								<!-- Dimensiones dinámicas, hasta aquí -->
 
 								<td>
 									<select id="MetodoEmision<?php echo $i; ?>" name="MetodoEmision[]"
@@ -332,7 +336,8 @@ $SQL_Proyecto = Seleccionar('uvw_Sap_tbl_Proyectos', '*', '', 'DeProyecto');
 										} ?>>Manual</option>
 										<option value="B" <?php if ((isset($row['MetodoEmision'])) && ($row['MetodoEmision'] == "B")) {
 											echo "selected=\"selected\"";
-										} ?>>Notificación</option>
+										} ?>>Notificación
+										</option>
 									</select>
 								</td>
 
@@ -343,8 +348,8 @@ $SQL_Proyecto = Seleccionar('uvw_Sap_tbl_Proyectos', '*', '', 'DeProyecto');
 										<option value="">(NINGUNO)</option>
 										<?php while ($row_Servicios = sqlsrv_fetch_array($SQL_Servicios)) { ?>
 											<option value="<?php echo $row_Servicios['IdServicio']; ?>" <?php if ((isset($row['CDU_IdServicio'])) && (strcmp($row_Servicios['IdServicio'], $row['CDU_IdServicio']) == 0)) {
-												  echo "selected=\"selected\"";
-											  } ?>><?php echo $row_Servicios['DeServicio']; ?></option>
+												   echo "selected=\"selected\"";
+											   } ?>><?php echo $row_Servicios['DeServicio']; ?></option>
 										<?php } ?>
 									</select>
 								</td>
@@ -355,8 +360,8 @@ $SQL_Proyecto = Seleccionar('uvw_Sap_tbl_Proyectos', '*', '', 'DeProyecto');
 										<option value="">(NINGUNO)</option>
 										<?php while ($row_MetodoAplicacion = sqlsrv_fetch_array($SQL_MetodoAplicacion)) { ?>
 											<option value="<?php echo $row_MetodoAplicacion['IdMetodoAplicacion']; ?>" <?php if ((isset($row['CDU_IdMetodoAplicacion'])) && (strcmp($row_MetodoAplicacion['IdMetodoAplicacion'], $row['CDU_IdMetodoAplicacion']) == 0)) {
-												  echo "selected=\"selected\"";
-											  } ?>><?php echo $row_MetodoAplicacion['DeMetodoAplicacion']; ?></option>
+												   echo "selected=\"selected\"";
+											   } ?>><?php echo $row_MetodoAplicacion['DeMetodoAplicacion']; ?></option>
 										<?php } ?>
 									</select>
 								</td>
@@ -367,8 +372,8 @@ $SQL_Proyecto = Seleccionar('uvw_Sap_tbl_Proyectos', '*', '', 'DeProyecto');
 										<option value="">(NINGUNO)</option>
 										<?php while ($row_TipoPlaga = sqlsrv_fetch_array($SQL_TipoPlaga)) { ?>
 											<option value="<?php echo $row_TipoPlaga['IdTipoPlagas']; ?>" <?php if ((isset($row['CDU_IdTipoPlagas'])) && (strcmp($row_TipoPlaga['IdTipoPlagas'], $row['CDU_IdTipoPlagas']) == 0)) {
-												  echo "selected=\"selected\"";
-											  } ?>><?php echo $row_TipoPlaga['DeTipoPlagas']; ?>
+												   echo "selected=\"selected\"";
+											   } ?>><?php echo $row_TipoPlaga['DeTipoPlagas']; ?>
 											</option>
 										<?php } ?>
 									</select>
@@ -387,15 +392,16 @@ $SQL_Proyecto = Seleccionar('uvw_Sap_tbl_Proyectos', '*', '', 'DeProyecto');
 										onBlur="CalcularTotal(<?php echo $i; ?>);"></td>
 
 								<td><input size="15" type="text" id="LineTotal<?php echo $i; ?>" name="LineTotal[]"
-										class="form-control" readonly value="<?php echo number_format($row['Total'], 2); ?>"></td>
+										class="form-control" readonly value="<?php echo number_format($row['Total'], 2); ?>">
+								</td>
 
 								<td>
 									<select id="ListaPrecio<?php echo $i; ?>" name="ListaPrecio[]" class="form-control select2"
 										onChange="ActualizarDatos('IdListaPrecio',<?php echo $i; ?>,<?php echo $row['ChildNum']; ?>);">
 										<?php while ($row_ListaPrecios = sqlsrv_fetch_array($SQL_ListaPrecios)) { ?>
 											<option value="<?php echo $row_ListaPrecios['IdListaPrecio']; ?>" <?php if ((isset($row['IdListaPrecio'])) && (strcmp($row_ListaPrecios['IdListaPrecio'], $row['IdListaPrecio']) == 0)) {
-												  echo "selected=\"selected\"";
-											  } ?>><?php echo $row_ListaPrecios['DeListaPrecio']; ?>
+												   echo "selected=\"selected\"";
+											   } ?>><?php echo $row_ListaPrecios['DeListaPrecio']; ?>
 											</option>
 										<?php } ?>
 									</select>

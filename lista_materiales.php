@@ -1,5 +1,21 @@
 <?php require_once "includes/conexion.php";
 PermitirAcceso(1208);
+
+// Dimensiones. SMM, 21/07/2023
+$DimSeries = intval(ObtenerVariable("DimensionSeries"));
+$SQL_Dimensiones = Seleccionar('uvw_Sap_tbl_Dimensiones', '*', "DimActive='Y'");
+
+$array_Dimensiones = [];
+while ($row_Dimension = sqlsrv_fetch_array($SQL_Dimensiones)) {
+	array_push($array_Dimensiones, $row_Dimension);
+}
+
+$encode_Dimensiones = json_encode($array_Dimensiones);
+$cadena_Dimensiones = "JSON.parse('$encode_Dimensiones'.replace(/\\n|\\r/g, ''))";
+// echo "<script> console.log('cadena_Dimensiones'); </script>";
+// echo "<script> console.log($cadena_Dimensiones); </script>";
+// Hasta aquí. SMM, 21/07/2023
+
 $dt_LS = 0; //sw para saber si vienen datos de la llamada de servicio. 0 no vienen. 1 si vienen.
 $dt_OF = 0; //sw para saber si vienen datos de una Oferta de venta.
 $msg_error = ""; //Mensaje del error
@@ -55,9 +71,11 @@ if (isset($_POST['P']) && ($_POST['P'] != "")) { //Grabar lista de materiales
 			"'" . $_POST['ListaPrecio'] . "'",
 			"'" . $_POST['TipoListaMat'] . "'",
 			"'" . $_POST['Proyecto'] . "'",
-			"'" . $_POST['OcrCode'] . "'",
-			"'" . $_POST['OcrCode2'] . "'",
-			"'" . $_POST['OcrCode3'] . "'",
+
+			"'" . ($_POST['Dim1'] ?? "") . "'", // SMM, 21/07/2023
+			"'" . ($_POST['Dim2'] ?? "") . "'", // SMM, 21/07/2023
+			"'" . ($_POST['Dim3'] ?? "") . "'", // SMM, 21/07/2023
+
 			"'" . $_POST['Cliente'] . "'",
 			"'" . $_POST['Sucursal'] . "'",
 			"'" . $_POST['CDU_Areas'] . "'",
@@ -270,14 +288,7 @@ if ($sw_error == 1) {
 
 }
 
-//Normas de reparto (centros de costos)
-$SQL_CentroCosto = Seleccionar('uvw_Sap_tbl_DimensionesReparto', '*', 'DimCode=1');
-
-//Normas de reparto (Unidad negocio)
-$SQL_UnidadNegocio = Seleccionar('uvw_Sap_tbl_DimensionesReparto', '*', 'DimCode=2');
-
-//Normas de reparto (Sede cliente)
-$SQL_Sede = Seleccionar('uvw_Sap_tbl_DimensionesReparto', '*', 'DimCode=3');
+// Se eliminaron las dimensiones, 27/07/2023
 
 //Tipo lista
 $SQL_TipoLista = Seleccionar('tbl_TipoListaMateriales', '*');
@@ -421,9 +432,15 @@ if (isset($_GET['dt_LMT']) && ($_GET['dt_LMT']) == 1) { // Verificar que viene d
 
 			var lista_precio = document.getElementById("ListaPrecio").value;
 			var proyecto = document.getElementById("Proyecto").value;
-			var ocrcode = document.getElementById("OcrCode").value;
-			var ocrcode2 = document.getElementById("OcrCode2").value;
-			var ocrcode3 = document.getElementById("OcrCode3").value;
+
+			// SMM, 21/07/2023
+			var dim1 = ((document.getElementById("Dim1") || {}).value) || "";
+			var dim2 = ((document.getElementById("Dim2") || {}).value) || "";
+			var dim3 = ((document.getElementById("Dim3") || {}).value) || "";
+			var dim4 = ((document.getElementById("Dim4") || {}).value) || "";
+			var dim5 = ((document.getElementById("Dim5") || {}).value) || "";
+			// Hasta aquí, 21/07/2023
+
 			var posicion_x;
 			var posicion_y;
 			posicion_x = (screen.width / 2) - (1200 / 2);
@@ -434,7 +451,7 @@ if (isset($_GET['dt_LMT']) && ($_GET['dt_LMT']) == 1) { // Verificar que viene d
 						echo base64_encode($row['IdEvento']);
 					} else {
 						echo base64_encode($IdEvento);
-					} ?>&lista_precio=' + btoa(lista_precio) + '&proyecto=' + btoa(proyecto) + '&ocrcode=' + btoa(ocrcode) + '&ocrcode2=' + btoa(ocrcode2) + '&ocrcode3=' + btoa(ocrcode3) + '&tipodoc=3&doctype=17&todosart=1', 'remote', "width=1200,height=500,location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=no,fullscreen=no,directories=no,status=yes,left=" + posicion_x + ",top=" + posicion_y + "");
+					} ?>&lista_precio=' + btoa(lista_precio) + '&proyecto=' + btoa(proyecto) + '&ocrcode=' + btoa(dim1) + '&ocrcode2=' + btoa(dim2) + '&ocrcode3=' + btoa(dim3) + '&tipodoc=3&doctype=17&todosart=1', 'remote', "width=1200,height=500,location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=no,fullscreen=no,directories=no,status=yes,left=" + posicion_x + ",top=" + posicion_y + "");
 					remote.focus();
 				} else {
 					Swal.fire({
@@ -619,64 +636,54 @@ if (isset($_GET['dt_LMT']) && ($_GET['dt_LMT']) == 1) { // Verificar que viene d
 											<option value="">Seleccione...</option>
 											<?php while ($row_Proyecto = sqlsrv_fetch_array($SQL_Proyecto)) { ?>
 												<option value="<?php echo $row_Proyecto['IdProyecto']; ?>" <?php if (($edit == 1 || $sw_error == 1 || $dt_LMT == 1) && (isset($row['IdProyecto'])) && (strcmp($row_Proyecto['IdProyecto'], $row['IdProyecto']) == 0)) {
-													   echo "selected=\"selected\"";
+													   echo "selected";
 												   } ?>><?php echo $row_Proyecto['DeProyecto']; ?>
 												</option>
 											<?php } ?>
 										</select>
 									</div>
 								</div>
+
+								<!-- Dimensiones dinámicas, SMM 21/07/2023 -->
 								<div class="form-group">
-									<label class="col-lg-1 control-label">Centro de costo <span
-											class="text-danger">*</span></label>
-									<div class="col-lg-3">
-										<select name="OcrCode2" class="form-control" id="OcrCode2" required="required">
-											<option value="">Seleccione...</option>
-											<?php while ($row_UnidadNegocio = sqlsrv_fetch_array($SQL_UnidadNegocio)) { ?>
-												<option value="<?php echo $row_UnidadNegocio['OcrCode']; ?>" <?php if (($edit == 1 || $sw_error == 1 || $dt_LMT == 1) && (isset($row['OcrCode2'])) && (strcmp($row_UnidadNegocio['OcrCode'], $row['OcrCode2']) == 0)) {
-													   echo "selected=\"selected\"";
-												   } elseif (($edit == 0) && ($row_DatosEmpleados['CentroCosto2'] != "") && (strcmp($row_DatosEmpleados['CentroCosto2'], $row_UnidadNegocio['OcrCode']) == 0)) {
-													   echo "selected=\"selected\"";
-												   } ?>>
-													<?php echo $row_UnidadNegocio['OcrName']; ?></option>
-											<?php } ?>
-										</select>
-									</div>
-									<label class="col-lg-1 control-label">Área</label>
-									<div class="col-lg-3">
-										<select name="OcrCode" class="form-control" id="OcrCode">
-											<option value="">Seleccione...</option>
-											<?php while ($row_CentroCosto = sqlsrv_fetch_array($SQL_CentroCosto)) { ?>
-												<option value="<?php echo $row_CentroCosto['OcrCode']; ?>" <?php if (($edit == 1 || $sw_error == 1 || $dt_LMT == 1) && (isset($row['OcrCode'])) && (strcmp($row_CentroCosto['OcrCode'], $row['OcrCode']) == 0)) {
-													   echo "selected=\"selected\"";
-												   } elseif (($edit == 0) && ($row_DatosEmpleados['CentroCosto1'] != "") && (strcmp($row_DatosEmpleados['CentroCosto1'], $row_CentroCosto['OcrCode']) == 0)) {
-													   echo "selected=\"selected\"";
-												   } ?>>
-													<?php echo $row_CentroCosto['OcrName']; ?></option>
-											<?php } ?>
-										</select>
-									</div>
-									<label class="col-lg-1 control-label">Sede</label>
-									<div class="col-lg-3">
-										<select name="OcrCode3" class="form-control" id="OcrCode3">
-											<option value="">Seleccione...</option>
-											<?php while ($row_Sede = sqlsrv_fetch_array($SQL_Sede)) { ?>
-												<option value="<?php echo $row_Sede['OcrCode']; ?>" <?php if (($edit == 1 || $sw_error == 1 || $dt_LMT == 1) && (isset($row['OcrCode3'])) && (strcmp($row_Sede['OcrCode'], $row['OcrCode3']) == 0)) {
-													   echo "selected=\"selected\"";
-												   } elseif (($edit == 0) && ($row_DatosEmpleados['CentroCosto3'] != "") && (strcmp($row_DatosEmpleados['CentroCosto3'], $row_Sede['OcrCode']) == 0)) {
-													   echo "selected=\"selected\"";
-												   } ?>><?php echo $row_Sede['OcrName']; ?>
-												</option>
-											<?php } ?>
-										</select>
-									</div>
-								</div>
+									<?php foreach ($array_Dimensiones as &$dim) { ?>
+										<label class="col-lg-1 control-label">
+											<?php echo $dim['DescPortalOne']; ?> <span class="text-danger">*</span>
+										</label>
+										<div class="col-lg-3">
+											<select name="<?php echo $dim['IdPortalOne'] ?>"
+												id="<?php echo $dim['IdPortalOne'] ?>" class="form-control select2"
+												required>
+												<option value="">Seleccione...</option>
+
+												<?php $SQL_Dim = Seleccionar('uvw_Sap_tbl_DimensionesReparto', '*', 'DimCode=' . $dim['DimCode']); ?>
+												<?php while ($row_Dim = sqlsrv_fetch_array($SQL_Dim)) { ?>
+													<?php $DimCode = intval($dim['DimCode']); ?>
+													<?php $OcrId = ($DimCode == 1) ? "" : $DimCode; ?>
+
+													<option value="<?php echo $row_Dim['OcrCode']; ?>" <?php if (isset($row["OcrCode$OcrId"]) && ($row_Dim['OcrCode'] == $row["OcrCode$OcrId"])) {
+														   echo "selected";
+													   } elseif (isset($_GET[strval($dim['IdPortalOne'])]) && (strcmp($row_Dim['OcrCode'], base64_decode($_GET[strval($dim['IdPortalOne'])])) == 0)) {
+														   echo "selected";
+													   } elseif (($edit == 0) && ($row_DatosEmpleados["CentroCosto$DimCode"] == $row_Dim['OcrCode'])) {
+														   echo "selected";
+													   } ?>>
+														<?php echo $row_Dim['OcrName']; ?>
+													</option>
+												<?php } ?>
+											</select>
+										</div>
+									<?php } ?>
+								</div><br>
+								<!-- Dimensiones dinámicas, hasta aquí -->
+
 								<div class="form-group">
 									<label class="col-xs-12">
 										<h3 class="bg-success p-xs b-r-sm"><i class="fa fa-tags"></i> Información
 											adicional</h3>
 									</label>
 								</div>
+
 								<div class="form-group">
 									<label class="col-lg-1 control-label">
 										<i onClick="ConsultarCliente();" title="Consultar cliente"
