@@ -273,6 +273,5 @@ if ($edit == 0) { //Creando
 </body>
 
 </html>
-<?php
-sqlsrv_close($conexion);
-?>
+
+<?php sqlsrv_close($conexion); ?>
