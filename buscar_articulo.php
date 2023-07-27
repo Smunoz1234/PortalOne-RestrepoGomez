@@ -573,8 +573,9 @@ if (!isset($_GET['dato']) || ($_GET['dato'] == "")) {
 					}
 				}
 				else if (doctype == 17) {//Lista de materiales
-					let id = "<?php echo ($ID_ListaMaterial != 0) ? base64_decode($ID_ListaMaterial) : 0; ?>";
-					let evento = "<?php echo ($ID_Evento != 0) ? $ID_Evento : base64_decode($_GET['evento'] ?? 0); ?>";
+					// SMM, 24/07/2023
+					<?php $ID_ListaMaterial = (isset($ID_ListaMaterial) && ($ID_ListaMaterial != "")) ? $ID_ListaMaterial : "0"; ?>
+					<?php $ID_Evento = (isset($ID_Evento) && ($ID_Evento != "")) ? $ID_Evento : base64_decode($_GET['evento'] ?? 0); ?>
 
 					var xhttp;
 					if (str.length == 0) {
@@ -585,7 +586,7 @@ if (!isset($_GET['dato']) || ($_GET['dato'] == "")) {
 					xhttp = new XMLHttpRequest();
 					xhttp.onreadystatechange = function () {
 						if (this.readyState == 4 && this.status == 200) {
-							window.opener.document.getElementById('DataGrid').src = `detalle_lista_materiales.php?id=${btoa(id)}&evento=${btoa(evento)}`;
+							window.opener.document.getElementById('DataGrid').src = 'detalle_lista_materiales.php?id=<?php echo base64_encode($ID_ListaMaterial); ?>&evento=<?php echo base64_encode($ID_Evento); ?>';
 							window.opener.document.getElementById('TotalItems').value = this.responseText;
 							window.opener.document.getElementById('BuscarItem').value = "";
 							window.close();
@@ -593,7 +594,7 @@ if (!isset($_GET['dato']) || ($_GET['dato'] == "")) {
 					};
 					xhttp.open("POST", "registro.php", true);
 					xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-					xhttp.send(`P=35&doctype=17&item=${str}&whscode=${whscode}&cardcode=&id=${id}&evento=${evento}&lista_precio=<?php echo $_GET['lista_precio'] ?? ""; ?>&proyecto=<?php echo $_GET['proyecto'] ?? ""; ?>&ocrcode=<?php echo $_GET['ocrcode'] ?? ""; ?>&ocrcode2=<?php echo $_GET['ocrcode2'] ?? ""; ?>&ocrcode3=<?php echo $_GET['ocrcode3'] ?? ""; ?>`);
+					xhttp.send(`P=35&doctype=17&item=${str}&whscode=${whscode}&cardcode=&id=<?php echo $ID_ListaMaterial; ?>&evento=<?php echo $ID_Evento; ?>&lista_precio=<?php echo $_GET['lista_precio'] ?? ""; ?>&proyecto=<?php echo $_GET['proyecto'] ?? ""; ?>&ocrcode=<?php echo $_GET['ocrcode'] ?? ""; ?>&ocrcode2=<?php echo $_GET['ocrcode2'] ?? ""; ?>&ocrcode3=<?php echo $_GET['ocrcode3'] ?? ""; ?>`);
 				}
 				else if (doctype == 18) {//Orden de compra crear
 					var xhttp;

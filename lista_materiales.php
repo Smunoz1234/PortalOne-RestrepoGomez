@@ -90,6 +90,8 @@ if (isset($_POST['P']) && ($_POST['P'] != "")) { //Grabar lista de materiales
 			// Campos nuevos
 			$_POST['CDU_Frecuencia'] ?? 0,
 			"'" . ($_POST['CDU_IdLineaNegocio'] ?? "") . "'",
+			"'" . ($_POST['CDU_IdArticuloVTAFactura'] ?? "") . "'",
+			"'" . ($_POST['IdBodega'] ?? "") . "'",
 			// Tipo de método
 			$Type
 		);
@@ -286,6 +288,18 @@ if ($sw_error == 1) {
 	$codigoCliente = isset($row['CDU_CodigoCliente']) ? $row['CDU_CodigoCliente'] : "";
 	$SQL_Sucursal = Seleccionar("uvw_Sap_tbl_Clientes_Sucursales", "NombreSucursal, NumeroLinea", "CodigoCliente='" . $codigoCliente . "'");
 
+	$ItemCode = (isset($_POST['ItemCode']) && ($_POST['ItemCode'] != "")) ? $_POST['ItemCode'] : 0;
+	$IdEvento = base64_decode($_POST['IdEvento']);
+
+	// SMM, 27/07/2023
+	if($edit == 1) {
+		// Lista de materiales (SAP)
+		$SQL_Sap = Seleccionar("uvw_Sap_tbl_ListaMateriales", '*', "ItemCode='$ItemCode'");
+		$row_Sap = sqlsrv_fetch_array($SQL_Sap);
+		$row_Sap_encode = isset($row_Sap) ? json_encode($row_Sap) : "";
+		$cadena_sap = isset($row_Sap) ? "JSON.parse('$row_Sap_encode'.replace(/\\n|\\r/g, ''))" : "'Not Found'";
+		// echo "<script> console.log('SAP', $cadena_sap); </script>";
+	}
 }
 
 // Se eliminaron las dimensiones, 27/07/2023
@@ -311,6 +325,7 @@ $SQL_Plantilla = Seleccionar('uvw_tbl_PlantillaActividades', '*');
 
 // Marcas de vehiculo en la tarjeta de equipo
 $SQL_MarcaVehiculo = Seleccionar('uvw_Sap_tbl_ListaMateriales_MarcaVehiculo', '*');
+
 // Lineas de vehiculo en la tarjeta de equipo
 $SQL_LineaVehiculo = Seleccionar('uvw_Sap_tbl_ListaMateriales_LineaVehiculo', '*');
 
@@ -319,6 +334,9 @@ $SQL_LineaNegocio = Seleccionar('uvw_Sap_tbl_ListaMateriales_LineaNegocio', '*')
 
 // SMM, 18/07/2023
 $SQL_ArticulosVTA = Seleccionar('uvw_Sap_tbl_Articulos_VTA_Factura', '*');
+
+// SMM, 25/07/2023
+$SQL_Bodega = SeleccionarGroupBy('uvw_tbl_SeriesSucursalesAlmacenes', 'WhsCode, WhsName', "IdTipoDocumento='17'", "WhsCode, WhsName", 'WhsName');
 
 // Stiven Muñoz Murillo, 07/02/2022
 $row_encode = isset($row) ? json_encode($row) : "";
@@ -566,6 +584,75 @@ if (isset($_GET['dt_LMT']) && ($_GET['dt_LMT']) == 1) { // Verificar que viene d
 			</div>
 
 			<div class="wrapper wrapper-content">
+				<?php if ($edit == 1) { ?>
+					<div class="row">
+						<div class="col-lg-3">
+							<div class="ibox ">
+								<div class="ibox-title">
+									<h5><span class="font-normal">Creada por</span></h5>
+								</div>
+								<div class="ibox-content">
+									<h3 class="no-margins">
+										<?php if (isset($row_Sap['UsuarioCreacion']) && ($row_Sap['UsuarioCreacion'] != "")) {
+											echo $row_Sap['UsuarioCreacion'];
+										} else {
+											echo "&nbsp;";
+										} ?>
+									</h3>
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-3">
+							<div class="ibox ">
+								<div class="ibox-title">
+									<h5><span class="font-normal">Fecha creación</span></h5>
+								</div>
+								<div class="ibox-content">
+									<h3 class="no-margins">
+										<?php if (isset($row_Sap['FechaHoraCreacion']) && ($row_Sap['FechaHoraCreacion'] != "")) {
+											echo $row_Sap['FechaHoraCreacion']->format('Y-m-d H:i');
+										} else {
+											echo "&nbsp;";
+										} ?>
+									</h3>
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-3">
+							<div class="ibox ">
+								<div class="ibox-title">
+									<h5><span class="font-normal">Actualizado por</span></h5>
+								</div>
+								<div class="ibox-content">
+									<h3 class="no-margins">
+										<?php if (isset($row_Sap['UsuarioActualizacion']) && ($row_Sap['UsuarioActualizacion'] != "")) {
+											echo $row_Sap['UsuarioActualizacion'];
+										} else {
+											echo "&nbsp;";
+										} ?>
+									</h3>
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-3">
+							<div class="ibox ">
+								<div class="ibox-title">
+									<h5><span class="font-normal">Fecha actualización</span></h5>
+								</div>
+								<div class="ibox-content">
+									<h3 class="no-margins">
+										<?php if (isset($row_Sap['FechaHoraActualizacion']) && ($row_Sap['FechaHoraActualizacion'] != "")) {
+											echo $row_Sap['FechaHoraActualizacion']->format('Y-m-d H:i');
+										} else {
+											echo "&nbsp;";
+										} ?>
+									</h3>
+								</div>
+							</div>
+						</div>
+					</div>
+				<?php } ?>
+
 				<div class="ibox-content">
 					<?php include "includes/spinner.php"; ?>
 					<div class="row">
@@ -579,7 +666,9 @@ if (isset($_GET['dt_LMT']) && ($_GET['dt_LMT']) == 1) { // Verificar que viene d
 									</label>
 								</div>
 								<div class="form-group">
-									<label class="col-lg-1 control-label">Código
+									<label class="col-lg-1 control-label"><i onclick="ConsultarArticulo('ItemCode');"
+											title="Consultar Articulo" style="cursor: pointer"
+											class="btn-xs btn-success fa fa-search"></i> Código
 										<?php if (!PermitirFuncion(1006)) { ?> <span class="text-danger">*</span>
 										<?php } ?>
 									</label>
@@ -625,23 +714,27 @@ if (isset($_GET['dt_LMT']) && ($_GET['dt_LMT']) == 1) { // Verificar que viene d
 										<select name="ListaPrecio" class="form-control" id="ListaPrecio" required>
 											<?php while ($row_ListaPrecios = sqlsrv_fetch_array($SQL_ListaPrecios)) { ?>
 												<option value="<?php echo $row_ListaPrecios['IdListaPrecio']; ?>" <?php if (($edit == 1 || $sw_error == 1 || $dt_LMT == 1) && (isset($row['IdListaPrecio'])) && (strcmp($row_ListaPrecios['IdListaPrecio'], $row['IdListaPrecio']) == 0)) {
-													   echo "selected=\"selected\"";
+													   echo "selected";
 												   } ?>><?php echo $row_ListaPrecios['DeListaPrecio']; ?></option>
 											<?php } ?>
 										</select>
 									</div>
-									<label class="col-lg-1 control-label">Proyecto</label>
+
+									<label class="col-lg-1 control-label">Bodega <span
+											class="text-danger">*</span></label>
 									<div class="col-lg-3">
-										<select name="Proyecto" class="form-control select2" id="Proyecto">
+										<select name="IdBodega" class="form-control" id="IdBodega" required>
 											<option value="">Seleccione...</option>
-											<?php while ($row_Proyecto = sqlsrv_fetch_array($SQL_Proyecto)) { ?>
-												<option value="<?php echo $row_Proyecto['IdProyecto']; ?>" <?php if (($edit == 1 || $sw_error == 1 || $dt_LMT == 1) && (isset($row['IdProyecto'])) && (strcmp($row_Proyecto['IdProyecto'], $row['IdProyecto']) == 0)) {
+
+											<?php while ($row_Bodega = sqlsrv_fetch_array($SQL_Bodega)) { ?>
+												<option value="<?php echo $row_Bodega['WhsCode']; ?>" <?php if ((isset($row_Sap['IdBodega'])) && (strcmp($row_Bodega['WhsCode'], $row_Sap['IdBodega']) == 0)) {
 													   echo "selected";
-												   } ?>><?php echo $row_Proyecto['DeProyecto']; ?>
+												   } ?>>
+													<?php echo $row_Bodega['WhsName']; ?>
 												</option>
 											<?php } ?>
 										</select>
-									</div>
+									</div> <!-- SMM, 25/07/2023 -->
 								</div>
 
 								<!-- Dimensiones dinámicas, SMM 21/07/2023 -->
@@ -676,6 +769,21 @@ if (isset($_GET['dt_LMT']) && ($_GET['dt_LMT']) == 1) { // Verificar que viene d
 									<?php } ?>
 								</div><br>
 								<!-- Dimensiones dinámicas, hasta aquí -->
+
+								<div class="form-group">
+									<label class="col-lg-1 control-label">Proyecto</label>
+									<div class="col-lg-3">
+										<select name="Proyecto" class="form-control select2" id="Proyecto">
+											<option value="">Seleccione...</option>
+											<?php while ($row_Proyecto = sqlsrv_fetch_array($SQL_Proyecto)) { ?>
+												<option value="<?php echo $row_Proyecto['IdProyecto']; ?>" <?php if (($edit == 1 || $sw_error == 1 || $dt_LMT == 1) && (isset($row['IdProyecto'])) && (strcmp($row_Proyecto['IdProyecto'], $row['IdProyecto']) == 0)) {
+													   echo "selected";
+												   } ?>><?php echo $row_Proyecto['DeProyecto']; ?>
+												</option>
+											<?php } ?>
+										</select>
+									</div>
+								</div>
 
 								<div class="form-group">
 									<label class="col-xs-12">
@@ -784,7 +892,8 @@ if (isset($_GET['dt_LMT']) && ($_GET['dt_LMT']) == 1) { // Verificar que viene d
 										</select>
 									</div>
 
-									<label class="col-lg-1 control-label">Frecuencia</label>
+									<label class="col-lg-1 control-label">Frecuencia <span
+											class="text-danger">*</span></label>
 									<div class="col-lg-3">
 										<input name="CDU_Frecuencia" type="number" class="form-control"
 											id="CDU_Frecuencia" required value="<?php if (($edit == 1) || ($sw_error == 1) || ($dt_LMT == 1)) {
@@ -832,7 +941,8 @@ if (isset($_GET['dt_LMT']) && ($_GET['dt_LMT']) == 1) { // Verificar que viene d
 										</select>
 									</div>
 
-									<label class="col-lg-1 control-label"><i onclick="ConsultarArticulo();"
+									<label class="col-lg-1 control-label"><i
+											onclick="ConsultarArticulo('CDU_IdArticuloVTAFactura');"
 											title="Consultar Articulo" style="cursor: pointer"
 											class="btn-xs btn-success fa fa-search"></i> Articulo VTA Factura</label>
 									<div class="col-lg-3">
@@ -882,7 +992,13 @@ if (isset($_GET['dt_LMT']) && ($_GET['dt_LMT']) == 1) { // Verificar que viene d
 												height="300" src="<?php if ($edit == 0 && $sw_error == 0) {
 													echo "detalle_lista_materiales.php?id=" . base64_encode(0) . "&evento=" . base64_encode($IdEvento) . "&type=1";
 												} else {
-													echo "detalle_lista_materiales.php?id=" . base64_encode($row['ItemCode']) . "&evento=" . base64_encode($row['IdEvento']) . "&type=2";
+													$id_detalle = (isset($row['ItemCode']) && ($row['ItemCode'] != "")) ? $row['ItemCode'] : $ItemCode;
+													$evento_detalle = (isset($row['IdEvento']) && ($row['IdEvento'] != "")) ? $row['IdEvento'] : $IdEvento;
+
+													$id_detalle = base64_encode($id_detalle);
+													$evento_detalle = base64_encode($evento_detalle);
+
+													echo "detalle_lista_materiales.php?id=$id_detalle&evento=$evento_detalle&type=2";
 												} ?>"></iframe>
 										</div>
 									</div>
@@ -974,9 +1090,10 @@ if (isset($_GET['dt_LMT']) && ($_GET['dt_LMT']) == 1) { // Verificar que viene d
 		}
 
 		// SMM, 18/07/2023
-		function ConsultarArticulo() {
-			var Articulo = document.getElementById('CDU_IdArticuloVTAFactura');
+		function ConsultarArticulo(ID) {
+			var Articulo = document.getElementById(ID);
 			// console.log(Articulo.value);
+
 			if (Articulo.value != "") {
 				self.name = 'opener';
 				remote = open('articulos.php?id=' + Base64.encode(Articulo.value) + '&ext=1&tl=1', 'remote', 'location=no,scrollbar=yes,menubars=no,toolbars=no,resizable=yes,fullscreen=yes,status=yes');
