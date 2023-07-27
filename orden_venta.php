@@ -1380,7 +1380,7 @@ function verAutorizacion() {
 			<?php }?>
 			<!-- Fin, modalAUT -->
 
-		 <?php if ($edit == 1) {?>
+		<?php if ($edit == 1) {?>
 			<div class="row">
 				<div class="col-lg-3">
 					<div class="ibox ">
@@ -1423,8 +1423,9 @@ function verAutorizacion() {
 					</div>
 				</div>
 			</div>
-			<?php }?>
-		 <?php if ($edit == 1) {?>
+		<?php }?>
+		
+		<?php if ($edit == 1) {?>
 		 <div class="ibox-content">
 			<?php include "includes/spinner.php";?>
 			 <div class="row">

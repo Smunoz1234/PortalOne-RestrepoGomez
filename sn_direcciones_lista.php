@@ -47,11 +47,14 @@ if ($edit == 0) { //Creando
 					//$('#CodigoPostal'+id).trigger('change');
 
 					console.log("consulta de dirección éxitosa.");
+					
 					// El cargando se quita desde el detalle. SMM, 26/06/2023
 					// $('.ibox-content', window.parent.document).toggleClass('sk-loading',false);
 				},
 				error: function (error) {
 					console.log("error:", error);
+					// El cargando se quita desde el detalle. SMM, 26/06/2023
+					// $('.ibox-content', window.parent.document).toggleClass('sk-loading',false);
 				}
 			});
 			//frame.src="sn_contactos_detalle.php?edit=<?php echo base64_encode($edit); ?>&id=<?php if ($edit == 1) {
@@ -176,7 +179,7 @@ if ($edit == 0) { //Creando
 		<table class="table table-striped table-hover">
 			<tbody id="listaDatosDirB">
 				<tr>
-					<td colspan="4" class="bg-success"><i class="fa fa-list"></i> Direcciones de facturación</td>
+					<td colspan="5" class="bg-success"><i class="fa fa-list"></i> Direcciones de facturación</td>
 				</tr>
 				<?php
 				$SQL = Seleccionar('uvw_Sap_tbl_SociosNegociosSucursales', '*', "[CodigoCliente]='" . $id . "' and TipoDireccion='B'");
@@ -201,6 +204,11 @@ if ($edit == 0) { //Creando
 						  <?php echo $row['NombreContacto']; ?>
 						<?php } ?>
 						</td>
+						<td>
+							<?php if ($row['NombreSucursal'] == $row['BillToDef']) { ?>
+								<i class="fa fa-star"></i>
+							<?php } ?>
+						</td>
 					</tr>
 					<?php echo "<script>
 			CargarDireccion(
@@ -223,7 +231,7 @@ if ($edit == 0) { //Creando
 			</tbody>
 			<tbody id="listaDatosDirS">
 				<tr>
-					<td colspan="4" class="bg-success"><i class="fa fa-list"></i> Direcciones de envío</td>
+					<td colspan="5" class="bg-success"><i class="fa fa-list"></i> Direcciones de envío</td>
 				</tr>
 				<?php
 				$SQL = Seleccionar('uvw_Sap_tbl_SociosNegociosSucursales', '*', "[CodigoCliente]='" . $id . "' and TipoDireccion='S'");
@@ -247,6 +255,11 @@ if ($edit == 0) { //Creando
   							class="fa fa-user"></i>
 						  <?php echo $row['NombreContacto']; ?>
 						<?php } ?>
+						</td>
+						<td>
+							<?php if ($row['NombreSucursal'] == $row['ShipToDef']) { ?>
+								<i class="fa fa-star"></i>
+							<?php } ?>
 						</td>
 					</tr>
 					<?php echo "<script>
