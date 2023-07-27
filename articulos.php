@@ -288,6 +288,51 @@ if (isset($row["IdCliente"]) && ($row["IdCliente"] != "")) {
 			</div>
 
 			<div class="wrapper wrapper-content">
+				<?php if ($edit == 1) {?>
+					<div class="row">
+						<div class="col-lg-3">
+							<div class="ibox ">
+								<div class="ibox-title">
+									<h5><span class="font-normal">Creada por</span></h5>
+								</div>
+								<div class="ibox-content">
+									<h3 class="no-margins"><?php if ($row['UsuarioCreacion'] != "") {echo $row['UsuarioCreacion'];} else {echo "&nbsp;";}?></h3>
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-3">
+							<div class="ibox ">
+								<div class="ibox-title">
+									<h5><span class="font-normal">Fecha creación</span></h5>
+								</div>
+								<div class="ibox-content">
+									<h3 class="no-margins"><?php echo ($row['FechaHoraCreacion'] != "") ? $row['FechaHoraCreacion']->format('Y-m-d H:i') : "&nbsp;"; ?></h3>
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-3">
+							<div class="ibox ">
+								<div class="ibox-title">
+									<h5><span class="font-normal">Actualizado por</span></h5>
+								</div>
+								<div class="ibox-content">
+									<h3 class="no-margins"><?php if ($row['UsuarioActualizacion'] != "") {echo $row['UsuarioActualizacion'];} else {echo "&nbsp;";}?></h3>
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-3">
+							<div class="ibox ">
+								<div class="ibox-title">
+									<h5><span class="font-normal">Fecha actualización</span></h5>
+								</div>
+								<div class="ibox-content">
+									<h3 class="no-margins"><?php echo ($row['FechaHoraActualizacion'] != "") ? $row['FechaHoraActualizacion']->format('Y-m-d H:i') : "&nbsp;"; ?></h3>
+								</div>
+							</div>
+						</div>
+					</div>
+				<?php }?>
+				
 				<form action="articulos.php" method="post" class="form-horizontal" enctype="multipart/form-data"
 					id="FrmArticulo">
 					<div class="ibox-content">
