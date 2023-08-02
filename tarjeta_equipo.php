@@ -102,13 +102,13 @@ if (isset($_POST['P']) && ($_POST['P'] != "")) { // Guardar tarjeta de equipo
 			"'" . $_SESSION['CodUser'] . "'",
 			"1",
 			// Nuevos campos
-			"'" . $_POST['CDU_IdMarca'] . "'",
-			"'" . $_POST['CDU_IdLinea'] . "'",
-			"'" . $_POST['CDU_Ano'] . "'",
-			"'" . $_POST['CDU_Concesionario'] . "'",
-			"'" . $_POST['CDU_No_Motor'] . "'",
-			"'" . $_POST['CDU_Color'] . "'",
-			"'" . $_POST['CDU_Cilindraje'] . "'",
+			"'" . ($_POST['CDU_IdMarca'] ?? '') . "'",
+			"'" . ($_POST['CDU_IdLinea'] ?? '') . "'",
+			"'" . ($_POST['CDU_Ano'] ?? '') . "'",
+			"'" . ($_POST['CDU_Concesionario'] ?? '') . "'",
+			"'" . ($_POST['CDU_No_Motor'] ?? '') . "'",
+			"'" . ($_POST['CDU_Color'] ?? '') . "'",
+			"'" . ($_POST['CDU_Cilindraje'] ?? '') . "'",
 			strtotime($_POST['CDU_FechaUlt_CambAceite']) ? ("'" . FormatoFecha($_POST['CDU_FechaUlt_CambAceite']) . "'") : "NULL",
 			strtotime($_POST['CDU_FechaProx_CambAceite']) ? ("'" . FormatoFecha($_POST['CDU_FechaProx_CambAceite']) . "'") : "NULL",
 			strtotime($_POST['CDU_FechaUlt_Mant']) ? ("'" . FormatoFecha($_POST['CDU_FechaUlt_Mant']) . "'") : "NULL",
@@ -120,8 +120,8 @@ if (isset($_POST['P']) && ($_POST['P'] != "")) { // Guardar tarjeta de equipo
 			strtotime($_POST['CDU_Fecha_Tecno']) ? ("'" . FormatoFecha($_POST['CDU_Fecha_Tecno']) . "'") : "NULL",
 			strtotime($_POST['CDU_FechaUlt_AlinBalan']) ? ("'" . FormatoFecha($_POST['CDU_FechaUlt_AlinBalan']) . "'") : "NULL",
 			strtotime($_POST['CDU_FechaProx_AlinBalan']) ? ("'" . FormatoFecha($_POST['CDU_FechaProx_AlinBalan']) . "'") : "NULL",
-			"'" . $_POST['CDU_TipoServicio'] . "'",
-			"'" . $_POST['TelefonoCliente'] . "'",
+			"'" . ($_POST['CDU_TipoServicio'] ?? '') . "'",
+			"'" . ($_POST['TelefonoCliente'] ?? '') . "'",
 			"'" . ($_POST['CDU_Novedad'] ?? '') . "'", // SMM, 23/06/2022
 		);
 
@@ -165,18 +165,20 @@ if (isset($_POST['P']) && ($_POST['P'] != "")) { // Guardar tarjeta de equipo
 						}
 
 						// Anexos
-						array_push($Anexos, array(
-							"id_anexo" => $j,
-							"tipo_documento" => 0,
-							"id_documento" => 0,
-							"archivo" => $OnlyName,
-							"ext_archivo" => $Ext,
-							"metodo" => 1,
-							"fecha" => FormatoFechaToSAP(date('Y-m-d'), date('H:i:s')),
-							"id_usuario" => intval($_SESSION['CodUser']),
-							"comentarios" => "",
-							"id_destino_evidencia" => "",
-						)
+						array_push(
+							$Anexos,
+							array(
+								"id_anexo" => $j,
+								"tipo_documento" => 0,
+								"id_documento" => 0,
+								"archivo" => $OnlyName,
+								"ext_archivo" => $Ext,
+								"metodo" => 1,
+								"fecha" => FormatoFechaToSAP(date('Y-m-d'), date('H:i:s')),
+								"id_usuario" => intval($_SESSION['CodUser']),
+								"comentarios" => "",
+								"id_destino_evidencia" => "",
+							)
 						);
 					}
 					$j++;
@@ -213,20 +215,18 @@ if (isset($_POST['P']) && ($_POST['P'] != "")) { // Guardar tarjeta de equipo
 				"id_anexo" => null,
 				"id_doc_portal" => "",
 				"usuario_creacion" => $_SESSION['User'],
-				"CDU_id_marca" => $_POST['CDU_IdMarca'],
-				"CDU_id_linea" => $_POST['CDU_IdLinea'],
-				"CDU_annio" => $_POST['CDU_Ano'],
-				"CDU_id_concesionario" => $_POST['CDU_Concesionario'],
-				"CDU_id_color" => $_POST['CDU_Color'],
-				"CDU_id_cilindraje" => $_POST['CDU_Cilindraje'],
-				"CDU_id_tipo_servicio" => $_POST['CDU_TipoServicio'],
-				"CDU_no_motor" => $_POST['CDU_No_Motor'],
+				"CDU_id_marca" => ($_POST['CDU_IdMarca'] ?? ''),
+				"CDU_id_linea" => ($_POST['CDU_IdLinea'] ?? ''),
+				"CDU_annio" => ($_POST['CDU_Ano'] ?? ''),
+				"CDU_id_concesionario" => ($_POST['CDU_Concesionario'] ?? ''),
+				"CDU_id_color" => ($_POST['CDU_Color'] ?? ''),
+				"CDU_id_cilindraje" => ($_POST['CDU_Cilindraje'] ?? ''),
+				"CDU_id_tipo_servicio" => ($_POST['CDU_TipoServicio'] ?? ''),
+				"CDU_no_motor" => ($_POST['CDU_No_Motor'] ?? ''),
 				"CDU_id_novedad" => ($_POST['CDU_Novedad'] ?? ''),
 				// SMM, 25/06/2022
 				"anexos" => (count($Anexos) > 0) ? $Anexos : null,
 			);
-
-			// Posiblemente, CDU_fecha_factura =>
 
 			// Agregar fechas, inicio.
 			if (isset($row_json['CDU_FechaMatricula'])) {
@@ -743,16 +743,16 @@ function ConsultarDocVentas(tipo){
 								<input <?php if (!PermitirFuncion(1602)) {
 									echo "readonly='readonly'";
 								} ?> autocomplete="off" onkeyup="mayus(this);" name="SerialInterno" type="text" required="required" class="form-control" id="SerialInterno" maxlength="150" value="<?php if (isset($row['SerialInterno'])) {
-									 echo $row['SerialInterno'];
-								 } ?>">
+									  echo $row['SerialInterno'];
+								  } ?>">
 							</div>
 							<label class="col-lg-1 control-label">Serial Fabricante (VIN) <span class="text-danger">*</span></label>
 							<div class="col-lg-3">
 								<input <?php if (!PermitirFuncion(1602)) {
 									echo "readonly='readonly'";
 								} ?> autocomplete="off" onkeyup="mayus(this);" name="SerialFabricante" type="text" required="required" class="form-control" id="SerialFabricante" maxlength="150" value="<?php if (isset($row['SerialFabricante'])) {
-									 echo $row['SerialFabricante'];
-								 } ?>">
+									  echo $row['SerialFabricante'];
+								  } ?>">
 							</div>
 						</div>
 						<div class="form-group">
@@ -761,16 +761,16 @@ function ConsultarDocVentas(tipo){
 								<input <?php if (!PermitirFuncion(1602)) {
 									echo "readonly='readonly'";
 								} ?> autocomplete="off" placeholder="Digite para buscar..." name="ItemCode" type="text" required="required" class="form-control" id="ItemCode" maxlength="150" value="<?php if (isset($row['ItemCode'])) {
-									 echo $row['ItemCode'];
-								 } ?>">
+									  echo $row['ItemCode'];
+								  } ?>">
 							</div>
 							<label class="col-lg-1 control-label">Descripción del artículo <span class="text-danger">*</span></label>
 							<div class="col-lg-3">
 								<input <?php if (!PermitirFuncion(1602)) {
 									echo "readonly='readonly'";
 								} ?> autocomplete="off" name="ItemName" type="text" required="required" class="form-control" id="ItemName" maxlength="150" value="<?php if (isset($row['ItemName'])) {
-									 echo $row['ItemName'];
-								 } ?>">
+									  echo $row['ItemName'];
+								  } ?>">
 							</div>
 							<label class="col-lg-1 control-label">Estado <span class="text-danger">*</span></label>
 							<div class="col-lg-3">
@@ -802,16 +802,16 @@ function ConsultarDocVentas(tipo){
 								<input <?php if (!PermitirFuncion(1602)) {
 									echo "readonly='readonly'";
 								} ?> autocomplete="off" name="SerieAnterior" type="text" class="form-control" id="SerieAnterior" maxlength="150" value="<?php if (isset($row['SerieAnterior'])) {
-									 echo $row['SerieAnterior'];
-								 } ?>">
+									  echo $row['SerieAnterior'];
+								  } ?>">
 							</div>
 							<label class="col-lg-1 control-label">Número de serie nuevo</label>
 							<div class="col-lg-3">
 								<input <?php if (!PermitirFuncion(1602)) {
 									echo "readonly='readonly'";
 								} ?> autocomplete="off" name="SerieNueva" type="text" class="form-control" id="SerieNueva" maxlength="150" value="<?php if (isset($row['SerieNueva'])) {
-									 echo $row['SerieNueva'];
-								 } ?>">
+									  echo $row['SerieNueva'];
+								  } ?>">
 							</div>
 						</div>
 					</div>
@@ -831,18 +831,18 @@ function ConsultarDocVentas(tipo){
 								<input <?php if (!PermitirFuncion(1602)) {
 									echo "readonly='readonly'";
 								} ?> name="ClienteEquipo" type="hidden" id="ClienteEquipo" value="<?php if (($edit == 1) || ($sw_error == 1)) {
-									 echo $row['CardCode'];
-								 } elseif ($dt_TE == 1) {
-									 echo $row_Cliente['CodigoCliente'] ?? "";
-								 } ?>">
+									  echo $row['CardCode'];
+								  } elseif ($dt_TE == 1) {
+									  echo $row_Cliente['CodigoCliente'] ?? "";
+								  } ?>">
 
 								<input <?php if (!PermitirFuncion(1602) || ($dt_TE == 1)) {
 									echo "readonly='readonly'";
 								} ?> name="NombreClienteEquipo" type="text" required="required" class="form-control" id="NombreClienteEquipo" placeholder="Digite para buscar..." value="<?php if (($edit == 1) || ($sw_error == 1)) {
-									 echo $row['CardName'] ?? "";
-								 } elseif ($dt_TE == 1) {
-									 echo $row_Cliente['NombreCliente'] ?? "";
-								 } ?>">
+									  echo $row['CardName'] ?? "";
+								  } elseif ($dt_TE == 1) {
+									  echo $row_Cliente['NombreCliente'] ?? "";
+								  } ?>">
 							</div>
 							<label class="col-lg-1 control-label">Persona de contacto</label>
 							<div class="col-lg-3">
@@ -864,10 +864,10 @@ function ConsultarDocVentas(tipo){
 								<input <?php if (!PermitirFuncion(1602)) {
 									echo "readonly='readonly'";
 								} ?> autocomplete="off" name="TelefonoCliente" type="text" class="form-control" id="TelefonoCliente" required="required" maxlength="150" value="<?php if (isset($row['TelefonoCliente'])) {
-									 echo $row['TelefonoCliente'];
-								 } elseif (($dt_TE == 1) && isset($row_Cliente['Telefono'])) {
-									 echo $row_Cliente['Telefono'];
-								 } ?>">
+									  echo $row['TelefonoCliente'];
+								  } elseif (($dt_TE == 1) && isset($row_Cliente['Telefono'])) {
+									  echo $row_Cliente['Telefono'];
+								  } ?>">
 							</div>
 						</div>
 						<div class="form-group">
@@ -902,336 +902,339 @@ function ConsultarDocVentas(tipo){
 					</div>
 				</div>
 				<!-- FIN, InfoSN -->
-				<!-- INICIO, información del vehículo y de la cita -->
-				<div class="ibox">
-					<div class="ibox-title bg-success">
-						<h5 class="collapse-link"><i class="fa fa-info-circle"></i> Información del vehículo y del mantenimiento</h5>
-						 <a class="collapse-link pull-right">
-							<i class="fa fa-chevron-up"></i>
-						</a>
-					</div>
-					<div class="ibox-content">
 
-						<!-- Agregado por Stiven Muñoz Murillo -->
-						<div class="form-group">
-							<div class="col-lg-6 border-bottom ">
-								<label class="control-label text-danger">Información base del vehículo</label>
-							</div>
+				<?php if (PermitirFuncion(1606)) { ?>
+					<!-- INICIO, información del vehículo y de la cita -->
+					<div class="ibox">
+						<div class="ibox-title bg-success">
+							<h5 class="collapse-link"><i class="fa fa-info-circle"></i> Información del vehículo y del mantenimiento</h5>
+							 <a class="collapse-link pull-right">
+								<i class="fa fa-chevron-up"></i>
+							</a>
 						</div>
-						<div class="form-group">
-							<div class="col-lg-4">
-								<label class="control-label">No_Motor <span class="text-danger">*</span></label>
-								<input <?php if (!PermitirFuncion(1602)) {
-									echo "readonly='readonly'";
-								} ?> autocomplete="off" name="CDU_No_Motor" required="required" type="text" class="form-control" id="CDU_No_Motor" maxlength="100"
-								value="<?php if (isset($row['CDU_No_Motor'])) {
-									echo $row['CDU_No_Motor'];
-								} ?>">
-							</div>
-						</div>
-						<div class="form-group">
-							<div class="col-lg-4">
-								<label class="control-label">Marca del vehículo <span class="text-danger">*</span></label>
-								<select <?php if (!PermitirFuncion(1602)) {
-									echo "disabled='disabled'";
-								} ?> name="CDU_IdMarca" class="form-control select2" required="required" id="CDU_IdMarca">
-									<option value="" disabled selected>Seleccione...</option>
-								  <?php while ($row_MarcaVehiculo = sqlsrv_fetch_array($SQL_MarcaVehiculo)) { ?>
-  									<option value="<?php echo $row_MarcaVehiculo['IdMarcaVehiculo']; ?>"
-									  <?php if ((isset($row['CDU_IdMarca'])) && (strcmp($row_MarcaVehiculo['IdMarcaVehiculo'], $row['CDU_IdMarca']) == 0)) {
-										  echo "selected=\"selected\"";
-									  } ?>>
-										  <?php echo $row_MarcaVehiculo['DeMarcaVehiculo']; ?>
-  									</option>
-								  <?php } ?>
-								</select>
-							</div>
-							<div class="col-lg-4">
-								<label class="control-label">Línea del vehículo <span class="text-danger">*</span></label>
-								<select <?php if (!PermitirFuncion(1602)) {
-									echo "disabled='disabled'";
-								} ?> name="CDU_IdLinea" class="form-control select2" required="required" id="CDU_IdLinea">
-										<option value="" disabled selected>Seleccione...</option>
-								  <?php while ($row_LineaVehiculo = sqlsrv_fetch_array($SQL_LineaVehiculo)) { ?>
-										<option value="<?php echo $row_LineaVehiculo['IdLineaModeloVehiculo']; ?>"
-										<?php if ((isset($row['CDU_IdLinea'])) && (strcmp($row_LineaVehiculo['IdLineaModeloVehiculo'], $row['CDU_IdLinea']) == 0)) {
-											echo "selected=\"selected\"";
-										} ?>>
-											<?php echo $row_LineaVehiculo['DeLineaModeloVehiculo']; ?>
-										</option>
-								  <?php } ?>
-								</select>
-							</div>
-							<div class="col-lg-4">
-								<label class="control-label">Modelo del vehículo <span class="text-danger">*</span></label>
-								<select <?php if (!PermitirFuncion(1602)) {
-									echo "disabled='disabled'";
-								} ?> name="CDU_Ano" class="form-control select2" required="required" id="CDU_Ano">
-										<option value="" disabled selected>Seleccione...</option>
-								  <?php while ($row_ModeloVehiculo = sqlsrv_fetch_array($SQL_ModeloVehiculo)) { ?>
-										<option value="<?php echo $row_ModeloVehiculo['CodigoModeloVehiculo']; ?>"
-										<?php if (isset($row['CDU_Ano']) && ((strcmp($row_ModeloVehiculo['CodigoModeloVehiculo'], $row['CDU_Ano']) == 0) || (strcmp($row_ModeloVehiculo['AñoModeloVehiculo'], $row['CDU_Ano']) == 0))) {
-											echo "selected=\"selected\"";
-										} ?>>
-											<?php echo $row_ModeloVehiculo['AñoModeloVehiculo']; ?>
-										</option>
-								  <?php } ?>
-								</select>
-							</div>
-						</div>
-						<div class="form-group">
-						<div class="col-lg-4">
-								<label class="control-label">Concesionario <span class="text-danger">*</span></label>
-								<select <?php if (!PermitirFuncion(1602)) {
-									echo "disabled='disabled'";
-								} ?> name="CDU_Concesionario" class="form-control select2" required="required" id="CDU_Concesionario">
-									<?php while ($row_Concesionario = sqlsrv_fetch_array($SQL_Concesionario)) { ?>
-										<option value="<?php echo $row_Concesionario['NombreConcesionario']; ?>"
-										<?php if (isset($row['CDU_Concesionario']) && (strcmp($row_Concesionario['NombreConcesionario'], $row['CDU_Concesionario']) == 0)) {
-											echo "selected=\"selected\"";
-										} elseif (($edit == 0) && (strcmp($row_Concesionario['NombreConcesionario'], ObtenerValorDefecto(176, "IdConcesionario", false)) == 0)) {
-											echo "selected='selected'";
-										} elseif (($edit == 0) && (ObtenerValorDefecto(176, "IdConcesionario", false) == "") && (strcmp($row_Concesionario['NombreConcesionario'], "Otro") == 0)) {
-											echo "selected='selected'";
-										} ?>>
+						<div class="ibox-content">
 
-											<?php echo $row_Concesionario['NombreConcesionario']; ?>
-										</option>
-									  <?php } ?>
-								</select>
-							</div>
-							<div class="col-lg-4">
-								<label class="control-label">Color <span class="text-danger">*</span></label>
-								<select <?php if (!PermitirFuncion(1602)) {
-									echo "disabled='disabled'";
-								} ?> name="CDU_Color" class="form-control select2" required="required" id="CDU_Color">
-										<option value="" disabled selected>Seleccione...</option>
-								  <?php while ($row_ColorVehiculo = sqlsrv_fetch_array($SQL_ColorVehiculo)) { ?>
-										<option value="<?php echo $row_ColorVehiculo['CodigoColorVehiculo']; ?>"
-										<?php if (isset($row['CDU_Color']) && (strcmp($row_ColorVehiculo['CodigoColorVehiculo'], $row['CDU_Color']) == 0)) {
-											echo "selected=\"selected\"";
-										} ?>>
-											<?php echo $row_ColorVehiculo['NombreColorVehiculo']; ?>
-										</option>
-								  <?php } ?>
-								</select>
-							</div>
-						</div>
-						<div class="form-group">
-							<div class="col-lg-4">
-								<label class="control-label">Cilindraje <span class="text-danger">*</span></label>
-								<select <?php if (!PermitirFuncion(1602)) {
-									echo "disabled='disabled'";
-								} ?> name="CDU_Cilindraje" class="form-control select2" required="required" id="CDU_Cilindraje">
-										<option value="" disabled selected>Seleccione...</option>
-								  <?php while ($row_Cilindraje = sqlsrv_fetch_array($SQL_CilindrajeVehiculo)) { ?>
-										<option value="<?php echo $row_Cilindraje['DescripcionCilindraje']; ?>"
-										<?php if (isset($row['CDU_Cilindraje']) && (strcmp($row_Cilindraje['DescripcionCilindraje'], $row['CDU_Cilindraje']) == 0)) {
-											echo "selected=\"selected\"";
-										} ?>>
-											<?php echo $row_Cilindraje['DescripcionCilindraje']; ?>
-										</option>
-								  <?php } ?>
-								</select>
-							</div>
-							<div class="col-lg-4">
-								<label class="control-label">Tipo servicio <span class="text-danger">*</span></label>
-								<select <?php if (!PermitirFuncion(1602)) {
-									echo "disabled='disabled'";
-								} ?> name="CDU_TipoServicio" class="form-control select2" required="required" id="CDU_TipoServicio">
-										<option value="" disabled selected>Seleccione...</option>
-								  <?php while ($row_TipoServicio = sqlsrv_fetch_array($SQL_TipoServicio)) { ?>
-										<option value="<?php echo $row_TipoServicio['NombreTipoServicio']; ?>"
-										<?php if (isset($row['CDU_TipoServicio']) && (strcmp($row_TipoServicio['NombreTipoServicio'], $row['CDU_TipoServicio']) == 0)) {
-											echo "selected=\"selected\"";
-										} ?>>
-											<?php echo $row_TipoServicio['NombreTipoServicio']; ?>
-										</option>
-								  <?php } ?>
-								</select>
-							</div>
-						</div>
-						<div class="form-group">
-							<div class="col-lg-4 border-bottom ">
-								<label class="control-label text-danger">Información cronológica del vehículo</label>
-							</div>
-						</div>
-						<div class="form-group">
-							<div class="col-lg-4">
-								<label class="control-label">Fecha Matricula</label>
-								<div class="input-group date">
-									<span class="input-group-addon"><i class="fa fa-calendar"></i></span><input autocomplete="off" <?php if (!PermitirFuncion(1602)) {
-										echo "readonly='readonly'";
-									} ?> name="CDU_FechaMatricula" id="CDU_FechaMatricula" type="text" class="form-control"
-									placeholder="YYYY-MM-DD" value="<?php if (isset($row['CDU_FechaMatricula'])) {
-										echo date_format($row['CDU_FechaMatricula'], 'Y-m-d');
-									} //else {echo 'AAAA-mm-dd';}?>">
-								</div>
-							</div>
-							<div class="col-lg-4">
-								<label class="control-label">Fecha SOAT</label>
-								<div class="input-group date">
-									 <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input autocomplete="off" <?php if (!PermitirFuncion(1602)) {
-										 echo "readonly='readonly'";
-									 } ?> name="CDU_Fecha_SOAT" id="CDU_Fecha_SOAT" type="text" class="form-control"
-									 placeholder="YYYY-MM-DD" value="<?php if (isset($row['CDU_Fecha_SOAT'])) {
-										 echo date_format($row['CDU_Fecha_SOAT'], 'Y-m-d');
-									 } //else {echo 'AAAA-mm-dd';}?>">
-								</div>
-							</div>
-						</div>
-						<div class="form-group">
-							<div class="col-lg-4">
-								<label class="control-label">Fecha Tecnicomecanica</label>
-								<div class="input-group date">
-									 <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input autocomplete="off" <?php if (!PermitirFuncion(1602)) {
-										 echo "readonly='readonly'";
-									 } ?> name="CDU_Fecha_Tecno" id="CDU_Fecha_Tecno" type="text" class="form-control"
-									 placeholder="YYYY-MM-DD" value="<?php if (isset($row['CDU_Fecha_Tecno'])) {
-										 echo date_format($row['CDU_Fecha_Tecno'], 'Y-m-d');
-									 } //else {echo 'AAAA-mm-dd';}?>">
-								</div>
-							</div>
-						</div>
-						<div class="form-group">
-							<div class="col-lg-4">
-								<label class="control-label">Fecha Ult. Cambio de Aceite</label>
-								<div class="input-group date">
-									 <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input autocomplete="off" <?php if (!PermitirFuncion(1602)) {
-										 echo "readonly='readonly'";
-									 } ?> name="CDU_FechaUlt_CambAceite" id="CDU_FechaUlt_CambAceite" type="text" class="form-control"
-									 placeholder="YYYY-MM-DD" value="<?php if (isset($row['CDU_FechaUlt_CambAceite'])) {
-										 echo date_format($row['CDU_FechaUlt_CambAceite'], 'Y-m-d');
-									 } //else {echo 'AAAA-mm-dd';}?>">
-								</div>
-							</div>
-							<div class="col-lg-4">
-								<label class="control-label">Fecha Prox. Cambio de Aceite</label>
-								<div class="input-group date">
-									 <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input autocomplete="off" readonly name="CDU_FechaProx_CambAceite" id="CDU_FechaProx_CambAceite" type="text" class="form-control"
-									 placeholder="YYYY-MM-DD" value="<?php if (isset($row['CDU_FechaProx_CambAceite'])) {
-										 echo date_format($row['CDU_FechaProx_CambAceite'], 'Y-m-d');
-									 } //else {echo 'AAAA-mm-dd';}?>">
-								</div>
-							</div>
-						</div>
-						<div class="form-group">
-							<div class="col-lg-4">
-								<label class="control-label">Fecha Ult. Mantenimiento</label>
-								<div class="input-group date">
-									 <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input autocomplete="off" <?php if (!PermitirFuncion(1602)) {
-										 echo "readonly='readonly'";
-									 } ?> name="CDU_FechaUlt_Mant" id="CDU_FechaUlt_Mant" type="text" class="form-control"
-									 placeholder="YYYY-MM-DD" value="<?php if (isset($row['CDU_FechaUlt_Mant'])) {
-										 echo date_format($row['CDU_FechaUlt_Mant'], 'Y-m-d');
-									 } //else {echo 'AAAA-mm-dd';}?>">
-								</div>
-							</div>
-							<div class="col-lg-4">
-								<label class="control-label">Fecha Prox. Mantenimiento</label>
-								<div class="input-group date">
-									 <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input autocomplete="off" readonly name="CDU_FechaProx_Mant" id="CDU_FechaProx_Mant" type="text" class="form-control"
-									 placeholder="YYYY-MM-DD" value="<?php if (isset($row['CDU_FechaProx_Mant'])) {
-										 echo date_format($row['CDU_FechaProx_Mant'], 'Y-m-d');
-									 } //else {echo 'AAAA-mm-dd';}?>">
-								</div>
-							</div>
-						</div>
-						<div class="form-group">
-							<div class="col-lg-4">
-								<label class="control-label">Fecha Ult. Cambio de Llantas</label>
-								<div class="input-group date">
-									 <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input autocomplete="off" <?php if (!PermitirFuncion(1602)) {
-										 echo "readonly='readonly'";
-									 } ?> name="CDU_FechaUlt_CambLlantas" id="CDU_FechaUlt_CambLlantas" type="text" class="form-control"
-									 placeholder="YYYY-MM-DD" value="<?php if (isset($row['CDU_FechaUlt_CambLlantas'])) {
-										 echo date_format($row['CDU_FechaUlt_CambLlantas'], 'Y-m-d');
-									 } //else {echo 'AAAA-mm-dd';}?>">
-								</div>
-							</div>
-							<div class="col-lg-4">
-								<label class="control-label">Fecha Prox. Cambio de Llantas</label>
-								<div class="input-group date">
-									 <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input autocomplete="off" readonly name="CDU_FechaProx_CambLlantas" id="CDU_FechaProx_CambLlantas" type="text" class="form-control"
-									 placeholder="YYYY-MM-DD" value="<?php if (isset($row['CDU_FechaProx_CambLlantas'])) {
-										 echo date_format($row['CDU_FechaProx_CambLlantas'], 'Y-m-d');
-									 } //else {echo 'AAAA-mm-dd';}?>">
-								</div>
-							</div>
-						</div>
-						<div class="form-group">
-							<div class="col-lg-4">
-								<label class="control-label">Fecha Ult. Alineación y Balanceo</label>
-								<div class="input-group date">
-									 <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input autocomplete="off" <?php if (!PermitirFuncion(1602)) {
-										 echo "readonly='readonly'";
-									 } ?> name="CDU_FechaUlt_AlinBalan" id="CDU_FechaUlt_AlinBalan" type="text" class="form-control"
-									 placeholder="YYYY-MM-DD" value="<?php if (isset($row['CDU_FechaUlt_AlinBalan'])) {
-										 echo date_format($row['CDU_FechaUlt_AlinBalan'], 'Y-m-d');
-									 } //else {echo 'AAAA-mm-dd';}?>">
-								</div>
-							</div>
-							<div class="col-lg-4">
-								<label class="control-label">Fecha Prox. Alineación y Balanceo</label>
-								<div class="input-group date">
-									 <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input autocomplete="off" readonly name="CDU_FechaProx_AlinBalan" id="CDU_FechaProx_AlinBalan" type="text" class="form-control"
-									 placeholder="YYYY-MM-DD" value="<?php if (isset($row['CDU_FechaProx_AlinBalan'])) {
-										 echo date_format($row['CDU_FechaProx_AlinBalan'], 'Y-m-d');
-									 } //else {echo 'AAAA-mm-dd';}?>">
-								</div>
-							</div>
-						</div>
-						<div class="form-group">
-							<div class="col-lg-4">
-								<label class="control-label">Fecha Factura</label>
-								<div class="input-group date">
-									 <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input autocomplete="off" readonly name="CDU_FechaFactura" id="CDU_FechaFactura" type="text" class="form-control"
-									 placeholder="YYYY-MM-DD" value="<?php if (isset($row['CDU_FechaFactura'])) {
-										 echo date_format($row['CDU_FechaFactura'], 'Y-m-d');
-									 } //else {echo 'AAAA-mm-dd';}?>">
-								</div>
-							</div>
-							<div class="col-lg-4">
-								<label class="control-label">Novedad</label>
-								<select <?php if (!PermitirFuncion(1602)) {
-									echo "disabled='disabled'";
-								} ?> name="CDU_Novedad" id="CDU_Novedad" class="form-control select2">
-									<option value="" disabled selected>Seleccione...</option>
-								  <?php while ($row_Novedad = sqlsrv_fetch_array($SQL_Novedades)) { ?>
-  									<option value="<?php echo $row_Novedad['IdNovedad']; ?>"
-									  <?php if ((isset($row['CDU_Novedad'])) && (strcmp($row_Novedad['IdNovedad'], $row['CDU_Novedad']) == 0)) {
-										  echo "selected=\"selected\"";
-									  } ?>>
-										  <?php echo $row_Novedad['DeNovedad']; ?>
-  									</option>
-								  <?php } ?>
-								</select>
-							</div>
-						</div>
-						<div class="form-group">
-							<div class="col-lg-4">
-								<label class="control-label">Fecha Agenda</label>
-								<div class="input-group date">
-									 <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input autocomplete="off" readonly name="CDU_FechaAgenda" id="CDU_FechaAgenda" type="text" class="form-control"
-									 placeholder="YYYY-MM-DD" value="<?php if (isset($row['CDU_FechaAgenda'])) {
-										 echo date_format($row['CDU_FechaAgenda'], 'Y-m-d');
-									 } //else {echo 'AAAA-mm-dd';}?>">
+							<!-- Agregado por Stiven Muñoz Murillo -->
+							<div class="form-group">
+								<div class="col-lg-6 border-bottom ">
+									<label class="control-label text-danger">Información base del vehículo</label>
 								</div>
 							</div>
 							<div class="form-group">
 								<div class="col-lg-4">
-									<label class="control-label">Sede Venta</label>
-									<input readonly='readonly' name="CDU_SedeVenta"  id="CDU_SedeVenta" autocomplete="off" maxlength="100"
-									type="text" class="form-control" value="<?php if (isset($row['CDU_SedeVenta'])) {
-										echo $row['CDU_SedeVenta'];
+									<label class="control-label">No_Motor <span class="text-danger">*</span></label>
+									<input <?php if (!PermitirFuncion(1602)) {
+										echo "readonly='readonly'";
+									} ?> autocomplete="off" name="CDU_No_Motor" required="required" type="text" class="form-control" id="CDU_No_Motor" maxlength="100"
+									value="<?php if (isset($row['CDU_No_Motor'])) {
+										echo $row['CDU_No_Motor'];
 									} ?>">
 								</div>
 							</div>
+							<div class="form-group">
+								<div class="col-lg-4">
+									<label class="control-label">Marca del vehículo <span class="text-danger">*</span></label>
+									<select <?php if (!PermitirFuncion(1602)) {
+										echo "disabled='disabled'";
+									} ?> name="CDU_IdMarca" class="form-control select2" required="required" id="CDU_IdMarca">
+										<option value="" disabled selected>Seleccione...</option>
+								  	<?php while ($row_MarcaVehiculo = sqlsrv_fetch_array($SQL_MarcaVehiculo)) { ?>
+										  <option value="<?php echo $row_MarcaVehiculo['IdMarcaVehiculo']; ?>"
+									  	<?php if ((isset($row['CDU_IdMarca'])) && (strcmp($row_MarcaVehiculo['IdMarcaVehiculo'], $row['CDU_IdMarca']) == 0)) {
+											  echo "selected=\"selected\"";
+										  } ?>>
+										  	<?php echo $row_MarcaVehiculo['DeMarcaVehiculo']; ?>
+										  </option>
+								  <?php } ?>
+									</select>
+								</div>
+								<div class="col-lg-4">
+									<label class="control-label">Línea del vehículo <span class="text-danger">*</span></label>
+									<select <?php if (!PermitirFuncion(1602)) {
+										echo "disabled='disabled'";
+									} ?> name="CDU_IdLinea" class="form-control select2" required="required" id="CDU_IdLinea">
+											<option value="" disabled selected>Seleccione...</option>
+								  	<?php while ($row_LineaVehiculo = sqlsrv_fetch_array($SQL_LineaVehiculo)) { ?>
+  										<option value="<?php echo $row_LineaVehiculo['IdLineaModeloVehiculo']; ?>"
+										  <?php if ((isset($row['CDU_IdLinea'])) && (strcmp($row_LineaVehiculo['IdLineaModeloVehiculo'], $row['CDU_IdLinea']) == 0)) {
+											  echo "selected=\"selected\"";
+										  } ?>>
+											  <?php echo $row_LineaVehiculo['DeLineaModeloVehiculo']; ?>
+  										</option>
+								  <?php } ?>
+									</select>
+								</div>
+								<div class="col-lg-4">
+									<label class="control-label">Modelo del vehículo <span class="text-danger">*</span></label>
+									<select <?php if (!PermitirFuncion(1602)) {
+										echo "disabled='disabled'";
+									} ?> name="CDU_Ano" class="form-control select2" required="required" id="CDU_Ano">
+											<option value="" disabled selected>Seleccione...</option>
+								  	<?php while ($row_ModeloVehiculo = sqlsrv_fetch_array($SQL_ModeloVehiculo)) { ?>
+  										<option value="<?php echo $row_ModeloVehiculo['CodigoModeloVehiculo']; ?>"
+										  <?php if (isset($row['CDU_Ano']) && ((strcmp($row_ModeloVehiculo['CodigoModeloVehiculo'], $row['CDU_Ano']) == 0) || (strcmp($row_ModeloVehiculo['AñoModeloVehiculo'], $row['CDU_Ano']) == 0))) {
+											  echo "selected=\"selected\"";
+										  } ?>>
+											  <?php echo $row_ModeloVehiculo['AñoModeloVehiculo']; ?>
+  										</option>
+								  <?php } ?>
+									</select>
+								</div>
+							</div>
+							<div class="form-group">
+							<div class="col-lg-4">
+									<label class="control-label">Concesionario <span class="text-danger">*</span></label>
+									<select <?php if (!PermitirFuncion(1602)) {
+										echo "disabled='disabled'";
+									} ?> name="CDU_Concesionario" class="form-control select2" required="required" id="CDU_Concesionario">
+										<?php while ($row_Concesionario = sqlsrv_fetch_array($SQL_Concesionario)) { ?>
+											<option value="<?php echo $row_Concesionario['NombreConcesionario']; ?>"
+											<?php if (isset($row['CDU_Concesionario']) && (strcmp($row_Concesionario['NombreConcesionario'], $row['CDU_Concesionario']) == 0)) {
+												echo "selected=\"selected\"";
+											} elseif (($edit == 0) && (strcmp($row_Concesionario['NombreConcesionario'], ObtenerValorDefecto(176, "IdConcesionario", false)) == 0)) {
+												echo "selected='selected'";
+											} elseif (($edit == 0) && (ObtenerValorDefecto(176, "IdConcesionario", false) == "") && (strcmp($row_Concesionario['NombreConcesionario'], "Otro") == 0)) {
+												echo "selected='selected'";
+											} ?>>
+
+												<?php echo $row_Concesionario['NombreConcesionario']; ?>
+											</option>
+									  <?php } ?>
+									</select>
+								</div>
+								<div class="col-lg-4">
+									<label class="control-label">Color <span class="text-danger">*</span></label>
+									<select <?php if (!PermitirFuncion(1602)) {
+										echo "disabled='disabled'";
+									} ?> name="CDU_Color" class="form-control select2" required="required" id="CDU_Color">
+											<option value="" disabled selected>Seleccione...</option>
+								  	<?php while ($row_ColorVehiculo = sqlsrv_fetch_array($SQL_ColorVehiculo)) { ?>
+  										<option value="<?php echo $row_ColorVehiculo['CodigoColorVehiculo']; ?>"
+										  <?php if (isset($row['CDU_Color']) && (strcmp($row_ColorVehiculo['CodigoColorVehiculo'], $row['CDU_Color']) == 0)) {
+											  echo "selected=\"selected\"";
+										  } ?>>
+											  <?php echo $row_ColorVehiculo['NombreColorVehiculo']; ?>
+  										</option>
+								  <?php } ?>
+									</select>
+								</div>
+							</div>
+							<div class="form-group">
+								<div class="col-lg-4">
+									<label class="control-label">Cilindraje <span class="text-danger">*</span></label>
+									<select <?php if (!PermitirFuncion(1602)) {
+										echo "disabled='disabled'";
+									} ?> name="CDU_Cilindraje" class="form-control select2" required="required" id="CDU_Cilindraje">
+											<option value="" disabled selected>Seleccione...</option>
+								  	<?php while ($row_Cilindraje = sqlsrv_fetch_array($SQL_CilindrajeVehiculo)) { ?>
+  										<option value="<?php echo $row_Cilindraje['DescripcionCilindraje']; ?>"
+										  <?php if (isset($row['CDU_Cilindraje']) && (strcmp($row_Cilindraje['DescripcionCilindraje'], $row['CDU_Cilindraje']) == 0)) {
+											  echo "selected=\"selected\"";
+										  } ?>>
+											  <?php echo $row_Cilindraje['DescripcionCilindraje']; ?>
+  										</option>
+								  <?php } ?>
+									</select>
+								</div>
+								<div class="col-lg-4">
+									<label class="control-label">Tipo servicio <span class="text-danger">*</span></label>
+									<select <?php if (!PermitirFuncion(1602)) {
+										echo "disabled='disabled'";
+									} ?> name="CDU_TipoServicio" class="form-control select2" required="required" id="CDU_TipoServicio">
+											<option value="" disabled selected>Seleccione...</option>
+								  	<?php while ($row_TipoServicio = sqlsrv_fetch_array($SQL_TipoServicio)) { ?>
+  										<option value="<?php echo $row_TipoServicio['NombreTipoServicio']; ?>"
+										  <?php if (isset($row['CDU_TipoServicio']) && (strcmp($row_TipoServicio['NombreTipoServicio'], $row['CDU_TipoServicio']) == 0)) {
+											  echo "selected=\"selected\"";
+										  } ?>>
+											  <?php echo $row_TipoServicio['NombreTipoServicio']; ?>
+  										</option>
+								  <?php } ?>
+									</select>
+								</div>
+							</div>
+							<div class="form-group">
+								<div class="col-lg-4 border-bottom ">
+									<label class="control-label text-danger">Información cronológica del vehículo</label>
+								</div>
+							</div>
+							<div class="form-group">
+								<div class="col-lg-4">
+									<label class="control-label">Fecha Matricula</label>
+									<div class="input-group date">
+										<span class="input-group-addon"><i class="fa fa-calendar"></i></span><input autocomplete="off" <?php if (!PermitirFuncion(1602)) {
+											echo "readonly='readonly'";
+										} ?> name="CDU_FechaMatricula" id="CDU_FechaMatricula" type="text" class="form-control"
+										placeholder="YYYY-MM-DD" value="<?php if (isset($row['CDU_FechaMatricula'])) {
+											echo date_format($row['CDU_FechaMatricula'], 'Y-m-d');
+										} //else {echo 'AAAA-mm-dd';}?>">
+									</div>
+								</div>
+								<div class="col-lg-4">
+									<label class="control-label">Fecha SOAT</label>
+									<div class="input-group date">
+										 <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input autocomplete="off" <?php if (!PermitirFuncion(1602)) {
+											 echo "readonly='readonly'";
+										 } ?> name="CDU_Fecha_SOAT" id="CDU_Fecha_SOAT" type="text" class="form-control"
+										 placeholder="YYYY-MM-DD" value="<?php if (isset($row['CDU_Fecha_SOAT'])) {
+											 echo date_format($row['CDU_Fecha_SOAT'], 'Y-m-d');
+										 } //else {echo 'AAAA-mm-dd';}?>">
+									</div>
+								</div>
+							</div>
+							<div class="form-group">
+								<div class="col-lg-4">
+									<label class="control-label">Fecha Tecnicomecanica</label>
+									<div class="input-group date">
+										 <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input autocomplete="off" <?php if (!PermitirFuncion(1602)) {
+											 echo "readonly='readonly'";
+										 } ?> name="CDU_Fecha_Tecno" id="CDU_Fecha_Tecno" type="text" class="form-control"
+										 placeholder="YYYY-MM-DD" value="<?php if (isset($row['CDU_Fecha_Tecno'])) {
+											 echo date_format($row['CDU_Fecha_Tecno'], 'Y-m-d');
+										 } //else {echo 'AAAA-mm-dd';}?>">
+									</div>
+								</div>
+							</div>
+							<div class="form-group">
+								<div class="col-lg-4">
+									<label class="control-label">Fecha Ult. Cambio de Aceite</label>
+									<div class="input-group date">
+										 <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input autocomplete="off" <?php if (!PermitirFuncion(1602)) {
+											 echo "readonly='readonly'";
+										 } ?> name="CDU_FechaUlt_CambAceite" id="CDU_FechaUlt_CambAceite" type="text" class="form-control"
+										 placeholder="YYYY-MM-DD" value="<?php if (isset($row['CDU_FechaUlt_CambAceite'])) {
+											 echo date_format($row['CDU_FechaUlt_CambAceite'], 'Y-m-d');
+										 } //else {echo 'AAAA-mm-dd';}?>">
+									</div>
+								</div>
+								<div class="col-lg-4">
+									<label class="control-label">Fecha Prox. Cambio de Aceite</label>
+									<div class="input-group date">
+										 <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input autocomplete="off" readonly name="CDU_FechaProx_CambAceite" id="CDU_FechaProx_CambAceite" type="text" class="form-control"
+										 placeholder="YYYY-MM-DD" value="<?php if (isset($row['CDU_FechaProx_CambAceite'])) {
+											 echo date_format($row['CDU_FechaProx_CambAceite'], 'Y-m-d');
+										 } //else {echo 'AAAA-mm-dd';}?>">
+									</div>
+								</div>
+							</div>
+							<div class="form-group">
+								<div class="col-lg-4">
+									<label class="control-label">Fecha Ult. Mantenimiento</label>
+									<div class="input-group date">
+										 <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input autocomplete="off" <?php if (!PermitirFuncion(1602)) {
+											 echo "readonly='readonly'";
+										 } ?> name="CDU_FechaUlt_Mant" id="CDU_FechaUlt_Mant" type="text" class="form-control"
+										 placeholder="YYYY-MM-DD" value="<?php if (isset($row['CDU_FechaUlt_Mant'])) {
+											 echo date_format($row['CDU_FechaUlt_Mant'], 'Y-m-d');
+										 } //else {echo 'AAAA-mm-dd';}?>">
+									</div>
+								</div>
+								<div class="col-lg-4">
+									<label class="control-label">Fecha Prox. Mantenimiento</label>
+									<div class="input-group date">
+										 <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input autocomplete="off" readonly name="CDU_FechaProx_Mant" id="CDU_FechaProx_Mant" type="text" class="form-control"
+										 placeholder="YYYY-MM-DD" value="<?php if (isset($row['CDU_FechaProx_Mant'])) {
+											 echo date_format($row['CDU_FechaProx_Mant'], 'Y-m-d');
+										 } //else {echo 'AAAA-mm-dd';}?>">
+									</div>
+								</div>
+							</div>
+							<div class="form-group">
+								<div class="col-lg-4">
+									<label class="control-label">Fecha Ult. Cambio de Llantas</label>
+									<div class="input-group date">
+										 <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input autocomplete="off" <?php if (!PermitirFuncion(1602)) {
+											 echo "readonly='readonly'";
+										 } ?> name="CDU_FechaUlt_CambLlantas" id="CDU_FechaUlt_CambLlantas" type="text" class="form-control"
+										 placeholder="YYYY-MM-DD" value="<?php if (isset($row['CDU_FechaUlt_CambLlantas'])) {
+											 echo date_format($row['CDU_FechaUlt_CambLlantas'], 'Y-m-d');
+										 } //else {echo 'AAAA-mm-dd';}?>">
+									</div>
+								</div>
+								<div class="col-lg-4">
+									<label class="control-label">Fecha Prox. Cambio de Llantas</label>
+									<div class="input-group date">
+										 <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input autocomplete="off" readonly name="CDU_FechaProx_CambLlantas" id="CDU_FechaProx_CambLlantas" type="text" class="form-control"
+										 placeholder="YYYY-MM-DD" value="<?php if (isset($row['CDU_FechaProx_CambLlantas'])) {
+											 echo date_format($row['CDU_FechaProx_CambLlantas'], 'Y-m-d');
+										 } //else {echo 'AAAA-mm-dd';}?>">
+									</div>
+								</div>
+							</div>
+							<div class="form-group">
+								<div class="col-lg-4">
+									<label class="control-label">Fecha Ult. Alineación y Balanceo</label>
+									<div class="input-group date">
+										 <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input autocomplete="off" <?php if (!PermitirFuncion(1602)) {
+											 echo "readonly='readonly'";
+										 } ?> name="CDU_FechaUlt_AlinBalan" id="CDU_FechaUlt_AlinBalan" type="text" class="form-control"
+										 placeholder="YYYY-MM-DD" value="<?php if (isset($row['CDU_FechaUlt_AlinBalan'])) {
+											 echo date_format($row['CDU_FechaUlt_AlinBalan'], 'Y-m-d');
+										 } //else {echo 'AAAA-mm-dd';}?>">
+									</div>
+								</div>
+								<div class="col-lg-4">
+									<label class="control-label">Fecha Prox. Alineación y Balanceo</label>
+									<div class="input-group date">
+										 <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input autocomplete="off" readonly name="CDU_FechaProx_AlinBalan" id="CDU_FechaProx_AlinBalan" type="text" class="form-control"
+										 placeholder="YYYY-MM-DD" value="<?php if (isset($row['CDU_FechaProx_AlinBalan'])) {
+											 echo date_format($row['CDU_FechaProx_AlinBalan'], 'Y-m-d');
+										 } //else {echo 'AAAA-mm-dd';}?>">
+									</div>
+								</div>
+							</div>
+							<div class="form-group">
+								<div class="col-lg-4">
+									<label class="control-label">Fecha Factura</label>
+									<div class="input-group date">
+										 <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input autocomplete="off" readonly name="CDU_FechaFactura" id="CDU_FechaFactura" type="text" class="form-control"
+										 placeholder="YYYY-MM-DD" value="<?php if (isset($row['CDU_FechaFactura'])) {
+											 echo date_format($row['CDU_FechaFactura'], 'Y-m-d');
+										 } //else {echo 'AAAA-mm-dd';}?>">
+									</div>
+								</div>
+								<div class="col-lg-4">
+									<label class="control-label">Novedad</label>
+									<select <?php if (!PermitirFuncion(1602)) {
+										echo "disabled='disabled'";
+									} ?> name="CDU_Novedad" id="CDU_Novedad" class="form-control select2">
+										<option value="" disabled selected>Seleccione...</option>
+								  	<?php while ($row_Novedad = sqlsrv_fetch_array($SQL_Novedades)) { ?>
+										  <option value="<?php echo $row_Novedad['IdNovedad']; ?>" <?php if ((isset($row['CDU_Novedad'])) && (strcmp($row_Novedad['IdNovedad'], $row['CDU_Novedad']) == 0)) {
+												 echo "selected";
+											 } ?>>
+										  	<?php echo $row_Novedad['DeNovedad']; ?>
+										  </option>
+								  <?php } ?>
+									</select>
+								</div>
+							</div>
+							<div class="form-group">
+								<div class="col-lg-4">
+									<label class="control-label">Fecha Agenda</label>
+									<div class="input-group date">
+										 <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input autocomplete="off" readonly name="CDU_FechaAgenda" id="CDU_FechaAgenda" type="text" class="form-control"
+										 placeholder="YYYY-MM-DD" value="<?php if (isset($row['CDU_FechaAgenda'])) {
+											 echo date_format($row['CDU_FechaAgenda'], 'Y-m-d');
+										 } //else {echo 'AAAA-mm-dd';}?>">
+									</div>
+								</div>
+								<div class="form-group">
+									<div class="col-lg-4">
+										<label class="control-label">Sede Venta</label>
+										<input readonly='readonly' name="CDU_SedeVenta"  id="CDU_SedeVenta" autocomplete="off" maxlength="100"
+										type="text" class="form-control" value="<?php if (isset($row['CDU_SedeVenta'])) {
+											echo $row['CDU_SedeVenta'];
+										} ?>">
+									</div>
+								</div>
+							</div>
+							<!-- Agregado, hasta aquí -->
 						</div>
-						<!-- Agregado, hasta aquí -->
 					</div>
-				</div>
-				<!-- FIN, información del vehículo y de la cita -->
+					<!-- FIN, información del vehículo y de la cita -->
+				<?php } ?>
+				
 				<!-- Inicio, TABS -->
 				<div class="tabs-container">
 					<ul class="nav nav-tabs">
@@ -1253,24 +1256,24 @@ function ConsultarDocVentas(tipo){
 											<input <?php if (!PermitirFuncion(1602)) {
 												echo "readonly='readonly'";
 											} ?> autocomplete="off" name="Calle" type="text" required="required" class="form-control" id="Calle" maxlength="150" value="<?php if (isset($row['Calle'])) {
-												 echo $row['Calle'];
-											 } ?>">
+												  echo $row['Calle'];
+											  } ?>">
 										</div>
 										<label class="col-lg-1 control-label">Código postal</label>
 										<div class="col-lg-3">
 											<input <?php if (!PermitirFuncion(1602)) {
 												echo "readonly='readonly'";
 											} ?> autocomplete="off" name="CodigoPostal" type="text" required="required" class="form-control" id="CodigoPostal" maxlength="150" value="<?php if (isset($row['CodigoPostal'])) {
-												 echo $row['CodigoPostal'];
-											 } ?>">
+												  echo $row['CodigoPostal'];
+											  } ?>">
 										</div>
 										<label class="col-lg-1 control-label">Ciudad</label>
 										<div class="col-lg-3">
 											<input <?php if (!PermitirFuncion(1602)) {
 												echo "readonly='readonly'";
 											} ?> autocomplete="off" name="Ciudad" type="text" required="required" class="form-control" id="Ciudad" maxlength="150" value="<?php if (isset($row['Ciudad'])) {
-												 echo $row['Ciudad'];
-											 } ?>">
+												  echo $row['Ciudad'];
+											  } ?>">
 										</div>
 									</div>
 
@@ -1278,15 +1281,15 @@ function ConsultarDocVentas(tipo){
 										<input <?php if (!PermitirFuncion(1602)) {
 											echo "readonly='readonly'";
 										} ?> type="hidden" name="EstadoPais" id="EstadoPais" value="<?php if (isset($row['EstadoPais'])) {
-											 echo $row['EstadoPais'];
-										 } ?>" />
+											  echo $row['EstadoPais'];
+										  } ?>" />
 										<label class="col-lg-1 control-label">Distrito</label>
 										<div class="col-lg-3">
 											<input <?php if (!PermitirFuncion(1602)) {
 												echo "readonly='readonly'";
 											} ?> autocomplete="off" name="Distrito" type="text" required="required" class="form-control" id="Distrito" maxlength="150" value="<?php if (isset($row['Distrito'])) {
-												 echo $row['Distrito'];
-											 } ?>">
+												  echo $row['Distrito'];
+											  } ?>">
 										</div>
 										<label class="col-lg-1 control-label">País</label>
 										<div class="col-lg-3">
