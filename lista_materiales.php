@@ -292,7 +292,7 @@ if ($sw_error == 1) {
 	$IdEvento = base64_decode($_POST['IdEvento']);
 
 	// SMM, 27/07/2023
-	if($edit == 1) {
+	if ($edit == 1) {
 		// Lista de materiales (SAP)
 		$SQL_Sap = Seleccionar("uvw_Sap_tbl_ListaMateriales", '*', "ItemCode='$ItemCode'");
 		$row_Sap = sqlsrv_fetch_array($SQL_Sap);
@@ -665,53 +665,62 @@ if (isset($_GET['dt_LMT']) && ($_GET['dt_LMT']) == 1) { // Verificar que viene d
 											de la lista de materiales</h3>
 									</label>
 								</div>
+
 								<div class="form-group">
-									<label class="col-lg-1 control-label"><i onclick="ConsultarArticulo('ItemCode');"
-											title="Consultar Articulo" style="cursor: pointer"
-											class="btn-xs btn-success fa fa-search"></i> Código
-										<?php if (!PermitirFuncion(1006)) { ?> <span class="text-danger">*</span>
-										<?php } ?>
-									</label>
-									<div class="col-lg-3">
+									<div class="col-lg-4">
+										<label class="control-label"><i onclick="ConsultarArticulo('ItemCode');"
+												title="Consultar Articulo" style="cursor: pointer"
+												class="btn-xs btn-success fa fa-search"></i> Código
+											<?php if (!PermitirFuncion(1006)) { ?> <span class="text-danger">*</span>
+											<?php } ?>
+										</label>
+
 										<input type="text" name="ItemCode" id="ItemCode" class="form-control" value="<?php if ($edit == 1 || $sw_error == 1) {
 											echo $row['ItemCode'];
 										} ?>" <?php if (($edit == 1) || PermitirFuncion(1006)) {
 											 echo "readonly";
 										 } ?> <?php if (!PermitirFuncion(1006)) { ?> required <?php } ?>>
 									</div>
-									<label class="col-lg-1 control-label">Descripción <span
-											class="text-danger">*</span></label>
-									<div class="col-lg-3">
+
+									<div class="col-lg-4">
+										<label class="control-label">Descripción <span
+												class="text-danger">*</span></label>
+
 										<input type="text" name="ItemName" id="ItemName" class="form-control" value="<?php if ($edit == 1 || $sw_error == 1 || $dt_LMT == 1) {
 											echo $row['ItemName'];
 										} elseif (isset($row_Articulo["ItemName"])) {
 											echo $row_Articulo["ItemName"];
 										} ?>" required>
 									</div>
-									<label class="col-lg-1 control-label">Cantidad <span
-											class="text-danger">*</span></label>
-									<div class="col-lg-3">
+
+									<div class="col-lg-4">
+										<label class="control-label">Cantidad <span class="text-danger">*</span></label>
+
 										<input type="text" name="Cantidad" id="Cantidad" class="form-control" value="<?php if ($edit == 1 || $sw_error == 1 || $dt_LMT == 1) {
 											echo number_format($row['Cantidad'], 2);
 										} ?>" required>
 									</div>
-								</div>
-								<div class="form-group">
-									<label class="col-lg-1 control-label">Tipo lista de material <span
-											class="text-danger">*</span></label>
-									<div class="col-lg-3">
-										<select name="TipoListaMat" class="form-control" id="TipoListaMat" required>
+
+									<div class="col-lg-4">
+										<label class="control-label">Tipo lista de material <span
+												class="text-danger">*</span></label>
+
+										<select name="TipoListaMat" class="form-control select2" id="TipoListaMat"
+											required>
 											<?php while ($row_TipoLista = sqlsrv_fetch_array($SQL_TipoLista)) { ?>
 												<option value="<?php echo $row_TipoLista['TipoListaMat']; ?>" <?php if (($edit == 1 || $sw_error == 1 || $dt_LMT == 1) && (isset($row['TipoListaMat'])) && (strcmp($row_TipoLista['TipoListaMat'], $row['TipoListaMat']) == 0)) {
-													   echo "selected=\"selected\"";
+													   echo "selected";
 												   } ?>><?php echo $row_TipoLista['DeTipoListaMat']; ?></option>
 											<?php } ?>
 										</select>
 									</div>
-									<label class="col-lg-1 control-label">Lista de precios <span
-											class="text-danger">*</span></label>
-									<div class="col-lg-3">
-										<select name="ListaPrecio" class="form-control" id="ListaPrecio" required>
+
+									<div class="col-lg-4">
+										<label class="control-label">Lista de precios <span
+												class="text-danger">*</span></label>
+
+										<select name="ListaPrecio" class="form-control select2" id="ListaPrecio"
+											required>
 											<?php while ($row_ListaPrecios = sqlsrv_fetch_array($SQL_ListaPrecios)) { ?>
 												<option value="<?php echo $row_ListaPrecios['IdListaPrecio']; ?>" <?php if (($edit == 1 || $sw_error == 1 || $dt_LMT == 1) && (isset($row['IdListaPrecio'])) && (strcmp($row_ListaPrecios['IdListaPrecio'], $row['IdListaPrecio']) == 0)) {
 													   echo "selected";
@@ -720,10 +729,10 @@ if (isset($_GET['dt_LMT']) && ($_GET['dt_LMT']) == 1) { // Verificar que viene d
 										</select>
 									</div>
 
-									<label class="col-lg-1 control-label">Bodega <span
-											class="text-danger">*</span></label>
-									<div class="col-lg-3">
-										<select name="IdBodega" class="form-control" id="IdBodega" required>
+									<div class="col-lg-4">
+										<label class="control-label">Bodega <span class="text-danger">*</span></label>
+
+										<select name="IdBodega" class="form-control select2" id="IdBodega" required>
 											<option value="">Seleccione...</option>
 
 											<?php while ($row_Bodega = sqlsrv_fetch_array($SQL_Bodega)) { ?>
@@ -734,16 +743,34 @@ if (isset($_GET['dt_LMT']) && ($_GET['dt_LMT']) == 1) { // Verificar que viene d
 												</option>
 											<?php } ?>
 										</select>
-									</div> <!-- SMM, 25/07/2023 -->
+									</div>
+									<!-- /#IdBodega -->
+
+									<div class="col-lg-4">
+										<label class="control-label">Proyecto</label>
+
+										<select name="Proyecto" class="form-control select2" id="Proyecto">
+											<option value="">Seleccione...</option>
+											<?php while ($row_Proyecto = sqlsrv_fetch_array($SQL_Proyecto)) { ?>
+												<option value="<?php echo $row_Proyecto['IdProyecto']; ?>" <?php if (($edit == 1 || $sw_error == 1 || $dt_LMT == 1) && (isset($row['IdProyecto'])) && (strcmp($row_Proyecto['IdProyecto'], $row['IdProyecto']) == 0)) {
+													   echo "selected";
+												   } ?>><?php echo $row_Proyecto['DeProyecto']; ?>
+												</option>
+											<?php } ?>
+										</select>
+									</div>
+									<!-- /#Proyecto -->
 								</div>
+								<!-- /.form-group -->
 
 								<!-- Dimensiones dinámicas, SMM 21/07/2023 -->
 								<div class="form-group">
 									<?php foreach ($array_Dimensiones as &$dim) { ?>
-										<label class="col-lg-1 control-label">
-											<?php echo $dim['DescPortalOne']; ?> <span class="text-danger">*</span>
-										</label>
-										<div class="col-lg-3">
+										<div class="col-lg-4">
+											<label class="control-label">
+												<?php echo $dim['DescPortalOne']; ?> <span class="text-danger">*</span>
+											</label>
+
 											<select name="<?php echo $dim['IdPortalOne'] ?>"
 												id="<?php echo $dim['IdPortalOne'] ?>" class="form-control select2"
 												required>
@@ -769,21 +796,6 @@ if (isset($_GET['dt_LMT']) && ($_GET['dt_LMT']) == 1) { // Verificar que viene d
 									<?php } ?>
 								</div><br>
 								<!-- Dimensiones dinámicas, hasta aquí -->
-
-								<div class="form-group">
-									<label class="col-lg-1 control-label">Proyecto</label>
-									<div class="col-lg-3">
-										<select name="Proyecto" class="form-control select2" id="Proyecto">
-											<option value="">Seleccione...</option>
-											<?php while ($row_Proyecto = sqlsrv_fetch_array($SQL_Proyecto)) { ?>
-												<option value="<?php echo $row_Proyecto['IdProyecto']; ?>" <?php if (($edit == 1 || $sw_error == 1 || $dt_LMT == 1) && (isset($row['IdProyecto'])) && (strcmp($row_Proyecto['IdProyecto'], $row['IdProyecto']) == 0)) {
-													   echo "selected";
-												   } ?>><?php echo $row_Proyecto['DeProyecto']; ?>
-												</option>
-											<?php } ?>
-										</select>
-									</div>
-								</div>
 
 								<div class="form-group">
 									<label class="col-xs-12">
