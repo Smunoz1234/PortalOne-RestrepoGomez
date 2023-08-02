@@ -117,10 +117,10 @@ if (isset($_POST['P']) && ($_POST['P'] == "MM_Art")) { //Insertar o actualizar a
 					$sw_error = 1;
 					$msg_error = $Archivo['DE_Respuesta'];
 					//throw new Exception($Archivo['DE_Respuesta']);
-					/*if($_POST['EstadoActividad']=='Y'){
-							   $UpdEstado="Update tbl_Actividades Set Cod_Estado='N' Where ID_Actividad='".$IdActividad."'";
-							   $SQL_UpdEstado=sqlsrv_query($conexion,$UpdEstado);
-							   }*/
+					//if($_POST['EstadoActividad']=='Y'){
+					//$UpdEstado="Update tbl_Actividades Set Cod_Estado='N' Where ID_Actividad='".$IdActividad."'";
+					//$SQL_UpdEstado=sqlsrv_query($conexion,$UpdEstado);
+					//}
 				} else {
 
 					sqlsrv_close($conexion);
@@ -288,7 +288,7 @@ if (isset($row["IdCliente"]) && ($row["IdCliente"] != "")) {
 			</div>
 
 			<div class="wrapper wrapper-content">
-				<?php if ($edit == 1) {?>
+				<?php if ($edit == 1) { ?>
 					<div class="row">
 						<div class="col-lg-3">
 							<div class="ibox ">
@@ -296,7 +296,13 @@ if (isset($row["IdCliente"]) && ($row["IdCliente"] != "")) {
 									<h5><span class="font-normal">Creada por</span></h5>
 								</div>
 								<div class="ibox-content">
-									<h3 class="no-margins"><?php if ($row['UsuarioCreacion'] != "") {echo $row['UsuarioCreacion'];} else {echo "&nbsp;";}?></h3>
+									<h3 class="no-margins">
+										<?php if ($row['UsuarioCreacion'] != "") {
+											echo $row['UsuarioCreacion'];
+										} else {
+											echo "&nbsp;";
+										} ?>
+									</h3>
 								</div>
 							</div>
 						</div>
@@ -306,7 +312,9 @@ if (isset($row["IdCliente"]) && ($row["IdCliente"] != "")) {
 									<h5><span class="font-normal">Fecha creación</span></h5>
 								</div>
 								<div class="ibox-content">
-									<h3 class="no-margins"><?php echo ($row['FechaHoraCreacion'] != "") ? $row['FechaHoraCreacion']->format('Y-m-d H:i') : "&nbsp;"; ?></h3>
+									<h3 class="no-margins">
+										<?php echo ($row['FechaHoraCreacion'] != "") ? $row['FechaHoraCreacion']->format('Y-m-d H:i') : "&nbsp;"; ?>
+									</h3>
 								</div>
 							</div>
 						</div>
@@ -316,7 +324,13 @@ if (isset($row["IdCliente"]) && ($row["IdCliente"] != "")) {
 									<h5><span class="font-normal">Actualizado por</span></h5>
 								</div>
 								<div class="ibox-content">
-									<h3 class="no-margins"><?php if ($row['UsuarioActualizacion'] != "") {echo $row['UsuarioActualizacion'];} else {echo "&nbsp;";}?></h3>
+									<h3 class="no-margins">
+										<?php if ($row['UsuarioActualizacion'] != "") {
+											echo $row['UsuarioActualizacion'];
+										} else {
+											echo "&nbsp;";
+										} ?>
+									</h3>
 								</div>
 							</div>
 						</div>
@@ -326,13 +340,15 @@ if (isset($row["IdCliente"]) && ($row["IdCliente"] != "")) {
 									<h5><span class="font-normal">Fecha actualización</span></h5>
 								</div>
 								<div class="ibox-content">
-									<h3 class="no-margins"><?php echo ($row['FechaHoraActualizacion'] != "") ? $row['FechaHoraActualizacion']->format('Y-m-d H:i') : "&nbsp;"; ?></h3>
+									<h3 class="no-margins">
+										<?php echo ($row['FechaHoraActualizacion'] != "") ? $row['FechaHoraActualizacion']->format('Y-m-d H:i') : "&nbsp;"; ?>
+									</h3>
 								</div>
 							</div>
 						</div>
 					</div>
-				<?php }?>
-				
+				<?php } ?>
+
 				<form action="articulos.php" method="post" class="form-horizontal" enctype="multipart/form-data"
 					id="FrmArticulo">
 					<div class="ibox-content">
@@ -597,10 +613,11 @@ if (isset($row["IdCliente"]) && ($row["IdCliente"] != "")) {
 												<!-- Dimensiones dinámicas, SMM 15/06/2022 -->
 												<div class="form-group">
 													<?php foreach ($array_Dimensiones as &$dim) { ?>
-														<label class="col-lg-1 control-label">
-															<?php echo $dim['DescPortalOne']; ?>
-														</label>
-														<div class="col-lg-3">
+														<div class="col-lg-4">
+															<label class="control-label">
+																<?php echo $dim['DescPortalOne']; ?>
+															</label>
+
 															<select name="<?php echo $dim['IdPortalOne'] ?>"
 																id="<?php echo $dim['IdPortalOne'] ?>"
 																class="form-control select2">
@@ -611,7 +628,7 @@ if (isset($row["IdCliente"]) && ($row["IdCliente"] != "")) {
 																	<?php $DimCode = intval($dim['DimCode']); ?>
 																	<?php $OcrId = ($DimCode == 1) ? "" : $DimCode; ?>
 
-																	<option value="<?php echo $row_Dim['OcrCode']; ?>" <?php if ($row_Dim['OcrCode'] == $row["IdCenCosto$DimCode"]) {
+																	<option value="<?php echo $row_Dim['OcrCode']; ?>" <?php if (isset($row["IdCenCosto$DimCode"]) && ($row_Dim['OcrCode'] == $row["IdCenCosto$DimCode"])) {
 																		   echo "selected";
 																	   } ?>>
 																		<?php echo $row_Dim['OcrName']; ?>
@@ -660,7 +677,7 @@ if (isset($row["IdCliente"]) && ($row["IdCliente"] != "")) {
 														<select id="IdSucCliente" name="IdSucCliente"
 															class="form-control select2" required>
 															<option value="">Seleccione...</option>
-															
+
 															<?php if (($edit == 1) || ($sw_error == 1)) {
 																while ($row_Sucursal = sqlsrv_fetch_array($SQL_SucursalCliente)) { ?>
 																	<option value="<?php echo $row_Sucursal['NumeroLinea']; ?>"
@@ -1069,7 +1086,7 @@ if (isset($row["IdCliente"]) && ($row["IdCliente"] != "")) {
 			// SMM, 19/07/2023
 			$("#IdCliente").change(function () {
 				let Cliente = document.getElementById("IdCliente");
-				
+
 				$.ajax({
 					type: "POST",
 					url: "ajx_cbo_sucursales_clientes_simple.php?CardCode=" + Cliente.value + "&sucline=1&selec=1&todos=0",
