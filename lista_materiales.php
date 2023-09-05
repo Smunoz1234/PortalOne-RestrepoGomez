@@ -91,7 +91,7 @@ if (isset($_POST['P']) && ($_POST['P'] != "")) { //Grabar lista de materiales
 			$_POST['CDU_Frecuencia'] ?? 0,
 			"'" . ($_POST['CDU_IdLineaNegocio'] ?? "") . "'",
 			"'" . ($_POST['CDU_IdArticuloVTAFactura'] ?? "") . "'",
-			"'" . ($_POST['IdBodega'] ?? "") . "'",
+			"'" . ($_POST['IdBodega'] ?? "") . "'", //SMM, 05/09/2023
 			// Tipo de método
 			$Type
 		);
@@ -217,8 +217,20 @@ if (isset($_POST['P']) && ($_POST['P'] != "")) { //Grabar lista de materiales
 				} else {
 					$sw_error = 0; // SMM, 06/07/2023
 					$Msg = ($_POST['tl'] == 1) ? "OK_LMTUpd" : "OK_LMTAdd";
-					//sqlsrv_close($conexion);
-					//header('Location:lista_materiales.php?id='.base64_encode($ItemCode).'&tl=1&a='.base64_encode($Msg));
+
+					// SMM, 05/09/2023
+					if ($_POST['tl'] == 0) {
+						$Cliente = $row_json['CDU_CodigoCliente'];
+						$NombreCliente = $row_json['CDU_NombreCliente'];
+
+						sqlsrv_close($conexion);
+						header("Location:consultar_lista_materiales.php?Cliente=$Cliente&NombreCliente=$NombreCliente&a=" . base64_encode($Msg));
+					} elseif ($_POST['tl'] == 1) {
+						sqlsrv_close($conexion);
+						header('Location:lista_materiales.php?id=' . base64_encode($ItemCode) . '&tl=1&a=' . base64_encode($Msg));
+					}
+
+					// En caso de error, no redirige.
 					$edit = 1;
 					$_GET['a'] = base64_encode($Msg);
 				}
@@ -262,6 +274,9 @@ if ($edit == 1 && $sw_error == 0) {
 
 	$SQL_IdEvento = sqlsrv_fetch_array($LimpiarLista);
 	$IdEvento = $SQL_IdEvento[0];
+
+	//echo $IdEvento;
+	//exit();
 
 	//Lista de material
 	$SQL = Seleccionar("tbl_ListaMateriales", '*', "ItemCode='$ItemCode' AND IdEvento='$IdEvento'");
@@ -684,7 +699,8 @@ $CodigoSiguiente = $row_Codigo["CodigoSiguiente"] ?? "";
 											echo $row['ItemCode'];
 										} ?>" <?php if (($edit == 1) || PermitirFuncion(1006)) {
 											 echo "readonly";
-										 } ?> <?php if (!PermitirFuncion(1006)) { ?> required <?php } ?> placeholder="<?php echo $CodigoSiguiente; ?>">
+										 } ?> <?php if (!PermitirFuncion(1006)) { ?> required <?php } ?>
+											placeholder="<?php echo $CodigoSiguiente; ?>">
 									</div>
 
 									<div class="col-lg-4">
@@ -741,7 +757,7 @@ $CodigoSiguiente = $row_Codigo["CodigoSiguiente"] ?? "";
 											<option value="">Seleccione...</option>
 
 											<?php while ($row_Bodega = sqlsrv_fetch_array($SQL_Bodega)) { ?>
-												<option value="<?php echo $row_Bodega['WhsCode']; ?>" <?php if ((isset($row_Sap['IdBodega'])) && (strcmp($row_Bodega['WhsCode'], $row_Sap['IdBodega']) == 0)) {
+												<option value="<?php echo $row_Bodega['WhsCode']; ?>" <?php if ((isset($row['ToWH'])) && (strcmp($row_Bodega['WhsCode'], $row['ToWH']) == 0)) {
 													   echo "selected";
 												   } ?>>
 													<?php echo $row_Bodega['WhsName']; ?>
@@ -885,7 +901,7 @@ $CodigoSiguiente = $row_Codigo["CodigoSiguiente"] ?? "";
 									<div class="col-lg-3">
 										<textarea name="CDU_MetodoAplicacion" rows="5" class="form-control"
 											id="CDU_MetodoAplicacion" type="text"><?php if (($edit == 1) || ($sw_error == 1) || ($dt_LMT == 1)) {
-												echo $row_Sap['CDU_MetodoAplicacion'] ?? "";
+												echo $row['CDU_MetodoAplicacion'] ?? "";
 											} elseif (isset($row_Articulo["CDU_MetodoAplicacion"])) {
 												echo $row_Articulo["CDU_MetodoAplicacion"];
 											} ?></textarea>
@@ -900,7 +916,7 @@ $CodigoSiguiente = $row_Codigo["CodigoSiguiente"] ?? "";
 											<option value="" disabled selected>Seleccione...</option>
 
 											<?php while ($row_LineaNegocio = sqlsrv_fetch_array($SQL_LineaNegocio)) { ?>
-												<option value="<?php echo $row_LineaNegocio['IdLineaNegocio']; ?>" <?php if ((isset($row_Sap['CDU_IdLineaNegocio'])) && (strcmp($row_LineaNegocio['IdLineaNegocio'], $row_Sap['CDU_IdLineaNegocio']) == 0)) {
+												<option value="<?php echo $row_LineaNegocio['IdLineaNegocio']; ?>" <?php if ((isset($row['CDU_IdLineaNegocio'])) && (strcmp($row_LineaNegocio['IdLineaNegocio'], $row['CDU_IdLineaNegocio']) == 0)) {
 													   echo "selected";
 												   } ?>>
 													<?php echo $row_LineaNegocio['DeLineaNegocio']; ?>
@@ -914,7 +930,7 @@ $CodigoSiguiente = $row_Codigo["CodigoSiguiente"] ?? "";
 									<div class="col-lg-3">
 										<input name="CDU_Frecuencia" type="number" class="form-control"
 											id="CDU_Frecuencia" required value="<?php if (($edit == 1) || ($sw_error == 1) || ($dt_LMT == 1)) {
-												echo $row_Sap['CDU_Frecuencia'] ?? "";
+												echo $row['CDU_Frecuencia'] ?? "";
 											} ?>">
 									</div>
 
@@ -923,7 +939,7 @@ $CodigoSiguiente = $row_Codigo["CodigoSiguiente"] ?? "";
 									<div class="col-lg-3">
 										<input name="CDU_TiempoTarea" type="number" class="form-control"
 											id="CDU_TiempoTarea" required="required" value="<?php if (($edit == 1) || ($sw_error == 1) || ($dt_LMT == 1)) {
-												echo $row_Sap['CDU_TiempoTarea'] ?? '';
+												echo $row['CDU_TiempoTarea'] ?? '';
 											} ?>">
 									</div>
 								</div>
@@ -934,8 +950,8 @@ $CodigoSiguiente = $row_Codigo["CodigoSiguiente"] ?? "";
 										<select name="CDU_IdMarca" class="form-control select2" id="CDU_IdMarca">
 											<option value="" disabled selected disabled selected>Seleccione...</option>
 											<?php while ($row_MarcaVehiculo = sqlsrv_fetch_array($SQL_MarcaVehiculo)) { ?>
-												<option value="<?php echo $row_MarcaVehiculo['IdMarcaVehiculo']; ?>" <?php if ((isset($row_Sap['CDU_IdMarca'])) && (strcmp($row_MarcaVehiculo['IdMarcaVehiculo'], $row_Sap['CDU_IdMarca']) == 0)) {
-													   echo "selected=\"selected\"";
+												<option value="<?php echo $row_MarcaVehiculo['IdMarcaVehiculo']; ?>" <?php if ((isset($row['CDU_IdMarca'])) && (strcmp($row_MarcaVehiculo['IdMarcaVehiculo'], $row['CDU_IdMarca']) == 0)) {
+													   echo "selected";
 												   } ?>>
 													<?php echo $row_MarcaVehiculo['DeMarcaVehiculo']; ?>
 												</option>
@@ -949,8 +965,8 @@ $CodigoSiguiente = $row_Codigo["CodigoSiguiente"] ?? "";
 											<option value="" disabled selected>Seleccione...</option>
 											<?php while ($row_LineaVehiculo = sqlsrv_fetch_array($SQL_LineaVehiculo)) { ?>
 												<option value="<?php echo $row_LineaVehiculo['IdLineaModeloVehiculo']; ?>"
-													<?php if ((isset($row_Sap['CDU_IdLinea'])) && (strcmp($row_LineaVehiculo['IdLineaModeloVehiculo'], $row_Sap['CDU_IdLinea']) == 0)) {
-														echo "selected=\"selected\"";
+													<?php if ((isset($row['CDU_IdLinea'])) && (strcmp($row_LineaVehiculo['IdLineaModeloVehiculo'], $row['CDU_IdLinea']) == 0)) {
+														echo "selected";
 													} ?>>
 													<?php echo $row_LineaVehiculo['DeLineaModeloVehiculo']; ?>
 												</option>
@@ -968,7 +984,7 @@ $CodigoSiguiente = $row_Codigo["CodigoSiguiente"] ?? "";
 											<option value="" disabled selected>Seleccione...</option>
 
 											<?php while ($row_ArticuloVTA = sqlsrv_fetch_array($SQL_ArticulosVTA)) { ?>
-												<option value="<?php echo $row_ArticuloVTA['ItemCode']; ?>" <?php if ((isset($row_Sap['CDU_IdArticuloVTAFactura'])) && (strcmp($row_ArticuloVTA['ItemCode'], $row_Sap['CDU_IdArticuloVTAFactura']) == 0)) {
+												<option value="<?php echo $row_ArticuloVTA['ItemCode']; ?>" <?php if ((isset($row['CDU_IdArticuloVTAFactura'])) && (strcmp($row_ArticuloVTA['ItemCode'], $row['CDU_IdArticuloVTAFactura']) == 0)) {
 													   echo "selected";
 												   } ?>>
 													<?php echo $row_ArticuloVTA['ItemCode'] . " - " . $row_ArticuloVTA['ItemName']; ?>
