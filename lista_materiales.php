@@ -264,11 +264,11 @@ if ($edit == 1 && $sw_error == 0) {
 	$IdEvento = $SQL_IdEvento[0];
 
 	//Lista de material
-	$SQL = Seleccionar("tbl_ListaMateriales", '*', "ItemCode='" . $ItemCode . "' and IdEvento='" . $IdEvento . "'");
+	$SQL = Seleccionar("tbl_ListaMateriales", '*', "ItemCode='$ItemCode' AND IdEvento='$IdEvento'");
 	$row = sqlsrv_fetch_array($SQL);
 
 	$codigoCliente = isset($row['CDU_CodigoCliente']) ? $row['CDU_CodigoCliente'] : "";
-	$SQL_Sucursal = Seleccionar("uvw_Sap_tbl_Clientes_Sucursales", "NombreSucursal, NumeroLinea", "CodigoCliente='" . $codigoCliente . "'");
+	$SQL_Sucursal = Seleccionar("uvw_Sap_tbl_Clientes_Sucursales", "NombreSucursal, NumeroLinea", "CodigoCliente='$codigoCliente'");
 
 	// Stiven Muñoz Murillo, 07/02/2022
 	// Lista de materiales (SAP)
@@ -281,12 +281,12 @@ if ($edit == 1 && $sw_error == 0) {
 
 if ($sw_error == 1) {
 
-	//Lista de material
-	$SQL = Seleccionar("tbl_ListaMateriales", '*', "ItemCode='" . $ItemCode . "' and IdEvento='" . $IdEvento . "'");
+	// Lista de material
+	$SQL = Seleccionar("tbl_ListaMateriales", '*', "ItemCode='$ItemCode' AND IdEvento='$IdEvento'");
 	$row = sqlsrv_fetch_array($SQL);
 
 	$codigoCliente = isset($row['CDU_CodigoCliente']) ? $row['CDU_CodigoCliente'] : "";
-	$SQL_Sucursal = Seleccionar("uvw_Sap_tbl_Clientes_Sucursales", "NombreSucursal, NumeroLinea", "CodigoCliente='" . $codigoCliente . "'");
+	$SQL_Sucursal = Seleccionar("uvw_Sap_tbl_Clientes_Sucursales", "NombreSucursal, NumeroLinea", "CodigoCliente='$codigoCliente'");
 
 	$ItemCode = (isset($_POST['ItemCode']) && ($_POST['ItemCode'] != "")) ? $_POST['ItemCode'] : 0;
 	$IdEvento = base64_decode($_POST['IdEvento']);
@@ -382,6 +382,11 @@ if (isset($_GET['dt_LMT']) && ($_GET['dt_LMT']) == 1) { // Verificar que viene d
 	$codigoCliente = $row['CDU_CodigoCliente'] ?? "";
 	$SQL_Sucursal = Seleccionar("uvw_Sap_tbl_Clientes_Sucursales", "NombreSucursal, NumeroLinea", "CodigoCliente='$codigoCliente'");
 }
+
+// SMM, 09/05/2023
+$SQL_Codigo = Seleccionar("uvw_Sap_tbl_SeriesLMT", "CodigoSiguiente");
+$row_Codigo = sqlsrv_fetch_array($SQL_Codigo);
+$CodigoSiguiente = $row_Codigo["CodigoSiguiente"] ?? "";
 ?>
 
 <!DOCTYPE html>
@@ -679,7 +684,7 @@ if (isset($_GET['dt_LMT']) && ($_GET['dt_LMT']) == 1) { // Verificar que viene d
 											echo $row['ItemCode'];
 										} ?>" <?php if (($edit == 1) || PermitirFuncion(1006)) {
 											 echo "readonly";
-										 } ?> <?php if (!PermitirFuncion(1006)) { ?> required <?php } ?>>
+										 } ?> <?php if (!PermitirFuncion(1006)) { ?> required <?php } ?> placeholder="<?php echo $CodigoSiguiente; ?>">
 									</div>
 
 									<div class="col-lg-4">
@@ -754,7 +759,7 @@ if (isset($_GET['dt_LMT']) && ($_GET['dt_LMT']) == 1) { // Verificar que viene d
 											<?php while ($row_Proyecto = sqlsrv_fetch_array($SQL_Proyecto)) { ?>
 												<option value="<?php echo $row_Proyecto['IdProyecto']; ?>" <?php if (($edit == 1 || $sw_error == 1 || $dt_LMT == 1) && (isset($row['IdProyecto'])) && (strcmp($row_Proyecto['IdProyecto'], $row['IdProyecto']) == 0)) {
 													   echo "selected";
-												   } ?>><?php echo $row_Proyecto['DeProyecto']; ?>
+												   } ?>><?php echo $row_Proyecto['DeProyecto'] . " (" . $row_Proyecto['IdProyecto'] . ")"; ?>
 												</option>
 											<?php } ?>
 										</select>

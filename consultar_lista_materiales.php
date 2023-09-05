@@ -258,8 +258,8 @@ if(isset($_GET['a'])&&$_GET['a']==base64_encode("OK_LMTUpd")){
 						"sortDescending": ": Activar para ordenar la columna descendente"
 					}
 				},
-                buttons: []
-
+                buttons: [],
+				order: [[0, 'desc']], // SMM, 04/09/2023
             });
 
         });
