@@ -295,9 +295,17 @@ if ($edit == 1 && $sw_error == 0) {
 }
 
 if ($sw_error == 1) {
+	$Where = "ItemCode = '$ItemCode' AND IdEvento = '$IdEvento'";
 
-	// Lista de material
-	$SQL = Seleccionar("tbl_ListaMateriales", '*', "ItemCode='$ItemCode' AND IdEvento='$IdEvento'");
+	// Evento con mayor fecha de actualización. SMM, 05/09/2023 
+	$Sub_Cons = "SELECT MAX(FechaActualizacion) FROM [tbl_ListaMateriales] WHERE $Where";
+
+	// Eliminar Eventos Repetidos. SMM, 05/09/2023
+	$Cons_Delete = "DELETE FROM [tbl_ListaMateriales] WHERE ($Where) AND FechaActualizacion < ($Sub_Cons);";
+	sqlsrv_query($conexion, $Cons_Delete);
+	
+	// Lista de materiales
+	$SQL = Seleccionar("tbl_ListaMateriales", '*', $Where);
 	$row = sqlsrv_fetch_array($SQL);
 
 	$codigoCliente = isset($row['CDU_CodigoCliente']) ? $row['CDU_CodigoCliente'] : "";
