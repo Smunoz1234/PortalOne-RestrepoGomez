@@ -1660,7 +1660,7 @@ function verAutorizacion() {
 					<div class="form-group">
 						<label class="col-lg-5">Fecha de contabilización</label>
 						<div class="col-lg-7 input-group date">
-							 <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input name="DocDate" id="DocDate" type="text" required="required" class="form-control" value="<?php if ($edit == 1 || $sw_error == 1) {
+							 <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input name="DocDate" id="DocDate" type="text" required class="form-control fecha" value="<?php if ($edit == 1 || $sw_error == 1) {
 								 echo $row['DocDate'];
 							 } else {
 								 echo date('Y-m-d');
@@ -1672,7 +1672,7 @@ function verAutorizacion() {
 					<div class="form-group">
 						<label class="col-lg-5">Fecha de requerida salida</label>
 						<div class="col-lg-7 input-group date">
-							 <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input name="DocDueDate" id="DocDueDate" type="text" required="required" class="form-control" value="<?php if ($edit == 1 || $sw_error == 1) {
+							 <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input name="DocDueDate" id="DocDueDate" type="text" required class="form-control fecha" value="<?php if ($edit == 1 || $sw_error == 1) {
 								 echo $row['DocDueDate'];
 							 } else {
 								 echo date('Y-m-d');
@@ -1684,7 +1684,7 @@ function verAutorizacion() {
 					<div class="form-group">
 						<label class="col-lg-5">Fecha del documento</label>
 						<div class="col-lg-7 input-group date">
-							 <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input name="TaxDate" id="TaxDate" type="text" required="required" class="form-control" value="<?php if ($edit == 1 || $sw_error == 1) {
+							 <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input name="TaxDate" id="TaxDate" type="text" required class="form-control fecha" value="<?php if ($edit == 1 || $sw_error == 1) {
 								 echo $row['TaxDate'];
 							 } else {
 								 echo date('Y-m-d');
@@ -2267,45 +2267,31 @@ function verAutorizacion() {
 		});
 		// Almacenar campos autorización, hasta aquí.
 
-		 $(".alkin").on('click', function(){
-				 $('.ibox-content').toggleClass('sk-loading');
-			});
-		 <?php if ((($edit == 1) && ($row['Cod_Estado'] == 'O') || ($edit == 0))) { ?>
-			 $('#DocDate').datepicker({
-					todayBtn: "linked",
-					keyboardNavigation: false,
-					forceParse: false,
-					autoclose: true,
-					format: 'yyyy-mm-dd',
-					 todayHighlight: true,
-					 startDate: '<?php echo date('Y-m-d'); ?>'
-				});
-			 $('#DocDueDate').datepicker({
-					todayBtn: "linked",
-					keyboardNavigation: false,
-					forceParse: false,
-					autoclose: true,
-					format: 'yyyy-mm-dd',
-					 todayHighlight: true,
-					 startDate: '<?php echo date('Y-m-d'); ?>'
-				});
-			 $('#TaxDate').datepicker({
-					todayBtn: "linked",
-					keyboardNavigation: false,
-					forceParse: false,
-					autoclose: true,
-					format: 'yyyy-mm-dd',
-					 todayHighlight: true,
-					 startDate: '<?php echo date('Y-m-d'); ?>'
-				});
-		  <?php } ?>
-		 //$('.chosen-select').chosen({width: "100%"});
-		 $(".select2").select2();
-		 $('.i-checks').iCheck({
-			 checkboxClass: 'icheckbox_square-green',
-			 radioClass: 'iradio_square-green',
-		  });
-		 <?php
+		$(".alkin").on('click', function(){
+			$('.ibox-content').toggleClass('sk-loading');
+		});
+
+		<?php if ((($edit == 1) && ($row['Cod_Estado'] == 'O') || ($edit == 0))) { ?>
+			$(".fecha").datepicker({
+                todayBtn: "linked",
+                keyboardNavigation: false,
+                forceParse: false,
+                autoclose: true,
+				format: 'yyyy-mm-dd',
+			 	todayHighlight: true,
+			 	startDate: "<?php echo PermitirFuncion(1213) ? '' : date('Y-m-d'); ?>"
+            });
+		<?php } ?>
+		
+		// $('.chosen-select').chosen({width: "100%"});
+		$(".select2").select2();
+		
+		$('.i-checks').iCheck({
+			checkboxClass: 'icheckbox_square-green',
+			radioClass: 'iradio_square-green',
+		});
+		
+		<?php
 		 if ($edit == 1) { ?>
 			 $('#Serie option:not(:selected)').attr('disabled',true);
 			 $('#Sucursal option:not(:selected)').attr('disabled',true);

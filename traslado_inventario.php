@@ -1777,19 +1777,19 @@ if ($edit == 1 || $sw_error == 1) {
 					<div class="form-group">
 						<label class="col-lg-5">Fecha de contabilización <span class="text-danger">*</span></label>
 						<div class="col-lg-7 input-group date">
-							 <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input name="DocDate" type="text" required="required" class="form-control" id="DocDate" value="<?php if ($edit == 1 || $sw_error == 1) {echo $row['DocDate'];} else {echo date('Y-m-d');}?>" readonly="readonly" <?php if (($edit == 1) && ($row['Cod_Estado'] == 'C')) {echo "readonly";}?>>
+							 <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input name="DocDate" type="text" required class="form-control fecha" id="DocDate" value="<?php if ($edit == 1 || $sw_error == 1) {echo $row['DocDate'];} else {echo date('Y-m-d');}?>" readonly="readonly" <?php if (($edit == 1) && ($row['Cod_Estado'] == 'C')) {echo "readonly";}?>>
 						</div>
 					</div>
 					<div class="form-group">
 						<label class="col-lg-5">Fecha de requerida salida <span class="text-danger">*</span></label>
 						<div class="col-lg-7 input-group date">
-							 <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input name="DocDueDate" type="text" required="required" class="form-control" id="DocDueDate" value="<?php if ($edit == 1 || $sw_error == 1) {echo $row['DocDueDate'];} else {echo date('Y-m-d');}?>" readonly="readonly" <?php if (($edit == 1) && ($row['Cod_Estado'] == 'C')) {echo "readonly";}?>>
+							 <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input name="DocDueDate" type="text" required class="form-control fecha" id="DocDueDate" value="<?php if ($edit == 1 || $sw_error == 1) {echo $row['DocDueDate'];} else {echo date('Y-m-d');}?>" readonly="readonly" <?php if (($edit == 1) && ($row['Cod_Estado'] == 'C')) {echo "readonly";}?>>
 						</div>
 					</div>
 					<div class="form-group">
 						<label class="col-lg-5">Fecha del documento <span class="text-danger">*</span></label>
 						<div class="col-lg-7 input-group date">
-							 <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input name="TaxDate" type="text" required="required" class="form-control" id="TaxDate" value="<?php if ($edit == 1 || $sw_error == 1) {echo $row['TaxDate'];} else {echo date('Y-m-d');}?>" readonly="readonly" <?php if (($edit == 1) && ($row['Cod_Estado'] == 'C')) {echo "readonly";}?>>
+							 <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input name="TaxDate" type="text" required class="form-control fecha" id="TaxDate" value="<?php if ($edit == 1 || $sw_error == 1) {echo $row['TaxDate'];} else {echo date('Y-m-d');}?>" readonly="readonly" <?php if (($edit == 1) && ($row['Cod_Estado'] == 'C')) {echo "readonly";}?>>
 						</div>
 					</div>
 					<div class="form-group">
@@ -2286,40 +2286,24 @@ $return = QuitarParametrosURL($return, array("a"));
 		});
 		// Almacenar campos autorización, hasta aquí.
 
-		 $(".alkin").on('click', function(){
-				 $('.ibox-content').toggleClass('sk-loading');
-			});
-		 <?php if ((($edit == 1) && ($row['Cod_Estado'] == 'O') || ($edit == 0))) {?>
-		 $('#DocDate').datepicker({
+		$(".alkin").on('click', function(){
+			$('.ibox-content').toggleClass('sk-loading');
+		});
+
+		<?php if ((($edit == 1) && ($row['Cod_Estado'] == 'O') || ($edit == 0))) {?>
+			$(".fecha").datepicker({
                 todayBtn: "linked",
                 keyboardNavigation: false,
                 forceParse: false,
                 autoclose: true,
 				format: 'yyyy-mm-dd',
 			 	todayHighlight: true,
-			 	startDate: '<?php echo date('Y-m-d'); ?>'
+			 	startDate: "<?php echo PermitirFuncion(1213) ? '' : date('Y-m-d'); ?>"
             });
-		 $('#DocDueDate').datepicker({
-                todayBtn: "linked",
-                keyboardNavigation: false,
-                forceParse: false,
-                autoclose: true,
-				format: 'yyyy-mm-dd',
-			 	todayHighlight: true,
-			 	startDate: '<?php echo date('Y-m-d'); ?>'
-            });
-		 $('#TaxDate').datepicker({
-                todayBtn: "linked",
-                keyboardNavigation: false,
-                forceParse: false,
-                autoclose: true,
-				format: 'yyyy-mm-dd',
-			 	todayHighlight: true,
-			 	startDate: '<?php echo date('Y-m-d'); ?>'
-            });
-	 	 <?php }?>
-		 //$('.chosen-select').chosen({width: "100%"});
-		 $(".select2").select2();
+	 	<?php }?>
+		
+		// $('.chosen-select').chosen({width: "100%"});
+		$(".select2").select2();
 
 		<?php if ($edit == 1) {?>
 			$('#Serie option:not(:selected)').attr('disabled',true);
