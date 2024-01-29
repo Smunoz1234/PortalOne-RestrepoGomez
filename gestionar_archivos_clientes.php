@@ -139,8 +139,12 @@ if (isset($_GET['ID_Categoria']) && ($_GET['ID_Categoria'] != "")) {
 }
 
 if ($sw == 1) {
-    $fi = date('Y-m-d', strtotime($FechaInicial));
-    $ff = date('Y-m-d', strtotime($FechaFinal));
+    $fi = date_create_from_format('d/m/Y', $FechaInicial)->format('Y-m-d');
+    $ff = date_create_from_format('d/m/Y', $FechaFinal)->format('Y-m-d');
+    
+    // echo "'$FechaInicial' - '$FechaFinal'<br>";
+    // echo "fecha BETWEEN '$fi' AND '$ff'<br>";
+    
     $Cons = "SELECT * FROM uvw_tbl_PortalClientes_Archivos WHERE (fecha BETWEEN '$fi' AND '$ff') $Filtro ORDER BY fecha DESC";
 } else {
     $Cons = "";
