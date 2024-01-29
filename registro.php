@@ -4659,7 +4659,14 @@ if (isset($_REQUEST['P']) && $_REQUEST['P'] != "") {
                         $CategoriaAct = $_POST['Categoria' . $j];
                         $FechaAct = $_POST['Fecha' . $j];
                         $ComentariosAct = LSiqmlObs($_POST['Comentarios' . $j]);
-                        $Cons_InsArchivo = "EXEC sp_tbl_Portal$CardType" . "_Archivos NULL,'$CardCode','$SucursalAct','$CategoriaAct','$FechaAct','$ComentariosAct','$NuevoNombre','$CodUser',1";
+                        
+                        // SMM, 29/01/2024
+                        $fa = date_create_from_format('d/m/Y', $FechaAct)->format('Y-m-d');
+                        // echo "$FechaAct -> $fa";
+
+                        $Cons_InsArchivo = "EXEC sp_tbl_Portal$CardType" . "_Archivos NULL,'$CardCode','$SucursalAct','$CategoriaAct','$fa','$ComentariosAct','$NuevoNombre','$CodUser',1";
+                        // echo "$Cons_InsArchivo<br>";
+                        
                         $SQL_InsArchivo = sqlsrv_query($conexion, $Cons_InsArchivo);
 
                         if ($SQL_InsArchivo) {
@@ -4734,6 +4741,7 @@ if (isset($_REQUEST['P']) && $_REQUEST['P'] != "") {
                         $ComentariosAct = LSiqmlObs($_POST["Comentarios$j"]);
 
                         // SMM, 05/10/2023
+                        /*
                         $Param_InsArchivo = array(
                             "NULL",
                             "'$CardCode'",
@@ -4746,6 +4754,16 @@ if (isset($_REQUEST['P']) && $_REQUEST['P'] != "") {
                             "1"
                         );
                         $SQL_InsArchivo = EjecutarSP("sp_tbl_Portal$CardType" . "_Archivos", $Param_InsArchivo);
+                        */
+
+                        // SMM, 29/01/2024
+                        $fa = date_create_from_format('d/m/Y', $FechaAct)->format('Y-m-d');
+                        // echo "$FechaAct -> $fa";
+
+                        $Cons_InsArchivo = "EXEC sp_tbl_Portal$CardType" . "_Archivos NULL,'$CardCode','$SucursalAct','$CategoriaAct','$fa','$ComentariosAct','$NuevoNombre','$CodUser',1";
+                        // echo "$Cons_InsArchivo<br>";
+                        
+                        $SQL_InsArchivo = sqlsrv_query($conexion, $Cons_InsArchivo);
 
                         if ($SQL_InsArchivo) {
                             //Mover archivo a la carpeta real
