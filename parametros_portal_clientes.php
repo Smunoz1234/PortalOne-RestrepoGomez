@@ -248,11 +248,11 @@ $SQL_Perfiles = Seleccionar('uvw_tbl_PerfilesUsuarios', '*');
 										<a data-toggle="tab" href="#tab-2"><i class="fa fa-list"></i> Función de
 											Menú</a>
 									</li>
-									<li
+									<!-- li
 										class="<?php echo (isset($_GET['doc']) && ($_GET['doc'] == "Consulta")) ? "active" : ""; ?>">
 										<a data-toggle="tab" href="#tab-3"><i class="fa fa-list"></i> Jerarquias
 											Equipos</a>
-									</li>
+									</li -->
 								</ul>
 
 								<div class="tab-content">
@@ -482,10 +482,10 @@ $SQL_Perfiles = Seleccionar('uvw_tbl_PerfilesUsuarios', '*');
 									<!-- Fin, lista Funciones -->
 
 									<!-- Inicio, lista Consultas -->
-									<div id="tab-3"
+									<!-- div id="tab-3"
 										class="tab-pane <?php echo (isset($_GET['doc']) && ($_GET['doc'] == "Consulta")) ? "active" : ""; ?>">
 										<?php include_once "jerarquias_equipos.php"; ?>
-									</div>
+									</div -->
 									<!-- Fin, lista Consultas -->
 
 								</div> <!-- tab-content -->
