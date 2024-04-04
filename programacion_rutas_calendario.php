@@ -299,7 +299,7 @@ if ($sw == 1) {
         if ($row_Actividad['IdEstadoActividad'] == 'Y') {
             $classAdd = "'event-striped'";
         }
-        if ($row_Actividad['IdEstadoLlamada'] == '-2') { //Llamada pendiente
+        if ($row_Actividad['IdEstadoLlamada'] != '-1') { // Llamada diferente a cerrada, (Abierta o Pendiente)
             $classAdd .= ",'event-pend'";
         }
         ?>
