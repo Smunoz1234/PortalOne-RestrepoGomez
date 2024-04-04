@@ -328,6 +328,7 @@ if (isset($_POST['P']) && ($_POST['P'] != "")) {
                             "'" . $_POST['Sucursal'][$i] . "'",
                             "'" . $_SESSION['CodUser'] . "'",
                             "1",
+							"'" . ($_POST["NumeroLinea"][$i] ?? "0") . "'"
                         );
                         $SQL_InsertSucursal = EjecutarSP('sp_InsertarClienteSucursalUsuario', $ParamInsertSucursal, $_POST['P']);
 
@@ -651,6 +652,12 @@ function BuscarSucursal(id){
 		}
 	});
 	$('.ibox-content').toggleClass('sk-loading',false);
+}
+
+// SMM, 04/03/2024
+function BuscarNumeroLinea(id){
+	let NumeroLinea = $(`#Sucursal${id}`).find(':selected').data('id');
+	$(`#NumeroLinea${id}`).val(NumeroLinea);
 }
 
 function BuscarSerieDoc(id){
@@ -1274,6 +1281,12 @@ function addField(btn){//Clonar divDir
 	$newClone.children("div").eq(1).children("select").eq(0).attr('id','Sucursal'+newID);
 
 	$newClone.children("div").eq(0).children("select").eq(0).attr('onChange','BuscarSucursal('+newID+');');
+	
+	// SMM, 04/03/2024
+	
+	$newClone.children("div").eq(1).children("select").eq(0).attr('onchange', `BuscarNumeroLinea('${newID}');`);
+	$newClone.children("input").eq(0).attr('id',`NumeroLinea${newID}`);
+	$newClone.children("input").eq(0).attr('name',`NumeroLinea${newID}`);
 
 	//inputs
 	//$newClone.children("input").eq(0).attr('id','Cliente'+newID);

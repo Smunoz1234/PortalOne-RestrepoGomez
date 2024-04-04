@@ -30,12 +30,15 @@ $Cont = 1;
           <?php }?>
         </select>
       </div>
+
+      <input type="hidden" name="NumeroLinea[]" id="NumeroLinea<?php echo $Cont; ?>">
       <label class="col-lg-1 control-label">Sucursal</label>
       <div class="col-lg-3">
-        <select name="Sucursal[]" class="form-control" id="Sucursal<?php echo $Cont; ?>">
+        <select name="Sucursal[]" class="form-control" id="Sucursal<?php echo $Cont; ?>" onchange="BuscarNumeroLinea('<?php echo $Cont; ?>');">
           <option value="">Seleccione...</option>
         </select>
       </div>
+      
       <div class="col-lg-3">
         <button type="button" id="btnCliente<?php echo $Cont; ?>" class="btn btn-success btn-xs" onClick="addField(this);"><i class="fa fa-plus"></i> Añadir otro</button>
       </div>

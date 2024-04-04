@@ -93,7 +93,11 @@ if (!isset($_GET['type']) || ($_GET['type'] == "")) { //Saber que combo voy a co
                         echo "<optgroup label='Dirección de destino'></optgroup>";
                         $sw_dirS = 1;
                     }
-                    echo "<option value=\"" . $row['NombreSucursal'] . "\" $FiltrarSucursales>" . $row['NombreSucursal'] . "</option>";
+
+                    // SMM, 04/03/2024
+                    $NumeroLinea = $row['NumeroLinea'] ?? "";
+                    $NombreSucursal = $row['NombreSucursal'] ?? "";
+                    echo "<option value='$NombreSucursal' $FiltrarSucursales data-id='$NumeroLinea'>$NombreSucursal</option>";
                 }
             } else {
                 echo "<option value=''>Seleccione...</option>";
