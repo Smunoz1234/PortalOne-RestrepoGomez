@@ -52,14 +52,14 @@ if (isset($_GET['Cliente'])) {
                 unset($WhereSuc);
                 $WhereSuc = array();
                 while ($row_Sucursal = sqlsrv_fetch_array($SQL_Sucursal)) {
-                    $WhereSuc[$j] = "id_sucursal='" . $row_Sucursal['NombreSucursal'] . "'";
+                    $WhereSuc[$j] = "sucursal = '" . $row_Sucursal['NombreSucursal'] . "'";
                     $j++;
                 }
 
                 $FiltroSuc = implode(" OR ", $WhereSuc);
                 $Filtro .= " AND (" . $FiltroSuc . ")";
             } else {
-                $Filtro .= " AND id_sucursal='" . $_GET['Sucursal'] . "'";
+                $Filtro .= " AND sucursal = '" . $_GET['Sucursal'] . "'";
             }
         }
 
@@ -78,7 +78,7 @@ if (isset($_GET['Cliente'])) {
                 unset($WhereSuc);
                 $WhereSuc = array();
                 while ($row_Sucursal = sqlsrv_fetch_array($SQL_Sucursal)) {
-                    $WhereSuc[$j] = "id_sucursal='" . $row_Sucursal['NombreSucursal'] . "'";
+                    $WhereSuc[$j] = "sucursal = '" . $row_Sucursal['NombreSucursal'] . "'";
                     $j++;
                 }
 
@@ -113,7 +113,7 @@ if (isset($_GET['Cliente'])) {
             unset($WhereSuc);
             $WhereSuc = array();
             while ($row_Sucursal = sqlsrv_fetch_array($SQL_Sucursal)) {
-                $WhereSuc[$j] = "id_sucursal='" . $row_Sucursal['NombreSucursal'] . "'";
+                $WhereSuc[$j] = "sucursal = '" . $row_Sucursal['NombreSucursal'] . "'";
                 $j++;
             }
 
@@ -393,7 +393,7 @@ $indicadorJerarquia = "&nbsp;&nbsp;&nbsp;";
                                                     <?php echo $row['cardname']; ?>
                                                 </td>
                                                 <td>
-                                                    <?php echo $row['id_sucursal']; ?>
+                                                    <?php echo $row['sucursal'] ?? ""; ?>
                                                 </td>
                                                 <td>
                                                     <?php echo $row['nombre_categoria']; ?>

@@ -152,14 +152,14 @@ if ($edit == 1) {
     }
 }
 
-// Lista de permisos PortalOne. SMM, 02/05/2023
-$SQL_Permisos = Seleccionar('uvw_tbl_NombresPermisosPerfiles', '*', "TipoPortal IS NULL");
+// Lista de permisos PortalOne. SMM, 05/04/2024
+$SQL_Permisos = Seleccionar('uvw_tbl_NombresPermisosPerfiles', '*');
 
-// Lista de permisos PortalOne, Clientes. SMM, 02/05/2023
-$SQL_Permisos_Clientes = Seleccionar('uvw_tbl_NombresPermisosPerfiles', '*', "TipoPortal = 'C'");
+// Lista de permisos PortalOne, Clientes. SMM, 05/04/2024
+$SQL_Permisos_Clientes = Seleccionar('uvw_tbl_NombresPermisosPerfiles_PortalCliente', '*');
 
-// Lista de permisos PortalOne, Proveedores. SMM, 02/05/2023
-$SQL_Permisos_Proveedores = Seleccionar('uvw_tbl_NombresPermisosPerfiles', '*', "TipoPortal = 'P'");
+// Lista de permisos PortalOne, Proveedores. SMM, 05/04/2024
+$SQL_Permisos_Proveedores = Seleccionar('uvw_tbl_NombresPermisosPerfiles_PortalProveedor', '*');
 
 // Lista de permisos ServiceOne
 $SQL_PermisosServiceOne = Seleccionar('uvw_tbl_NombresPermisosPerfiles_ServiceOne', '*');
