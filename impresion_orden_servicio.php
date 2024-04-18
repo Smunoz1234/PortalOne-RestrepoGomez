@@ -455,6 +455,7 @@ if ($sw == 1) {
 													<th>Valor VTA</th>
 													<th>Fecha creación</th>
 													<th>Fecha cierre</th>
+													<th>Fecha agenda</th>
 													<th>Estado</th>
 													<th>Estado de servicio</th>
 													<th>Factura</th>
@@ -481,6 +482,7 @@ if ($sw == 1) {
 														<td><?php echo number_format($row['ValorVTAFactura'], 0); ?></td>
 														<td><?php echo $row['FechaCreacionLLamada']; ?></td>
 														<td><?php echo $row['FechaCierreLLamada']; ?></td>
+														<td><?php echo $row['FechaAgenda'] ?? ""; ?></td>
 														<td><span <?php if ($row['IdEstadoLlamada'] == '-3') {
 															echo "class='label label-info'";
 														} elseif ($row['IdEstadoLlamada'] == '-2') {
